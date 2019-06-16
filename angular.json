@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "schock-sw": {
+    "schock-app": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -36,14 +36,15 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/schock-sw",
+            "outputPath": "dist/schock-app",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/manifest.webmanifest"
             ],
             "styles": [
               "src/styles.scss"
@@ -73,25 +74,26 @@
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
                 }
-              ]
+              ],
+              "serviceWorker": true
             }
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "schock-sw:build"
+            "browserTarget": "schock-app:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "schock-sw:build:production"
+              "browserTarget": "schock-app:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "schock-sw:build"
+            "browserTarget": "schock-app:build"
           }
         },
         "test": {
@@ -107,7 +109,8 @@
             "scripts": [],
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/manifest.webmanifest"
             ]
           }
         },
@@ -125,7 +128,7 @@
         }
       }
     },
-    "schock-sw-e2e": {
+    "schock-app-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "prefix": "",
@@ -134,11 +137,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "schock-sw:serve"
+            "devServerTarget": "schock-app:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "schock-sw:serve:production"
+              "devServerTarget": "schock-app:serve:production"
             }
           }
         },
@@ -154,5 +157,5 @@
       }
     }
   },
-  "defaultProject": "schock-sw"
+  "defaultProject": "schock-app"
 }

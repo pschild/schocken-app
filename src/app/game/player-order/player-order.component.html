@@ -1,0 +1,11 @@
+<h1>Mitspieler auswählen</h1>
+
+<ul *ngIf="allPlayers$ | async as players">
+    <li *ngFor="let player of players">
+        {{player.name}}
+        <input type="checkbox" (change)="toggleParticipations(player._id, $event)" [checked]="isParticipating(player._id)" />
+    </li>
+</ul>
+
+<button *ngIf="!returnToGame" (click)="startGame()" [disabled]="!participatingPlayerIds.length">Spiel starten</button>
+<button *ngIf="returnToGame" (click)="backToGame()" [disabled]="!participatingPlayerIds.length">zurück zum Spiel</button>

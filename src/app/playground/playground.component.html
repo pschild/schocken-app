@@ -1,0 +1,55 @@
+<button (click)="sync()">Sync</button>
+
+<hr>
+Games <button (click)="newGame()">New Game</button>
+<ul>
+    <li *ngFor="let game of (allGames$ | async)?.rows" (click)="chosenGameId = game.doc._id">
+        {{game | json}}
+        <button (click)="removeGame(game.doc)">X</button>
+    </li>
+</ul>
+
+Rounds <button *ngIf="chosenGameId" (click)="newRound()">New Round (#{{chosenGameId}})</button>
+<ul>
+    <li *ngFor="let round of (allRounds$ | async)?.rows" (click)="chosenRoundId = round.doc._id">
+        {{round.doc._id}}, {{round.doc.datetime}}, gameId={{round.doc.gameId}}
+        <button (click)="removeRound(round.doc)">X</button>
+    </li>
+</ul>
+
+RoundEvents <button *ngIf="chosenRoundId && chosenEventTypeId" (click)="newRoundEvent()">New RoundEvent (#{{chosenRoundId}}/#{{chosenEventTypeId}})</button>
+<ul>
+    <li *ngFor="let event of (allRoundEvents$ | async)?.rows" (click)="chosenRoundEventId = event.doc._id">
+        {{event.doc | json}}
+        <div *ngIf="event.doc.value !== false && event.doc.value !== true">
+            <button (click)="updateRoundEvent(event.doc._id, 'dec')">-</button>
+            <button (click)="updateRoundEvent(event.doc._id, 'inc')">+</button>
+        </div>
+        <div *ngIf="event.doc.value === false || event.doc.value === true">
+            <input type="checkbox" (change)="updateRoundEventCb(event.doc._id, $event)" [(ngModel)]="event.doc.value"/>
+        </div>
+        <button (click)="removeRoundEvent(event.doc)">X</button>
+    </li>
+</ul>
+
+EventTypes
+<input type="text" [(ngModel)]="eventTypeName"/>
+<br>
+Strafe: <input type="number" [(ngModel)]="penalty" /> €
+<input type="checkbox" [(ngModel)]="hasValue" />hat Wert?
+Einheit: <input type="text" [(ngModel)]="valueUnit" *ngIf="hasValue" />
+Schritt: <input type="number" [(ngModel)]="valueStep" *ngIf="hasValue" />
+<button (click)="newEventType()">New EventType</button>
+<ul>
+    <li *ngFor="let eventType of (allEventTypes$ | async)?.rows" (click)="chosenEventTypeId = eventType.doc._id">
+        {{eventType.doc | json}}
+        <button (click)="removeEventType(eventType.doc)">X</button>
+    </li>
+</ul>
+
+Players <input type="text" [(ngModel)]="playerName"/><button (click)="newPlayer()">New Player</button>
+<ul>
+    <li *ngFor="let player of (allPlayers$ | async)?.rows" (click)="chosenPlayerId = player.doc._id">
+        {{player.doc._id}}, {{player.doc.name}}
+    </li>
+</ul>

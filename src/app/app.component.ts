@@ -1,10 +1,15 @@
 import { Component } from '@angular/core';
+import { PouchDbService } from './pouchDb.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: []
 })
 export class AppComponent {
-  title = 'schock-sw';
+
+  constructor(private pouchDbService: PouchDbService) {
+    this.pouchDbService.initialize();
+  }
+
 }

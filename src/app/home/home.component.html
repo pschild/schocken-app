@@ -1,0 +1,16 @@
+<h1>Laufende Spiele</h1>
+
+<div *ngIf="allGames$ | async as allGames; else loading">
+    <ul *ngIf="allGames.length; else noGames">
+        <li *ngFor="let game of allGames">
+            <div>
+                {{game._id}}, {{game.datetime}}
+            </div>
+            <button (click)="continueGame(game)">fortsetzen</button>
+        </li>
+    </ul>
+</div>
+<ng-template #loading>Lade Spiele...</ng-template>
+<ng-template #noGames>Keine Spiele vorhanden</ng-template>
+
+<button (click)="startNewGame()">Neues Spiel starten</button>

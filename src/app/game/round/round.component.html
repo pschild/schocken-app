@@ -1,0 +1,39 @@
+<div *ngIf="currentRound$ | async as currentRound">
+  Runde: {{currentRoundNumber$ | async}} [id={{currentRound._id}}]
+</div>
+
+<div *ngIf="currentPlayer$ | async as currentPlayer">
+  an der Reihe: {{currentPlayer.name}}
+</div>
+
+<hr>
+<h2>Neues Ereignis</h2>
+<div *ngIf="allEventTypes$ | async as allEventTypes">
+  <div *ngFor="let eventType of allEventTypes">
+    <div *ngIf="eventType.hasValue">
+      <input type="number" [step]="eventType.valueStep || 1" [(ngModel)]="eventType.formValue" /> {{eventType.valueUnit}}
+    </div>
+    <button (click)="handleEventTypeClicked(eventType)" [disabled]="eventType.hasValue && !eventType.formValue">{{eventType.name}}</button>
+  </div>
+  <button (click)="handleRemovePlayerFromGameClicked()">Raus</button>
+</div>
+<hr>
+<h2>Ereignisse</h2>
+<div *ngIf="!(loadingRoundEvents$ | async) as isLoading; else loading">
+  <div *ngIf="mergedEvents$ | async as mergedEvents">
+    <div *ngIf="!mergedEvents.length">keine Events</div>
+    <div *ngFor="let item of mergedEvents">
+      {{item.roundEvent.datetime}}
+      {{item.eventType.name}}
+      <span *ngIf="item.eventType.hasValue">{{item.roundEvent.eventTypeValue}} {{item.eventType.valueUnit}}</span>
+      <span>[{{item.eventType.penalty * (item.roundEvent.eventTypeValue || 1)}}€]</span>
+      <button (click)="handleRemoveRoundEventClicked(item.roundEvent)">X</button>
+    </div>
+    <strong *ngIf="penaltySum$ | async as penaltySum">{{penaltySum}}€</strong>
+  </div>
+</div>
+<ng-template #loading>lade Events...</ng-template>
+<hr>
+<button (click)="previousPlayer()">prev</button>
+<button (click)="showGameSettings()">settings</button>
+<button (click)="nextPlayer()">next</button>
