@@ -1,5 +1,5 @@
 {
-  "name": "schock-app",
+  "name": "schocken-app",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "pwa": "ng build --prod && http-server -p 8080 dist/schock-app"
+    "pwa": "ng build --prod && http-server -p 8080 dist/schocken-app"
   },
   "private": true,
   "dependencies": {

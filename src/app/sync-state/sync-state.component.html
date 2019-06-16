@@ -1,0 +1,5 @@
+<div>
+  <span>{{lastSynced || 'never'}}</span>
+  <span>{{syncState}}</span>
+  <button *ngIf="syncState !== 'SYNCING'" (click)="startSync()">sync</button>
+</div>

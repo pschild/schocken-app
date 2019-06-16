@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as PouchDB from 'pouchdb/dist/pouchdb';
 import { Entity } from './interfaces';
 import { AppConfigService } from './app-config.service';
+import { Subject } from 'rxjs';
 
 export interface GetResponse<E> {
   offset: number;
@@ -28,6 +29,8 @@ export class PouchDbService {
 
   private databaseName = 'dummy'
   private instance;
+
+  syncEvent$: Subject<any> = new Subject();
 
   constructor(private appConfig: AppConfigService) { }
 
@@ -101,8 +104,32 @@ export class PouchDbService {
 
   private _generateUuid(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
+  }
+
+  sync() {
+    this.syncEvent$.next({ type: 'START' });
+    PouchDB.sync(
+      this.databaseName,
+      `https://${this.appConfig.config.COUCHDB_USER}:${this.appConfig.config.COUCHDB_PASSWORD}@${this.appConfig.config.COUCHDB_URL}/dummy`
+    )
+      .on('change', info => {
+        console.log('handle change', info);
+        this.syncEvent$.next({ type: 'CHANGE', data: info });
+      }).on('paused', err => {
+        console.log('replication paused (e.g. replication up to date, user went offline)', err);
+      }).on('active', () => {
+        console.log('replicate resumed (e.g. new changes replicating, user went back online)');
+      }).on('denied', err => {
+        console.log('a document failed to replicate (e.g. due to permissions)', err);
+      }).on('complete', info => {
+        console.log('handle complete', info);
+        this.syncEvent$.next({ type: 'COMPLETE', data: info });
+      }).on('error', err => {
+        console.log('handle error', err);
+        this.syncEvent$.next({ type: 'ERROR', data: err });
+      });
   }
 }

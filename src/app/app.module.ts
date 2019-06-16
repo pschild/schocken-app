@@ -11,6 +11,8 @@ import { AppConfigService } from './app-config.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { GameModule } from './game/game.module';
+import { NetworkStateComponent } from './network-state/network-state.component';
+import { SyncStateComponent } from './sync-state/sync-state.component';
 
 const appInitializerFn = (appConfig: AppConfigService) => {
   return () => {
@@ -20,7 +22,9 @@ const appInitializerFn = (appConfig: AppConfigService) => {
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    NetworkStateComponent,
+    SyncStateComponent
   ],
   imports: [
     CommonModule,

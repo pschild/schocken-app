@@ -1,6 +1,6 @@
 {
-  "name": "schock-app",
-  "short_name": "schock-app",
+  "name": "schocken-app",
+  "short_name": "schocken-app",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",

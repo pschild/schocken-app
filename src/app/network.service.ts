@@ -4,7 +4,7 @@ import { fromEvent, Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class OnlineService {
+export class NetworkService {
 
   onlineEvent$: Observable<any>;
   offlineEvent$: Observable<any>;
@@ -12,8 +12,5 @@ export class OnlineService {
   constructor() {
     this.onlineEvent$ = fromEvent(window, 'online');
     this.offlineEvent$ = fromEvent(window, 'offline');
-
-    this.onlineEvent$.subscribe(res => console.log('online'));
-    this.offlineEvent$.subscribe(res => console.log('offline'));
   }
 }
