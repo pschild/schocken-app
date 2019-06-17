@@ -34,6 +34,7 @@ export class SyncService {
         this.syncEvent$.next({ type: 'CHANGE', data: info });
       })
       .on('paused', err => {
+        // when the state was 'active', but after that it was not 'change', we are offline
         if (this.activeFlag && !this.changeFlag) {
           this.syncEvent$.next({ type: 'ERROR', data: err });
         } else {
