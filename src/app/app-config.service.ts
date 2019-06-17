@@ -10,11 +10,11 @@ export class AppConfigService {
 
   loadAppConfig() {
     const http = this.injector.get(HttpClient);
-    return http.get('assets/config.json')
+    return http.get('./assets/config.json')
       .toPromise()
       .then(data => {
         this.appConfig = data;
-      })
+      });
   }
 
   get config() {
