@@ -1,6 +1,3 @@
-<button (click)="sync()">Sync</button>
-
-<hr>
 Games <button (click)="newGame()">New Game</button>
 <ul>
     <li *ngFor="let game of (allGames$ | async)?.rows" (click)="chosenGameId = game.doc._id">

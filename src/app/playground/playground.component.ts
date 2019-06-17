@@ -218,21 +218,4 @@ export class PlaygroundComponent implements OnInit {
     });
   }
 
-  sync() {
-    PouchDB.sync('dummy', `https://${this.appConfig.config.COUCHDB_USER}:${this.appConfig.config.COUCHDB_PASSWORD}@${this.appConfig.config.COUCHDB_URL}/dummy`)
-      .on('change', info => {
-        console.log('handle change', info);
-      }).on('paused', err => {
-        console.log('replication paused (e.g. replication up to date, user went offline)', err);
-      }).on('active', () => {
-        console.log('replicate resumed (e.g. new changes replicating, user went back online)');
-      }).on('denied', err => {
-        console.log('a document failed to replicate (e.g. due to permissions)', err);
-      }).on('complete', info => {
-        console.log('handle complete', info);
-      }).on('error', err => {
-        console.log('handle error', err);
-      });
-  }
-
 }

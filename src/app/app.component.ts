@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { PouchDbService } from './pouchDb.service';
+import { CheckForUpdateService } from './check-for-update.service';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +9,7 @@ import { PouchDbService } from './pouchDb.service';
 })
 export class AppComponent {
 
-  constructor(private pouchDbService: PouchDbService) {
+  constructor(private pouchDbService: PouchDbService, private checkForUpdateService: CheckForUpdateService) {
     this.pouchDbService.initialize();
   }
 
