@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import * as PouchDB from 'pouchdb/dist/pouchdb';
 import { Entity } from './interfaces';
 import { AppConfigService } from './app-config.service';
-import { Subject } from 'rxjs';
 
 export interface GetResponse<E> {
   offset: number;
@@ -27,10 +26,7 @@ export interface RemoveResponse {
 })
 export class PouchDbService {
 
-  private databaseName = 'dummy'
   private instance;
-
-  syncEvent$: Subject<any> = new Subject();
 
   constructor(private appConfig: AppConfigService) { }
 
@@ -38,7 +34,7 @@ export class PouchDbService {
     if (this.instance) {
       throw new Error(`PouchDB already initialized`);
     }
-    this.instance = new PouchDB(this.databaseName);
+    this.instance = new PouchDB(this.appConfig.config.COUCHDB_DATABASE);
   }
 
   create(entity: Entity): Promise<PutResponse> {
@@ -63,7 +59,7 @@ export class PouchDbService {
   find(criteria: Array<{ key: string; value: string; }>, orderBy?: Array<string>) {
     console.log(`%cFIND ${JSON.stringify(criteria)}`, 'color: #00f');
     return this.instance.query((doc, emit) => {
-      let matches = criteria
+      const matches = criteria
         .map(crit => doc[crit.key] === crit.value)
         .every(res => res === true);
 
@@ -107,29 +103,5 @@ export class PouchDbService {
       const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
-  }
-
-  sync() {
-    this.syncEvent$.next({ type: 'START' });
-    PouchDB.sync(
-      this.databaseName,
-      `https://${this.appConfig.config.COUCHDB_USER}:${this.appConfig.config.COUCHDB_PASSWORD}@${this.appConfig.config.COUCHDB_URL}/dummy`
-    )
-      .on('change', info => {
-        console.log('handle change', info);
-        this.syncEvent$.next({ type: 'CHANGE', data: info });
-      }).on('paused', err => {
-        console.log('replication paused (e.g. replication up to date, user went offline)', err);
-      }).on('active', () => {
-        console.log('replicate resumed (e.g. new changes replicating, user went back online)');
-      }).on('denied', err => {
-        console.log('a document failed to replicate (e.g. due to permissions)', err);
-      }).on('complete', info => {
-        console.log('handle complete', info);
-        this.syncEvent$.next({ type: 'COMPLETE', data: info });
-      }).on('error', err => {
-        console.log('handle error', err);
-        this.syncEvent$.next({ type: 'ERROR', data: err });
-      });
   }
 }

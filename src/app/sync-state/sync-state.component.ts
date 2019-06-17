@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { PouchDbService } from '../pouchDb.service';
+import { SyncService } from '../sync.service';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sync-state',
@@ -8,30 +10,34 @@ import { PouchDbService } from '../pouchDb.service';
 })
 export class SyncStateComponent implements OnInit {
 
-  syncState: string;
+  syncState$: Observable<string>;
   lastSynced: Date;
 
-  constructor(private pouchDbService: PouchDbService) { }
+  constructor(private syncService: SyncService) { }
 
   ngOnInit() {
-    this.pouchDbService.syncEvent$.subscribe(event => {
-      if (event.type === 'START') {
-        this.syncState = 'SYNCING';
-      } else if (event.type === 'CHANGE') {
+    this.syncState$ = this.syncService.syncEvent$.pipe(
+      map(this._mapSyncState),
+      tap(_ => this.lastSynced = new Date())
+    );
+  }
 
-      } else if (event.type === 'COMPLETE') {
-        this.syncState = undefined;
-        this.lastSynced = new Date();
-      } else if (event.type === 'ERROR') {
-        this.syncState = 'ERROR';
-      } else {
-        throw new Error(`unknown sync event type`);
-      }
-    });
+  private _mapSyncState(syncEvent) {
+    switch (syncEvent.type) {
+      case 'ACTIVE':
+      case 'CHANGE':
+        return 'PENDING';
+      case 'PAUSED':
+      case 'COMPLETE':
+        return 'IDLE';
+      case 'DENIED':
+      case 'ERROR':
+        return 'ERROR';
+    }
   }
 
   startSync() {
-    this.pouchDbService.sync();
+    this.syncService.startSync();
   }
 
 }
