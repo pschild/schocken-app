@@ -9,7 +9,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "pwa": "ng build --prod && http-server -p 8080 dist/schocken-app",
-    "netlify": "ng build --prod && node build.js"
+    "netlify": "node build.js && ng build --prod"
   },
   "private": true,
   "dependencies": {
