@@ -17,7 +17,7 @@ import { SyncStateComponent } from './sync-state/sync-state.component';
 const appInitializerFn = (appConfig: AppConfigService) => {
   return () => {
       return appConfig.loadAppConfig();
-  }
+  };
 };
 
 @NgModule({

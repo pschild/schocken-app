@@ -36,12 +36,8 @@ export class RoundService {
   }
 
   getRoundsByGameId(gameId: string): Observable<FindResponse<Round>> {
-    const selector = { datetime: {'$gt': null}, gameId, type: EntityType.ROUND };
-    const orderBy = [{datetime: 'desc'}];
-    return from(
-      this.pouchDbService.createIndex(['datetime', 'gameId'])
-    ).pipe(
-      switchMap(_ => from(this.pouchDbService.findWithPlugin(selector, orderBy)))
-    );
+    const selector = { datetime: { '$gt': null }, gameId, type: EntityType.ROUND };
+    const orderBy = [{ datetime: 'desc' }];
+    return from(this.pouchDbService.findWithPlugin(selector, orderBy));
   }
 }

@@ -133,7 +133,7 @@ export class RoundComponent implements OnInit {
     }).pipe(
       switchMap((response: PutResponse) => this.roundEventService.getById(response.id))
     ).subscribe((roundEvent: RoundEvent) => {
-      const newList = [...this.allRoundEventsForPlayer$.getValue(), roundEvent];
+      const newList = [roundEvent, ...this.allRoundEventsForPlayer$.getValue()];
       this.allRoundEventsForPlayer$.next(newList);
     });
 

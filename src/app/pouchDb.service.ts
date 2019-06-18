@@ -43,6 +43,16 @@ export class PouchDbService {
       throw new Error(`PouchDB already initialized`);
     }
     this.instance = new PouchDB(this.appConfig.config.COUCHDB_DATABASE);
+    this.instance.createIndex({
+      index: {
+        fields: ['datetime', 'roundId', 'playerId']
+      }
+    });
+    this.instance.createIndex({
+      index: {
+        fields: ['datetime', 'gameId']
+      }
+    });
   }
 
   createIndex(fields) {
@@ -100,12 +110,13 @@ export class PouchDbService {
   }
 
   generateId(prefix: string): string {
-    return `${prefix}-${this._generateUuid()}`
+    return `${prefix}-${this._generateUuid()}`;
   }
 
   private _generateUuid(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      // tslint:disable-next-line:no-bitwise
+      const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
   }

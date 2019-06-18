@@ -20,13 +20,9 @@ export class RoundEventService {
   }
 
   getAllByRoundIdAndPlayerId(roundId: string, playerId: string): Observable<FindResponse<RoundEvent>> {
-    const selector = { datetime: {'$gt': null}, roundId, playerId, type: EntityType.ROUND_EVENT };
-    const orderBy = [{datetime: 'desc'}];
-    return from(
-      this.pouchDbService.createIndex(['datetime', 'roundId', 'playerId'])
-    ).pipe(
-      switchMap(_ => from(this.pouchDbService.findWithPlugin(selector, orderBy)))
-    );
+    const selector = { datetime: { '$gt': null }, roundId, playerId, type: EntityType.ROUND_EVENT };
+    const orderBy = [{ datetime: 'desc' }];
+    return from(this.pouchDbService.findWithPlugin(selector, orderBy));
   }
 
   create(data: Partial<RoundEvent>): Observable<PutResponse> {

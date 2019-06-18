@@ -13,7 +13,7 @@ export class GameService {
   getAll(): Observable<GetResponse<Game>> {
     return from(this.pouchDbService.getAll('game'));
   }
-  
+
   getById(id: string): Observable<Game> {
     return from(this.pouchDbService.getOne(id));
   }
