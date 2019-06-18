@@ -1,12 +1,15 @@
 import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import * as x from '../assets/config.json';
 
 @Injectable()
 export class AppConfigService {
 
   private appConfig;
 
-  constructor(private injector: Injector) { }
+  constructor(private injector: Injector) {
+    console.log(x);
+  }
 
   loadAppConfig() {
     const http = this.injector.get(HttpClient);
