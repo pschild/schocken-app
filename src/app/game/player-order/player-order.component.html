@@ -7,5 +7,4 @@
     </li>
 </ul>
 
-<button *ngIf="!returnToGame" (click)="startGame()" [disabled]="!participatingPlayerIds.length">Spiel starten</button>
-<button *ngIf="returnToGame" (click)="backToGame()" [disabled]="!participatingPlayerIds.length">zurück zum Spiel</button>
+<button (click)="handleSaveClicked()" [disabled]="!participatingPlayerIds.length">Speichern</button>
