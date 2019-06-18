@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/cor
 import { RoundService } from 'src/app/round.service';
 import { Observable, of, from, combineLatest, forkJoin, Subject, BehaviorSubject } from 'rxjs';
 import { map, switchMap, withLatestFrom, filter, tap, delay, debounceTime, catchError, distinctUntilChanged, share, distinctUntilKeyChanged } from 'rxjs/operators';
-import { Round, Player, RoundEvent, EventType, Game } from 'src/app/interfaces';
+import { Round, Player, RoundEvent, EventType, Game, EventTypeContext } from 'src/app/interfaces';
 import { RoundEventService } from 'src/app/round-event.service';
 import { GetResponse, PutResponse, RemoveResponse, FindResponse } from 'src/app/pouchDb.service';
 import { PlayerService } from 'src/app/player.service';
@@ -23,7 +23,7 @@ export class RoundComponent implements OnInit {
   currentRound$: BehaviorSubject<Round> = new BehaviorSubject(null);
   currentRoundNumber$: Observable<number>;
   currentPlayer$: BehaviorSubject<Player> = new BehaviorSubject(null);
-  allEventTypes$: Observable<Array<EventType>>;
+  allRoundEventTypes$: Observable<Array<EventType>>;
   allRoundEventsForPlayer$: BehaviorSubject<RoundEvent[]> = new BehaviorSubject(null);
   mergedEvents$: Observable<any>;
   penaltySum$: Observable<number>;
@@ -88,11 +88,11 @@ export class RoundComponent implements OnInit {
       return this.currentPlayer$.next(player);
     });
 
-    this.allEventTypes$ = this.eventTypeService.getAll().pipe(
-      map((response: GetResponse<EventType>) => response.rows.map(row => row.doc))
+    this.allRoundEventTypes$ = this.eventTypeService.getAllByContext(EventTypeContext.ROUND).pipe(
+      map((response: FindResponse<EventType>) => response.docs)
     );
 
-    this.mergedEvents$ = combineLatest(this.allEventTypes$, this.allRoundEventsForPlayer$).pipe(
+    this.mergedEvents$ = combineLatest(this.allRoundEventTypes$, this.allRoundEventsForPlayer$).pipe(
       filter(result => !!result[0] && !!result[1]),
       map(result => {
         const allEventTypes: EventType[] = result[0];
@@ -137,7 +137,7 @@ export class RoundComponent implements OnInit {
       this.allRoundEventsForPlayer$.next(newList);
     });
 
-    if (eventType._id === 'eventType-41030' || eventType._id === 'eventType-49525') {
+    if (eventType._id === 'eventType-29475' || eventType._id === 'eventType-88768') {
       const confirmationResult = confirm(`${this.currentPlayer$.getValue().name} hat verloren. Eine neue Runde wird gestartet.`);
       if (confirmationResult) {
         this.roundService.create({
@@ -154,7 +154,7 @@ export class RoundComponent implements OnInit {
           this.currentRound$.next(round);
         });
       }
-    } else if (eventType._id === 'eventType-63967') {
+    } else if (eventType._id === 'eventType-93506') {
       const playerIdsInGame = currentRound.participatingPlayerIds
         .filter(item => item.inGame === true)
         .map(item => item.playerId);
@@ -168,7 +168,7 @@ export class RoundComponent implements OnInit {
         const confirmationResult = confirm(`Schock-Aus-Strafe wird an folgende Spieler verteilt: ${playerNames.join(',')}`);
         if (confirmationResult) {
           forkJoin(playersToPunish.map((player: Player) => this.roundEventService.create({
-            eventTypeId: 'eventType-12757',
+            eventTypeId: 'eventType-1902',
             roundId: currentRound._id,
             playerId: player._id
           }))).subscribe(console.log);
@@ -207,7 +207,7 @@ export class RoundComponent implements OnInit {
 
   showGameSettings(): void {
     const currentRound: Round = this.currentRound$.getValue();
-    this.router.navigate(['/game', currentRound.gameId, 'player-order', { roundId: currentRound._id, returnToGame: 1 }]);
+    this.router.navigate(['/game', currentRound.gameId, 'game-settings', { roundId: currentRound._id }]);
   }
 
   private _changePlayer(direction: number): void {

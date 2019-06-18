@@ -8,8 +8,8 @@
 
 <hr>
 <h2>Neues Ereignis</h2>
-<div *ngIf="allEventTypes$ | async as allEventTypes">
-  <div *ngFor="let eventType of allEventTypes">
+<div *ngIf="allRoundEventTypes$ | async as allRoundEventTypes">
+  <div *ngFor="let eventType of allRoundEventTypes">
     <div *ngIf="eventType.hasValue">
       <input type="number" [step]="eventType.valueStep || 1" [(ngModel)]="eventType.formValue" /> {{eventType.valueUnit}}
     </div>

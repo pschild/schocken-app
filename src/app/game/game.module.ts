@@ -5,12 +5,16 @@ import { PlayerOrderComponent } from './player-order/player-order.component';
 import { RoundComponent } from './round/round.component';
 import { GameComponent } from './game.component';
 import { FormsModule } from '@angular/forms';
+import { GameSettingsComponent } from './game-settings/game-settings.component';
+import { GameEventsComponent } from './game-events/game-events.component';
 
 @NgModule({
   declarations: [
     GameComponent,
+    RoundComponent,
+    GameSettingsComponent,
     PlayerOrderComponent,
-    RoundComponent
+    GameEventsComponent
   ],
   imports: [
     CommonModule,

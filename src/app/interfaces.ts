@@ -7,6 +7,11 @@ export enum EntityType {
     ROUND_EVENT = 'roundEvent'
 }
 
+export enum EventTypeContext {
+    GAME = 'game',
+    ROUND = 'round'
+}
+
 export interface Entity {
     _id: string;
     type: EntityType;
@@ -32,6 +37,7 @@ export interface Player extends Entity {
 // Statistic, Category, Type, Punishment
 export interface EventType extends Entity {
     name: string;
+    context: EventTypeContext;
     valueUnit?: string;
     valueStep?: number;
     hasValue?: boolean;

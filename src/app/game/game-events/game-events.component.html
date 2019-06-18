@@ -1,0 +1,15 @@
+<h1>Feststellungen</h1>
+<select *ngIf="allPlayers$ | async as players" [(ngModel)]="selectedPlayer" (change)="onPlayerChange($event.target.value)">
+  <option *ngFor="let player of players" [ngValue]="player">{{player.name}}</option>
+</select>
+
+<div *ngIf="allGameEventTypes$ | async as allGameEventTypes">
+  <div *ngFor="let eventType of allGameEventTypes">
+    <div *ngIf="eventType.hasValue">
+      <input type="number" [step]="eventType.valueStep || 1" [(ngModel)]="eventType.formValue" />
+      {{eventType.valueUnit}}
+    </div>
+    <button (click)="handleEventTypeClicked(eventType)"
+      [disabled]="eventType.hasValue && !eventType.formValue">{{eventType.name}}</button>
+  </div>
+</div>
