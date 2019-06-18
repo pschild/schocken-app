@@ -1,12 +1,20 @@
 import { Injectable } from '@angular/core';
-import * as PouchDB from 'pouchdb/dist/pouchdb';
+import PouchDB from 'pouchdb';
+import * as PouchDBFind from 'pouchdb-find';
 import { Entity } from './interfaces';
 import { AppConfigService } from './app-config.service';
+
+// @see https://www.npmjs.com/package/pouchdb-find
+PouchDB.plugin((PouchDBFind as any).default || PouchDBFind);
 
 export interface GetResponse<E> {
   offset: number;
   total_rows: number;
   rows: Array<{ key: string; id: string; value: string; doc?: E }>;
+}
+
+export interface FindResponse<E> {
+  docs: E[];
 }
 
 export interface PutResponse {
@@ -37,6 +45,14 @@ export class PouchDbService {
     this.instance = new PouchDB(this.appConfig.config.COUCHDB_DATABASE);
   }
 
+  createIndex(fields) {
+    return this.instance.createIndex({
+      index: {
+        fields
+      }
+    });
+  }
+
   create(entity: Entity): Promise<PutResponse> {
     console.log(`%cCREATE ${entity._id}`, 'color: #00f');
     return this.instance.put(entity);
@@ -56,23 +72,12 @@ export class PouchDbService {
     return this.instance.get(id);
   }
 
-  find(criteria: Array<{ key: string; value: string; }>, orderBy?: Array<string>) {
-    console.log(`%cFIND ${JSON.stringify(criteria)}`, 'color: #00f');
-    return this.instance.query((doc, emit) => {
-      const matches = criteria
-        .map(crit => doc[crit.key] === crit.value)
-        .every(res => res === true);
-
-      if (matches) {
-        if (orderBy) {
-          emit(orderBy.map(attr => doc[attr]), null);
-        } else {
-          emit(doc._id, null);
-        }
-      }
-    }, {
-        include_docs: true
-      });
+  findWithPlugin(selector, orderBy?: any[]): Promise<any> {
+    console.log(`%cFIND WITH PLUGIN ${JSON.stringify(selector)}`, 'color: #00f');
+    return this.instance.find({
+      selector,
+      sort: orderBy
+    });
   }
 
   update(id: string, data: Partial<Entity>): Promise<PutResponse> {

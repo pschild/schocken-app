@@ -4,7 +4,7 @@ import { Observable, of, from, combineLatest, forkJoin, Subject, BehaviorSubject
 import { map, switchMap, withLatestFrom, filter, tap, delay, debounceTime, catchError, distinctUntilChanged, share, distinctUntilKeyChanged } from 'rxjs/operators';
 import { Round, Player, RoundEvent, EventType, Game } from 'src/app/interfaces';
 import { RoundEventService } from 'src/app/round-event.service';
-import { GetResponse, PutResponse, RemoveResponse } from 'src/app/pouchDb.service';
+import { GetResponse, PutResponse, RemoveResponse, FindResponse } from 'src/app/pouchDb.service';
 import { PlayerService } from 'src/app/player.service';
 import { EventTypeService } from 'src/app/event-type.service';
 import { Router } from '@angular/router';
@@ -39,7 +39,7 @@ export class RoundComponent implements OnInit {
 
   ngOnInit() {
     this.roundService.getRoundsByGameId(this.game._id).pipe(
-      map((response: GetResponse<Round>) => response.rows.map(row => row.doc))
+      map((response: FindResponse<Round>) => response.docs)
     ).subscribe((rounds: Round[]) => {
       this.gameRounds$.next(rounds);
       if (this.roundId) {
@@ -60,7 +60,7 @@ export class RoundComponent implements OnInit {
         const currentPlayer: Player = result[1];
         return this.roundEventService.getAllByRoundIdAndPlayerId(currentRound._id, currentPlayer._id);
       }),
-      map((response: GetResponse<RoundEvent>) => response.rows.map(row => row.doc))
+      map((response: FindResponse<RoundEvent>) => response.docs)
     ).subscribe((roundEvents: RoundEvent[]) => this.allRoundEventsForPlayer$.next(roundEvents));
 
     this.currentRoundNumber$ = combineLatest(this.currentRound$, this.gameRounds$).pipe(

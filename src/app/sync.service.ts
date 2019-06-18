@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as PouchDB from 'pouchdb/dist/pouchdb';
+import PouchDB from 'pouchdb';
 import { Subject } from 'rxjs';
 import { AppConfigService } from './app-config.service';
 

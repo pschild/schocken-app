@@ -36,7 +36,7 @@ export interface EventType extends Entity {
     valueStep?: number;
     hasValue?: boolean;
     penalty?: number;
-    history?: Array<{date: Date; penalty: number;}>;
+    history?: Array<{date: Date; penalty: number}>;
 }
 
 export interface Event extends Entity {

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { PouchDbService, GetResponse, PutResponse } from './pouchDb.service';
+import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
 import { Round, EntityType } from './interfaces';
 import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -35,13 +35,13 @@ export class RoundService {
     return from(this.pouchDbService.update(roundId, data));
   }
 
-  getRoundsByGameId(gameId: string): Observable<GetResponse<Round>> {
-    return from(this.pouchDbService.find(
-      [
-        { key: 'type', value: EntityType.ROUND },
-        { key: 'gameId', value: gameId }
-      ],
-      ['datetime']
-    ));
+  getRoundsByGameId(gameId: string): Observable<FindResponse<Round>> {
+    const selector = { datetime: {'$gt': null}, gameId, type: EntityType.ROUND };
+    const orderBy = [{datetime: 'desc'}];
+    return from(
+      this.pouchDbService.createIndex(['datetime', 'gameId'])
+    ).pipe(
+      switchMap(_ => from(this.pouchDbService.findWithPlugin(selector, orderBy)))
+    );
   }
 }
