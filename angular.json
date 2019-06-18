@@ -111,8 +111,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/manifest.webmanifest",
-              "src/test.json"
+              "src/manifest.webmanifest"
             ]
           }
         },
