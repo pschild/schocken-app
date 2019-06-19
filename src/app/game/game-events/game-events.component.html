@@ -13,3 +13,5 @@
       [disabled]="eventType.hasValue && !eventType.formValue">{{eventType.name}}</button>
   </div>
 </div>
+
+<app-event-list [playerId]="(selectedPlayer$ | async)?._id" [gameId]="gameId$ | async"></app-event-list>

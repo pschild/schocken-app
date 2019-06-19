@@ -15,6 +15,8 @@ import { GameEventService } from 'src/app/game-event.service';
 })
 export class GameEventsComponent implements OnInit {
 
+  gameId$: Observable<string>;
+
   allPlayers$: Observable<Array<Player>>;
   allGameEventTypes$: Observable<Array<EventType>>;
 
@@ -31,6 +33,8 @@ export class GameEventsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.gameId$ = this.route.params.pipe(map(params => params.gameId));
+
     this.allPlayers$ = this.playerService.getAll().pipe(
       map((response: GetResponse<Player>) => response.rows.map(row => row.doc)),
       tap((player: Player[]) => this.selectedPlayer$.next(player[0]))

@@ -1,0 +1,12 @@
+<h2>Events</h2>
+<div *ngIf="mergedList$ | async as mergedList">
+  <div *ngIf="!mergedList.length">keine Events</div>
+  <div *ngFor="let item of mergedList">
+    {{item.event.datetime}}
+    {{item.eventType.name}}
+    <span *ngIf="item.eventType.hasValue">{{item.event.eventTypeValue}} {{item.eventType.valueUnit}}</span>
+    <span>[{{item.eventType.penalty * (item.event.eventTypeValue || 1)}}€]</span>
+    <button (click)="handleRemoveRoundEventClicked(item.event)">X</button>
+  </div>
+  <strong *ngIf="penaltySum$ | async as penaltySum">{{penaltySum}}€</strong>
+</div>

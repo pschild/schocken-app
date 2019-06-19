@@ -10,6 +10,10 @@ export class EventTypeService {
 
   constructor(private pouchDbService: PouchDbService) { }
 
+  getAll(): Observable<GetResponse<EventType>> {
+    return from(this.pouchDbService.getAll('eventType'));
+  }
+
   getAllByContext(context: EventTypeContext): Observable<FindResponse<EventType>> {
     const selector = { context, type: EntityType.EVENT_TYPE };
     return from(this.pouchDbService.findWithPlugin(selector));

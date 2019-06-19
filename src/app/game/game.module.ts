@@ -7,6 +7,7 @@ import { GameComponent } from './game.component';
 import { FormsModule } from '@angular/forms';
 import { GameSettingsComponent } from './game-settings/game-settings.component';
 import { GameEventsComponent } from './game-events/game-events.component';
+import { EventListComponent } from './event-list/event-list.component';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { GameEventsComponent } from './game-events/game-events.component';
     RoundComponent,
     GameSettingsComponent,
     PlayerOrderComponent,
-    GameEventsComponent
+    GameEventsComponent,
+    EventListComponent
   ],
   imports: [
     CommonModule,
