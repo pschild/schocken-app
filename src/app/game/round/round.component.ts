@@ -40,7 +40,6 @@ export class RoundComponent implements OnInit {
       map((response: FindResponse<Round>) => response.docs)
     ).subscribe((rounds: Round[]) => {
       this.gameRounds$.next(rounds);
-      alert(rounds[0].datetime + ' sollte < ' + rounds[1].datetime);
       if (this.roundId) {
         this.currentRound$.next(rounds.find((round: Round) => round._id === this.roundId));
       } else {
