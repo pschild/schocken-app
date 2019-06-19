@@ -1,13 +1,14 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { RoundService } from 'src/app/round.service';
-import { Observable, of, from, combineLatest, forkJoin, Subject, BehaviorSubject } from 'rxjs';
-import { map, switchMap, withLatestFrom, filter, tap, delay, debounceTime, catchError, distinctUntilChanged, share, distinctUntilKeyChanged } from 'rxjs/operators';
+import { Observable, combineLatest, forkJoin, BehaviorSubject } from 'rxjs';
+import { map, switchMap, filter } from 'rxjs/operators';
 import { Round, Player, RoundEvent, EventType, Game, EventTypeContext } from 'src/app/interfaces';
 import { RoundEventService } from 'src/app/round-event.service';
-import { GetResponse, PutResponse, RemoveResponse, FindResponse } from 'src/app/pouchDb.service';
+import { GetResponse, PutResponse, FindResponse } from 'src/app/pouchDb.service';
 import { PlayerService } from 'src/app/player.service';
 import { EventTypeService } from 'src/app/event-type.service';
 import { Router } from '@angular/router';
+import { GameStateService } from '../game-state.service';
 
 @Component({
   selector: 'app-round',
@@ -24,17 +25,14 @@ export class RoundComponent implements OnInit {
   currentRoundNumber$: Observable<number>;
   currentPlayer$: BehaviorSubject<Player> = new BehaviorSubject(null);
   allRoundEventTypes$: Observable<Array<EventType>>;
-  allRoundEventsForPlayer$: BehaviorSubject<RoundEvent[]> = new BehaviorSubject(null);
-  mergedEvents$: Observable<any>;
-  penaltySum$: Observable<number>;
-  loadingRoundEvents$: BehaviorSubject<boolean> = new BehaviorSubject(true);
 
   constructor(
     private router: Router,
     private playerService: PlayerService,
     private roundService: RoundService,
     private roundEventService: RoundEventService,
-    private eventTypeService: EventTypeService
+    private eventTypeService: EventTypeService,
+    private state: GameStateService
   ) { }
 
   ngOnInit() {
@@ -48,20 +46,6 @@ export class RoundComponent implements OnInit {
         this.currentRound$.next(rounds[rounds.length - 1]);
       }
     });
-
-    combineLatest(this.currentRound$, this.currentPlayer$.pipe(
-      filter((player: Player) => !!player),
-      distinctUntilKeyChanged('_id')
-    )).pipe(
-      filter(result => !!result[0] && !!result[1]),
-      tap(_ => this.loadingRoundEvents$.next(true)),
-      switchMap(result => {
-        const currentRound: Round = result[0];
-        const currentPlayer: Player = result[1];
-        return this.roundEventService.getAllByRoundIdAndPlayerId(currentRound._id, currentPlayer._id);
-      }),
-      map((response: FindResponse<RoundEvent>) => response.docs)
-    ).subscribe((roundEvents: RoundEvent[]) => this.allRoundEventsForPlayer$.next(roundEvents));
 
     this.currentRoundNumber$ = combineLatest(this.currentRound$, this.gameRounds$).pipe(
       map(result => {
@@ -92,39 +76,11 @@ export class RoundComponent implements OnInit {
       map((response: FindResponse<EventType>) => response.docs)
     );
 
-    this.mergedEvents$ = combineLatest(this.allRoundEventTypes$, this.allRoundEventsForPlayer$).pipe(
-      filter(result => !!result[0] && !!result[1]),
-      map(result => {
-        const allEventTypes: EventType[] = result[0];
-        const allRoundEventsForPlayer: RoundEvent[] = result[1];
-        return allRoundEventsForPlayer.map((roundEvent: RoundEvent) => ({
-          roundEvent,
-          eventType: allEventTypes.find((eventType: EventType) => eventType._id === roundEvent.eventTypeId)
-        }));
-      })
-    );
-
-    this.mergedEvents$.subscribe(_ => this.loadingRoundEvents$.next(false));
-
-    this.penaltySum$ = this.mergedEvents$.pipe(
-      map(mergedItems => {
-        let sum = 0;
-        mergedItems.map(item => {
-          // TODO: calculate penalty from history
-          const penalty = item.eventType.penalty || 0;
-          const eventTypeValue = item.roundEvent.eventTypeValue || 1;
-          sum += penalty * eventTypeValue;
-        });
-        return sum;
-      })
-    );
   }
 
   handleEventTypeClicked(eventType: EventType) {
     const currentRound: Round = this.currentRound$.getValue();
     const currentPlayerId = this.currentPlayer$.getValue()._id;
-    console.log(`create ${eventType._id} for round ${currentRound._id} and player ${currentPlayerId}`);
-
     this.roundEventService.create({
       eventTypeId: eventType._id,
       playerId: currentPlayerId,
@@ -133,8 +89,8 @@ export class RoundComponent implements OnInit {
     }).pipe(
       switchMap((response: PutResponse) => this.roundEventService.getById(response.id))
     ).subscribe((roundEvent: RoundEvent) => {
-      const newList = [roundEvent, ...this.allRoundEventsForPlayer$.getValue()];
-      this.allRoundEventsForPlayer$.next(newList);
+      const newList = [roundEvent, ...this.state.eventsForPlayer$.getValue()];
+      this.state.eventsForPlayer$.next(newList);
     });
 
     if (eventType._id === 'eventType-29475' || eventType._id === 'eventType-88768') {
@@ -175,14 +131,6 @@ export class RoundComponent implements OnInit {
         }
       });
     }
-  }
-
-  handleRemoveRoundEventClicked(roundEvent: RoundEvent) {
-    this.roundEventService.remove(roundEvent)
-      .subscribe((response: RemoveResponse) => {
-        const newList = this.allRoundEventsForPlayer$.getValue().filter((event: RoundEvent) => event._id !== roundEvent._id);
-        this.allRoundEventsForPlayer$.next(newList);
-      });
   }
 
   handleRemovePlayerFromGameClicked() {

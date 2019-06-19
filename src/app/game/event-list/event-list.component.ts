@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { EventType, GameEvent, RoundEvent, Event, EntityType } from 'src/app/interfaces';
-import { Observable, BehaviorSubject, combineLatest, Subject } from 'rxjs';
-import { filter, switchMap, map, share, tap, startWith } from 'rxjs/operators';
+import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { filter, switchMap, map, share } from 'rxjs/operators';
 import { GameEventService } from 'src/app/game-event.service';
 import { EventTypeService } from 'src/app/event-type.service';
 import { GetResponse, FindResponse, RemoveResponse } from 'src/app/pouchDb.service';
