@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, combineLatest, Subject, of, from, forkJoin, BehaviorSubject } from 'rxjs';
-import { map, tap, switchMap, merge, mergeMap, concat, withLatestFrom, catchError, delay, filter, first, take } from 'rxjs/operators';
-import { RoundService } from '../round.service';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { Game } from '../interfaces';
-import { PlayerService } from '../player.service';
 import { GameService } from '../game.service';
 
 @Component({
@@ -15,17 +13,14 @@ import { GameService } from '../game.service';
 export class GameComponent implements OnInit {
 
   game$: Observable<Game>;
-  // currentGameId$: Observable<string>;
   currentRoundId$: Observable<string>;
-  // currentPlayerId$: BehaviorSubject<string> = new BehaviorSubject(undefined);
 
-  constructor(private router: Router, private route: ActivatedRoute, private gameService: GameService, private roundService: RoundService, private playerService: PlayerService) { }
+  constructor(
+    private route: ActivatedRoute,
+    private gameService: GameService
+  ) { }
 
   ngOnInit() {
-    // this.currentGameId$ = this.route.params.pipe(
-    //   map(params => params.gameId)
-    // );
-
     this.currentRoundId$ = this.route.params.pipe(
       map(params => params.roundId)
     );
@@ -33,14 +28,6 @@ export class GameComponent implements OnInit {
     this.game$ = this.route.params.pipe(
       switchMap(params => this.gameService.getById(params.gameId))
     );
-
-    // this.game$.subscribe((game: Game) => {
-    //   if (game.currentPlayerId && game.playerIds.includes(game.currentPlayerId)) {
-    //     return this.currentPlayerId$.next(game.currentPlayerId);
-    //   } else {
-    //     return this.currentPlayerId$.next(game.playerIds[0]);
-    //   }
-    // });
   }
 
 }

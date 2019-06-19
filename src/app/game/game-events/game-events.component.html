@@ -1,5 +1,5 @@
 <h1>Feststellungen</h1>
-<select *ngIf="allPlayers$ | async as players" [(ngModel)]="selectedPlayer" (change)="onPlayerChange($event.target.value)">
+<select *ngIf="allPlayers$ | async as players" [ngModel]="selectedPlayerModel" (ngModelChange)="onPlayerChange($event)">
   <option *ngFor="let player of players" [ngValue]="player">{{player.name}}</option>
 </select>
 
