@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { PlayerService } from 'src/app/player.service';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
-import { EventType, EventTypeContext, Player, GameEvent } from 'src/app/interfaces';
+import { EventType, EventTypeContext, Player, GameEvent, RoundEvent } from 'src/app/interfaces';
 import { EventTypeService } from 'src/app/event-type.service';
-import { FindResponse, GetResponse } from 'src/app/pouchDb.service';
+import { FindResponse, GetResponse, PutResponse } from 'src/app/pouchDb.service';
 import { map, tap, switchMap, filter } from 'rxjs/operators';
 import { GameEventService } from 'src/app/game-event.service';
+import { GameStateService } from '../game-state.service';
 
 @Component({
   selector: 'app-game-events',
@@ -29,7 +30,8 @@ export class GameEventsComponent implements OnInit {
     private playerService: PlayerService,
     private gameEventService: GameEventService,
     private eventTypeService: EventTypeService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private state: GameStateService
   ) { }
 
   ngOnInit() {
@@ -44,11 +46,11 @@ export class GameEventsComponent implements OnInit {
       map((response: FindResponse<EventType>) => response.docs)
     );
 
-    this.gameEventsForPlayer$ = combineLatest(this.route.params, this.selectedPlayer$).pipe(
-      filter(([params, player]) => player !== null),
-      switchMap(([params, player]) => this.gameEventService.getAllByGameIdAndPlayerId(params.gameId, player._id)),
-      map((response: FindResponse<GameEvent>) => response.docs)
-    );
+    // this.gameEventsForPlayer$ = combineLatest(this.route.params, this.selectedPlayer$).pipe(
+    //   filter(([params, player]) => player !== null),
+    //   switchMap(([params, player]) => this.gameEventService.getAllByGameIdAndPlayerId(params.gameId, player._id)),
+    //   map((response: FindResponse<GameEvent>) => response.docs)
+    // );
 
     this.selectedPlayer$.subscribe((player: Player) => this.selectedPlayerModel = player);
   }
@@ -66,7 +68,12 @@ export class GameEventsComponent implements OnInit {
         playerId: selectedPlayer._id,
         eventTypeValue: eventType['formValue']
       }))
-    ).subscribe(console.log);
+    ).pipe(
+      switchMap((response: PutResponse) => this.gameEventService.getById(response.id))
+    ).subscribe((gameEvent: GameEvent) => {
+      const newList = [gameEvent, ...this.state.eventsForPlayer$.getValue()];
+      this.state.eventsForPlayer$.next(newList);
+    });
   }
 
 }

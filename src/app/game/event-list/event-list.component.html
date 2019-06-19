@@ -6,7 +6,7 @@
     {{item.eventType.name}}
     <span *ngIf="item.eventType.hasValue">{{item.event.eventTypeValue}} {{item.eventType.valueUnit}}</span>
     <span>[{{item.eventType.penalty * (item.event.eventTypeValue || 1)}}€]</span>
-    <button (click)="handleRemoveRoundEventClicked(item.event)">X</button>
+    <button (click)="handleRemoveEventClicked(item.event)">X</button>
   </div>
   <strong *ngIf="penaltySum$ | async as penaltySum">{{penaltySum}}€</strong>
 </div>
