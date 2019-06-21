@@ -8,17 +8,13 @@
 
 <hr>
 <h2>Neues Ereignis</h2>
-<div *ngIf="allRoundEventTypes$ | async as allRoundEventTypes">
-  <div *ngFor="let eventType of allRoundEventTypes">
-    <div *ngIf="eventType.valueUnit">
-      <input type="number" min="0" [(ngModel)]="eventType.formValue" />
-      {{eventType.valueUnit}}
-      <span *ngIf="eventType.formValue">=> {{eventType.formValue * eventType.penalty.value}} {{eventType.penalty.unit}}</span>
-    </div>
-    <button (click)="handleEventTypeClicked(eventType)" [disabled]="eventType.valueUnit && !eventType.formValue">{{eventType.name}}</button>
-  </div>
-  <button (click)="handleRemovePlayerFromGameClicked()">Raus</button>
-</div>
+<app-event-type-list
+  [playerId]="(currentPlayer$ | async)?._id"
+  [roundId]="(currentRound$ | async)?._id"
+  (lostEvent)="handleLostEvent()"
+  (schockAusEvent)="handleSchockAusEvent()"
+></app-event-type-list>
+<button (click)="handleRemovePlayerFromGameClicked()">Raus</button>
 <hr>
 <app-event-list [playerId]="(currentPlayer$ | async)?._id" [roundId]="(currentRound$ | async)?._id"></app-event-list>
 <hr>

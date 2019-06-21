@@ -1,14 +1,12 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { RoundService } from 'src/app/round.service';
-import { Observable, combineLatest, forkJoin, BehaviorSubject } from 'rxjs';
+import { Observable, combineLatest, BehaviorSubject, forkJoin } from 'rxjs';
 import { map, switchMap, filter } from 'rxjs/operators';
-import { Round, Player, RoundEvent, EventType, Game, EventTypeContext } from 'src/app/interfaces';
+import { Round, Player, Game } from 'src/app/interfaces';
 import { RoundEventService } from 'src/app/round-event.service';
-import { GetResponse, PutResponse, FindResponse } from 'src/app/pouchDb.service';
+import { PutResponse, FindResponse, GetResponse } from 'src/app/pouchDb.service';
 import { PlayerService } from 'src/app/player.service';
-import { EventTypeService } from 'src/app/event-type.service';
 import { Router } from '@angular/router';
-import { GameStateService } from '../game-state.service';
 
 @Component({
   selector: 'app-round',
@@ -24,15 +22,12 @@ export class RoundComponent implements OnInit {
   currentRound$: BehaviorSubject<Round> = new BehaviorSubject(null);
   currentRoundNumber$: Observable<number>;
   currentPlayer$: BehaviorSubject<Player> = new BehaviorSubject(null);
-  allRoundEventTypes$: Observable<Array<EventType>>;
 
   constructor(
     private router: Router,
     private playerService: PlayerService,
     private roundService: RoundService,
-    private roundEventService: RoundEventService,
-    private eventTypeService: EventTypeService,
-    private state: GameStateService
+    private roundEventService: RoundEventService
   ) { }
 
   ngOnInit() {
@@ -73,70 +68,60 @@ export class RoundComponent implements OnInit {
       return this.currentPlayer$.next(player);
     });
 
-    this.allRoundEventTypes$ = this.eventTypeService.getAllByContext(EventTypeContext.ROUND).pipe(
-      map((response: FindResponse<EventType>) => response.docs)
-    );
-
   }
 
-  handleEventTypeClicked(eventType: EventType) {
+  handleLostEvent() {
     const currentRound: Round = this.currentRound$.getValue();
     const currentPlayerId = this.currentPlayer$.getValue()._id;
-    this.roundEventService.create({
-      eventTypeId: eventType._id,
-      playerId: currentPlayerId,
-      roundId: currentRound._id,
-      eventTypeValue: eventType['formValue']
-    }).pipe(
-      switchMap((response: PutResponse) => this.roundEventService.getById(response.id))
-    ).subscribe((roundEvent: RoundEvent) => {
-      const newList = [roundEvent, ...this.state.eventsForPlayer$.getValue()];
-      this.state.eventsForPlayer$.next(newList);
-    });
 
-    if (eventType._id === 'eventType-29475' || eventType._id === 'eventType-88768') {
-      const confirmationResult = confirm(`${this.currentPlayer$.getValue().name} hat verloren. Eine neue Runde wird gestartet.`);
-      if (confirmationResult) {
-        this.roundService.create({
-          gameId: this.game._id,
-          currentPlayerId,
-          participatingPlayerIds: currentRound.participatingPlayerIds.map(item => {
-            item.inGame = true;
-            return item;
-          })
-        }).pipe(
-          switchMap((response: PutResponse) => this.roundService.getById(response.id))
-        ).subscribe((round: Round) => {
-          this.gameRounds$.next([...this.gameRounds$.getValue(), round]);
-          this.currentRound$.next(round);
-        });
-      }
-    } else if (eventType._id === 'eventType-93506') {
-      const playerIdsInGame = currentRound.participatingPlayerIds
-        .filter(item => item.inGame === true)
-        .map(item => item.playerId);
-
-      this.playerService.getAll().subscribe((response: GetResponse<Player>) => {
-        const playersToPunish = response.rows
-          .map(row => row.doc)
-          .filter((player: Player) => playerIdsInGame.includes(player._id) && player._id !== currentPlayerId);
-
-        const playerNames = playersToPunish.map((player: Player) => player.name);
-        const confirmationResult = confirm(`Schock-Aus-Strafe wird an folgende Spieler verteilt: ${playerNames.join(',')}`);
-        if (confirmationResult) {
-          forkJoin(playersToPunish.map((player: Player) => this.roundEventService.create({
-            eventTypeId: 'eventType-1902',
-            roundId: currentRound._id,
-            playerId: player._id
-          }))).subscribe(console.log);
-        }
+    const confirmationResult = confirm(`${this.currentPlayer$.getValue().name} hat verloren. Eine neue Runde wird gestartet.`);
+    if (confirmationResult) {
+      this.roundService.create({
+        gameId: this.game._id,
+        currentPlayerId,
+        participatingPlayerIds: currentRound.participatingPlayerIds.map(item => {
+          item.inGame = true;
+          return item;
+        })
+      }).pipe(
+        switchMap((response: PutResponse) => this.roundService.getById(response.id))
+      ).subscribe((round: Round) => {
+        this.gameRounds$.next([...this.gameRounds$.getValue(), round]);
+        this.currentRound$.next(round);
       });
     }
   }
 
+  handleSchockAusEvent() {
+    const currentRound: Round = this.currentRound$.getValue();
+    const currentPlayerId = this.currentPlayer$.getValue()._id;
+
+    const playerIdsInGame = currentRound.participatingPlayerIds
+      .filter(item => item.inGame === true)
+      .map(item => item.playerId);
+
+    this.playerService.getAll().subscribe((response: GetResponse<Player>) => {
+      const playersToPunish = response.rows
+        .map(row => row.doc)
+        .filter((player: Player) => playerIdsInGame.includes(player._id) && player._id !== currentPlayerId);
+
+      const playerNames = playersToPunish.map((player: Player) => player.name);
+      const confirmationResult = confirm(`Schock-Aus-Strafe wird an folgende Spieler verteilt: ${playerNames.join(',')}`);
+      if (confirmationResult) {
+        forkJoin(playersToPunish.map((player: Player) => this.roundEventService.create({
+          eventTypeId: 'eventType-23023',
+          roundId: currentRound._id,
+          playerId: player._id
+        }))).subscribe(console.log);
+      }
+    });
+  }
+
+
   handleRemovePlayerFromGameClicked() {
     const currentRound: Round = this.currentRound$.getValue();
     const currentPlayerId = this.currentPlayer$.getValue()._id;
+
     const participatingPlayer = currentRound.participatingPlayerIds.find(item => item.playerId === currentPlayerId);
     if (!participatingPlayer) {
       throw new Error(`Could not find player with id ${currentPlayerId}`);
@@ -172,13 +157,19 @@ export class RoundComponent implements OnInit {
     });
   }
 
-  private _calculateNextPlayerId(direction: number, currentPlayerId: string, playerIds: Array<{ playerId: string; inGame: boolean }>): string {
+  private _calculateNextPlayerId(
+    direction: number, currentPlayerId: string, playerIds: Array<{ playerId: string; inGame: boolean }>
+  ): string {
     const playersInGame = playerIds.filter(item => item.inGame === true);
     const currentPlayerIdIndex = playersInGame.findIndex(item => item.playerId === currentPlayerId);
     if (direction === 1) {
-      return currentPlayerIdIndex === playersInGame.length - 1 ? playersInGame[0].playerId : playersInGame[currentPlayerIdIndex + 1].playerId;
+      return currentPlayerIdIndex === playersInGame.length - 1
+        ? playersInGame[0].playerId
+        : playersInGame[currentPlayerIdIndex + 1].playerId;
     } else if (direction === -1) {
-      return currentPlayerIdIndex === 0 ? playersInGame[playersInGame.length - 1].playerId : playersInGame[currentPlayerIdIndex - 1].playerId;
+      return currentPlayerIdIndex === 0
+        ? playersInGame[playersInGame.length - 1].playerId
+        : playersInGame[currentPlayerIdIndex - 1].playerId;
     }
   }
 

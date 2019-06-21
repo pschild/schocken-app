@@ -1,0 +1,10 @@
+<div *ngIf="allEventTypes$ | async as allEventTypes">
+  <div *ngFor="let eventType of allEventTypes">
+    <div *ngIf="eventType.valueUnit">
+      <input type="number" min="0" [(ngModel)]="eventType.formValue" />
+      {{eventType.valueUnit}}
+      <span *ngIf="eventType.formValue">=> {{eventType.formValue * eventType.penalty.value}} {{eventType.penalty.unit}}</span>
+    </div>
+    <button (click)="handleEventTypeClicked(eventType)" [disabled]="eventType.valueUnit && !eventType.formValue">{{eventType.name}}</button>
+  </div>
+</div>

@@ -3,15 +3,5 @@
   <option *ngFor="let player of players" [ngValue]="player">{{player.name}}</option>
 </select>
 
-<div *ngIf="allGameEventTypes$ | async as allGameEventTypes">
-  <div *ngFor="let eventType of allGameEventTypes">
-    <div *ngIf="eventType.valueUnit">
-      <input type="number" min="0" [(ngModel)]="eventType.formValue" />
-      {{eventType.valueUnit}}
-      <span *ngIf="eventType.formValue">=> {{eventType.formValue * eventType.penalty.value}} {{eventType.penalty.unit}}</span>
-    </div>
-    <button (click)="handleEventTypeClicked(eventType)" [disabled]="eventType.valueUnit && !eventType.formValue">{{eventType.name}}</button>
-  </div>
-</div>
-
+<app-event-type-list [playerId]="(selectedPlayer$ | async)?._id" [gameId]="gameId$ | async"></app-event-type-list>
 <app-event-list [playerId]="(selectedPlayer$ | async)?._id" [gameId]="gameId$ | async"></app-event-list>
