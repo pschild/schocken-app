@@ -12,6 +12,11 @@ export enum EventTypeContext {
     ROUND = 'round'
 }
 
+export interface EventTypePenalty {
+    value: number;
+    unit: string;
+}
+
 export interface Entity {
     _id: string;
     type: EntityType;
@@ -39,10 +44,9 @@ export interface EventType extends Entity {
     name: string;
     context: EventTypeContext;
     valueUnit?: string;
-    valueStep?: number;
-    hasValue?: boolean;
-    penalty?: number;
-    history?: Array<{date: Date; penalty: number}>;
+    penalty?: EventTypePenalty;
+    history?: Array<{date: Date; penalty: EventTypePenalty}>;
+    colorCode?: string;
 }
 
 export interface Event extends Entity {

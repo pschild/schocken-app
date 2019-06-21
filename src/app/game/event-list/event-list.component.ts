@@ -28,7 +28,7 @@ export class EventListComponent implements OnInit, OnChanges {
   gameEventsForPlayer$: Observable<GameEvent[]>;
   roundEventsForPlayer$: Observable<RoundEvent[]>;
   mergedList$: Observable<any>;
-  penaltySum$: Observable<number>;
+  penalties$: Observable<Array<{unit: string, sum: number}>>;
 
   constructor(
     private gameEventService: GameEventService,
@@ -70,16 +70,33 @@ export class EventListComponent implements OnInit, OnChanges {
       share()
     );
 
-    this.penaltySum$ = this.mergedList$.pipe(
+    this.penalties$ = this.mergedList$.pipe(
       map(mergedItems => {
-        let sum = 0;
-        mergedItems.map(item => {
-          // TODO: calculate penalty from history
-          const penalty = item.eventType.penalty || 0;
-          const eventTypeValue = item.event.eventTypeValue || 1;
-          sum += penalty * eventTypeValue;
+        const groupedByPenaltyUnit = mergedItems.reduce((penaltyUnits, item) => {
+          if (!item.eventType.penalty.unit) {
+            return penaltyUnits;
+          }
+          const group = (penaltyUnits[item.eventType.penalty.unit] || []);
+          group.push(item);
+          penaltyUnits[item.eventType.penalty.unit] = group;
+          return penaltyUnits;
+        }, {});
+        return groupedByPenaltyUnit;
+      }),
+      map(groupedItems => {
+        // TODO: calculate penalty from history
+        // TODO: move to service
+        const sums = [];
+        Object.keys(groupedItems).map(key => {
+          const sum = groupedItems[key].reduce((tempSum, item) => {
+            if (item.eventType.valueUnit) {
+              return tempSum += item.event.eventTypeValue * item.eventType.penalty.value;
+            }
+            return tempSum += item.eventType.penalty.value;
+          }, 0);
+          sums.push({ unit: key, sum });
         });
-        return sum;
+        return sums;
       })
     );
   }

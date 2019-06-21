@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
-import { EntityType, EventType, EventTypeContext } from './interfaces';
+import { EntityType, EventType, EventTypeContext, EventTypePenalty } from './interfaces';
 import { from, Observable } from 'rxjs';
 
 @Injectable({
@@ -23,13 +23,15 @@ export class EventTypeService {
     return from(this.pouchDbService.getOne(id));
   }
 
-  create(name: string, context: EventTypeContext, penalty?: number): Observable<PutResponse> {
+  create(name: string, context: EventTypeContext, penalty?: EventTypePenalty, valueUnit?: string, colorCode?: string): Observable<PutResponse> {
     const eventType: EventType = {
       _id: this.pouchDbService.generateId('eventType'),
       type: EntityType.EVENT_TYPE,
       name,
       context,
-      penalty
+      penalty,
+      valueUnit,
+      colorCode,
     };
     return from(this.pouchDbService.create(eventType));
   }

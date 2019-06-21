@@ -32,10 +32,8 @@ RoundEvents <button *ngIf="chosenRoundId && chosenEventTypeId" (click)="newRound
 EventTypes
 <input type="text" [(ngModel)]="eventTypeName"/>
 <br>
-Strafe: <input type="number" [(ngModel)]="penalty" /> €
-<input type="checkbox" [(ngModel)]="hasValue" />hat Wert?
-Einheit: <input type="text" [(ngModel)]="valueUnit" *ngIf="hasValue" />
-Schritt: <input type="number" [(ngModel)]="valueStep" *ngIf="hasValue" />
+Strafe: <input type="number" [(ngModel)]="penalty.value" /><input type="text" [(ngModel)]="penalty.unit" />
+Einheit: <input type="text" [(ngModel)]="valueUnit" />
 <select [(ngModel)]="context">
     <option value="round">round</option>
     <option value="game">game</option>

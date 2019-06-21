@@ -10,10 +10,12 @@
 <h2>Neues Ereignis</h2>
 <div *ngIf="allRoundEventTypes$ | async as allRoundEventTypes">
   <div *ngFor="let eventType of allRoundEventTypes">
-    <div *ngIf="eventType.hasValue">
-      <input type="number" [step]="eventType.valueStep || 1" [(ngModel)]="eventType.formValue" /> {{eventType.valueUnit}}
+    <div *ngIf="eventType.valueUnit">
+      <input type="number" min="0" [(ngModel)]="eventType.formValue" />
+      {{eventType.valueUnit}}
+      <span *ngIf="eventType.formValue">=> {{eventType.formValue * eventType.penalty.value}} {{eventType.penalty.unit}}</span>
     </div>
-    <button (click)="handleEventTypeClicked(eventType)" [disabled]="eventType.hasValue && !eventType.formValue">{{eventType.name}}</button>
+    <button (click)="handleEventTypeClicked(eventType)" [disabled]="eventType.valueUnit && !eventType.formValue">{{eventType.name}}</button>
   </div>
   <button (click)="handleRemovePlayerFromGameClicked()">Raus</button>
 </div>

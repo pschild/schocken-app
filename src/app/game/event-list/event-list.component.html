@@ -4,9 +4,11 @@
   <div *ngFor="let item of mergedList">
     {{item.event.datetime}}
     {{item.eventType.name}}
-    <span *ngIf="item.eventType.hasValue">{{item.event.eventTypeValue}} {{item.eventType.valueUnit}}</span>
-    <span>[{{item.eventType.penalty * (item.event.eventTypeValue || 1)}}€]</span>
+    <span *ngIf="item.eventType?.valueUnit">{{item.event.eventTypeValue}} {{item.eventType.valueUnit}}</span>
+    <span *ngIf="item.eventType?.penalty.unit">[{{item.eventType.penalty.value * (item.event.eventTypeValue || 1)}} {{item.eventType.penalty.unit}}]</span>
     <button (click)="handleRemoveEventClicked(item.event)">X</button>
   </div>
-  <strong *ngIf="penaltySum$ | async as penaltySum">{{penaltySum}}€</strong>
+  <div *ngIf="penalties$ | async as penalties">
+    <div style="font-weight: bold" *ngFor="let penalty of penalties">{{penalty.sum}} {{penalty.unit}}</div>
+  </div>
 </div>

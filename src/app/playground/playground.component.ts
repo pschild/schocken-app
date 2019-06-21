@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, from } from 'rxjs';
-import { Game, Round, RoundEvent, EventType, EntityType, Player, EventTypeContext } from '../interfaces';
+import { Game, Round, RoundEvent, EventType, EntityType, Player, EventTypeContext, EventTypePenalty } from '../interfaces';
 import * as PouchDB from 'pouchdb/dist/pouchdb';
 import { AppConfigService } from '../app-config.service';
 
@@ -24,11 +24,9 @@ export class PlaygroundComponent implements OnInit {
   chosenPlayerId: string;
   eventTypeName: string;
   playerName: string;
-  hasValue: boolean = false;
   context: EventTypeContext = EventTypeContext.ROUND;
   valueUnit: string;
-  valueStep: number;
-  penalty: number;
+  penalty: EventTypePenalty;
 
   constructor(private appConfig: AppConfigService) {
     this.db = new PouchDB('dummy');
@@ -37,6 +35,8 @@ export class PlaygroundComponent implements OnInit {
     this.loadAllRoundEvents();
     this.loadAllEventTypes();
     this.loadAllPlayers();
+
+    this.penalty = { value: 1, unit: '€' };
 
     // this.db.query((doc, emit) => {
     //   if (doc.type === EntityType.ROUND) {
@@ -186,8 +186,6 @@ export class PlaygroundComponent implements OnInit {
       name: this.eventTypeName,
       context: this.context,
       valueUnit: this.valueUnit,
-      hasValue: this.hasValue,
-      valueStep: this.valueStep,
       penalty: this.penalty
     };
     if (this.penalty) {
