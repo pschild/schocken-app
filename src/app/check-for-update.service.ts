@@ -42,7 +42,8 @@ export class CheckForUpdateService {
       this.resetCancelledFlag();
       this.http.get(`version.json?cache-bust=${Math.random()}`).subscribe((appVersionInfo: VersionInfo) => {
         const localVersion = this.getVersionInfo().version;
-        if (appVersionInfo.version !== localVersion) {
+        const localBuildTime = this.getVersionInfo().buildTime;
+        if (appVersionInfo.version !== localVersion || appVersionInfo.buildTime !== localBuildTime) {
           this.setVersionInfo(appVersionInfo);
           alert(`You are now using version ${appVersionInfo.version}`);
         }
