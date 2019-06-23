@@ -13,6 +13,7 @@ import { environment } from '../environments/environment';
 import { GameModule } from './game/game.module';
 import { NetworkStateComponent } from './network-state/network-state.component';
 import { SyncStateComponent } from './sync-state/sync-state.component';
+import { AboutModule } from './about/about.module';
 
 const appInitializerFn = (appConfig: AppConfigService) => {
   return () => {
@@ -33,6 +34,7 @@ const appInitializerFn = (appConfig: AppConfigService) => {
     FormsModule,
     HomeModule,
     GameModule,
+    AboutModule,
     AppRoutingModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],

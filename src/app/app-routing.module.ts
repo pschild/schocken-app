@@ -16,6 +16,10 @@ const routes: Routes = [
     loadChildren: './game/game.module#GameModule'
   },
   {
+    path: 'about',
+    loadChildren: './about/about.module#AboutModule'
+  },
+  {
     path: 'playground',
     loadChildren: './playground/playground.module#PlaygroundModule'
   }
