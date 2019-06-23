@@ -45,7 +45,8 @@
               "src/favicon.ico",
               "src/assets",
               "src/manifest.webmanifest",
-              "src/_redirects"
+              "src/_redirects",
+              "src/version.json"
             ],
             "styles": [
               "src/styles.scss"

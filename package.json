@@ -1,6 +1,6 @@
 {
   "name": "schocken-app",
-  "version": "0.0.0",
+  "version": "0.0.9",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,8 +8,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "pwa": "ng build --prod && http-server -p 8080 dist/schocken-app",
-    "deploy:netlify": "node netlify-build.js && ng build --prod"
+    "pwa": "npm run ngsw && ng build --prod && http-server -p 8080 dist/schocken-app",
+    "ngsw": "node prepare-ngsw.js",
+    "deploy:netlify": "node netlify-build.js && npm run ngsw && ng build --prod"
   },
   "private": true,
   "dependencies": {
@@ -40,6 +41,7 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/pouchdb-find": "^6.3.4",
     "codelyzer": "~4.5.0",
+    "edit-json-file": "^1.2.1",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~3.1.1",
