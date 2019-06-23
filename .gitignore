@@ -43,3 +43,4 @@ testem.log
 Thumbs.db
 
 src/assets/config.json
+src/version.json
