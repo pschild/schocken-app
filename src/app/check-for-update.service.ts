@@ -20,7 +20,7 @@ export class CheckForUpdateService {
   constructor(appRef: ApplicationRef, private updates: SwUpdate, private http: HttpClient) {
     updates.available.subscribe((event: UpdateAvailableEvent) => {
       const versionInfo = event.available.appData as VersionInfo;
-      if (confirm(`A new version is available (${versionInfo.version}). Update now?`)) {
+      if (confirm(`Ein Update auf Version ${versionInfo.version} ist verfügbar. Jetzt updaten? Das Update wird ansonsten beim nächsten Start der Anwendung automatisch installiert.`)) {
         updates.activateUpdate().then(() => {
           this.setVersionInfo(versionInfo);
           this.resetCancelledFlag();
@@ -45,14 +45,16 @@ export class CheckForUpdateService {
         const localBuildTime = this.getVersionInfo().buildTime;
         if (appVersionInfo.version !== localVersion || appVersionInfo.buildTime !== localBuildTime) {
           this.setVersionInfo(appVersionInfo);
-          alert(`You are now using version ${appVersionInfo.version}`);
+          alert(`Du verwendest nun die aktuellste Version ${appVersionInfo.version}.`);
         }
       });
     }
   }
 
   checkForUpdates() {
-    this.updates.checkForUpdate();
+    if (this.updates.isEnabled) {
+      this.updates.checkForUpdate();
+    }
   }
 
   setCancelledFlag() {

@@ -27,6 +27,8 @@ export class PlaygroundComponent implements OnInit {
   context: EventTypeContext = EventTypeContext.ROUND;
   valueUnit: string;
   penalty: EventTypePenalty;
+  versionInfo: string;
+  isCancelled: string;
 
   constructor(private appConfig: AppConfigService) {
     this.db = new PouchDB('dummy');
@@ -37,6 +39,9 @@ export class PlaygroundComponent implements OnInit {
     this.loadAllPlayers();
 
     this.penalty = { value: 1, unit: '€' };
+
+    this.versionInfo = localStorage.getItem('versionInfo');
+    this.isCancelled = localStorage.getItem('cancelled');
 
     // this.db.query((doc, emit) => {
     //   if (doc.type === EntityType.ROUND) {
@@ -216,6 +221,14 @@ export class PlaygroundComponent implements OnInit {
       console.log(err, result);
       this.loadAllPlayers();
     });
+  }
+
+  saveVi() {
+    localStorage.setItem('versionInfo', this.versionInfo);
+  }
+
+  saveCa() {
+    localStorage.setItem('cancelled', this.isCancelled);
   }
 
 }

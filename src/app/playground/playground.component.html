@@ -53,3 +53,9 @@ Players <input type="text" [(ngModel)]="playerName"/><button (click)="newPlayer(
         {{player.doc._id}}, {{player.doc.name}}
     </li>
 </ul>
+
+LocalStorage
+<br>
+<textarea [(ngModel)]="versionInfo"></textarea><button (click)="saveVi()">save</button>
+<br>
+<textarea [(ngModel)]="isCancelled">{{isCancelled}}</textarea><button (click)="saveCa()">save</button>
