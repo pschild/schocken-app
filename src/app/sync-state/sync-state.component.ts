@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SyncService } from '../sync.service';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, throttleTime, debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sync-state',
@@ -16,11 +16,18 @@ export class SyncStateComponent implements OnInit {
   constructor(private syncService: SyncService) { }
 
   ngOnInit() {
+    const localLastSynced = localStorage.getItem('last-synced');
+    if (localLastSynced) {
+      this.lastSynced = new Date(localLastSynced);
+    }
+
     this.syncState$ = this.syncService.syncEvent$.pipe(
       map(this._mapSyncState),
       tap((syncState) => {
         if (syncState !== 'ERROR') {
-          this.lastSynced = new Date();
+          const now = new Date();
+          this.lastSynced = now;
+          localStorage.setItem('last-synced', now.toISOString());
         }
       })
     );
