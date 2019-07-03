@@ -55,10 +55,12 @@ export class RoundComponent implements OnInit {
       filter((round: Round) => !!round),
       switchMap((round: Round) => {
         const playersInGame = round.participatingPlayerIds.filter(item => item.inGame === true);
+        const participatingPlayer = round.participatingPlayerIds.find(item => item.playerId === round.currentPlayerId);
+        const playerIsInGame = participatingPlayer && participatingPlayer.inGame;
         if (!playersInGame.length) {
           throw new Error(`Round has no players in game!`);
         }
-        if (round.currentPlayerId && !!round.participatingPlayerIds.find(item => item.playerId === round.currentPlayerId)) {
+        if (round.currentPlayerId && playerIsInGame) {
           return this.playerService.getById(round.currentPlayerId);
         } else {
           return this.playerService.getById(playersInGame[0].playerId);

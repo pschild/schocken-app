@@ -18,7 +18,13 @@ export class PlayerOrderComponent implements OnInit {
   allPlayers$: Observable<Array<Player>>;
   participatingPlayerIds: Array<{playerId: string; inGame: boolean}> = [];
 
-  constructor(private roundService: RoundService, private gameService: GameService, private playerService: PlayerService, private router: Router, private route: ActivatedRoute) { }
+  constructor(
+    private roundService: RoundService,
+    private gameService: GameService,
+    private playerService: PlayerService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
     this.allPlayers$ = this.playerService.getAll().pipe(
@@ -37,7 +43,7 @@ export class PlayerOrderComponent implements OnInit {
     });
   }
 
-  toggleParticipations(playerId: string, event) {
+  toggleParticipations(playerId: string, event): void {
     if (event.target.checked) {
       this.participatingPlayerIds.push({ playerId, inGame: true });
     } else {
@@ -47,6 +53,20 @@ export class PlayerOrderComponent implements OnInit {
 
   isParticipating(playerId: string): boolean {
     return this.participatingPlayerIds && !!this.participatingPlayerIds.find(item => item.playerId === playerId);
+  }
+
+  toggleInGame(playerId: string, event): void {
+    const participatingPlayer = this.participatingPlayerIds.find(item => item.playerId === playerId);
+    if (event.target.checked) {
+      participatingPlayer.inGame = true;
+    } else {
+      participatingPlayer.inGame = false;
+    }
+  }
+
+  isInGame(playerId: string): boolean {
+    const participatingPlayer = this.participatingPlayerIds.find(item => item.playerId === playerId);
+    return this.participatingPlayerIds && !!participatingPlayer && participatingPlayer.inGame;
   }
 
   handleSaveClicked() {
