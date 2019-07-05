@@ -37,7 +37,7 @@ export class HomeComponent implements OnInit {
       const gameResponse: PutResponse = result[0];
       const roundResponse: PutResponse = result[1];
       if (gameResponse.ok === true && roundResponse.ok === true) {
-        this.router.navigate(['/game', gameResponse.id, 'game-settings', { roundId: roundResponse.id }]);
+        this.router.navigate(['/game', gameResponse.id, 'settings', { roundId: roundResponse.id }]);
       } else {
         throw new Error(`Could not create new game or round`);
       }

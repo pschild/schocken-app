@@ -9,11 +9,11 @@ import { Player, Round } from 'src/app/interfaces';
 import { GameService } from 'src/app/game.service';
 
 @Component({
-  selector: 'app-player-order',
-  templateUrl: './player-order.component.html',
-  styleUrls: ['./player-order.component.scss']
+  selector: 'app-attendee-list',
+  templateUrl: './attendee-list.component.html',
+  styleUrls: ['./attendee-list.component.scss']
 })
-export class PlayerOrderComponent implements OnInit {
+export class AttendeeListComponent implements OnInit {
 
   allPlayers$: Observable<Array<Player>>;
   participatingPlayerIds: Array<{playerId: string; inGame: boolean}> = [];

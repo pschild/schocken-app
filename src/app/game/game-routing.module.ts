@@ -9,7 +9,7 @@ const routes: Routes = [
     component: GameComponent
   },
   {
-    path: 'game-settings',
+    path: 'settings',
     component: GameSettingsComponent
   }
 ];

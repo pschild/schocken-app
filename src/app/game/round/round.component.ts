@@ -143,7 +143,7 @@ export class RoundComponent implements OnInit {
 
   showGameSettings(): void {
     const currentRound: Round = this.currentRound$.getValue();
-    this.router.navigate(['/game', currentRound.gameId, 'game-settings', { roundId: currentRound._id }]);
+    this.router.navigate(['/game', currentRound.gameId, 'settings', { roundId: currentRound._id }]);
   }
 
   private _changePlayer(direction: number): void {
