@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime, buffer, filter, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { CheckForUpdateService, VersionInfo } from '../check-for-update.service';
+import { CheckForUpdateService, VersionInfo } from '../services/check-for-update.service';
 
 @Component({
   selector: 'app-about',

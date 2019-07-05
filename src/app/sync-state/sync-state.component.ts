@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { SyncService } from '../sync.service';
+import { SyncService } from '../services/sync.service';
 import { Observable } from 'rxjs';
 import { map, tap, throttleTime, debounceTime } from 'rxjs/operators';
 

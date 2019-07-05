@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { RoundService } from 'src/app/round.service';
-import { PutResponse, GetResponse } from 'src/app/pouchDb.service';
-import { PlayerService } from 'src/app/player.service';
 import { map, switchMap } from 'rxjs/operators';
-import { Player, Round } from 'src/app/interfaces';
-import { GameService } from 'src/app/game.service';
+import { Player, Round } from '../../interfaces';
+import { RoundService } from '../../services/round.service';
+import { GameService } from '../../services/game.service';
+import { PlayerService } from '../../services/player.service';
+import { GetResponse, PutResponse } from '../../services/pouchDb.service';
 
 @Component({
   selector: 'app-attendee-list',

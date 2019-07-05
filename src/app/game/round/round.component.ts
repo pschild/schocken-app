@@ -1,11 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { RoundService } from 'src/app/round.service';
+import { RoundService } from '../../services/round.service';
 import { Observable, combineLatest, BehaviorSubject, forkJoin } from 'rxjs';
 import { map, switchMap, filter } from 'rxjs/operators';
-import { Round, Player, Game } from 'src/app/interfaces';
-import { RoundEventService } from 'src/app/round-event.service';
-import { PutResponse, FindResponse, GetResponse } from 'src/app/pouchDb.service';
-import { PlayerService } from 'src/app/player.service';
+import { Round, Player, Game } from '../../interfaces';
+import { RoundEventService } from '../../services/round-event.service';
+import { PutResponse, FindResponse, GetResponse } from '../../services/pouchDb.service';
+import { PlayerService } from '../../services/player.service';
 import { Router } from '@angular/router';
 
 @Component({

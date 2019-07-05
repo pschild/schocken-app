@@ -2,8 +2,8 @@ import { Injectable, ApplicationRef } from '@angular/core';
 import { SwUpdate, UpdateAvailableEvent } from '@angular/service-worker';
 import { first, } from 'rxjs/operators';
 import { concat, interval } from 'rxjs';
-import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 export interface VersionInfo {
   version: string;

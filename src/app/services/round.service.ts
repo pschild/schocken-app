@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
-import { Round, EntityType } from './interfaces';
 import { from, Observable } from 'rxjs';
-import { map, tap, switchMap } from 'rxjs/operators';
+import { Round, EntityType } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'

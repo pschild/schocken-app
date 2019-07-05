@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { PlayerService } from 'src/app/player.service';
+import { PlayerService } from '../../services/player.service';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { Player } from 'src/app/interfaces';
-import { GetResponse } from 'src/app/pouchDb.service';
+import { Player } from '../../interfaces';
+import { GetResponse } from '../../services/pouchDb.service';
 import { map, tap } from 'rxjs/operators';
 
 @Component({

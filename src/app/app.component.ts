@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { PouchDbService } from './pouchDb.service';
-import { CheckForUpdateService } from './check-for-update.service';
+import { PouchDbService } from './services/pouchDb.service';
+import { CheckForUpdateService } from './services/check-for-update.service';
 
 @Component({
   selector: 'app-root',

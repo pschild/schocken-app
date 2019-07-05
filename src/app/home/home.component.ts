@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { GameService } from '../game.service';
+import { GameService } from '../services/game.service';
 import { Observable, from, forkJoin, of } from 'rxjs';
 import { map, combineLatest, switchMap } from 'rxjs/operators';
 import { Game, Round } from '../interfaces';
 import { Router } from '@angular/router';
-import { GetResponse, PutResponse } from '../pouchDb.service';
-import { RoundService } from '../round.service';
+import { GetResponse, PutResponse } from '../services/pouchDb.service';
+import { RoundService } from '../services/round.service';
 
 @Component({
   selector: 'app-home',

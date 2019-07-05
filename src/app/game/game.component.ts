@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Game } from '../interfaces';
-import { GameService } from '../game.service';
+import { GameService } from '../services/game.service';
 
 @Component({
   selector: 'app-game',

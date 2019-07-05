@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PouchDbService, GetResponse } from './pouchDb.service';
-import { Player } from './interfaces';
 import { from, Observable } from 'rxjs';
+import { Player } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'

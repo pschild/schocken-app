@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { HomeModule } from './home/home.module';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { AppConfigService } from './app-config.service';
+import { AppConfigService } from './services/app-config.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { GameModule } from './game/game.module';

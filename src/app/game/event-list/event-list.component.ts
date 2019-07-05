@@ -2,11 +2,11 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/cor
 import { EventType, GameEvent, RoundEvent, Event, EntityType } from 'src/app/interfaces';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, switchMap, map, share } from 'rxjs/operators';
-import { GameEventService } from 'src/app/game-event.service';
-import { EventTypeService } from 'src/app/event-type.service';
-import { GetResponse, FindResponse, RemoveResponse } from 'src/app/pouchDb.service';
+import { GameEventService } from '../../services/game-event.service';
+import { EventTypeService } from '../../services/event-type.service';
+import { GetResponse, FindResponse, RemoveResponse } from '../../services/pouchDb.service';
 import { GameStateService } from '../game-state.service';
-import { RoundEventService } from 'src/app/round-event.service';
+import { RoundEventService } from '../../services/round-event.service';
 
 @Component({
   selector: 'app-event-list',
