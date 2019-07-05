@@ -9,19 +9,19 @@ const routes: Routes = [
   },
   {
     path: 'home',
-    loadChildren: './home/home.module#HomeModule'
+    loadChildren: () => import('./home/home.module').then(m => m.HomeModule)
   },
   {
     path: 'game/:gameId',
-    loadChildren: './game/game.module#GameModule'
+    loadChildren: () => import('./game/game.module').then(m => m.GameModule)
   },
   {
     path: 'about',
-    loadChildren: './about/about.module#AboutModule'
+    loadChildren: () => import('./about/about.module').then(m => m.AboutModule)
   },
   {
     path: 'playground',
-    loadChildren: './playground/playground.module#PlaygroundModule'
+    loadChildren: () => import('./playground/playground.module').then(m => m.PlaygroundModule)
   }
 ];
 

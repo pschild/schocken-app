@@ -67,7 +67,7 @@ export class PlaygroundComponent implements OnInit {
       include_docs: true,
       startkey: 'game-',
       endkey: 'game-\ufff0'
-    }));
+    })) as Observable<Game[]>;
   }
 
   loadAllRounds() {
@@ -75,7 +75,7 @@ export class PlaygroundComponent implements OnInit {
       include_docs: true,
       startkey: 'round-',
       endkey: 'round-\ufff0'
-    }));
+    })) as Observable<Round[]>;
   }
 
   loadAllRoundEvents() {
@@ -83,7 +83,7 @@ export class PlaygroundComponent implements OnInit {
       include_docs: true,
       startkey: 'roundEvent-',
       endkey: 'roundEvent-\ufff0'
-    }));
+    })) as Observable<RoundEvent[]>;
   }
 
   loadAllEventTypes() {
@@ -91,7 +91,7 @@ export class PlaygroundComponent implements OnInit {
       include_docs: true,
       startkey: 'eventType-',
       endkey: 'eventType-\ufff0'
-    }));
+    })) as Observable<EventType[]>;
   }
 
   loadAllPlayers() {
@@ -99,7 +99,7 @@ export class PlaygroundComponent implements OnInit {
       include_docs: true,
       startkey: 'player-',
       endkey: 'player-\ufff0'
-    }));
+    })) as Observable<Player[]>;
   }
 
   newGame() {
