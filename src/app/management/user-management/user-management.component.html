@@ -1,5 +1,7 @@
 <h1>Spieler verwalten</h1>
 
+<button mat-raised-button color="primary">Neuer Spieler</button>
+
 <mat-accordion *ngIf="allPlayers$ | async as players">
     <mat-expansion-panel *ngFor="let player of players">
         <mat-expansion-panel-header>
