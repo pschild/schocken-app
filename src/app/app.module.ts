@@ -11,9 +11,8 @@ import { AppConfigService } from './services/app-config.service';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { GameModule } from './game/game.module';
-import { NetworkStateComponent } from './network-state/network-state.component';
-import { SyncStateComponent } from './sync-state/sync-state.component';
 import { AboutModule } from './about/about.module';
+import { SharedModule } from './shared/shared.module';
 
 const appInitializerFn = (appConfig: AppConfigService) => {
   return () => {
@@ -23,9 +22,7 @@ const appInitializerFn = (appConfig: AppConfigService) => {
 
 @NgModule({
   declarations: [
-    AppComponent,
-    NetworkStateComponent,
-    SyncStateComponent
+    AppComponent
   ],
   imports: [
     CommonModule,
@@ -35,6 +32,7 @@ const appInitializerFn = (appConfig: AppConfigService) => {
     HomeModule,
     GameModule,
     AboutModule,
+    SharedModule,
     AppRoutingModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
