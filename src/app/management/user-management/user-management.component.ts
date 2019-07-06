@@ -22,4 +22,12 @@ export class UserManagementComponent implements OnInit {
     );
   }
 
+  remove(player: Player) {
+    console.log('Rmv');
+  }
+
+  save(player: Player) {
+    console.log('Sve');
+  }
+
 }

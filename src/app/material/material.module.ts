@@ -22,7 +22,11 @@ import {
   MatPaginatorModule,
   MatToolbarModule,
   MatSidenavModule,
-  MAT_DATE_LOCALE
+  MAT_DATE_LOCALE,
+  MatPaginatorIntl,
+  MatRippleModule,
+  MatSlideToggleModule,
+  MatExpansionModule
 } from '@angular/material';
 
 @NgModule({
@@ -49,7 +53,10 @@ import {
     MatSortModule,
     MatPaginatorModule,
     MatToolbarModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatRippleModule,
+    MatSlideToggleModule,
+    MatExpansionModule
   ],
   exports: [
     MatButtonModule,
@@ -74,7 +81,10 @@ import {
     MatSortModule,
     MatPaginatorModule,
     MatToolbarModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatRippleModule,
+    MatSlideToggleModule,
+    MatExpansionModule
   ],
   providers: [
     { provide: MAT_DATE_LOCALE, useValue: 'de-DE' }

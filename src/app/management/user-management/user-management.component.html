@@ -1,7 +1,23 @@
 <h1>Spieler verwalten</h1>
 
-<ul *ngIf="allPlayers$ | async as players">
-    <li *ngFor="let player of players">
-        {{player.name}}
-    </li>
-</ul>
+<mat-accordion *ngIf="allPlayers$ | async as players">
+    <mat-expansion-panel *ngFor="let player of players">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                {{player.name}}
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-form-field>
+            <input matInput placeholder="Name" [(ngModel)]="player.name">
+        </mat-form-field>
+        <div>
+            <mat-slide-toggle [checked]="player.active">Aktiv</mat-slide-toggle>
+        </div>
+
+        <mat-action-row>
+            <button mat-raised-button color="warn" (click)="remove(player)">Löschen</button>
+            <button mat-raised-button color="primary" (click)="save(player)">Speichern</button>
+        </mat-action-row>
+    </mat-expansion-panel>
+</mat-accordion>
