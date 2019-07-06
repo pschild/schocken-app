@@ -1,0 +1,7 @@
+<h1>Spieler verwalten</h1>
+
+<ul *ngIf="allPlayers$ | async as players">
+    <li *ngFor="let player of players">
+        {{player.name}}
+    </li>
+</ul>

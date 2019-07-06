@@ -1,0 +1,10 @@
+<h1>Ereignisse verwalten</h1>
+
+<ul *ngIf="allEventTypes$ | async as allEventTypes">
+    <li *ngFor="let eventType of allEventTypes">
+        <div>{{eventType.name}}</div>
+        <div>
+            {{eventType.penalty.value}} {{eventType.penalty.unit}}<span *ngIf="eventType.valueUnit">pro {{eventType.valueUnit}}</span>
+        </div>
+    </li>
+</ul>
