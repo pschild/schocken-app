@@ -1,5 +1,5 @@
 <div>
   <div>Stand: {{(lastSynced | date:'dd.MM. HH:mm') || 'noch nicht synchronisiert'}}</div>
   <span *ngIf="syncState$ | async as syncState">{{syncState}}</span>
-  <button *ngIf="(syncState$ | async) !== 'PENDING'" (click)="startSync()">sync</button>
+  <button *ngIf="(syncState$ | async) !== 'PENDING'" mat-raised-button color="primary" (click)="startSync()">sync</button>
 </div>

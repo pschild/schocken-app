@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NetworkStateComponent } from './network-state/network-state.component';
 import { SyncStateComponent } from './sync-state/sync-state.component';
+import { MaterialModule } from '../material/material.module';
 
 @NgModule({
   declarations: [
@@ -9,7 +10,8 @@ import { SyncStateComponent } from './sync-state/sync-state.component';
     SyncStateComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    MaterialModule
   ],
   exports: [
     NetworkStateComponent,

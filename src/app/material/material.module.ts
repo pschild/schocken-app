@@ -1,0 +1,83 @@
+import { NgModule } from '@angular/core';
+import {
+  MatButtonModule,
+  MatCardModule,
+  MatListModule,
+  MatMenuModule,
+  MatIconModule,
+  MatDividerModule,
+  MatFormFieldModule,
+  MatChipsModule,
+  MatAutocompleteModule,
+  MatOptionModule,
+  MatInputModule,
+  MatSliderModule,
+  MatProgressBarModule,
+  MatDialogModule,
+  MatSelectModule,
+  MatDatepickerModule,
+  MatNativeDateModule,
+  MatTableModule,
+  MatSortModule,
+  MatPaginatorModule,
+  MatToolbarModule,
+  MatSidenavModule,
+  MAT_DATE_LOCALE
+} from '@angular/material';
+
+@NgModule({
+  imports: [
+    MatButtonModule,
+    MatCardModule,
+    MatDialogModule,
+    MatListModule,
+    MatMenuModule,
+    MatIconModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatChipsModule,
+    MatAutocompleteModule,
+    MatOptionModule,
+    MatInputModule,
+    MatSliderModule,
+    MatProgressBarModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatToolbarModule,
+    MatSidenavModule
+  ],
+  exports: [
+    MatButtonModule,
+    MatCardModule,
+    MatDialogModule,
+    MatListModule,
+    MatMenuModule,
+    MatIconModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatChipsModule,
+    MatAutocompleteModule,
+    MatOptionModule,
+    MatInputModule,
+    MatSliderModule,
+    MatProgressBarModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
+    MatToolbarModule,
+    MatSidenavModule
+  ],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'de-DE' }
+  ]
+})
+export class MaterialModule { }

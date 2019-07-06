@@ -13,6 +13,7 @@ import { environment } from '../environments/environment';
 import { GameModule } from './game/game.module';
 import { AboutModule } from './about/about.module';
 import { SharedModule } from './shared/shared.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const appInitializerFn = (appConfig: AppConfigService) => {
   return () => {
@@ -34,7 +35,8 @@ const appInitializerFn = (appConfig: AppConfigService) => {
     AboutModule,
     SharedModule,
     AppRoutingModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    BrowserAnimationsModule
   ],
   providers: [
     AppConfigService,
