@@ -3,12 +3,13 @@ import { PlayerService } from 'src/app/services/player.service';
 import { Observable } from 'rxjs';
 import { Player } from 'src/app/interfaces';
 import { map } from 'rxjs/operators';
-import { GetResponse } from 'src/app/services/pouchDb.service';
+import { GetResponse, RemoveResponse } from 'src/app/services/pouchDb.service';
 import { DialogService } from 'src/app/services/dialog.service';
 import { IDialogResult } from 'src/app/shared/dialog/dialog-config';
 import { DialogResult } from 'src/app/shared/dialog/dialog.enum';
 import { ITableConfig } from 'src/app/shared/table-wrapper/ITableConfig';
 import { IColumnInterface } from 'src/app/shared/table-wrapper/IColumnDefinition';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-user-management',
@@ -51,12 +52,25 @@ export class UserManagementComponent implements OnInit {
 
   allPlayers$: Observable<Array<Player>>;
 
-  constructor(private playerService: PlayerService, private dialogService: DialogService) { }
+  constructor(
+    private playerService: PlayerService,
+    private dialogService: DialogService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
+    this.loadAllPlayers();
+  }
+
+  loadAllPlayers() {
     this.allPlayers$ = this.playerService.getAll().pipe(
       map((response: GetResponse<Player>) => response.rows.map(row => row.doc))
     );
+  }
+
+  showForm() {
+    this.router.navigate(['form'], { relativeTo: this.route });
   }
 
   remove(player: Player) {
@@ -65,14 +79,15 @@ export class UserManagementComponent implements OnInit {
       message: `Spieler ${player.name} wirklich löschen?`
     }).subscribe((dialogResult: IDialogResult) => {
       if (dialogResult.result === DialogResult.YES) {
-        // this.playerService.remove(player);
-        console.log('removed');
+        this.playerService.remove(player).subscribe((response: RemoveResponse) => {
+          this.loadAllPlayers();
+        });
       }
     });
   }
 
   edit(player: Player) {
-    console.log('edit');
+    this.router.navigate(['form', player._id], { relativeTo: this.route });
   }
 
 }

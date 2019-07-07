@@ -1,27 +1,4 @@
 <h1>Spieler verwalten</h1>
 
-<button mat-raised-button color="primary">Neuer Spieler</button>
-
+<button mat-raised-button color="primary" (click)="showForm()">Neuer Spieler</button>
 <app-table-wrapper [config]="tableConfig" [columns]="columns" [elements]="allPlayers$ | async"></app-table-wrapper>
-
-<mat-accordion *ngIf="allPlayers$ | async as players">
-    <mat-expansion-panel *ngFor="let player of players">
-        <mat-expansion-panel-header>
-            <mat-panel-title>
-                {{player.name}}
-            </mat-panel-title>
-        </mat-expansion-panel-header>
-
-        <mat-form-field>
-            <input matInput placeholder="Name" [(ngModel)]="player.name">
-        </mat-form-field>
-        <div>
-            <mat-slide-toggle [checked]="player.active">Aktiv</mat-slide-toggle>
-        </div>
-
-        <mat-action-row>
-            <button mat-raised-button color="warn" (click)="remove(player)">Löschen</button>
-            <button mat-raised-button color="primary" (click)="save(player)">Speichern</button>
-        </mat-action-row>
-    </mat-expansion-panel>
-</mat-accordion>

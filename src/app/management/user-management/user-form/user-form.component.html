@@ -1,0 +1,13 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="tag-form" #formEl="ngForm">
+    <input type="text" formControlName="_id" readonly>
+
+    <mat-form-field>
+        <input matInput placeholder="Name" formControlName="name">
+    </mat-form-field>
+
+    <div>
+        <mat-slide-toggle formControlName="active">Aktiv</mat-slide-toggle>
+    </div>
+
+    <button type="submit" mat-raised-button color="primary">Speichern</button>
+</form>
