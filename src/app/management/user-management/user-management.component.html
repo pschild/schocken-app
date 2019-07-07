@@ -2,6 +2,8 @@
 
 <button mat-raised-button color="primary">Neuer Spieler</button>
 
+<app-table-wrapper [config]="tableConfig" [columns]="columns" [elements]="allPlayers$ | async"></app-table-wrapper>
+
 <mat-accordion *ngIf="allPlayers$ | async as players">
     <mat-expansion-panel *ngFor="let player of players">
         <mat-expansion-panel-header>

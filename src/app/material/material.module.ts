@@ -28,6 +28,7 @@ import {
   MatSlideToggleModule,
   MatExpansionModule
 } from '@angular/material';
+import { MatPaginatorIntlCustom } from './material-custom-paginator';
 
 @NgModule({
   imports: [
@@ -87,6 +88,7 @@ import {
     MatExpansionModule
   ],
   providers: [
+    { provide: MatPaginatorIntl, useClass: MatPaginatorIntlCustom },
     { provide: MAT_DATE_LOCALE, useValue: 'de-DE' }
   ]
 })

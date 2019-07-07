@@ -6,13 +6,15 @@ import { MaterialModule } from '../material/material.module';
 import { FormDialogComponent } from './dialog/form-dialog/form-dialog.component';
 import { DialogComponent } from './dialog/dialog.component';
 import { FormsModule } from '@angular/forms';
+import { TableWrapperComponent } from './table-wrapper/table-wrapper.component';
 
 @NgModule({
   declarations: [
     NetworkStateComponent,
     SyncStateComponent,
     DialogComponent,
-    FormDialogComponent
+    FormDialogComponent,
+    TableWrapperComponent
   ],
   entryComponents: [
     DialogComponent,
@@ -27,7 +29,8 @@ import { FormsModule } from '@angular/forms';
     NetworkStateComponent,
     SyncStateComponent,
     DialogComponent,
-    FormDialogComponent
+    FormDialogComponent,
+    TableWrapperComponent
   ]
 })
 export class SharedModule { }
