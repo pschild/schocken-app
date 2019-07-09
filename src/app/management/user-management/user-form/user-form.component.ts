@@ -15,7 +15,7 @@ export class UserFormComponent implements OnInit {
   form = this.fb.group({
     _id: [''],
     name: ['', Validators.required],
-    active: ['']
+    active: [true]
   });
 
   constructor(private router: Router, private route: ActivatedRoute, private playerService: PlayerService, private fb: FormBuilder) { }

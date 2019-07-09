@@ -50,7 +50,7 @@ Einheit: <input type="text" [(ngModel)]="valueUnit" />
 Players <input type="text" [(ngModel)]="playerName"/><button (click)="newPlayer()">New Player</button>
 <ul>
     <li *ngFor="let player of (allPlayers$ | async)?.rows" (click)="chosenPlayerId = player.doc._id">
-        {{player.doc._id}}, {{player.doc.name}}
+        {{player.doc._id}}, {{player.doc.name}}, {{player.doc.deleted}}
     </li>
 </ul>
 

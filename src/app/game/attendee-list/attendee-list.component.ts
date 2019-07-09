@@ -27,9 +27,7 @@ export class AttendeeListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.allPlayers$ = this.playerService.getAll().pipe(
-      map((response: GetResponse<Player>) => response.rows.map(row => row.doc))
-    );
+    this.allPlayers$ = this.playerService.getAll();
 
     this.route.params.pipe(
       switchMap(params => {

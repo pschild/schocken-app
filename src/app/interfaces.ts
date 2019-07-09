@@ -20,6 +20,7 @@ export interface EventTypePenalty {
 export interface Entity {
     _id: string;
     type: EntityType;
+    deleted?: boolean;
 }
 
 export interface Game extends Entity {

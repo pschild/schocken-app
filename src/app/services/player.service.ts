@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { PouchDbService, GetResponse, PutResponse, RemoveResponse } from './pouchDb.service';
+import { PouchDbService, GetResponse, PutResponse, RemoveResponse, FindResponse } from './pouchDb.service';
 import { from, Observable } from 'rxjs';
 import { Player, EntityType } from '../interfaces';
+import { filter, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +11,11 @@ export class PlayerService {
 
   constructor(private pouchDbService: PouchDbService) { }
 
-  getAll(): Observable<GetResponse<Player>> {
-    return from(this.pouchDbService.getAll('player'));
+  getAll(): Observable<Player[]> {
+    return from(this.pouchDbService.getAll('player')).pipe(
+      map((res: GetResponse<Player>) => res.rows.map(row => row.doc)),
+      map((players: Player[]) => players.filter(p => !p.deleted))
+    );
   }
 
   getById(id: string): Observable<Player> {

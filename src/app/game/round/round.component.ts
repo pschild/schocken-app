@@ -102,10 +102,10 @@ export class RoundComponent implements OnInit {
       .filter(item => item.inGame === true)
       .map(item => item.playerId);
 
-    this.playerService.getAll().subscribe((response: GetResponse<Player>) => {
-      const playersToPunish = response.rows
-        .map(row => row.doc)
-        .filter((player: Player) => playerIdsInGame.includes(player._id) && player._id !== currentPlayerId);
+    this.playerService.getAll().subscribe((response: Player[]) => {
+      const playersToPunish = response.filter(
+        (player: Player) => playerIdsInGame.includes(player._id) && player._id !== currentPlayerId
+      );
 
       const playerNames = playersToPunish.map((player: Player) => player.name);
       const confirmationResult = confirm(`Schock-Aus-Strafe wird an folgende Spieler verteilt: ${playerNames.join(',')}`);

@@ -28,7 +28,6 @@ export class GameEventsComponent implements OnInit {
     this.gameId$ = this.route.params.pipe(map(params => params.gameId));
 
     this.allPlayers$ = this.playerService.getAll().pipe(
-      map((response: GetResponse<Player>) => response.rows.map(row => row.doc)),
       tap((player: Player[]) => this.selectedPlayer$.next(player[0]))
     );
 

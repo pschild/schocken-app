@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { PlayerService } from 'src/app/services/player.service';
 import { Observable } from 'rxjs';
-import { Player } from 'src/app/interfaces';
+import { Player, EntityType } from 'src/app/interfaces';
 import { map } from 'rxjs/operators';
-import { GetResponse, RemoveResponse } from 'src/app/services/pouchDb.service';
+import { GetResponse, RemoveResponse, FindResponse } from 'src/app/services/pouchDb.service';
 import { DialogService } from 'src/app/services/dialog.service';
 import { IDialogResult } from 'src/app/shared/dialog/dialog-config';
 import { DialogResult } from 'src/app/shared/dialog/dialog.enum';
@@ -64,9 +64,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   loadAllPlayers() {
-    this.allPlayers$ = this.playerService.getAll().pipe(
-      map((response: GetResponse<Player>) => response.rows.map(row => row.doc))
-    );
+    this.allPlayers$ = this.playerService.getAll();
   }
 
   showForm() {
@@ -79,7 +77,9 @@ export class UserManagementComponent implements OnInit {
       message: `Spieler ${player.name} wirklich löschen?`
     }).subscribe((dialogResult: IDialogResult) => {
       if (dialogResult.result === DialogResult.YES) {
-        this.playerService.remove(player).subscribe((response: RemoveResponse) => {
+        // this.playerService.remove(player)
+        player.deleted = true;
+        this.playerService.update(player._id, player).subscribe((response: RemoveResponse) => {
           this.loadAllPlayers();
         });
       }
