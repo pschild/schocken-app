@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
 import { from, Observable } from 'rxjs';
 import { EventTypeContext, EntityType, EventType, EventTypePenalty } from '../interfaces';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +11,10 @@ export class EventTypeService {
 
   constructor(private pouchDbService: PouchDbService) { }
 
-  getAll(): Observable<GetResponse<EventType>> {
-    return from(this.pouchDbService.getAll('eventType'));
+  getAll(): Observable<EventType[]> {
+    return from(this.pouchDbService.getAll('eventType')).pipe(
+      map((res: GetResponse<EventType>) => res.rows.map(row => row.doc)),
+    );
   }
 
   getAllByContext(context: EventTypeContext): Observable<FindResponse<EventType>> {

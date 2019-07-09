@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { GameService } from '../services/game.service';
-import { Observable, from, forkJoin, of } from 'rxjs';
-import { map, combineLatest, switchMap } from 'rxjs/operators';
-import { Game, Round } from '../interfaces';
+import { Observable, forkJoin, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { Game } from '../interfaces';
 import { Router } from '@angular/router';
-import { GetResponse, PutResponse } from '../services/pouchDb.service';
+import { PutResponse } from '../services/pouchDb.service';
 import { RoundService } from '../services/round.service';
 
 @Component({
@@ -19,10 +19,7 @@ export class HomeComponent implements OnInit {
   constructor(private gameService: GameService, private roundService: RoundService, private router: Router) { }
 
   ngOnInit() {
-    this.allGames$ = from(this.gameService.getAll())
-      .pipe(
-        map((response: GetResponse<Game>) => response.rows.map(row => row.doc))
-      );
+    this.allGames$ = this.gameService.getAll();
   }
 
   startNewGame() {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { PouchDbService, PutResponse, GetResponse } from './pouchDb.service';
 import { from, Observable } from 'rxjs';
 import { Game, EntityType } from '../interfaces';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +11,10 @@ export class GameService {
 
   constructor(private pouchDbService: PouchDbService) { }
 
-  getAll(): Observable<GetResponse<Game>> {
-    return from(this.pouchDbService.getAll('game'));
+  getAll(): Observable<Game[]> {
+    return from(this.pouchDbService.getAll('game')).pipe(
+      map((res: GetResponse<Game>) => res.rows.map(row => row.doc)),
+    );
   }
 
   getById(id: string): Observable<Game> {

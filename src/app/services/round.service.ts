@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
 import { from, Observable } from 'rxjs';
 import { Round, EntityType } from '../interfaces';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +11,10 @@ export class RoundService {
 
   constructor(private pouchDbService: PouchDbService) { }
 
-  getAll(): Observable<GetResponse<Round>> {
-    return from(this.pouchDbService.getAll('round'));
+  getAll(): Observable<Round[]> {
+    return from(this.pouchDbService.getAll('round')).pipe(
+      map((res: GetResponse<Round>) => res.rows.map(row => row.doc)),
+    );
   }
 
   getById(id: string): Observable<Round> {

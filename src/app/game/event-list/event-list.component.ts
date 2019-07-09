@@ -4,7 +4,7 @@ import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, switchMap, map, share } from 'rxjs/operators';
 import { GameEventService } from '../../services/game-event.service';
 import { EventTypeService } from '../../services/event-type.service';
-import { GetResponse, FindResponse, RemoveResponse } from '../../services/pouchDb.service';
+import { FindResponse, RemoveResponse } from '../../services/pouchDb.service';
 import { GameStateService } from '../game-state.service';
 import { RoundEventService } from '../../services/round-event.service';
 
@@ -38,9 +38,7 @@ export class EventListComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    this.eventTypes$ = this.eventTypeService.getAll().pipe(
-      map((response: GetResponse<EventType>) => response.rows.map(row => row.doc))
-    );
+    this.eventTypes$ = this.eventTypeService.getAll();
 
     const latestInputs$ = combineLatest(this.gameId$, this.roundId$, this.playerId$);
 
