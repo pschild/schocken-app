@@ -18,7 +18,6 @@ export class CheckForUpdateService {
   private checkForUpdateInterval: number = 60 * 60 * 1000; // 1h
 
   constructor(appRef: ApplicationRef, private updates: SwUpdate, private http: HttpClient) {
-    console.log('constrcuted!');
     updates.available.subscribe((event: UpdateAvailableEvent) => {
       const versionInfo = event.available.appData as VersionInfo;
       if (confirm(`Ein Update auf Version ${versionInfo.version} ist verfügbar. Jetzt updaten? Das Update wird ansonsten beim nächsten Start der Anwendung automatisch installiert.`)) {
