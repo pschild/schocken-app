@@ -1,13 +1,21 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="tag-form" #formEl="ngForm">
-    <input type="hidden" formControlName="_id" readonly>
+    <mat-card>
+        <mat-card-title>Spieler bearbeiten</mat-card-title>
+        <mat-card-content>
 
-    <mat-form-field>
-        <input matInput placeholder="Name" formControlName="name">
-    </mat-form-field>
+            <input type="hidden" formControlName="_id" readonly>
 
-    <div>
-        <mat-slide-toggle formControlName="active">Aktiv</mat-slide-toggle>
-    </div>
+            <mat-form-field>
+                <input matInput placeholder="Name" formControlName="name">
+            </mat-form-field>
 
-    <button type="submit" mat-raised-button color="primary">Speichern</button>
+            <div>
+                <mat-slide-toggle formControlName="active">Aktiv</mat-slide-toggle>
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-button (click)="navigateBack()">Abbrechen</button>
+            <button type="submit" mat-raised-button color="primary">Speichern</button>
+        </mat-card-actions>
+    </mat-card>
 </form>

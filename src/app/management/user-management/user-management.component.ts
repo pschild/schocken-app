@@ -10,6 +10,7 @@ import { DialogResult } from 'src/app/shared/dialog/dialog.enum';
 import { ITableConfig } from 'src/app/shared/table-wrapper/ITableConfig';
 import { IColumnInterface } from 'src/app/shared/table-wrapper/IColumnDefinition';
 import { Router, ActivatedRoute } from '@angular/router';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'app-user-management',
@@ -56,7 +57,8 @@ export class UserManagementComponent implements OnInit {
     private playerService: PlayerService,
     private dialogService: DialogService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit() {
@@ -74,20 +76,21 @@ export class UserManagementComponent implements OnInit {
   remove(player: Player) {
     this.dialogService.showYesNoDialog({
       title: 'Spieler löschen',
-      message: `Spieler ${player.name} wirklich löschen?`
+      message: `Spieler ${player.name} wirklich löschen? Hinweis: Der Spieler wird weiterhin in Statistiken sichtbar sein.`
     }).subscribe((dialogResult: IDialogResult) => {
       if (dialogResult.result === DialogResult.YES) {
         // this.playerService.remove(player)
         player.deleted = true;
         this.playerService.update(player._id, player).subscribe((response: RemoveResponse) => {
           this.loadAllPlayers();
+          this.snackBar.open(`Spieler ${player.name} gelöscht.`, 'OK', { duration: 2000 });
         });
       }
     });
   }
 
   edit(player: Player) {
-    this.router.navigate(['form', player._id], { relativeTo: this.route });
+    this.router.navigate(['form', { playerId: player._id }], { relativeTo: this.route });
   }
 
 }

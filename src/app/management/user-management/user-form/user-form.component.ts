@@ -40,4 +40,8 @@ export class UserFormComponent implements OnInit {
     }
   }
 
+  navigateBack() {
+    this.router.navigate(['..'], { relativeTo: this.route });
+  }
+
 }

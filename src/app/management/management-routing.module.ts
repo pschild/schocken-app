@@ -18,10 +18,6 @@ const routes: Routes = [
     component: UserFormComponent
   },
   {
-    path: 'users/form/:playerId',
-    component: UserFormComponent
-  },
-  {
     path: 'eventtypes',
     component: EventTypeManagementComponent
   }

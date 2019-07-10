@@ -26,7 +26,8 @@ import {
   MatPaginatorIntl,
   MatRippleModule,
   MatSlideToggleModule,
-  MatExpansionModule
+  MatExpansionModule,
+  MatSnackBarModule
 } from '@angular/material';
 import { MatPaginatorIntlCustom } from './material-custom-paginator';
 
@@ -57,7 +58,8 @@ import { MatPaginatorIntlCustom } from './material-custom-paginator';
     MatSidenavModule,
     MatRippleModule,
     MatSlideToggleModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatSnackBarModule
   ],
   exports: [
     MatButtonModule,
@@ -85,7 +87,8 @@ import { MatPaginatorIntlCustom } from './material-custom-paginator';
     MatSidenavModule,
     MatRippleModule,
     MatSlideToggleModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatSnackBarModule
   ],
   providers: [
     { provide: MatPaginatorIntl, useClass: MatPaginatorIntlCustom },
