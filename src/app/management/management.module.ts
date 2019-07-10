@@ -7,18 +7,22 @@ import { SharedModule } from '../shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../material/material.module';
 import { UserFormComponent } from './user-management/user-form/user-form.component';
+import { EventTypeFormComponent } from './event-type-management/event-type-form/event-type-form.component';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 @NgModule({
   declarations: [
     UserManagementComponent,
     EventTypeManagementComponent,
-    UserFormComponent
+    UserFormComponent,
+    EventTypeFormComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
+    FlexLayoutModule,
     ManagementRoutingModule,
     SharedModule
   ]

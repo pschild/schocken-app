@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { EventTypeManagementComponent } from './event-type-management/event-type-management.component';
 import { UserFormComponent } from './user-management/user-form/user-form.component';
+import { EventTypeFormComponent } from './event-type-management/event-type-form/event-type-form.component';
 
 const routes: Routes = [
   {
@@ -20,6 +21,10 @@ const routes: Routes = [
   {
     path: 'eventtypes',
     component: EventTypeManagementComponent
+  },
+  {
+    path: 'eventtypes/form',
+    component: EventTypeFormComponent
   }
 ];
 

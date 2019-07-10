@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
 import { from, Observable } from 'rxjs';
-import { EventTypeContext, EntityType, EventType, EventTypePenalty } from '../interfaces';
+import { EventTypeContext, EntityType, EventType } from '../interfaces';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -14,6 +14,7 @@ export class EventTypeService {
   getAll(): Observable<EventType[]> {
     return from(this.pouchDbService.getAll('eventType')).pipe(
       map((res: GetResponse<EventType>) => res.rows.map(row => row.doc)),
+      map((eventTypes: EventType[]) => eventTypes.filter(p => !p.deleted))
     );
   }
 
@@ -26,16 +27,20 @@ export class EventTypeService {
     return from(this.pouchDbService.getOne(id));
   }
 
-  create(name: string, context: EventTypeContext, penalty?: EventTypePenalty, valueUnit?: string, colorCode?: string): Observable<PutResponse> {
+  create(data: Partial<EventType>): Observable<PutResponse> {
     const eventType: EventType = {
       _id: this.pouchDbService.generateId('eventType'),
       type: EntityType.EVENT_TYPE,
-      name,
-      context,
-      penalty,
-      valueUnit,
-      colorCode,
+      name: data.name,
+      context: data.context,
+      penalty: data.penalty,
+      valueUnit: data.valueUnit,
+      colorCode: data.colorCode
     };
     return from(this.pouchDbService.create(eventType));
+  }
+
+  update(eventTypeId: string, data: Partial<EventType>): Observable<PutResponse> {
+    return from(this.pouchDbService.update(eventTypeId, data));
   }
 }

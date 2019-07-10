@@ -1,0 +1,71 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" #formEl="ngForm">
+    <mat-card>
+        <mat-card-title>Ereignis</mat-card-title>
+        <mat-card-content>
+
+            <div fxLayout="column" fxLayoutAlign="center start" fxLayoutGap="30px">
+                <input type="hidden" formControlName="_id" readonly>
+
+                <div fxLayout="row">
+                    <mat-form-field>
+                        <input matInput placeholder="Name" formControlName="name">
+                    </mat-form-field>
+                </div>
+                <div fxLayout="row" fxLayoutGap="10px">
+                    <label>Typ:</label>
+                    <mat-radio-group formControlName="context" fxLayoutGap="10px">
+                        <mat-radio-button value="round">Runde</mat-radio-button>
+                        <mat-radio-button value="game">Spiel</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+
+                <mat-checkbox formControlName="hasPenalty">Ereignis ist eine Strafe {{isPenalty}}</mat-checkbox>
+                <div *ngIf="form.get('hasPenalty').value">
+                    <div fxLayout="row" fxLayoutGap="10px">
+                        <div fxFlexAlign="center">
+                            <mat-form-field>
+                                <input matInput placeholder="Strafe" type="number" formControlName="penaltyValue">
+                            </mat-form-field>
+                        </div>
+                        <div fxFlexAlign="center">
+                            <mat-form-field>
+                                <mat-select formControlName="penaltyUnit">
+                                    <mat-option value="€">€</mat-option>
+                                    <mat-option value="Kiste(n)">Kiste(n)</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div fxLayout="row">
+                        <div fxFlexAlign="center" fxLayoutGap="10px">
+                            <label>{{form.get('penaltyValue').value}} {{form.get('penaltyUnit').value}} pro</label>
+                            <mat-form-field hintLabel="Bsp.: Woche(n), Monat(e), Augenzahlen, ...">
+                                <input matInput placeholder="" formControlName="valueUnit">
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+                <div fxFill>
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>Verlauf</mat-panel-title>
+                        </mat-expansion-panel-header>
+
+                        <div>ab 09.04.2019: 5€</div>
+                        <div>ab 09.04.3019: 5€</div>
+                        <div>ab 17.03.2019: 2.50€ pro Woche</div>
+                        <div>ab 01.01.2019: 2€ pro Woche</div>
+                    </mat-expansion-panel>
+                </div>
+            </div>
+
+        </mat-card-content>
+        <mat-card-actions>
+            <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="10px">
+                <button mat-button (click)="navigateBack()">Abbrechen</button>
+                <button type="submit" mat-raised-button color="primary">Speichern</button>
+            </div>
+        </mat-card-actions>
+    </mat-card>
+</form>

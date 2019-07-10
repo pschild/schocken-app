@@ -1,10 +1,4 @@
 <h1>Ereignisse verwalten</h1>
 
-<ul *ngIf="allEventTypes$ | async as allEventTypes">
-    <li *ngFor="let eventType of allEventTypes">
-        <div>{{eventType.name}}</div>
-        <div>
-            {{eventType.penalty.value}} {{eventType.penalty.unit}}<span *ngIf="eventType.valueUnit">pro {{eventType.valueUnit}}</span>
-        </div>
-    </li>
-</ul>
+<button mat-raised-button color="primary" (click)="showForm()">Neues Ereignis</button>
+<app-table-wrapper [config]="tableConfig" [columns]="columns" [elements]="allEventTypes$ | async"></app-table-wrapper>
