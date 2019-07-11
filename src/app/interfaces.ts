@@ -44,7 +44,7 @@ export interface Player extends Entity {
 export interface EventType extends Entity {
     name: string;
     context: EventTypeContext;
-    valueUnit?: string;
+    multiplicatorUnit?: string;
     penalty?: EventTypePenalty;
     history?: Array<{date: Date; penalty: EventTypePenalty}>;
     colorCode?: string;
@@ -54,7 +54,7 @@ export interface Event extends Entity {
     datetime: Date;
     playerId: string;
     eventTypeId: string;
-    eventTypeValue?: number;
+    multiplicatorValue?: number;
 }
 
 export interface GameEvent extends Event {

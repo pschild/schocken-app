@@ -33,7 +33,7 @@ export class GameEventService {
       type: EntityType.GAME_EVENT,
       datetime: new Date(),
       eventTypeId: data.eventTypeId,
-      eventTypeValue: data.eventTypeValue,
+      multiplicatorValue: data.multiplicatorValue,
       playerId: data.playerId,
       gameId: data.gameId
     };

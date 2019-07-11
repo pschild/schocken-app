@@ -87,8 +87,8 @@ export class EventListComponent implements OnInit, OnChanges {
         const sums = [];
         Object.keys(groupedItems).map(key => {
           const sum = groupedItems[key].reduce((tempSum, item) => {
-            if (item.eventType.valueUnit) {
-              return tempSum += item.event.eventTypeValue * item.eventType.penalty.value;
+            if (item.eventType.multiplicatorUnit) {
+              return tempSum += item.event.multiplicatorValue * item.eventType.penalty.value;
             }
             return tempSum += item.eventType.penalty.value;
           }, 0);

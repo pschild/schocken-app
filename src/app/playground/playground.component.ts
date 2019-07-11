@@ -25,7 +25,7 @@ export class PlaygroundComponent implements OnInit {
   eventTypeName: string;
   playerName: string;
   context: EventTypeContext = EventTypeContext.ROUND;
-  valueUnit: string;
+  multiplicatorUnit: string;
   penalty: EventTypePenalty;
   versionInfo: string;
   isCancelled: string;
@@ -139,7 +139,7 @@ export class PlaygroundComponent implements OnInit {
   }
 
   newRoundEvent() {
-    const roundEvent: RoundEvent = { _id: `roundEvent-${Math.floor(Math.random() * 100000)}`, type: EntityType.ROUND_EVENT, roundId: this.chosenRoundId, eventTypeValue: 42, playerId: '1', eventTypeId: this.chosenEventTypeId, datetime: new Date() };
+    const roundEvent: RoundEvent = { _id: `roundEvent-${Math.floor(Math.random() * 100000)}`, type: EntityType.ROUND_EVENT, roundId: this.chosenRoundId, multiplicatorValue: 42, playerId: '1', eventTypeId: this.chosenEventTypeId, datetime: new Date() };
     this.db.put(roundEvent, (err, result) => {
       console.log(err, result);
       this.loadAllRoundEvents();
@@ -190,7 +190,7 @@ export class PlaygroundComponent implements OnInit {
       type: EntityType.EVENT_TYPE,
       name: this.eventTypeName,
       context: this.context,
-      valueUnit: this.valueUnit,
+      multiplicatorUnit: this.multiplicatorUnit,
       penalty: this.penalty
     };
     if (this.penalty) {

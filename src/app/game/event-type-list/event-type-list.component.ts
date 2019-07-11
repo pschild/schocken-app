@@ -73,7 +73,7 @@ export class EventTypeListComponent implements OnInit, OnChanges {
       eventTypeId: eventType._id,
       gameId,
       playerId,
-      eventTypeValue: eventType['formValue']
+      multiplicatorValue: eventType['formValue']
     }).pipe(
       switchMap((response: PutResponse) => this.gameEventService.getById(response.id))
     );
@@ -82,7 +82,7 @@ export class EventTypeListComponent implements OnInit, OnChanges {
       eventTypeId: eventType._id,
       roundId,
       playerId,
-      eventTypeValue: eventType['formValue']
+      multiplicatorValue: eventType['formValue']
     }).pipe(
       switchMap((response: PutResponse) => this.gameEventService.getById(response.id))
     );

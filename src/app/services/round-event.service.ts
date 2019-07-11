@@ -33,7 +33,7 @@ export class RoundEventService {
       type: EntityType.ROUND_EVENT,
       datetime: new Date(),
       eventTypeId: data.eventTypeId,
-      eventTypeValue: data.eventTypeValue,
+      multiplicatorValue: data.multiplicatorValue,
       playerId: data.playerId,
       roundId: data.roundId
     };

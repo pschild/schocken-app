@@ -34,7 +34,7 @@ export class EventTypeService {
       name: data.name,
       context: data.context,
       penalty: data.penalty,
-      valueUnit: data.valueUnit,
+      multiplicatorUnit: data.multiplicatorUnit,
       colorCode: data.colorCode
     };
     return from(this.pouchDbService.create(eventType));

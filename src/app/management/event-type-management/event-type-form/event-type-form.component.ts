@@ -19,7 +19,7 @@ export class EventTypeFormComponent implements OnInit {
     context: [EventTypeContext.ROUND, Validators.required],
     penaltyValue: [''],
     penaltyUnit: [''],
-    valueUnit: [''],
+    multiplicatorUnit: [''],
     hasPenalty: [false]
   });
 
