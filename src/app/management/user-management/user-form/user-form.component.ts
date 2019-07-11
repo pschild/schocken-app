@@ -4,6 +4,7 @@ import { PlayerService } from 'src/app/services/player.service';
 import { switchMap, filter } from 'rxjs/operators';
 import { FormBuilder, Validators } from '@angular/forms';
 import { PutResponse } from 'src/app/services/pouchDb.service';
+import { Player } from 'src/app/interfaces';
 
 @Component({
   selector: 'app-user-form',
@@ -29,12 +30,13 @@ export class UserFormComponent implements OnInit {
 
   onSubmit() {
     if (this.form.valid) {
+      const entityFromForm = this._mapToEntity(this.form.value);
       let serviceCall;
-      const playerId = this.form.value._id;
+      const playerId = entityFromForm._id;
       if (playerId) {
-        serviceCall = this.playerService.update(playerId, this.form.value);
+        serviceCall = this.playerService.update(playerId, entityFromForm);
       } else {
-        serviceCall = this.playerService.create(this.form.value);
+        serviceCall = this.playerService.create(entityFromForm);
       }
       serviceCall.subscribe((response: PutResponse) => this.router.navigate(['management', 'users']));
     }
@@ -42,6 +44,16 @@ export class UserFormComponent implements OnInit {
 
   navigateBack() {
     this.router.navigate(['..'], { relativeTo: this.route });
+  }
+
+  private _mapToEntity(formData): Partial<Player> {
+    const entity: Partial<Player> = {
+      _id: formData._id,
+      name: formData.name,
+      active: formData.active
+    };
+
+    return entity;
   }
 
 }

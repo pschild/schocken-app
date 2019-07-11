@@ -40,13 +40,18 @@ export interface Player extends Entity {
     active: boolean;
 }
 
+export interface EventTypeHistoryEntry {
+    date: Date;
+    eventType: Partial<EventType>;
+}
+
 // Statistic, Category, Type, Punishment
 export interface EventType extends Entity {
     name: string;
     context: EventTypeContext;
     multiplicatorUnit?: string;
     penalty?: EventTypePenalty;
-    history?: Array<{date: Date; penalty: EventTypePenalty}>;
+    history?: Array<EventTypeHistoryEntry>;
     colorCode?: string;
 }
 

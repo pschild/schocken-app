@@ -9,6 +9,7 @@ import { GameEventsComponent } from './game-events/game-events.component';
 import { EventListComponent } from './event-list/event-list.component';
 import { EventTypeListComponent } from './event-type-list/event-type-list.component';
 import { AttendeeListComponent } from './attendee-list/attendee-list.component';
+import { MaterialModule } from '../material/material.module';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { AttendeeListComponent } from './attendee-list/attendee-list.component';
   imports: [
     CommonModule,
     FormsModule,
-    GameRoutingModule
+    GameRoutingModule,
+    MaterialModule
   ]
 })
 export class GameModule { }

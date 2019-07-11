@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
 import { from, Observable } from 'rxjs';
-import { EventTypeContext, EntityType, EventType } from '../interfaces';
-import { map } from 'rxjs/operators';
+import { EventTypeContext, EntityType, EventType, EventTypeHistoryEntry } from '../interfaces';
+import { map, switchMap, pluck } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -35,12 +35,31 @@ export class EventTypeService {
       context: data.context,
       penalty: data.penalty,
       multiplicatorUnit: data.multiplicatorUnit,
-      colorCode: data.colorCode
+      colorCode: data.colorCode,
+      history: [
+        {
+          date: new Date(),
+          eventType: data
+        }
+      ]
     };
+
     return from(this.pouchDbService.create(eventType));
   }
 
   update(eventTypeId: string, data: Partial<EventType>): Observable<PutResponse> {
-    return from(this.pouchDbService.update(eventTypeId, data));
+    return this.getById(eventTypeId).pipe(
+      // retrieve the old history...
+      pluck('history'),
+      // ...push the new value...
+      map((history: Array<EventTypeHistoryEntry>) => [
+        { date: new Date(), eventType: Object.assign({}, data) }, ...history
+      ]),
+      // ...update the whole entity
+      switchMap((history: Array<EventTypeHistoryEntry>) => {
+        data.history = history;
+        return from(this.pouchDbService.update(eventTypeId, data));
+      })
+    );
   }
 }

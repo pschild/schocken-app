@@ -193,12 +193,6 @@ export class PlaygroundComponent implements OnInit {
       multiplicatorUnit: this.multiplicatorUnit,
       penalty: this.penalty
     };
-    if (this.penalty) {
-      eventType.history = [{
-        date: new Date(),
-        penalty: this.penalty
-      }];
-    }
     this.db.put(eventType, (err, result) => {
       console.log(err, result);
       this.loadAllEventTypes();
