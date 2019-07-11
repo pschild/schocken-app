@@ -1,10 +1,36 @@
 <h1>Mitspieler auswählen</h1>
 
+<div class="example-container">
+    <h2>To do</h2>
+
+    <div cdkDropList #todoList="cdkDropList" [cdkDropListData]="todo" [cdkDropListConnectedTo]="[doneList]"
+        class="example-list" (cdkDropListDropped)="drop($event)">
+        <div class="example-box" *ngFor="let item of todo" cdkDrag>
+            <mat-icon>drag_indicator</mat-icon>
+            {{item}}
+        </div>
+    </div>
+</div>
+
+<div class="example-container">
+    <h2>Done</h2>
+
+    <div cdkDropList #doneList="cdkDropList" [cdkDropListData]="done" [cdkDropListConnectedTo]="[todoList]"
+        class="example-list" (cdkDropListDropped)="drop($event)">
+        <div class="example-box" *ngFor="let item of done" cdkDrag>
+            <mat-icon>drag_indicator</mat-icon>
+            {{item}}
+        </div>
+    </div>
+</div>
+
 <ul *ngIf="allPlayers$ | async as players">
     <li *ngFor="let player of players">
         {{player.name}} |
-        Teilnahme? <input type="checkbox" (change)="toggleParticipations(player._id, $event)" [checked]="isParticipating(player._id)" /> |
-        noch im Spiel?<input type="checkbox" (change)="toggleInGame(player._id, $event)" [checked]="isInGame(player._id)" />
+        Teilnahme? <input type="checkbox" (change)="toggleParticipations(player._id, $event)"
+            [checked]="isParticipating(player._id)" /> |
+        noch im Spiel?<input type="checkbox" (change)="toggleInGame(player._id, $event)"
+            [checked]="isInGame(player._id)" />
     </li>
 </ul>
 

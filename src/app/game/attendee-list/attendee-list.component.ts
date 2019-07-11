@@ -7,6 +7,7 @@ import { RoundService } from '../../services/round.service';
 import { GameService } from '../../services/game.service';
 import { PlayerService } from '../../services/player.service';
 import { GetResponse, PutResponse } from '../../services/pouchDb.service';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-attendee-list',
@@ -16,7 +17,22 @@ import { GetResponse, PutResponse } from '../../services/pouchDb.service';
 export class AttendeeListComponent implements OnInit {
 
   allPlayers$: Observable<Array<Player>>;
-  participatingPlayerIds: Array<{playerId: string; inGame: boolean}> = [];
+  participatingPlayerIds: Array<{ playerId: string; inGame: boolean }> = [];
+
+  todo = [
+    'Get to work',
+    'Pick up groceries',
+    'Go home',
+    'Fall asleep'
+  ];
+
+  done = [
+    'Get up',
+    'Brush teeth',
+    'Take a shower',
+    'Check e-mail',
+    'Walk dog'
+  ];
 
   constructor(
     private roundService: RoundService,
@@ -36,7 +52,7 @@ export class AttendeeListComponent implements OnInit {
       map((round: Round) => {
         return round.participatingPlayerIds;
       })
-    ).subscribe((participatingPlayerIds: Array<{playerId: string; inGame: boolean}>) => {
+    ).subscribe((participatingPlayerIds: Array<{ playerId: string; inGame: boolean }>) => {
       this.participatingPlayerIds = participatingPlayerIds || [];
     });
   }
@@ -78,6 +94,17 @@ export class AttendeeListComponent implements OnInit {
           throw new Error(`Participating players could not be set on round`);
         }
       });
+  }
+
+  drop(event: CdkDragDrop<string[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex);
+    }
   }
 
 }
