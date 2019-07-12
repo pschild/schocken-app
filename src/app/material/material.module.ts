@@ -29,7 +29,8 @@ import {
   MatExpansionModule,
   MatSnackBarModule,
   MatRadioModule,
-  MatCheckboxModule
+  MatCheckboxModule,
+  MatTabsModule
 } from '@angular/material';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatPaginatorIntlCustom } from './material-custom-paginator';
@@ -64,6 +65,7 @@ const materialModules = [
   MatSnackBarModule,
   MatRadioModule,
   MatCheckboxModule,
+  MatTabsModule,
   DragDropModule
 ];
 
