@@ -4,6 +4,9 @@ import { first, } from 'rxjs/operators';
 import { concat, interval } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { DialogService } from './dialog.service';
+import { IDialogResult } from '../shared/dialog/dialog-config';
+import { DialogResult } from '../shared/dialog/dialog.enum';
 
 export interface VersionInfo {
   version: string;
@@ -17,18 +20,24 @@ export class CheckForUpdateService {
 
   private checkForUpdateInterval: number = 60 * 60 * 1000; // 1h
 
-  constructor(appRef: ApplicationRef, private updates: SwUpdate, private http: HttpClient) {
+  constructor(appRef: ApplicationRef, private updates: SwUpdate, private http: HttpClient, private dialogService: DialogService) {
     updates.available.subscribe((event: UpdateAvailableEvent) => {
       const versionInfo = event.available.appData as VersionInfo;
-      if (confirm(`Ein Update auf Version ${versionInfo.version} ist verfügbar. Jetzt updaten? Das Update wird ansonsten beim nächsten Start der Anwendung automatisch installiert.`)) {
-        updates.activateUpdate().then(() => {
-          this.setVersionInfo(versionInfo);
-          this.resetCancelledFlag();
-          document.location.reload();
-        });
-      } else {
-        this.setCancelledFlag();
-      }
+      this.dialogService.showYesNoDialog({
+        title: `Update verfügbar`,
+        message: `Ein Update auf Version ${versionInfo.version} ist verfügbar. Jetzt updaten?`
+          + `Das Update wird ansonsten beim nächsten Start der Anwendung automatisch installiert.`
+      }).subscribe((dialogResult: IDialogResult) => {
+        if (dialogResult.result === DialogResult.YES) {
+          updates.activateUpdate().then(() => {
+            this.setVersionInfo(versionInfo);
+            this.resetCancelledFlag();
+            document.location.reload();
+          });
+        } else {
+          this.setCancelledFlag();
+        }
+      });
     });
 
     if (environment.production) {
@@ -45,7 +54,10 @@ export class CheckForUpdateService {
         const localBuildTime = this.getVersionInfo().buildTime;
         if (appVersionInfo.version !== localVersion || appVersionInfo.buildTime !== localBuildTime) {
           this.setVersionInfo(appVersionInfo);
-          alert(`Du verwendest nun die aktuellste Version ${appVersionInfo.version}.`);
+          this.dialogService.showNotificationDialog({
+            title: `Hinweis`,
+            message: `Du verwendest nun die aktuellste Version ${appVersionInfo.version}.`
+          });
         }
       });
     }
