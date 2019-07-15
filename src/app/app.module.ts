@@ -16,10 +16,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppConfigProvider } from './config/app-config.provider';
 import { PouchDbAdapter } from './db/pouchdb.adapter';
 import { appInitializerFn } from './initialization/bootstrap';
+import { NavigationComponent } from './navigation/navigation.component';
+import { LayoutModule } from '@angular/cdk/layout';
+import { MaterialModule } from './material/material.module';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    NavigationComponent
   ],
   imports: [
     CommonModule,
@@ -32,7 +36,9 @@ import { appInitializerFn } from './initialization/bootstrap';
     SharedModule,
     AppRoutingModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    MaterialModule,
+    LayoutModule
   ],
   providers: [
     AppConfigProvider,

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SyncService } from '../../services/sync.service';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sync-state',
@@ -22,6 +22,7 @@ export class SyncStateComponent implements OnInit {
     }
 
     this.syncState$ = this.syncService.syncEvent$.pipe(
+      startWith({ type: 'COMPLETE' }),
       map(this._mapSyncState),
       tap((syncState) => {
         if (syncState !== 'ERROR') {

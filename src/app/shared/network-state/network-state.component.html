@@ -1,2 +1,1 @@
-<div class="state-container" [ngClass]="(isOnline$ | async) ? 'online' : 'offline'"></div>
-
+<mat-icon *ngIf="(isOnline$ | async) === false">offline_bolt</mat-icon>

@@ -1,12 +1,3 @@
-<nav>
-    <a routerLink="/home" routerLinkActive="active">Home</a>
-    <a routerLink="/management/users" routerLinkActive="active">Spieler</a>
-    <a routerLink="/management/eventtypes" routerLinkActive="active">Strafen</a>
-    <a routerLink="/about" routerLinkActive="active">About</a>
-    <a routerLink="/playground" routerLinkActive="active">Playground</a>
-</nav>
-
-<app-sync-state></app-sync-state>
-<app-network-state></app-network-state>
-
-<router-outlet></router-outlet>
+<app-navigation>
+    <router-outlet></router-outlet>
+</app-navigation>

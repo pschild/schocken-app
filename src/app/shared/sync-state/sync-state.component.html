@@ -1,5 +1,12 @@
-<div>
-  <div>Stand: {{(lastSynced | date:'dd.MM. HH:mm') || 'noch nicht synchronisiert'}}</div>
-  <span *ngIf="syncState$ | async as syncState">{{syncState}}</span>
-  <button *ngIf="(syncState$ | async) !== 'PENDING'" mat-raised-button color="primary" (click)="startSync()">sync</button>
+<div *ngIf="(syncState$ | async) as syncState">
+  <button *ngIf="syncState === 'PENDING'" mat-icon-button style="color: red">
+    <mat-icon>sync</mat-icon>
+  </button>
+  <button *ngIf="syncState === 'IDLE'" mat-icon-button (click)="startSync()">
+    <mat-icon>sync</mat-icon>
+  </button>
+  <button *ngIf="syncState === 'ERROR'" mat-icon-button (click)="startSync()">
+    <mat-icon>sync_problem</mat-icon>
+  </button>
+  <span style="font-size: 10px">{{(lastSynced | date:'dd.MM. HH:mm') || 'N/A'}}</span>
 </div>
