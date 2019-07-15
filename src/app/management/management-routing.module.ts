@@ -8,7 +8,7 @@ import { EventTypeFormComponent } from './event-type-management/event-type-form/
 const routes: Routes = [
   {
     path: '',
-    component: UserManagementComponent
+    redirectTo: 'users'
   },
   {
     path: 'users',
