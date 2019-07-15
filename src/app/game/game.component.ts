@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Game } from '../interfaces';
-import { GameRepository } from '../db/repository/game.repository';
+import { GameProvider } from '../provider/game.provider';
 
 @Component({
   selector: 'app-game',
@@ -17,7 +17,7 @@ export class GameComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private gameRepository: GameRepository
+    private gameProvider: GameProvider
   ) { }
 
   ngOnInit() {
@@ -26,7 +26,7 @@ export class GameComponent implements OnInit {
     );
 
     this.game$ = this.route.params.pipe(
-      switchMap(params => this.gameRepository.getById(params.gameId))
+      switchMap(params => this.gameProvider.getById(params.gameId))
     );
   }
 

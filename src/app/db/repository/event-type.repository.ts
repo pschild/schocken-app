@@ -14,7 +14,6 @@ export class EventTypeRepository {
   getAll(): Observable<EventType[]> {
     return from(this.pouchDb.getAll('eventType')).pipe(
       map((res: GetResponse<EventType>) => res.rows.map(row => row.doc)),
-      map((eventTypes: EventType[]) => eventTypes.filter(p => !p.deleted))
     );
   }
 

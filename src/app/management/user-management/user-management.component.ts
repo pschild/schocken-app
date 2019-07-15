@@ -8,8 +8,8 @@ import { ITableConfig } from 'src/app/shared/table-wrapper/ITableConfig';
 import { IColumnInterface } from 'src/app/shared/table-wrapper/IColumnDefinition';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
-import { PlayerRepository } from 'src/app/db/repository/player.repository';
 import { RemoveResponse } from 'src/app/db/pouchdb.adapter';
+import { PlayerProvider } from 'src/app/provider/player.provider';
 
 @Component({
   selector: 'app-user-management',
@@ -53,7 +53,7 @@ export class UserManagementComponent implements OnInit {
   allPlayers$: Observable<Array<Player>>;
 
   constructor(
-    private playerRepository: PlayerRepository,
+    private playerProvider: PlayerProvider,
     private dialogService: DialogService,
     private router: Router,
     private route: ActivatedRoute,
@@ -65,7 +65,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   loadAllPlayers() {
-    this.allPlayers$ = this.playerRepository.getAll();
+    this.allPlayers$ = this.playerProvider.getAll();
   }
 
   showForm() {
@@ -80,7 +80,7 @@ export class UserManagementComponent implements OnInit {
       if (dialogResult.result === DialogResult.YES) {
         // this.playerService.remove(player)
         player.deleted = true;
-        this.playerRepository.update(player._id, player).subscribe((response: RemoveResponse) => {
+        this.playerProvider.update(player._id, player).subscribe((response: RemoveResponse) => {
           this.loadAllPlayers();
           this.snackBar.open(`Spieler ${player.name} gelöscht.`, 'OK', { duration: 2000 });
         });

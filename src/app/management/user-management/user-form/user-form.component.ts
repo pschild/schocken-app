@@ -4,7 +4,7 @@ import { switchMap, filter } from 'rxjs/operators';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Player } from 'src/app/interfaces';
 import { PutResponse } from 'src/app/db/pouchdb.adapter';
-import { PlayerRepository } from 'src/app/db/repository/player.repository';
+import { PlayerProvider } from 'src/app/provider/player.provider';
 
 @Component({
   selector: 'app-user-form',
@@ -22,14 +22,14 @@ export class UserFormComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private playerRepository: PlayerRepository,
+    private playerProvider: PlayerProvider,
     private fb: FormBuilder
   ) { }
 
   ngOnInit() {
     this.route.params.pipe(
       filter(params => !!params.playerId),
-      switchMap(params => this.playerRepository.getById(params.playerId))
+      switchMap(params => this.playerProvider.getById(params.playerId))
     ).subscribe(player => this.form.patchValue(player));
   }
 
@@ -39,9 +39,9 @@ export class UserFormComponent implements OnInit {
       let serviceCall;
       const playerId = entityFromForm._id;
       if (playerId) {
-        serviceCall = this.playerRepository.update(playerId, entityFromForm);
+        serviceCall = this.playerProvider.update(playerId, entityFromForm);
       } else {
-        serviceCall = this.playerRepository.create(entityFromForm);
+        serviceCall = this.playerProvider.create(entityFromForm);
       }
       serviceCall.subscribe((response: PutResponse) => this.router.navigate(['management', 'users']));
     }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { EventType, Player } from 'src/app/interfaces';
+import { EventType } from 'src/app/interfaces';
 import { Observable } from 'rxjs';
 import { ITableConfig } from 'src/app/shared/table-wrapper/ITableConfig';
 import { IColumnInterface } from 'src/app/shared/table-wrapper/IColumnDefinition';
@@ -8,8 +8,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
 import { IDialogResult } from 'src/app/shared/dialog/dialog-config';
 import { DialogResult } from 'src/app/shared/dialog/dialog.enum';
-import { EventTypeRepository } from 'src/app/db/repository/event-type.repository';
 import { RemoveResponse } from 'src/app/db/pouchdb.adapter';
+import { EventTypeProvider } from 'src/app/provider/event-type.provider';
 
 @Component({
   selector: 'app-event-type-management',
@@ -59,7 +59,7 @@ export class EventTypeManagementComponent implements OnInit {
   allEventTypes$: Observable<Array<EventType>>;
 
   constructor(
-    private eventTypeRepository: EventTypeRepository,
+    private eventTypeProvider: EventTypeProvider,
     private dialogService: DialogService,
     private router: Router,
     private route: ActivatedRoute,
@@ -71,7 +71,7 @@ export class EventTypeManagementComponent implements OnInit {
   }
 
   loadAllEventTypes() {
-    this.allEventTypes$ = this.eventTypeRepository.getAll();
+    this.allEventTypes$ = this.eventTypeProvider.getAll();
   }
 
   showForm() {
@@ -86,7 +86,7 @@ export class EventTypeManagementComponent implements OnInit {
       if (dialogResult.result === DialogResult.YES) {
         // this.eventTypeService.remove(eventType)
         eventType.deleted = true;
-        this.eventTypeRepository.update(eventType._id, eventType).subscribe((response: RemoveResponse) => {
+        this.eventTypeProvider.update(eventType._id, eventType).subscribe((response: RemoveResponse) => {
           this.loadAllEventTypes();
           this.snackBar.open(`Ereignis ${eventType.name} gelöscht.`, 'OK', { duration: 2000 });
         });

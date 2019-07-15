@@ -4,10 +4,10 @@ import { Observable, combineLatest } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Player, Round } from '../../interfaces';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { RoundRepository } from 'src/app/db/repository/round.repository';
-import { GameRepository } from 'src/app/db/repository/game.repository';
-import { PlayerRepository } from 'src/app/db/repository/player.repository';
 import { PutResponse } from 'src/app/db/pouchdb.adapter';
+import { GameProvider } from 'src/app/provider/game.provider';
+import { PlayerProvider } from 'src/app/provider/player.provider';
+import { RoundProvider } from 'src/app/provider/round.provider';
 
 @Component({
   selector: 'app-attendee-list',
@@ -22,17 +22,17 @@ export class AttendeeListComponent implements OnInit {
   otherPlayers: Array<{player: Player; inGame: boolean}> = [];
 
   constructor(
-    private roundRepository: RoundRepository,
-    private gameRepository: GameRepository,
-    private playerRepository: PlayerRepository,
+    private roundProvider: RoundProvider,
+    private gameProvider: GameProvider,
+    private playerProvider: PlayerProvider,
     private router: Router,
     private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
-    const allPlayers$ = this.playerRepository.getAll();
+    const allPlayers$ = this.playerProvider.getAll();
     const participatingPlayerIds$ = this.route.params.pipe(
-      switchMap(params => this.gameRepository.getById(params.roundId)),
+      switchMap(params => this.gameProvider.getById(params.roundId)),
       map((round: Round) => round.participatingPlayerIds)
     );
 
@@ -54,7 +54,7 @@ export class AttendeeListComponent implements OnInit {
   handleSaveClicked() {
     const currentGameId = this.route.snapshot.paramMap.get('gameId');
     const currentRoundId = this.route.snapshot.paramMap.get('roundId');
-    this.roundRepository.update(currentRoundId, {
+    this.roundProvider.update(currentRoundId, {
       participatingPlayerIds: this.participatingPlayers.map(item => ({ playerId: item.player._id, inGame: item.inGame }))
     }).subscribe((response: PutResponse) => {
         if (response.ok === true) {

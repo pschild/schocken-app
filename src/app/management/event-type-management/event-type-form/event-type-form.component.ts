@@ -3,8 +3,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 import { filter, switchMap } from 'rxjs/operators';
 import { EventTypeContext, EventTypePenalty, EventType, EventTypeHistoryEntry } from 'src/app/interfaces';
-import { EventTypeRepository } from 'src/app/db/repository/event-type.repository';
 import { PutResponse } from 'src/app/db/pouchdb.adapter';
+import { EventTypeProvider } from 'src/app/provider/event-type.provider';
 
 @Component({
   selector: 'app-event-type-form',
@@ -28,14 +28,14 @@ export class EventTypeFormComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private eventTypeRepository: EventTypeRepository,
+    private eventTypeProvider: EventTypeProvider,
     private fb: FormBuilder
   ) { }
 
   ngOnInit() {
     this.route.params.pipe(
       filter(params => !!params.eventTypeId),
-      switchMap(params => this.eventTypeRepository.getById(params.eventTypeId))
+      switchMap(params => this.eventTypeProvider.getById(params.eventTypeId))
     ).subscribe(eventType => {
       this.form.patchValue(Object.assign(eventType, {
         penaltyValue: eventType.penalty ? eventType.penalty.value : undefined,
@@ -70,9 +70,9 @@ export class EventTypeFormComponent implements OnInit {
       let serviceCall;
       const eventTypeId = entityFromForm._id;
       if (eventTypeId) {
-        serviceCall = this.eventTypeRepository.update(eventTypeId, entityFromForm);
+        serviceCall = this.eventTypeProvider.update(eventTypeId, entityFromForm);
       } else {
-        serviceCall = this.eventTypeRepository.create(entityFromForm);
+        serviceCall = this.eventTypeProvider.create(entityFromForm);
       }
       serviceCall.subscribe((response: PutResponse) => this.router.navigate(['management', 'eventtypes']));
     }

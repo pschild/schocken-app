@@ -13,3 +13,20 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 ## Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+
+# Architecture
+
+## Responsibilities of classes
+
+```
+component -----> provider -----> repository +-------------------> HTTP
+   |                 |                      |
+   |                 |                      |
+   +---> service <---+                      +----> adapter -----> DB
+```
+
+* `component`: Shows the UI; may only import `provider`s; may use `service`s to process entities, map data, etc.
+* `provider`: Calls the repository; usually passes the request to the repo; may use `service`s to process entities, map data, etc.
+* `repository`: Processes backend calls; uses `HttpClient`
+* `service`: Wraps functionality like mapping entities, handling on-/offline-state etc.
+* `adapter`: Abstracts access to a specific DB, like PouchDB

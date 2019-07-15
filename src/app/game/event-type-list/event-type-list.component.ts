@@ -1,12 +1,12 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { EventType, EventTypeContext, Event } from '../../interfaces';
+import { EventType, EventTypeContext, Event, EventTypePenalty } from '../../interfaces';
 import { map, filter, switchMap } from 'rxjs/operators';
 import { GameStateService } from '../game-state.service';
-import { GameEventRepository } from 'src/app/db/repository/game-event.repository';
-import { EventTypeRepository } from 'src/app/db/repository/event-type.repository';
-import { RoundEventRepository } from 'src/app/db/repository/round-event.repository';
 import { FindResponse, PutResponse } from 'src/app/db/pouchdb.adapter';
+import { GameEventProvider } from 'src/app/provider/game-event.provider';
+import { RoundEventProvider } from 'src/app/provider/round-event.provider';
+import { EventTypeProvider } from 'src/app/provider/event-type.provider';
 
 @Component({
   selector: 'app-event-type-list',
@@ -30,9 +30,9 @@ export class EventTypeListComponent implements OnInit, OnChanges {
   allEventTypes$: Observable<Array<EventType>>;
 
   constructor(
-    private gameEventRepository: GameEventRepository,
-    private roundEventRepository: RoundEventRepository,
-    private eventTypeRepository: EventTypeRepository,
+    private gameEventProvider: GameEventProvider,
+    private roundEventProvider: RoundEventProvider,
+    private eventTypeProvider: EventTypeProvider,
     private state: GameStateService
   ) { }
 
@@ -43,9 +43,9 @@ export class EventTypeListComponent implements OnInit, OnChanges {
       filter(([gameId, roundId]) => !!roundId || !!gameId),
       switchMap(([gameId, roundId]) => {
         if (gameId) {
-          return this.eventTypeRepository.getAllByContext(EventTypeContext.GAME);
+          return this.eventTypeProvider.getAllByContext(EventTypeContext.GAME);
         } else {
-          return this.eventTypeRepository.getAllByContext(EventTypeContext.ROUND);
+          return this.eventTypeProvider.getAllByContext(EventTypeContext.ROUND);
         }
       }),
       map((response: FindResponse<EventType>) => response.docs)
@@ -69,22 +69,22 @@ export class EventTypeListComponent implements OnInit, OnChanges {
     const roundId = this.roundId$.getValue();
     const playerId = this.playerId$.getValue();
 
-    const createGameEvent$ = this.gameEventRepository.create({
+    const createGameEvent$ = this.gameEventProvider.create({
       eventTypeId: eventType._id,
       gameId,
       playerId,
       multiplicatorValue: eventType['formValue']
     }).pipe(
-      switchMap((response: PutResponse) => this.gameEventRepository.getById(response.id))
+      switchMap((response: PutResponse) => this.gameEventProvider.getById(response.id))
     );
 
-    const createRoundEvent$ = this.roundEventRepository.create({
+    const createRoundEvent$ = this.roundEventProvider.create({
       eventTypeId: eventType._id,
       roundId,
       playerId,
       multiplicatorValue: eventType['formValue']
     }).pipe(
-      switchMap((response: PutResponse) => this.gameEventRepository.getById(response.id))
+      switchMap((response: PutResponse) => this.gameEventProvider.getById(response.id))
     );
 
     const save$ = gameId ? createGameEvent$ : createRoundEvent$;

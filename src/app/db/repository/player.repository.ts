@@ -13,8 +13,7 @@ export class PlayerRepository {
 
   getAll(): Observable<Player[]> {
     return from(this.pouchDb.getAll('player')).pipe(
-      map((res: GetResponse<Player>) => res.rows.map(row => row.doc)),
-      map((players: Player[]) => players.filter(p => !p.deleted))
+      map((res: GetResponse<Player>) => res.rows.map(row => row.doc))
     );
   }
 
