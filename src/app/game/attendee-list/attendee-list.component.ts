@@ -3,11 +3,11 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, combineLatest } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { Player, Round } from '../../interfaces';
-import { RoundService } from '../../services/round.service';
-import { GameService } from '../../services/game.service';
-import { PlayerService } from '../../services/player.service';
-import { PutResponse } from '../../services/pouchDb.service';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { RoundRepository } from 'src/app/db/repository/round.repository';
+import { GameRepository } from 'src/app/db/repository/game.repository';
+import { PlayerRepository } from 'src/app/db/repository/player.repository';
+import { PutResponse } from 'src/app/db/pouchdb.adapter';
 
 @Component({
   selector: 'app-attendee-list',
@@ -22,17 +22,17 @@ export class AttendeeListComponent implements OnInit {
   otherPlayers: Array<{player: Player; inGame: boolean}> = [];
 
   constructor(
-    private roundService: RoundService,
-    private gameService: GameService,
-    private playerService: PlayerService,
+    private roundRepository: RoundRepository,
+    private gameRepository: GameRepository,
+    private playerRepository: PlayerRepository,
     private router: Router,
     private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
-    const allPlayers$ = this.playerService.getAll();
+    const allPlayers$ = this.playerRepository.getAll();
     const participatingPlayerIds$ = this.route.params.pipe(
-      switchMap(params => this.gameService.getById(params.roundId)),
+      switchMap(params => this.gameRepository.getById(params.roundId)),
       map((round: Round) => round.participatingPlayerIds)
     );
 
@@ -54,7 +54,7 @@ export class AttendeeListComponent implements OnInit {
   handleSaveClicked() {
     const currentGameId = this.route.snapshot.paramMap.get('gameId');
     const currentRoundId = this.route.snapshot.paramMap.get('roundId');
-    this.roundService.update(currentRoundId, {
+    this.roundRepository.update(currentRoundId, {
       participatingPlayerIds: this.participatingPlayers.map(item => ({ playerId: item.player._id, inGame: item.inGame }))
     }).subscribe((response: PutResponse) => {
         if (response.ok === true) {

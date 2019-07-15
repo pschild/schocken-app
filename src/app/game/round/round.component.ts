@@ -1,12 +1,12 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { RoundService } from '../../services/round.service';
 import { Observable, combineLatest, BehaviorSubject, forkJoin } from 'rxjs';
 import { map, switchMap, filter } from 'rxjs/operators';
 import { Round, Player, Game } from '../../interfaces';
-import { RoundEventService } from '../../services/round-event.service';
-import { PutResponse, FindResponse, GetResponse } from '../../services/pouchDb.service';
-import { PlayerService } from '../../services/player.service';
 import { Router } from '@angular/router';
+import { PlayerRepository } from 'src/app/db/repository/player.repository';
+import { RoundRepository } from 'src/app/db/repository/round.repository';
+import { RoundEventRepository } from 'src/app/db/repository/round-event.repository';
+import { FindResponse, PutResponse } from 'src/app/db/pouchdb.adapter';
 
 @Component({
   selector: 'app-round',
@@ -25,13 +25,13 @@ export class RoundComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private playerService: PlayerService,
-    private roundService: RoundService,
-    private roundEventService: RoundEventService
+    private playerRepository: PlayerRepository,
+    private roundRepository: RoundRepository,
+    private roundEventRepository: RoundEventRepository
   ) { }
 
   ngOnInit() {
-    this.roundService.getRoundsByGameId(this.game._id).pipe(
+    this.roundRepository.getRoundsByGameId(this.game._id).pipe(
       map((response: FindResponse<Round>) => response.docs)
     ).subscribe((rounds: Round[]) => {
       this.gameRounds$.next(rounds);
@@ -61,9 +61,9 @@ export class RoundComponent implements OnInit {
           throw new Error(`Round has no players in game!`);
         }
         if (round.currentPlayerId && playerIsInGame) {
-          return this.playerService.getById(round.currentPlayerId);
+          return this.playerRepository.getById(round.currentPlayerId);
         } else {
-          return this.playerService.getById(playersInGame[0].playerId);
+          return this.playerRepository.getById(playersInGame[0].playerId);
         }
       })
     ).subscribe((player: Player) => {
@@ -78,7 +78,7 @@ export class RoundComponent implements OnInit {
 
     const confirmationResult = confirm(`${this.currentPlayer$.getValue().name} hat verloren. Eine neue Runde wird gestartet.`);
     if (confirmationResult) {
-      this.roundService.create({
+      this.roundRepository.create({
         gameId: this.game._id,
         currentPlayerId,
         participatingPlayerIds: currentRound.participatingPlayerIds.map(item => {
@@ -86,7 +86,7 @@ export class RoundComponent implements OnInit {
           return item;
         })
       }).pipe(
-        switchMap((response: PutResponse) => this.roundService.getById(response.id))
+        switchMap((response: PutResponse) => this.roundRepository.getById(response.id))
       ).subscribe((round: Round) => {
         this.gameRounds$.next([...this.gameRounds$.getValue(), round]);
         this.currentRound$.next(round);
@@ -102,7 +102,7 @@ export class RoundComponent implements OnInit {
       .filter(item => item.inGame === true)
       .map(item => item.playerId);
 
-    this.playerService.getAll().subscribe((response: Player[]) => {
+    this.playerRepository.getAll().subscribe((response: Player[]) => {
       const playersToPunish = response.filter(
         (player: Player) => playerIdsInGame.includes(player._id) && player._id !== currentPlayerId
       );
@@ -110,7 +110,7 @@ export class RoundComponent implements OnInit {
       const playerNames = playersToPunish.map((player: Player) => player.name);
       const confirmationResult = confirm(`Schock-Aus-Strafe wird an folgende Spieler verteilt: ${playerNames.join(',')}`);
       if (confirmationResult) {
-        forkJoin(playersToPunish.map((player: Player) => this.roundEventService.create({
+        forkJoin(playersToPunish.map((player: Player) => this.roundEventRepository.create({
           eventTypeId: 'eventType-23023',
           roundId: currentRound._id,
           playerId: player._id
@@ -129,7 +129,7 @@ export class RoundComponent implements OnInit {
       throw new Error(`Could not find player with id ${currentPlayerId}`);
     }
     participatingPlayer.inGame = false;
-    this.roundService.update(currentRound._id, { participatingPlayerIds: currentRound.participatingPlayerIds })
+    this.roundRepository.update(currentRound._id, { participatingPlayerIds: currentRound.participatingPlayerIds })
       .subscribe((response: PutResponse) => this._changePlayer(1));
   }
 
@@ -152,8 +152,8 @@ export class RoundComponent implements OnInit {
     const currentPlayerId = this.currentPlayer$.getValue()._id;
     const nextPlayerId = this._calculateNextPlayerId(direction, currentPlayerId, playerIds);
 
-    this.roundService.update(currentRound._id, { currentPlayerId: nextPlayerId }).pipe(
-      switchMap((response: PutResponse) => this.playerService.getById(nextPlayerId))
+    this.roundRepository.update(currentRound._id, { currentPlayerId: nextPlayerId }).pipe(
+      switchMap((response: PutResponse) => this.playerRepository.getById(nextPlayerId))
     ).subscribe((player: Player) => {
       this.currentPlayer$.next(player);
     });

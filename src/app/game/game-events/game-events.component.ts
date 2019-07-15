@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { PlayerService } from '../../services/player.service';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { Player } from '../../interfaces';
-import { GetResponse } from '../../services/pouchDb.service';
 import { map, tap } from 'rxjs/operators';
+import { PlayerRepository } from 'src/app/db/repository/player.repository';
 
 @Component({
   selector: 'app-game-events',
@@ -20,14 +19,14 @@ export class GameEventsComponent implements OnInit {
   selectedPlayerModel: Player;
 
   constructor(
-    private playerService: PlayerService,
+    private playerRepository: PlayerRepository,
     private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
     this.gameId$ = this.route.params.pipe(map(params => params.gameId));
 
-    this.allPlayers$ = this.playerService.getAll().pipe(
+    this.allPlayers$ = this.playerRepository.getAll().pipe(
       tap((player: Player[]) => this.selectedPlayer$.next(player[0]))
     );
 

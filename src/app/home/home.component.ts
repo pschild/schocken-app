@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { GameService } from '../services/game.service';
 import { Observable, forkJoin, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Game } from '../interfaces';
 import { Router } from '@angular/router';
-import { PutResponse } from '../services/pouchDb.service';
-import { RoundService } from '../services/round.service';
+import { GameRepository } from '../db/repository/game.repository';
+import { RoundRepository } from '../db/repository/round.repository';
+import { PutResponse } from '../db/pouchdb.adapter';
 
 @Component({
   selector: 'app-home',
@@ -16,18 +16,18 @@ export class HomeComponent implements OnInit {
 
   allGames$: Observable<Game[]>;
 
-  constructor(private gameService: GameService, private roundService: RoundService, private router: Router) { }
+  constructor(private gameRepository: GameRepository, private roundRepository: RoundRepository, private router: Router) { }
 
   ngOnInit() {
-    this.allGames$ = this.gameService.getAll();
+    this.allGames$ = this.gameRepository.getAll();
   }
 
   startNewGame() {
-    this.gameService.create().pipe(
+    this.gameRepository.create().pipe(
       switchMap((response: PutResponse) => {
         return forkJoin(
           of(response),
-          this.roundService.create({ gameId: response.id })
+          this.roundRepository.create({ gameId: response.id })
         )
       })
     ).subscribe(result => {

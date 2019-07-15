@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
 import { Subject } from 'rxjs';
-import { AppConfigService } from './app-config.service';
+import { AppConfigProvider } from '../config/app-config.provider';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,7 @@ export class SyncService {
   private activeFlag = false;
   private changeFlag = false;
 
-  constructor(private appConfig: AppConfigService) { }
+  constructor(private appConfig: AppConfigProvider) { }
 
   startSync(continuous: boolean = false) {
     this.syncProcess = PouchDB.sync(

@@ -1,16 +1,16 @@
 import { Injectable, Injector } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { AppConfigRepository } from './app-config.repository';
 
 @Injectable()
-export class AppConfigService {
+export class AppConfigProvider {
 
   private appConfig;
 
   constructor(private injector: Injector) { }
 
-  loadAppConfig() {
-    const http = this.injector.get(HttpClient);
-    return http.get('assets/config.json')
+  loadAppConfig(): Promise<any> {
+    const configRepo = this.injector.get(AppConfigRepository);
+    return configRepo.load()
       .toPromise()
       .then(data => {
         this.appConfig = data;

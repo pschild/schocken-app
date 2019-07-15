@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
-import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
 import { from, Observable } from 'rxjs';
-import { EventTypeContext, EntityType, EventType, EventTypeHistoryEntry } from '../interfaces';
 import { map, switchMap, pluck } from 'rxjs/operators';
+import { PouchDbAdapter, GetResponse, FindResponse, PutResponse } from '../pouchdb.adapter';
+import { EventType, EventTypeContext, EntityType, EventTypeHistoryEntry } from 'src/app/interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
-export class EventTypeService {
+export class EventTypeRepository {
 
-  constructor(private pouchDbService: PouchDbService) { }
+  constructor(private pouchDb: PouchDbAdapter) { }
 
   getAll(): Observable<EventType[]> {
-    return from(this.pouchDbService.getAll('eventType')).pipe(
+    return from(this.pouchDb.getAll('eventType')).pipe(
       map((res: GetResponse<EventType>) => res.rows.map(row => row.doc)),
       map((eventTypes: EventType[]) => eventTypes.filter(p => !p.deleted))
     );
@@ -20,16 +20,16 @@ export class EventTypeService {
 
   getAllByContext(context: EventTypeContext): Observable<FindResponse<EventType>> {
     const selector = { context, type: EntityType.EVENT_TYPE };
-    return from(this.pouchDbService.findWithPlugin(selector));
+    return from(this.pouchDb.findWithPlugin(selector));
   }
 
   getById(id: string): Observable<EventType> {
-    return from(this.pouchDbService.getOne(id));
+    return from(this.pouchDb.getOne(id));
   }
 
   create(data: Partial<EventType>): Observable<PutResponse> {
     const eventType: EventType = {
-      _id: this.pouchDbService.generateId('eventType'),
+      _id: this.pouchDb.generateId('eventType'),
       type: EntityType.EVENT_TYPE,
       name: data.name,
       context: data.context,
@@ -44,7 +44,7 @@ export class EventTypeService {
       ]
     };
 
-    return from(this.pouchDbService.create(eventType));
+    return from(this.pouchDb.create(eventType));
   }
 
   update(eventTypeId: string, data: Partial<EventType>): Observable<PutResponse> {
@@ -58,7 +58,7 @@ export class EventTypeService {
       // ...update the whole entity
       switchMap((history: Array<EventTypeHistoryEntry>) => {
         data.history = history;
-        return from(this.pouchDbService.update(eventTypeId, data));
+        return from(this.pouchDb.update(eventTypeId, data));
       })
     );
   }

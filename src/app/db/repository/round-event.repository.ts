@@ -1,35 +1,35 @@
 import { Injectable } from '@angular/core';
-import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
 import { Observable, from } from 'rxjs';
-import { RoundEvent, EntityType } from '../interfaces';
 import { map } from 'rxjs/operators';
+import { PouchDbAdapter, GetResponse, FindResponse, PutResponse } from '../pouchdb.adapter';
+import { RoundEvent, EntityType } from 'src/app/interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RoundEventService {
+export class RoundEventRepository {
 
-  constructor(private pouchDbService: PouchDbService) { }
+  constructor(private pouchDb: PouchDbAdapter) { }
 
   getAll(): Observable<RoundEvent[]> {
-    return from(this.pouchDbService.getAll('roundEvent')).pipe(
+    return from(this.pouchDb.getAll('roundEvent')).pipe(
       map((res: GetResponse<RoundEvent>) => res.rows.map(row => row.doc)),
     );
   }
 
   getById(id: string): Observable<RoundEvent> {
-    return from(this.pouchDbService.getOne(id));
+    return from(this.pouchDb.getOne(id));
   }
 
   getAllByRoundIdAndPlayerId(roundId: string, playerId: string): Observable<FindResponse<RoundEvent>> {
     const selector = { datetime: { '$gt': null }, roundId, playerId, type: EntityType.ROUND_EVENT };
     const orderBy = [{ datetime: 'desc' }];
-    return from(this.pouchDbService.findWithPlugin(selector, orderBy));
+    return from(this.pouchDb.findWithPlugin(selector, orderBy));
   }
 
   create(data: Partial<RoundEvent>): Observable<PutResponse> {
     const roundEvent: RoundEvent = {
-      _id: this.pouchDbService.generateId('roundEvent'),
+      _id: this.pouchDb.generateId('roundEvent'),
       type: EntityType.ROUND_EVENT,
       datetime: new Date(),
       eventTypeId: data.eventTypeId,
@@ -37,14 +37,14 @@ export class RoundEventService {
       playerId: data.playerId,
       roundId: data.roundId
     };
-    return from(this.pouchDbService.create(roundEvent));
+    return from(this.pouchDb.create(roundEvent));
   }
 
   update(eventId: string, data: Partial<RoundEvent>): Observable<PutResponse> {
-    return from(this.pouchDbService.update(eventId, data));
+    return from(this.pouchDb.update(eventId, data));
   }
 
   remove(roundEvent: RoundEvent) {
-    return from(this.pouchDbService.remove(roundEvent));
+    return from(this.pouchDb.remove(roundEvent));
   }
 }

@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PlayerService } from 'src/app/services/player.service';
 import { switchMap, filter } from 'rxjs/operators';
 import { FormBuilder, Validators } from '@angular/forms';
-import { PutResponse } from 'src/app/services/pouchDb.service';
 import { Player } from 'src/app/interfaces';
+import { PutResponse } from 'src/app/db/pouchdb.adapter';
+import { PlayerRepository } from 'src/app/db/repository/player.repository';
 
 @Component({
   selector: 'app-user-form',
@@ -19,12 +19,17 @@ export class UserFormComponent implements OnInit {
     active: [true]
   });
 
-  constructor(private router: Router, private route: ActivatedRoute, private playerService: PlayerService, private fb: FormBuilder) { }
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private playerRepository: PlayerRepository,
+    private fb: FormBuilder
+  ) { }
 
   ngOnInit() {
     this.route.params.pipe(
       filter(params => !!params.playerId),
-      switchMap(params => this.playerService.getById(params.playerId))
+      switchMap(params => this.playerRepository.getById(params.playerId))
     ).subscribe(player => this.form.patchValue(player));
   }
 
@@ -34,9 +39,9 @@ export class UserFormComponent implements OnInit {
       let serviceCall;
       const playerId = entityFromForm._id;
       if (playerId) {
-        serviceCall = this.playerService.update(playerId, entityFromForm);
+        serviceCall = this.playerRepository.update(playerId, entityFromForm);
       } else {
-        serviceCall = this.playerService.create(entityFromForm);
+        serviceCall = this.playerRepository.create(entityFromForm);
       }
       serviceCall.subscribe((response: PutResponse) => this.router.navigate(['management', 'users']));
     }

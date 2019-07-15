@@ -1,35 +1,35 @@
 import { Injectable } from '@angular/core';
-import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
 import { Observable, from } from 'rxjs';
-import { GameEvent, EntityType } from '../interfaces';
 import { map } from 'rxjs/operators';
+import { PouchDbAdapter, GetResponse, FindResponse, PutResponse } from '../pouchdb.adapter';
+import { GameEvent, EntityType } from 'src/app/interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GameEventService {
+export class GameEventRepository {
 
-  constructor(private pouchDbService: PouchDbService) { }
+  constructor(private pouchDb: PouchDbAdapter) { }
 
   getAll(): Observable<GameEvent[]> {
-    return from(this.pouchDbService.getAll('gameEvent')).pipe(
+    return from(this.pouchDb.getAll('gameEvent')).pipe(
       map((res: GetResponse<GameEvent>) => res.rows.map(row => row.doc)),
     );
   }
 
   getById(id: string): Observable<GameEvent> {
-    return from(this.pouchDbService.getOne(id));
+    return from(this.pouchDb.getOne(id));
   }
 
   getAllByGameIdAndPlayerId(gameId: string, playerId: string): Observable<FindResponse<GameEvent>> {
     const selector = { datetime: { '$gt': null }, gameId, playerId, type: EntityType.GAME_EVENT };
     const orderBy = [{ datetime: 'desc' }];
-    return from(this.pouchDbService.findWithPlugin(selector, orderBy));
+    return from(this.pouchDb.findWithPlugin(selector, orderBy));
   }
 
   create(data: Partial<GameEvent>): Observable<PutResponse> {
     const gameEvent: GameEvent = {
-      _id: this.pouchDbService.generateId('gameEvent'),
+      _id: this.pouchDb.generateId('gameEvent'),
       type: EntityType.GAME_EVENT,
       datetime: new Date(),
       eventTypeId: data.eventTypeId,
@@ -37,14 +37,14 @@ export class GameEventService {
       playerId: data.playerId,
       gameId: data.gameId
     };
-    return from(this.pouchDbService.create(gameEvent));
+    return from(this.pouchDb.create(gameEvent));
   }
 
   update(eventId: string, data: Partial<GameEvent>): Observable<PutResponse> {
-    return from(this.pouchDbService.update(eventId, data));
+    return from(this.pouchDb.update(eventId, data));
   }
 
   remove(gameEvent: GameEvent) {
-    return from(this.pouchDbService.remove(gameEvent));
+    return from(this.pouchDb.remove(gameEvent));
   }
 }

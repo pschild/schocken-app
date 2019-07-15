@@ -2,11 +2,11 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/cor
 import { EventType, GameEvent, RoundEvent, Event, EntityType } from 'src/app/interfaces';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, switchMap, map, share } from 'rxjs/operators';
-import { GameEventService } from '../../services/game-event.service';
-import { EventTypeService } from '../../services/event-type.service';
-import { FindResponse, RemoveResponse } from '../../services/pouchDb.service';
 import { GameStateService } from '../game-state.service';
-import { RoundEventService } from '../../services/round-event.service';
+import { GameEventRepository } from 'src/app/db/repository/game-event.repository';
+import { RoundEventRepository } from 'src/app/db/repository/round-event.repository';
+import { EventTypeRepository } from 'src/app/db/repository/event-type.repository';
+import { FindResponse, RemoveResponse } from 'src/app/db/pouchdb.adapter';
 
 @Component({
   selector: 'app-event-list',
@@ -31,28 +31,28 @@ export class EventListComponent implements OnInit, OnChanges {
   penalties$: Observable<Array<{unit: string, sum: number}>>;
 
   constructor(
-    private gameEventService: GameEventService,
-    private roundEventService: RoundEventService,
-    private eventTypeService: EventTypeService,
+    private gameEventRepository: GameEventRepository,
+    private roundEventRepository: RoundEventRepository,
+    private eventTypeRepository: EventTypeRepository,
     private state: GameStateService
   ) { }
 
   ngOnInit() {
-    this.eventTypes$ = this.eventTypeService.getAll();
+    this.eventTypes$ = this.eventTypeRepository.getAll();
 
     const latestInputs$ = combineLatest(this.gameId$, this.roundId$, this.playerId$);
 
     // handle game events
     latestInputs$.pipe(
       filter(([gameId, roundId, playerId]) => !!gameId && !!playerId),
-      switchMap(([gameId, roundId, playerId]) => this.gameEventService.getAllByGameIdAndPlayerId(gameId, playerId)),
+      switchMap(([gameId, roundId, playerId]) => this.gameEventRepository.getAllByGameIdAndPlayerId(gameId, playerId)),
       map((response: FindResponse<GameEvent>) => response.docs)
     ).subscribe((events: GameEvent[]) => this.state.eventsForPlayer$.next(events));
 
     // handle round events
     latestInputs$.pipe(
       filter(([gameId, roundId, playerId]) => !!roundId && !!playerId),
-      switchMap(([gameId, roundId, playerId]) => this.roundEventService.getAllByRoundIdAndPlayerId(roundId, playerId)),
+      switchMap(([gameId, roundId, playerId]) => this.roundEventRepository.getAllByRoundIdAndPlayerId(roundId, playerId)),
       map((response: FindResponse<RoundEvent>) => response.docs)
     ).subscribe((events: RoundEvent[]) => this.state.eventsForPlayer$.next(events));
 
@@ -114,9 +114,9 @@ export class EventListComponent implements OnInit, OnChanges {
   handleRemoveEventClicked(event: Event) {
     let removeCall;
     if (event.type === EntityType.GAME_EVENT) {
-      removeCall = this.gameEventService.remove(event as GameEvent);
+      removeCall = this.gameEventRepository.remove(event as GameEvent);
     } else if (event.type === EntityType.ROUND_EVENT) {
-      removeCall = this.roundEventService.remove(event as RoundEvent);
+      removeCall = this.roundEventRepository.remove(event as RoundEvent);
     }
 
     removeCall.subscribe((response: RemoveResponse) => {

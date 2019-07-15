@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
 import * as PouchDBFind from 'pouchdb-find';
-import { AppConfigService } from './app-config.service';
 import { Entity } from '../interfaces';
+import { AppConfigProvider } from '../config/app-config.provider';
 
 // @see https://www.npmjs.com/package/pouchdb-find
 PouchDB.plugin((PouchDBFind as any).default || PouchDBFind);
@@ -32,11 +32,11 @@ export interface RemoveResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class PouchDbService {
+export class PouchDbAdapter {
 
   private instance;
 
-  constructor(private appConfig: AppConfigService) { }
+  constructor(private appConfig: AppConfigProvider) { }
 
   initialize() {
     if (this.instance) {

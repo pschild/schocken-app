@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { Game, Round, RoundEvent, EventType, EntityType, Player, EventTypeContext, EventTypePenalty } from '../interfaces';
 import * as PouchDB from 'pouchdb/dist/pouchdb';
-import { AppConfigService } from '../services/app-config.service';
+import { AppConfigProvider } from '../config/app-config.provider';
 
 @Component({
   selector: 'app-playground',
@@ -30,7 +30,7 @@ export class PlaygroundComponent implements OnInit {
   versionInfo: string;
   isCancelled: string;
 
-  constructor(private appConfig: AppConfigService) {
+  constructor(private appConfig: AppConfigProvider) {
     this.db = new PouchDB('dummy');
     this.loadAllGames();
     this.loadAllRounds();

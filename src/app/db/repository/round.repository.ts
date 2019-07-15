@@ -1,45 +1,45 @@
 import { Injectable } from '@angular/core';
-import { PouchDbService, GetResponse, PutResponse, FindResponse } from './pouchDb.service';
 import { from, Observable } from 'rxjs';
-import { Round, EntityType } from '../interfaces';
 import { map } from 'rxjs/operators';
+import { PouchDbAdapter, GetResponse, PutResponse, FindResponse } from '../pouchdb.adapter';
+import { Round, EntityType } from 'src/app/interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RoundService {
+export class RoundRepository {
 
-  constructor(private pouchDbService: PouchDbService) { }
+  constructor(private pouchDb: PouchDbAdapter) { }
 
   getAll(): Observable<Round[]> {
-    return from(this.pouchDbService.getAll('round')).pipe(
+    return from(this.pouchDb.getAll('round')).pipe(
       map((res: GetResponse<Round>) => res.rows.map(row => row.doc)),
     );
   }
 
   getById(id: string): Observable<Round> {
-    return from(this.pouchDbService.getOne(id));
+    return from(this.pouchDb.getOne(id));
   }
 
   create(data: Partial<Round>): Observable<PutResponse> {
     const round: Round = {
-      _id: this.pouchDbService.generateId('round'),
+      _id: this.pouchDb.generateId('round'),
       type: EntityType.ROUND,
       datetime: new Date(),
       gameId: data.gameId,
       currentPlayerId: data.currentPlayerId,
       participatingPlayerIds: data.participatingPlayerIds
     };
-    return from(this.pouchDbService.create(round));
+    return from(this.pouchDb.create(round));
   }
 
   update(roundId: string, data: Partial<Round>): Observable<PutResponse> {
-    return from(this.pouchDbService.update(roundId, data));
+    return from(this.pouchDb.update(roundId, data));
   }
 
   getRoundsByGameId(gameId: string): Observable<FindResponse<Round>> {
     const selector = { datetime: { '$gt': null }, gameId, type: EntityType.ROUND };
     const orderBy = [{ datetime: 'asc' }];
-    return from(this.pouchDbService.findWithPlugin(selector, orderBy));
+    return from(this.pouchDb.findWithPlugin(selector, orderBy));
   }
 }

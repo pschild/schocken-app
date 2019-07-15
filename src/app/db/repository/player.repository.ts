@@ -1,43 +1,43 @@
 import { Injectable } from '@angular/core';
-import { PouchDbService, GetResponse, PutResponse, RemoveResponse, FindResponse } from './pouchDb.service';
 import { from, Observable } from 'rxjs';
-import { Player, EntityType } from '../interfaces';
-import { filter, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
+import { PouchDbAdapter, GetResponse, PutResponse, RemoveResponse } from '../pouchdb.adapter';
+import { Player, EntityType } from 'src/app/interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PlayerService {
+export class PlayerRepository {
 
-  constructor(private pouchDbService: PouchDbService) { }
+  constructor(private pouchDb: PouchDbAdapter) { }
 
   getAll(): Observable<Player[]> {
-    return from(this.pouchDbService.getAll('player')).pipe(
+    return from(this.pouchDb.getAll('player')).pipe(
       map((res: GetResponse<Player>) => res.rows.map(row => row.doc)),
       map((players: Player[]) => players.filter(p => !p.deleted))
     );
   }
 
   getById(id: string): Observable<Player> {
-    return from(this.pouchDbService.getOne(id));
+    return from(this.pouchDb.getOne(id));
   }
 
   create(data: Partial<Player>): Observable<PutResponse> {
     const player: Player = {
-      _id: this.pouchDbService.generateId('player'),
+      _id: this.pouchDb.generateId('player'),
       type: EntityType.PLAYER,
       registered: new Date(),
       name: data.name,
       active: data.active
     };
-    return from(this.pouchDbService.create(player));
+    return from(this.pouchDb.create(player));
   }
 
   update(playerId: string, data: Partial<Player>): Observable<PutResponse> {
-    return from(this.pouchDbService.update(playerId, data));
+    return from(this.pouchDb.update(playerId, data));
   }
 
   remove(player: Player): Observable<RemoveResponse> {
-    return from(this.pouchDbService.remove(player));
+    return from(this.pouchDb.remove(player));
   }
 }
