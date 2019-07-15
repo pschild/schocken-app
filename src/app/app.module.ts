@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { NgModule, APP_INITIALIZER, Injector } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -14,12 +14,8 @@ import { AboutModule } from './about/about.module';
 import { SharedModule } from './shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppConfigProvider } from './config/app-config.provider';
-
-const appInitializerFn = (appConfig: AppConfigProvider) => {
-  return () => {
-      return appConfig.loadAppConfig();
-  };
-};
+import { PouchDbAdapter } from './db/pouchdb.adapter';
+import { appInitializerFn } from './initialization/bootstrap';
 
 @NgModule({
   declarations: [
@@ -44,7 +40,7 @@ const appInitializerFn = (appConfig: AppConfigProvider) => {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,
       multi: true,
-      deps: [AppConfigProvider]
+      deps: [AppConfigProvider, PouchDbAdapter, Injector]
     }
   ],
   bootstrap: [AppComponent]

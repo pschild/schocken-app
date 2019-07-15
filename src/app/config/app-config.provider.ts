@@ -1,5 +1,7 @@
 import { Injectable, Injector } from '@angular/core';
 import { AppConfigRepository } from './app-config.repository';
+import { tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class AppConfigProvider {
@@ -8,13 +10,11 @@ export class AppConfigProvider {
 
   constructor(private injector: Injector) { }
 
-  loadAppConfig(): Promise<any> {
+  loadAppConfig(): Observable<any> {
     const configRepo = this.injector.get(AppConfigRepository);
-    return configRepo.load()
-      .toPromise()
-      .then(data => {
-        this.appConfig = data;
-      });
+    return configRepo.load().pipe(
+      tap(data => this.appConfig = data),
+    );
   }
 
   get config() {

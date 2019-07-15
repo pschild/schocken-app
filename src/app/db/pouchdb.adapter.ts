@@ -3,6 +3,7 @@ import PouchDB from 'pouchdb';
 import * as PouchDBFind from 'pouchdb-find';
 import { Entity } from '../interfaces';
 import { AppConfigProvider } from '../config/app-config.provider';
+import { from, forkJoin, Observable } from 'rxjs';
 
 // @see https://www.npmjs.com/package/pouchdb-find
 PouchDB.plugin((PouchDBFind as any).default || PouchDBFind);
@@ -38,24 +39,25 @@ export class PouchDbAdapter {
 
   constructor(private appConfig: AppConfigProvider) { }
 
-  initialize() {
+  initialize(): Observable<any> {
     if (this.instance) {
       throw new Error(`PouchDB already initialized`);
     }
     this.instance = new PouchDB(this.appConfig.config.COUCHDB_DATABASE);
-    this.instance.createIndex({
+    const createRoundIndex = this.instance.createIndex({
       index: {
         fields: ['datetime', 'roundId', 'playerId']
       }
     });
-    this.instance.createIndex({
+    const createGameIndex = this.instance.createIndex({
       index: {
         fields: ['datetime', 'gameId']
       }
     });
+    return forkJoin(from(createRoundIndex), from(createGameIndex));
   }
 
-  createIndex(fields) {
+  createIndex(fields): Promise<any> {
     return this.instance.createIndex({
       index: {
         fields
