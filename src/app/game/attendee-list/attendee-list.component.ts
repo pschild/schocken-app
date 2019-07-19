@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, combineLatest } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { Player, Round } from '../../interfaces';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { PutResponse } from 'src/app/db/pouchdb.adapter';
-import { GameProvider } from 'src/app/provider/game.provider';
 import { PlayerProvider } from 'src/app/provider/player.provider';
 import { RoundProvider } from 'src/app/provider/round.provider';
 
@@ -23,7 +22,6 @@ export class AttendeeListComponent implements OnInit {
 
   constructor(
     private roundProvider: RoundProvider,
-    private gameProvider: GameProvider,
     private playerProvider: PlayerProvider,
     private router: Router,
     private route: ActivatedRoute
@@ -32,7 +30,7 @@ export class AttendeeListComponent implements OnInit {
   ngOnInit() {
     const allPlayers$ = this.playerProvider.getAll();
     const participatingPlayerIds$ = this.route.params.pipe(
-      switchMap(params => this.gameProvider.getById(params.roundId)),
+      switchMap(params => this.roundProvider.getById(params.roundId)),
       map((round: Round) => round.participatingPlayerIds)
     );
 
