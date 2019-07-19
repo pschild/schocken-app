@@ -28,7 +28,7 @@ export class HomeComponent implements OnInit {
         return forkJoin(
           of(response),
           this.roundProvider.create({ gameId: response.id })
-        )
+        );
       })
     ).subscribe(result => {
       const gameResponse: PutResponse = result[0];

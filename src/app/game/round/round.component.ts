@@ -72,6 +72,7 @@ export class RoundComponent implements OnInit {
 
   }
 
+  // TODO: abstract handling of special events in separate service
   handleLostEvent() {
     const currentRound: Round = this.currentRound$.getValue();
     const currentPlayerId = this.currentPlayer$.getValue()._id;
@@ -94,6 +95,7 @@ export class RoundComponent implements OnInit {
     }
   }
 
+  // TODO: abstract handling of special events in separate service
   handleSchockAusEvent() {
     const currentRound: Round = this.currentRound$.getValue();
     const currentPlayerId = this.currentPlayer$.getValue()._id;
@@ -119,7 +121,6 @@ export class RoundComponent implements OnInit {
     });
   }
 
-
   handleRemovePlayerFromGameClicked() {
     const currentRound: Round = this.currentRound$.getValue();
     const currentPlayerId = this.currentPlayer$.getValue()._id;
@@ -134,10 +135,12 @@ export class RoundComponent implements OnInit {
   }
 
   nextPlayer(): void {
+    // TODO: change to CONSTANT
     this._changePlayer(1);
   }
 
   previousPlayer() {
+    // TODO: change to CONSTANT
     this._changePlayer(-1);
   }
 
@@ -159,6 +162,7 @@ export class RoundComponent implements OnInit {
     });
   }
 
+  // TODO: move to service
   private _calculateNextPlayerId(
     direction: number, currentPlayerId: string, playerIds: Array<{ playerId: string; inGame: boolean }>
   ): string {

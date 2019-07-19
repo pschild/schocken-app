@@ -3,14 +3,18 @@
 <div *ngIf="allGames$ | async as allGames; else loading">
     <ul *ngIf="allGames.length; else noGames">
         <li *ngFor="let game of allGames">
-            <div>
-                {{game._id}}, {{game.datetime}}
-            </div>
-            <button (click)="continueGame(game)">fortsetzen</button>
+            <span>
+                Spiel vom {{game.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
+            </span>
+            <button mat-button color="accent" (click)="continueGame(game)">
+                <mat-icon>play_arrow</mat-icon>fortsetzen
+            </button>
         </li>
     </ul>
 </div>
 <ng-template #loading>Lade Spiele...</ng-template>
 <ng-template #noGames>Keine Spiele vorhanden</ng-template>
 
-<button (click)="startNewGame()">Neues Spiel starten</button>
+<button mat-raised-button color="primary" (click)="startNewGame()">
+    <mat-icon>add</mat-icon>Neues Spiel starten
+</button>
