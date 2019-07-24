@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, filter, tap } from 'rxjs/operators';
 import { Game } from '../interfaces';
 import { GameProvider } from '../provider/game.provider';
 
@@ -26,6 +26,7 @@ export class GameComponent implements OnInit {
     );
 
     this.game$ = this.route.params.pipe(
+      filter(params => !!params.gameId),
       switchMap(params => this.gameProvider.getById(params.gameId))
     );
   }

@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Observable, combineLatest } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
-import { Player, Round } from '../../interfaces';
+import { AttendeeVO } from '../../interfaces';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { PutResponse } from 'src/app/db/pouchdb.adapter';
-import { PlayerProvider } from 'src/app/provider/player.provider';
 import { RoundProvider } from 'src/app/provider/round.provider';
+import { GameProvider } from 'src/app/provider/game.provider';
+import { switchMap } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-attendee-list',
@@ -15,34 +15,27 @@ import { RoundProvider } from 'src/app/provider/round.provider';
 })
 export class AttendeeListComponent implements OnInit {
 
-  allPlayers$: Observable<Array<Player>>;
+  gameId: string;
+  roundId: string;
 
-  participatingPlayers: Array<{player: Player; inGame: boolean}> = [];
-  otherPlayers: Array<{player: Player; inGame: boolean}> = [];
+  participatingPlayers: AttendeeVO[] = [];
+  otherPlayers: AttendeeVO[] = [];
 
   constructor(
+    private gameProvider: GameProvider,
     private roundProvider: RoundProvider,
-    private playerProvider: PlayerProvider,
     private router: Router,
     private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
-    const allPlayers$ = this.playerProvider.getAll();
-    const participatingPlayerIds$ = this.route.params.pipe(
-      switchMap(params => this.roundProvider.getById(params.roundId)),
-      map((round: Round) => round.participatingPlayerIds)
-    );
+    this.route.data.subscribe(data => {
+      this.participatingPlayers = data.result.participatingPlayers;
+      this.otherPlayers = data.result.otherPlayers;
+    });
 
-    combineLatest(allPlayers$, participatingPlayerIds$).subscribe(
-      ([allPlayers, participatingPlayerIds = []]) => {
-        this.participatingPlayers = participatingPlayerIds
-          .map(item => ({ player: allPlayers.find((p: Player) => p._id === item.playerId), inGame: item.inGame }));
-        this.otherPlayers = allPlayers
-          .filter((p: Player) => !participatingPlayerIds.find(item => item.playerId === p._id))
-          .map((player: Player) => ({ player, inGame: true }));
-      }
-    );
+    this.gameId = this.route.snapshot.paramMap.get('gameId');
+    this.roundId = this.route.snapshot.paramMap.get('roundId');
   }
 
   participationsAreValid() {
@@ -52,15 +45,45 @@ export class AttendeeListComponent implements OnInit {
   handleSaveClicked() {
     const currentGameId = this.route.snapshot.paramMap.get('gameId');
     const currentRoundId = this.route.snapshot.paramMap.get('roundId');
+    if (currentGameId && currentRoundId) {
+      this._updateRound(currentGameId, currentRoundId);
+    } else {
+      this._createGameAndRound();
+    }
+  }
+
+  private _updateRound(currentGameId: string, currentRoundId: string) {
     this.roundProvider.update(currentRoundId, {
       participatingPlayerIds: this.participatingPlayers.map(item => ({ playerId: item.player._id, inGame: item.inGame }))
     }).subscribe((response: PutResponse) => {
         if (response.ok === true) {
-          this.router.navigate(['/game', currentGameId]);
+          this.router.navigate(['game', { gameId: currentGameId, roundId: currentRoundId }]);
         } else {
-          throw new Error(`Participating players could not be set on round`);
+          throw new Error(`Could not update round`);
         }
       });
+  }
+
+  private _createGameAndRound() {
+    this.gameProvider.create().pipe(
+      switchMap((response: PutResponse) => {
+        return forkJoin(
+          of(response),
+          this.roundProvider.create({
+            gameId: response.id,
+            participatingPlayerIds: this.participatingPlayers.map(item => ({ playerId: item.player._id, inGame: item.inGame }))
+          })
+        );
+      })
+    ).subscribe(result => {
+      const gameResponse: PutResponse = result[0];
+      const roundResponse: PutResponse = result[1];
+      if (gameResponse.ok === true && roundResponse.ok === true) {
+        this.router.navigate(['game', { gameId: gameResponse.id, roundId: roundResponse.id }]);
+      } else {
+        throw new Error(`Could not create new game or round`);
+      }
+    });
   }
 
   dropOnParticipating(event: CdkDragDrop<string[]>) {

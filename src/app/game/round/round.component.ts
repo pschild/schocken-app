@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 import { FindResponse, PutResponse } from 'src/app/db/pouchdb.adapter';
 import { PlayerProvider } from 'src/app/provider/player.provider';
 import { RoundProvider } from 'src/app/provider/round.provider';
-import { RoundEventProvider } from 'src/app/provider/round-event.provider';
 
 @Component({
   selector: 'app-round',
@@ -26,8 +25,7 @@ export class RoundComponent implements OnInit {
   constructor(
     private router: Router,
     private playerProvider: PlayerProvider,
-    private roundProvider: RoundProvider,
-    private roundEventProvider: RoundEventProvider
+    private roundProvider: RoundProvider
   ) { }
 
   ngOnInit() {
@@ -38,8 +36,7 @@ export class RoundComponent implements OnInit {
       if (this.roundId) {
         this.currentRound$.next(rounds.find((round: Round) => round._id === this.roundId));
       } else {
-        // because of descending order, the last round is the latest one
-        this.currentRound$.next(rounds[rounds.length - 1]);
+        throw new Error(`No current roundId given!`);
       }
     });
 
@@ -72,66 +69,17 @@ export class RoundComponent implements OnInit {
 
   }
 
-  // TODO: abstract handling of special events in separate service
-  handleLostEvent() {
-    const currentRound: Round = this.currentRound$.getValue();
-    const currentPlayerId = this.currentPlayer$.getValue()._id;
-
-    const confirmationResult = confirm(`${this.currentPlayer$.getValue().name} hat verloren. Eine neue Runde wird gestartet.`);
-    if (confirmationResult) {
-      this.roundProvider.create({
-        gameId: this.game._id,
-        currentPlayerId,
-        participatingPlayerIds: currentRound.participatingPlayerIds.map(item => {
-          item.inGame = true;
-          return item;
-        })
-      }).pipe(
-        switchMap((response: PutResponse) => this.roundProvider.getById(response.id))
-      ).subscribe((round: Round) => {
-        this.gameRounds$.next([...this.gameRounds$.getValue(), round]);
-        this.currentRound$.next(round);
-      });
-    }
+  handlePlayerLost(round: Round) {
+    this.gameRounds$.next([...this.gameRounds$.getValue(), round]);
+    this.currentRound$.next(round);
   }
 
-  // TODO: abstract handling of special events in separate service
-  handleSchockAusEvent() {
-    const currentRound: Round = this.currentRound$.getValue();
-    const currentPlayerId = this.currentPlayer$.getValue()._id;
-
-    const playerIdsInGame = currentRound.participatingPlayerIds
-      .filter(item => item.inGame === true)
-      .map(item => item.playerId);
-
-    this.playerProvider.getAll().subscribe((response: Player[]) => {
-      const playersToPunish = response.filter(
-        (player: Player) => playerIdsInGame.includes(player._id) && player._id !== currentPlayerId
-      );
-
-      const playerNames = playersToPunish.map((player: Player) => player.name);
-      const confirmationResult = confirm(`Schock-Aus-Strafe wird an folgende Spieler verteilt: ${playerNames.join(',')}`);
-      if (confirmationResult) {
-        forkJoin(playersToPunish.map((player: Player) => this.roundEventProvider.create({
-          eventTypeId: 'eventType-23023',
-          roundId: currentRound._id,
-          playerId: player._id
-        }))).subscribe(console.log);
-      }
-    });
+  handleSchockAus(event) {
+    console.log(event);
   }
 
-  handleRemovePlayerFromGameClicked() {
-    const currentRound: Round = this.currentRound$.getValue();
-    const currentPlayerId = this.currentPlayer$.getValue()._id;
-
-    const participatingPlayer = currentRound.participatingPlayerIds.find(item => item.playerId === currentPlayerId);
-    if (!participatingPlayer) {
-      throw new Error(`Could not find player with id ${currentPlayerId}`);
-    }
-    participatingPlayer.inGame = false;
-    this.roundProvider.update(currentRound._id, { participatingPlayerIds: currentRound.participatingPlayerIds })
-      .subscribe((response: PutResponse) => this._changePlayer(1));
+  handlePlayerWon(event) {
+    this._changePlayer(1);
   }
 
   nextPlayer(): void {
@@ -144,9 +92,9 @@ export class RoundComponent implements OnInit {
     this._changePlayer(-1);
   }
 
-  showGameSettings(): void {
+  showAttendeeList(): void {
     const currentRound: Round = this.currentRound$.getValue();
-    this.router.navigate(['/game', currentRound.gameId, 'settings', { roundId: currentRound._id }]);
+    this.router.navigate(['game', 'attendees', { gameId: currentRound.gameId, roundId: currentRound._id }]);
   }
 
   private _changePlayer(direction: number): void {

@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { GameComponent } from './game.component';
-import { GameSettingsComponent } from './game-settings/game-settings.component';
+import { AttendeeListComponent } from './attendee-list/attendee-list.component';
+import { AttendeesResolver } from './attendee-list/attendees.resolver';
 
 const routes: Routes = [
   {
@@ -9,8 +10,11 @@ const routes: Routes = [
     component: GameComponent
   },
   {
-    path: 'settings',
-    component: GameSettingsComponent
+    path: 'attendees',
+    component: AttendeeListComponent,
+    resolve: {
+      result: AttendeesResolver
+    }
   }
 ];
 

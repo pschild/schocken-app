@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { EventType, EventTypeContext, Event, EventTypePenalty } from '../../interfaces';
+import { EventType, EventTypeContext, Event, EventTypePenalty, GameEvent, RoundEvent } from '../../interfaces';
 import { map, filter, switchMap } from 'rxjs/operators';
 import { GameStateService } from '../game-state.service';
 import { FindResponse, PutResponse } from 'src/app/db/pouchdb.adapter';
@@ -84,14 +84,20 @@ export class EventTypeListComponent implements OnInit, OnChanges {
       playerId,
       multiplicatorValue: eventType['formValue']
     }).pipe(
-      switchMap((response: PutResponse) => this.gameEventProvider.getById(response.id))
+      switchMap((response: PutResponse) => this.roundEventProvider.getById(response.id))
     );
 
-    const save$ = gameId ? createGameEvent$ : createRoundEvent$;
-    save$.subscribe((event: Event) => {
-      const newList = [event, ...this.state.eventsForPlayer$.getValue()];
-      this.state.eventsForPlayer$.next(newList);
-    });
+    if (gameId) {
+      createGameEvent$.subscribe((event: GameEvent) => {
+        const newList = [event, ...this.state.gameEventsForPlayer$.getValue()];
+        this.state.gameEventsForPlayer$.next(newList);
+      });
+    } else {
+      createRoundEvent$.subscribe((event: RoundEvent) => {
+        const newList = [event, ...this.state.roundEventsForPlayer$.getValue()];
+        this.state.roundEventsForPlayer$.next(newList);
+      });
+    }
 
     this._handleSpecialCases(eventType);
   }

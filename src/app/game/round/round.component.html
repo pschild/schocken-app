@@ -1,23 +1,29 @@
-<div *ngIf="currentRound$ | async as currentRound">
-  Runde: {{currentRoundNumber$ | async}} [id={{currentRound._id}}]
-</div>
-
-<div *ngIf="currentPlayer$ | async as currentPlayer">
-  an der Reihe: {{currentPlayer.name}}
-</div>
-
-<hr>
-<h2>Neues Ereignis</h2>
-<app-event-type-list
-  [playerId]="(currentPlayer$ | async)?._id"
-  [roundId]="(currentRound$ | async)?._id"
-  (lostEvent)="handleLostEvent()"
-  (schockAusEvent)="handleSchockAusEvent()"
-></app-event-type-list>
-<button (click)="handleRemovePlayerFromGameClicked()">Raus</button>
-<hr>
-<app-event-list [playerId]="(currentPlayer$ | async)?._id" [roundId]="(currentRound$ | async)?._id"></app-event-list>
-<hr>
-<button (click)="previousPlayer()">prev</button>
-<button (click)="showGameSettings()">settings</button>
-<button (click)="nextPlayer()">next</button>
+<mat-tab-group mat-align-tabs="center">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>euro_symbol</mat-icon>Runde
+    </ng-template>
+    <div *ngIf="currentRound$ | async as currentRound">
+      Runde: {{currentRoundNumber$ | async}} [id={{currentRound._id}}]
+    </div>
+    <div *ngIf="currentPlayer$ | async as currentPlayer">
+      an der Reihe: {{currentPlayer.name}}
+    </div>
+    <app-round-events
+      [currentRound]="currentRound$ | async"
+      [currentPlayer]="currentPlayer$ | async"
+      (playerLostEvent)="handlePlayerLost($event)"
+      (schockAusEvent)="handleSchockAus($event)"
+      (playerWonEvent)="handlePlayerWon($event)">
+    </app-round-events>
+    <button (click)="previousPlayer()">prev</button>
+    <button (click)="showAttendeeList()">Teilnehmer</button>
+    <button (click)="nextPlayer()">next</button>
+  </mat-tab>
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>euro_symbol</mat-icon>Spiel / Feststellungen
+    </ng-template>
+    <app-game-events></app-game-events>
+  </mat-tab>
+</mat-tab-group>

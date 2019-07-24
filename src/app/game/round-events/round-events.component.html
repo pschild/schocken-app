@@ -1,0 +1,12 @@
+<h2>Neues Ereignis</h2>
+<app-event-type-list
+    [playerId]="currentPlayer?._id"
+    [roundId]="currentRound?._id"
+    (lostEvent)="handleLostEvent()"
+    (schockAusEvent)="handleSchockAusEvent()">
+</app-event-type-list>
+<button (click)="handleRemovePlayerFromGameClicked()">Raus</button>
+<app-event-list
+    [playerId]="currentPlayer?._id"
+    [roundId]="currentRound?._id">
+</app-event-list>

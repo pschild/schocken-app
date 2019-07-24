@@ -69,3 +69,14 @@ export interface GameEvent extends Event {
 export interface RoundEvent extends Event {
     roundId: string;
 }
+
+export class GameVO {
+    gameId: string;
+    latestRoundId: string;
+    datetime: Date;
+}
+
+export class AttendeeVO {
+    player: Player;
+    inGame: boolean;
+}

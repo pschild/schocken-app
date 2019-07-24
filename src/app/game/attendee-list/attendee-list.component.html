@@ -27,5 +27,7 @@
     </div>
 </div>
 
-<button mat-raised-button color="primary" (click)="handleSaveClicked()"
-    [disabled]="!participationsAreValid()">Speichern</button>
+<button mat-raised-button color="primary" (click)="handleSaveClicked()" [disabled]="!participationsAreValid()">
+    <span *ngIf="gameId && roundId">Spiel fortsetzen</span>
+    <span *ngIf="!gameId && !roundId">Spiel starten</span>
+</button>

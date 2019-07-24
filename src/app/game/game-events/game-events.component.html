@@ -3,5 +3,11 @@
   <option *ngFor="let player of players" [ngValue]="player">{{player.name}}</option>
 </select>
 
-<app-event-type-list [playerId]="(selectedPlayer$ | async)?._id" [gameId]="gameId$ | async"></app-event-type-list>
-<app-event-list [playerId]="(selectedPlayer$ | async)?._id" [gameId]="gameId$ | async"></app-event-list>
+<app-event-type-list
+  [playerId]="(selectedPlayer$ | async)?._id"
+  [gameId]="gameId$ | async">
+</app-event-type-list>
+<app-event-list
+  [playerId]="(selectedPlayer$ | async)?._id"
+  [gameId]="gameId$ | async">
+</app-event-list>

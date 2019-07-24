@@ -47,16 +47,19 @@ export class EventListComponent implements OnInit, OnChanges {
       filter(([gameId, roundId, playerId]) => !!gameId && !!playerId),
       switchMap(([gameId, roundId, playerId]) => this.gameEventProvider.getAllByGameIdAndPlayerId(gameId, playerId)),
       map((response: FindResponse<GameEvent>) => response.docs)
-    ).subscribe((events: GameEvent[]) => this.state.eventsForPlayer$.next(events));
+    ).subscribe((events: GameEvent[]) => this.state.gameEventsForPlayer$.next(events));
 
     // handle round events
     latestInputs$.pipe(
       filter(([gameId, roundId, playerId]) => !!roundId && !!playerId),
       switchMap(([gameId, roundId, playerId]) => this.roundEventProvider.getAllByRoundIdAndPlayerId(roundId, playerId)),
       map((response: FindResponse<RoundEvent>) => response.docs)
-    ).subscribe((events: RoundEvent[]) => this.state.eventsForPlayer$.next(events));
+    ).subscribe((events: RoundEvent[]) => this.state.roundEventsForPlayer$.next(events));
 
-    this.mergedList$ = combineLatest(this.eventTypes$, this.state.eventsForPlayer$).pipe(
+    this.mergedList$ = combineLatest(
+      this.eventTypes$,
+      this.gameId ? this.state.gameEventsForPlayer$ : this.state.roundEventsForPlayer$
+    ).pipe(
       map(result => {
         const eventTypes: EventType[] = result[0];
         const allEventsForPlayer: Event[] = result[1];
@@ -112,17 +115,17 @@ export class EventListComponent implements OnInit, OnChanges {
   }
 
   handleRemoveEventClicked(event: Event) {
-    let removeCall;
     if (event.type === EntityType.GAME_EVENT) {
-      removeCall = this.gameEventProvider.remove(event as GameEvent);
+      this.gameEventProvider.remove(event as GameEvent).subscribe((response: RemoveResponse) => {
+        const newList = this.state.gameEventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
+        this.state.gameEventsForPlayer$.next(newList);
+      });
     } else if (event.type === EntityType.ROUND_EVENT) {
-      removeCall = this.roundEventProvider.remove(event as RoundEvent);
+      this.roundEventProvider.remove(event as RoundEvent).subscribe((response: RemoveResponse) => {
+        const newList = this.state.roundEventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
+        this.state.roundEventsForPlayer$.next(newList);
+      });
     }
-
-    removeCall.subscribe((response: RemoveResponse) => {
-      const newList = this.state.eventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
-      this.state.eventsForPlayer$.next(newList);
-    });
   }
 
 }
