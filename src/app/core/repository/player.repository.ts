@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { PouchDbAdapter, GetResponse, PutResponse, RemoveResponse } from '../pouchdb.adapter';
 import { Player, EntityType } from 'src/app/interfaces';
+import { PouchDbAdapter, GetResponse, PutResponse, RemoveResponse } from '../adapter/pouchdb.adapter';
 
 @Injectable({
   providedIn: 'root'

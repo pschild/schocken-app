@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { Game, Round, RoundEvent, EventType, EntityType, Player, EventTypeContext, EventTypePenalty } from '../interfaces';
 import * as PouchDB from 'pouchdb/dist/pouchdb';
-import { AppConfigProvider } from '../config/app-config.provider';
+import { AppConfigProvider } from '../core/config/app-config.provider';
 
 @Component({
   selector: 'app-playground',

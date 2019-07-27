@@ -3,8 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, filter } from 'rxjs/operators';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Player } from 'src/app/interfaces';
-import { PutResponse } from 'src/app/db/pouchdb.adapter';
-import { PlayerProvider } from 'src/app/provider/player.provider';
+import { PlayerProvider } from 'src/app/core/provider/player.provider';
+import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
 
 @Component({
   selector: 'app-user-form',

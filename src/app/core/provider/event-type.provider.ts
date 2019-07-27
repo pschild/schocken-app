@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EventType, EventTypeContext } from 'src/app/interfaces';
-import { EventTypeRepository } from '../db/repository/event-type.repository';
-import { FindResponse, PutResponse } from '../db/pouchdb.adapter';
 import { map } from 'rxjs/operators';
+import { EventTypeRepository } from '../repository/event-type.repository';
+import { FindResponse, PutResponse } from '../adapter/pouchdb.adapter';
 
 @Injectable({
   providedIn: 'root'

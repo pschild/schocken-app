@@ -1,12 +1,12 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { EventType, EventTypeContext, Event, EventTypePenalty, GameEvent, RoundEvent } from '../../interfaces';
+import { EventType, EventTypeContext, GameEvent, RoundEvent } from '../../interfaces';
 import { map, filter, switchMap } from 'rxjs/operators';
-import { GameStateService } from '../game-state.service';
-import { FindResponse, PutResponse } from 'src/app/db/pouchdb.adapter';
-import { GameEventProvider } from 'src/app/provider/game-event.provider';
-import { RoundEventProvider } from 'src/app/provider/round-event.provider';
-import { EventTypeProvider } from 'src/app/provider/event-type.provider';
+import { GameEventProvider } from 'src/app/core/provider/game-event.provider';
+import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
+import { EventTypeProvider } from 'src/app/core/provider/event-type.provider';
+import { FindResponse, PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
+import { GameStateService } from 'src/app/core/services/game-state.service';
 
 @Component({
   selector: 'app-event-type-list',

@@ -3,13 +3,13 @@ import { EventType } from 'src/app/interfaces';
 import { Observable } from 'rxjs';
 import { ITableConfig } from 'src/app/shared/table-wrapper/ITableConfig';
 import { IColumnInterface } from 'src/app/shared/table-wrapper/IColumnDefinition';
-import { DialogService } from 'src/app/services/dialog.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
 import { IDialogResult } from 'src/app/shared/dialog/dialog-config';
 import { DialogResult } from 'src/app/shared/dialog/dialog.enum';
-import { RemoveResponse } from 'src/app/db/pouchdb.adapter';
-import { EventTypeProvider } from 'src/app/provider/event-type.provider';
+import { EventTypeProvider } from 'src/app/core/provider/event-type.provider';
+import { DialogService } from 'src/app/shared/dialog/dialog.service';
+import { RemoveResponse } from 'src/app/core/adapter/pouchdb.adapter';
 
 @Component({
   selector: 'app-event-type-management',

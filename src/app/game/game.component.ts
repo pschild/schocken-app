@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { map, switchMap, filter, tap } from 'rxjs/operators';
+import { map, switchMap, filter } from 'rxjs/operators';
 import { Game } from '../interfaces';
-import { GameProvider } from '../provider/game.provider';
+import { GameProvider } from '../core/provider/game.provider';
 
 @Component({
   selector: 'app-game',

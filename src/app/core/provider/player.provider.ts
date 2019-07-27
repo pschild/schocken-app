@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Player } from 'src/app/interfaces';
-import { PlayerRepository } from '../db/repository/player.repository';
-import { PutResponse, RemoveResponse } from '../db/pouchdb.adapter';
+import { PlayerRepository } from '../repository/player.repository';
+import { PutResponse, RemoveResponse } from '../adapter/pouchdb.adapter';
 
 @Injectable({
   providedIn: 'root'

@@ -3,8 +3,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 import { filter, switchMap } from 'rxjs/operators';
 import { EventTypeContext, EventTypePenalty, EventType, EventTypeHistoryEntry } from 'src/app/interfaces';
-import { PutResponse } from 'src/app/db/pouchdb.adapter';
-import { EventTypeProvider } from 'src/app/provider/event-type.provider';
+import { EventTypeProvider } from 'src/app/core/provider/event-type.provider';
+import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
 
 @Component({
   selector: 'app-event-type-form',

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { SyncService } from '../../services/sync.service';
 import { Observable } from 'rxjs';
 import { map, tap, startWith } from 'rxjs/operators';
+import { SyncService } from 'src/app/core/services/sync.service';
 
 @Component({
   selector: 'app-sync-state',

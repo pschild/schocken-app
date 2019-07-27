@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Player } from 'src/app/interfaces';
-import { DialogService } from 'src/app/services/dialog.service';
 import { IDialogResult } from 'src/app/shared/dialog/dialog-config';
 import { DialogResult } from 'src/app/shared/dialog/dialog.enum';
 import { ITableConfig } from 'src/app/shared/table-wrapper/ITableConfig';
 import { IColumnInterface } from 'src/app/shared/table-wrapper/IColumnDefinition';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material';
-import { RemoveResponse } from 'src/app/db/pouchdb.adapter';
-import { PlayerProvider } from 'src/app/provider/player.provider';
+import { PlayerProvider } from 'src/app/core/provider/player.provider';
+import { DialogService } from 'src/app/shared/dialog/dialog.service';
+import { RemoveResponse } from 'src/app/core/adapter/pouchdb.adapter';
 
 @Component({
   selector: 'app-user-management',

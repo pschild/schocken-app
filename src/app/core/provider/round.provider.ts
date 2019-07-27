@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Round } from 'src/app/interfaces';
-import { RoundRepository } from '../db/repository/round.repository';
-import { PutResponse, FindResponse } from '../db/pouchdb.adapter';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
+import { RoundRepository } from '../repository/round.repository';
+import { PutResponse, FindResponse } from '../adapter/pouchdb.adapter';
 
 @Injectable({
   providedIn: 'root'

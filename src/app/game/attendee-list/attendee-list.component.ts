@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { AttendeeVO } from '../../interfaces';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { PutResponse } from 'src/app/db/pouchdb.adapter';
-import { RoundProvider } from 'src/app/provider/round.provider';
-import { GameProvider } from 'src/app/provider/game.provider';
 import { switchMap } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
+import { AttendeeVO } from 'src/app/core/domain/attendeeVO.model';
+import { GameProvider } from 'src/app/core/provider/game.provider';
+import { RoundProvider } from 'src/app/core/provider/round.provider';
+import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
 
 @Component({
   selector: 'app-attendee-list',

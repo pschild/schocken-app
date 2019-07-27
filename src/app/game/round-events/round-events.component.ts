@@ -1,12 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { Player, Round } from 'src/app/interfaces';
-import { PutResponse } from 'src/app/db/pouchdb.adapter';
-import { RoundProvider } from 'src/app/provider/round.provider';
 import { switchMap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
-import { PlayerProvider } from 'src/app/provider/player.provider';
-import { RoundEventProvider } from 'src/app/provider/round-event.provider';
+import { PlayerProvider } from 'src/app/core/provider/player.provider';
+import { RoundProvider } from 'src/app/core/provider/round.provider';
+import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
+import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
 
 @Component({
   selector: 'app-round-events',

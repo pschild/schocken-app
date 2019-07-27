@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
 import * as PouchDBFind from 'pouchdb-find';
-import { Entity } from '../interfaces';
 import { AppConfigProvider } from '../config/app-config.provider';
 import { from, forkJoin, Observable } from 'rxjs';
+import { Entity } from 'src/app/interfaces';
 
 // @see https://www.npmjs.com/package/pouchdb-find
 PouchDB.plugin((PouchDBFind as any).default || PouchDBFind);

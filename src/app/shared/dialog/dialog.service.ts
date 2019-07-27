@@ -1,14 +1,10 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { Observable } from 'rxjs';
-import { IDialogConfig, IDialogResult } from '../shared/dialog/dialog-config';
-import {
-  OK_BUTTON_CONFIG,
-  YES_NO_DIALOG_BUTTON_CONFIG,
-  ABORT_SAVE_BUTTON_CONFIG
-} from '../shared/dialog/dialog-button-config';
-import { DialogIcons } from '../shared/dialog/dialog.enum';
-import { DialogComponent } from '../shared/dialog/dialog.component';
+import { IDialogConfig, IDialogResult } from './dialog-config';
+import { OK_BUTTON_CONFIG, YES_NO_DIALOG_BUTTON_CONFIG, ABORT_SAVE_BUTTON_CONFIG } from './dialog-button-config';
+import { DialogComponent } from './dialog.component';
+import { DialogIcons } from './dialog.enum';
 
 @Injectable({
   providedIn: 'root'

@@ -3,9 +3,9 @@ import { Observable, combineLatest, BehaviorSubject, forkJoin } from 'rxjs';
 import { map, switchMap, filter } from 'rxjs/operators';
 import { Round, Player, Game } from '../../interfaces';
 import { Router } from '@angular/router';
-import { FindResponse, PutResponse } from 'src/app/db/pouchdb.adapter';
-import { PlayerProvider } from 'src/app/provider/player.provider';
-import { RoundProvider } from 'src/app/provider/round.provider';
+import { PlayerProvider } from 'src/app/core/provider/player.provider';
+import { RoundProvider } from 'src/app/core/provider/round.provider';
+import { FindResponse, PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
 
 @Component({
   selector: 'app-round',

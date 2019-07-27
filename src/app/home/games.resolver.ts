@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
 import { Observable } from 'rxjs';
-import { GameProvider } from '../provider/game.provider';
-import { RoundProvider } from '../provider/round.provider';
 import { mergeMap, map, toArray, mergeAll } from 'rxjs/operators';
-import { Game, Round, GameVO } from '../interfaces';
+import { Game, Round } from '../interfaces';
 import { GameListMapperService } from './game-list-mapper.service';
+import { GameVO } from '../core/domain/gameVo.model';
+import { GameProvider } from '../core/provider/game.provider';
+import { RoundProvider } from '../core/provider/round.provider';
 
 @Injectable({
     providedIn: 'root'

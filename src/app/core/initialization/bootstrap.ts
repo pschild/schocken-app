@@ -1,9 +1,9 @@
 import { AppConfigProvider } from '../config/app-config.provider';
-import { PouchDbAdapter } from '../db/pouchdb.adapter';
 import { Injector } from '@angular/core';
 import { CheckForUpdateService } from '../services/check-for-update.service';
 import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { PouchDbAdapter } from '../adapter/pouchdb.adapter';
 
 export const appInitializerFn = (appConfig: AppConfigProvider, pouchDb: PouchDbAdapter, injector: Injector) => {
     return () => loadConfig(appConfig).pipe(

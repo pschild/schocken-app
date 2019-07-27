@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
 import { Observable, of, combineLatest } from 'rxjs';
-import { mergeMap, map, toArray, mergeAll, switchMap, tap } from 'rxjs/operators';
-import { PlayerProvider } from 'src/app/provider/player.provider';
-import { Round, Player, AttendeeVO } from 'src/app/interfaces';
-import { RoundProvider } from 'src/app/provider/round.provider';
+import { map, tap } from 'rxjs/operators';
+import { Round, Player } from 'src/app/interfaces';
+import { PlayerProvider } from 'src/app/core/provider/player.provider';
+import { RoundProvider } from 'src/app/core/provider/round.provider';
+import { AttendeeVO } from 'src/app/core/domain/attendeeVO.model';
 
 @Injectable({
     providedIn: 'root'

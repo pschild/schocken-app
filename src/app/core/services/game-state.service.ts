@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { GameEvent, RoundEvent } from '../interfaces';
+import { GameEvent, RoundEvent } from 'src/app/interfaces';
 
 @Injectable({
   providedIn: 'root'

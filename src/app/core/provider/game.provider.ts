@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Game } from 'src/app/interfaces';
-import { GameRepository } from '../db/repository/game.repository';
-import { PutResponse } from '../db/pouchdb.adapter';
+import { GameRepository } from '../repository/game.repository';
+import { PutResponse } from '../adapter/pouchdb.adapter';
 
 @Injectable({
   providedIn: 'root'

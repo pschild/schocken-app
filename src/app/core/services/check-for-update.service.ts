@@ -4,9 +4,9 @@ import { first, } from 'rxjs/operators';
 import { concat, interval } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { DialogService } from './dialog.service';
-import { IDialogResult } from '../shared/dialog/dialog-config';
-import { DialogResult } from '../shared/dialog/dialog.enum';
+import { DialogService } from 'src/app/shared/dialog/dialog.service';
+import { IDialogResult } from 'src/app/shared/dialog/dialog-config';
+import { DialogResult } from 'src/app/shared/dialog/dialog.enum';
 
 export interface VersionInfo {
   version: string;

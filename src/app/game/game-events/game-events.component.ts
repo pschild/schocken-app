@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { Player } from '../../interfaces';
 import { map, tap } from 'rxjs/operators';
-import { PlayerProvider } from 'src/app/provider/player.provider';
+import { PlayerProvider } from 'src/app/core/provider/player.provider';
 
 @Component({
   selector: 'app-game-events',

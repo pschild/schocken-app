@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { NetworkService } from '../../services/network.service';
 import { Observable, merge } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { NetworkService } from 'src/app/core/services/network.service';
 
 @Component({
   selector: 'app-network-state',
