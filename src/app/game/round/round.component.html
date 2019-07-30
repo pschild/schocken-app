@@ -6,24 +6,27 @@
     <div *ngIf="currentRound$ | async as currentRound">
       Runde: {{currentRoundNumber$ | async}} [id={{currentRound._id}}]
     </div>
-    <div *ngIf="currentPlayer$ | async as currentPlayer">
-      an der Reihe: {{currentPlayer.name}}
-    </div>
-    <app-round-events
-      [currentRound]="currentRound$ | async"
-      [currentPlayer]="currentPlayer$ | async"
+    <ng-container *ngIf="currentPlayerId$ | async as currentPlayerId">
+      <ng-container *ngIf="participatingPlayerIds$ | async as participatingPlayerIds">
+        <app-attendee
+          [currentPlayerId]="currentPlayerId"
+          [participatingPlayerIds]="participatingPlayerIds"
+          (currentPlayerChanged)="onPlayerChanged($event)"></app-attendee>
+      </ng-container>
+    </ng-container>
+    <button (click)="showAttendeeList()">Teilnehmer</button>
+    <app-round-events *ngIf="currentPlayer$ | async as currentPlayer"
+      [round]="round"
+      [player]="currentPlayer"
       (playerLostEvent)="handlePlayerLost($event)"
       (schockAusEvent)="handleSchockAus($event)"
       (playerWonEvent)="handlePlayerWon($event)">
     </app-round-events>
-    <button (click)="previousPlayer()">prev</button>
-    <button (click)="showAttendeeList()">Teilnehmer</button>
-    <button (click)="nextPlayer()">next</button>
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>
       <mat-icon>euro_symbol</mat-icon>Spiel / Feststellungen
     </ng-template>
-    <app-game-events></app-game-events>
+    <app-game-events [game]="game"></app-game-events>
   </mat-tab>
 </mat-tab-group>

@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { EventType, GameEvent, RoundEvent, Event, EntityType } from 'src/app/interfaces';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { EventType, GameEvent, RoundEvent, Event } from 'src/app/interfaces';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, switchMap, map, share } from 'rxjs/operators';
 import { GameEventProvider } from 'src/app/core/provider/game-event.provider';
 import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
 import { EventTypeProvider } from 'src/app/core/provider/event-type.provider';
-import { FindResponse, RemoveResponse } from 'src/app/core/adapter/pouchdb.adapter';
+import { FindResponse } from 'src/app/core/adapter/pouchdb.adapter';
 import { GameStateService } from 'src/app/core/services/game-state.service';
 
 @Component({
@@ -18,6 +18,8 @@ export class EventListComponent implements OnInit, OnChanges {
   @Input() gameId: string;
   @Input() roundId: string;
   @Input() playerId: string;
+
+  @Output() removeEvent = new EventEmitter();
 
   gameId$: BehaviorSubject<string> = new BehaviorSubject(undefined);
   roundId$: BehaviorSubject<string> = new BehaviorSubject(undefined);
@@ -43,6 +45,7 @@ export class EventListComponent implements OnInit, OnChanges {
     const latestInputs$ = combineLatest(this.gameId$, this.roundId$, this.playerId$);
 
     // handle game events
+    // TODO: move to service
     latestInputs$.pipe(
       filter(([gameId, roundId, playerId]) => !!gameId && !!playerId),
       switchMap(([gameId, roundId, playerId]) => this.gameEventProvider.getAllByGameIdAndPlayerId(gameId, playerId)),
@@ -50,12 +53,14 @@ export class EventListComponent implements OnInit, OnChanges {
     ).subscribe((events: GameEvent[]) => this.state.gameEventsForPlayer$.next(events));
 
     // handle round events
+    // TODO: move to service
     latestInputs$.pipe(
       filter(([gameId, roundId, playerId]) => !!roundId && !!playerId),
       switchMap(([gameId, roundId, playerId]) => this.roundEventProvider.getAllByRoundIdAndPlayerId(roundId, playerId)),
       map((response: FindResponse<RoundEvent>) => response.docs)
     ).subscribe((events: RoundEvent[]) => this.state.roundEventsForPlayer$.next(events));
 
+    // TODO: move to service
     this.mergedList$ = combineLatest(
       this.eventTypes$,
       this.gameId ? this.state.gameEventsForPlayer$ : this.state.roundEventsForPlayer$
@@ -71,6 +76,7 @@ export class EventListComponent implements OnInit, OnChanges {
       share()
     );
 
+    // TODO: move to service
     this.penalties$ = this.mergedList$.pipe(
       map(mergedItems => {
         const groupedByPenaltyUnit = mergedItems.reduce((penaltyUnits, item) => {
@@ -115,17 +121,7 @@ export class EventListComponent implements OnInit, OnChanges {
   }
 
   handleRemoveEventClicked(event: Event) {
-    if (event.type === EntityType.GAME_EVENT) {
-      this.gameEventProvider.remove(event as GameEvent).subscribe((response: RemoveResponse) => {
-        const newList = this.state.gameEventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
-        this.state.gameEventsForPlayer$.next(newList);
-      });
-    } else if (event.type === EntityType.ROUND_EVENT) {
-      this.roundEventProvider.remove(event as RoundEvent).subscribe((response: RemoveResponse) => {
-        const newList = this.state.roundEventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
-        this.state.roundEventsForPlayer$.next(newList);
-      });
-    }
+    this.removeEvent.emit(event);
   }
 
 }

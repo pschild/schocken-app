@@ -4,10 +4,11 @@
 </select>
 
 <app-event-type-list
-  [playerId]="(selectedPlayer$ | async)?._id"
-  [gameId]="gameId$ | async">
+  [gameId]="game?._id"
+  (addEvent)="handleEventAdded($event)">
 </app-event-type-list>
 <app-event-list
   [playerId]="(selectedPlayer$ | async)?._id"
-  [gameId]="gameId$ | async">
+  [gameId]="game?._id"
+  (removeEvent)="handleEventRemoved($event)">
 </app-event-list>

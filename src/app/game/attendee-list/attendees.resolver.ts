@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
 import { Observable, of, combineLatest } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Round, Player } from 'src/app/interfaces';
 import { PlayerProvider } from 'src/app/core/provider/player.provider';
 import { RoundProvider } from 'src/app/core/provider/round.provider';
@@ -29,8 +29,7 @@ export class AttendeesResolver implements Resolve<Array<any>> {
             map(([allPlayers, participatingPlayerIds = []]) => ({
                 participatingPlayers: this.getParticipatingPlayers(allPlayers, participatingPlayerIds),
                 otherPlayers: this.getNotParticipatingPlayers(allPlayers, participatingPlayerIds)
-            })),
-            tap(console.log)
+            }))
         );
     }
 

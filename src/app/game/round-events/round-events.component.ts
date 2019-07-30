@@ -1,12 +1,9 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { Player, Round } from 'src/app/interfaces';
+import { Player, Round, EventType, RoundEvent, Event } from 'src/app/interfaces';
 import { switchMap } from 'rxjs/operators';
-import { ActivatedRoute } from '@angular/router';
-import { PlayerProvider } from 'src/app/core/provider/player.provider';
-import { RoundProvider } from 'src/app/core/provider/round.provider';
 import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
-import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
+import { PutResponse, RemoveResponse } from 'src/app/core/adapter/pouchdb.adapter';
+import { GameStateService } from 'src/app/core/services/game-state.service';
 
 @Component({
   selector: 'app-round-events',
@@ -15,25 +12,60 @@ import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
 })
 export class RoundEventsComponent implements OnInit {
 
-  @Input() currentRound: Round;
-  @Input() currentPlayer: Player;
+  @Input() round: Round;
+  @Input() player: Player;
 
   @Output() playerLostEvent = new EventEmitter<Round>();
   @Output() schockAusEvent = new EventEmitter<any>();
   @Output() playerWonEvent = new EventEmitter<any>();
 
   constructor(
-    private route: ActivatedRoute,
-    private playerProvider: PlayerProvider,
-    private roundProvider: RoundProvider,
-    private roundEventProvider: RoundEventProvider
+    private roundEventProvider: RoundEventProvider,
+    private state: GameStateService
   ) { }
 
   ngOnInit() {
   }
 
+  handleEventAdded(eventType: EventType) {
+    // TODO: move to service
+    this.roundEventProvider.create({
+      eventTypeId: eventType._id,
+      roundId: this.round._id,
+      playerId: this.player._id,
+      multiplicatorValue: eventType['formValue']
+    }).pipe(
+      switchMap((response: PutResponse) => this.roundEventProvider.getById(response.id))
+    ).subscribe((event: RoundEvent) => {
+      const newList = [event, ...this.state.roundEventsForPlayer$.getValue()];
+      this.state.roundEventsForPlayer$.next(newList);
+    });
+
+    // TODO: handle special cases
+  }
+
+  handleEventRemoved(event: Event) {
+    // TODO: move to service
+    this.roundEventProvider.remove(event as RoundEvent).subscribe((response: RemoveResponse) => {
+      const newList = this.state.roundEventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
+      this.state.roundEventsForPlayer$.next(newList);
+    });
+  }
+
+  // _handleSpecialCases(eventType: EventType) {
+  //   switch (eventType._id) {
+  //     case 'eventType-52612':
+  //     case 'eventType-68434':
+  //       this.lostEvent.emit();
+  //       break;
+  //     case 'eventType-42300':
+  //       this.schockAusEvent.emit();
+  //       break;
+  //   }
+  // }
+
   // TODO: abstract handling of special events in separate service
-  handleLostEvent() {
+  /*handleLostEvent() {
     const confirmationResult = confirm(`${this.currentPlayer.name} hat verloren. Eine neue Runde wird gestartet.`);
     if (confirmationResult) {
       this.roundProvider.create({
@@ -82,6 +114,6 @@ export class RoundEventsComponent implements OnInit {
     participatingPlayer.inGame = false;
     this.roundProvider.update(this.currentRound._id, { participatingPlayerIds: this.currentRound.participatingPlayerIds })
       .subscribe((response: PutResponse) => this.playerWonEvent.emit());
-  }
+  }*/
 
 }

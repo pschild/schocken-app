@@ -43,10 +43,8 @@ export class AttendeeListComponent implements OnInit {
   }
 
   handleSaveClicked() {
-    const currentGameId = this.route.snapshot.paramMap.get('gameId');
-    const currentRoundId = this.route.snapshot.paramMap.get('roundId');
-    if (currentGameId && currentRoundId) {
-      this._updateRound(currentGameId, currentRoundId);
+    if (this.gameId && this.roundId) {
+      this._updateRound(this.gameId, this.roundId);
     } else {
       this._createGameAndRound();
     }

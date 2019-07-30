@@ -1,4 +1,0 @@
-<div *ngIf="game$ | async as game">
-    Spiel vom {{game.datetime}} [id={{game._id}}]
-    <app-round [game]="game" [roundId]="currentRoundId$ | async"></app-round>
-</div>

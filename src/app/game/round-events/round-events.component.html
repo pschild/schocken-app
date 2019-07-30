@@ -1,12 +1,11 @@
 <h2>Neues Ereignis</h2>
 <app-event-type-list
-    [playerId]="currentPlayer?._id"
-    [roundId]="currentRound?._id"
-    (lostEvent)="handleLostEvent()"
-    (schockAusEvent)="handleSchockAusEvent()">
+    [roundId]="round?._id"
+    (addEvent)="handleEventAdded($event)">
 </app-event-type-list>
 <button (click)="handleRemovePlayerFromGameClicked()">Raus</button>
 <app-event-list
-    [playerId]="currentPlayer?._id"
-    [roundId]="currentRound?._id">
+    [playerId]="player?._id"
+    [roundId]="round?._id"
+    (removeEvent)="handleEventRemoved($event)">
 </app-event-list>

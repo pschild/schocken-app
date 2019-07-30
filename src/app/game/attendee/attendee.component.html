@@ -1,0 +1,5 @@
+<div *ngIf="currentPlayer$ | async as currentPlayer">
+    an der Reihe: {{currentPlayer.name}}
+</div>
+<button (click)="previousPlayer()">prev</button>
+<button (click)="nextPlayer()">next</button>
