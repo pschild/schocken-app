@@ -15,6 +15,7 @@ export class RoundComponent implements OnInit {
 
   game: Game;
   round: Round;
+  currentRoundNo: number;
   currentPlayerId$: Observable<string>;
   currentPlayer$: BehaviorSubject<Player> = new BehaviorSubject(null);
   participatingPlayerIds$: Observable<any[]>;
@@ -27,13 +28,14 @@ export class RoundComponent implements OnInit {
 
   ngOnInit() {
     this.route.data.subscribe(data => {
-      this.game = data.game;
-      this.round = data.round;
+      this.game = data.gameData.game;
+      this.round = data.gameData.round;
+      this.currentRoundNo = this._calculateCurrentRoundNo(data.gameData.round._id, data.gameData.gameRounds)
     });
 
-    this.participatingPlayerIds$ = this.route.data.pipe(map(data => data.round.participatingPlayerIds));
+    this.participatingPlayerIds$ = this.route.data.pipe(map(data => data.gameData.round.participatingPlayerIds));
     this.currentPlayerId$ = this.route.data.pipe(
-      map(data => this._calculateCurrentPlayerId(data.round.currentPlayerId, data.round.participatingPlayerIds))
+      map(data => this._calculateCurrentPlayerId(data.gameData.round.currentPlayerId, data.gameData.round.participatingPlayerIds))
     );
   }
 
@@ -47,6 +49,11 @@ export class RoundComponent implements OnInit {
 
   showAttendeeList(): void {
     this.router.navigate(['game', 'attendees', { gameId: this.round.gameId, roundId: this.round._id }]);
+  }
+
+  // TODO: move to service
+  private _calculateCurrentRoundNo(roundId: string, rounds: Round[]): number {
+    return rounds.findIndex((round: Round) => round._id === roundId) + 1;
   }
 
   // TODO: move to service
@@ -76,14 +83,6 @@ export class RoundComponent implements OnInit {
         throw new Error(`No current roundId given!`);
       }
     });
-
-    this.currentRoundNumber$ = combineLatest(this.currentRound$, this.gameRounds$).pipe(
-      map(result => {
-        const currentRound: Round = result[0];
-        const gameRounds: Round[] = result[1];
-        return gameRounds.findIndex((round: Round) => round._id === currentRound._id) + 1;
-      })
-    );
   }
 
   handlePlayerLost(round: Round) {

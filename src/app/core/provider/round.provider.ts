@@ -28,8 +28,10 @@ export class RoundProvider {
     return this.repository.update(roundId, data);
   }
 
-  getRoundsByGameId(gameId: string): Observable<FindResponse<Round>> {
-    return this.repository.getRoundsByGameId(gameId);
+  getRoundsByGameId(gameId: string): Observable<Round[]> {
+    return this.repository.getRoundsByGameId(gameId).pipe(
+      map((res: FindResponse<Round>) => res.docs)
+    );
   }
 
   getLatestRoundByGameId(gameId: string): Observable<Round> {

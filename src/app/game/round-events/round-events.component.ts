@@ -107,6 +107,13 @@ export class RoundEventsComponent implements OnInit {
   }
 
   handleRemovePlayerFromGameClicked() {
+    // set inGame = false for current player
+    // if playerCount > 1:
+      // switch to next player
+    // else:
+      // create new round for game
+      // switch to new round
+
     const participatingPlayer = this.currentRound.participatingPlayerIds.find(item => item.playerId === this.currentPlayer._id);
     if (!participatingPlayer) {
       throw new Error(`Could not find player with id ${this.currentPlayer._id}`);

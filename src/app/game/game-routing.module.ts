@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { AttendeeListComponent } from './attendee-list/attendee-list.component';
 import { AttendeesResolver } from './attendee-list/attendees.resolver';
 import { RoundComponent } from './round/round.component';
-import { RoundResolver } from './round/round.resolver';
 import { GameResolver } from './round/game.resolver';
 
 const routes: Routes = [
@@ -11,8 +10,7 @@ const routes: Routes = [
     path: '',
     component: RoundComponent,
     resolve: {
-      game: GameResolver,
-      round: RoundResolver
+      gameData: GameResolver
     }
   },
   {

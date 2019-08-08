@@ -3,9 +3,7 @@
     <ng-template mat-tab-label>
       <mat-icon>euro_symbol</mat-icon>Runde
     </ng-template>
-    <div *ngIf="currentRound$ | async as currentRound">
-      Runde: {{currentRoundNumber$ | async}} [id={{currentRound._id}}]
-    </div>
+    Runde: {{currentRoundNo}} [id={{round._id}}]
     <ng-container *ngIf="currentPlayerId$ | async as currentPlayerId">
       <ng-container *ngIf="participatingPlayerIds$ | async as participatingPlayerIds">
         <app-attendee
