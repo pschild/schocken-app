@@ -19,6 +19,10 @@ import { MaterialModule } from './material/material.module';
 import { AppConfigProvider } from './core/config/app-config.provider';
 import { PouchDbAdapter } from './core/adapter/pouchdb.adapter';
 import { appInitializerFn } from './core/initialization/bootstrap';
+import { StoreModule } from '@ngrx/store';
+import { HomeEffects } from './store/effects/home.effects';
+import { EffectsModule } from '@ngrx/effects';
+import * as fromHome from './store/reducers/home.reducers';
 
 @NgModule({
   declarations: [
@@ -36,6 +40,8 @@ import { appInitializerFn } from './core/initialization/bootstrap';
     SharedModule,
     AppRoutingModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    StoreModule.forRoot({ home: fromHome.reducer }),
+    EffectsModule.forRoot([HomeEffects]),
     BrowserAnimationsModule,
     MaterialModule,
     LayoutModule

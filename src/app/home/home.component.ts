@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { GameVO } from '../core/domain/gameVo.model';
+import { IAppState } from '../store/state/app.state';
+import { Store, select } from '@ngrx/store';
+import { selectGamesList, gamesListLoading } from '../store/selectors/home.selectors';
+import * as homeActions from '../store/actions/home.actions';
 
 @Component({
   selector: 'app-home',
@@ -12,16 +15,17 @@ import { GameVO } from '../core/domain/gameVo.model';
 export class HomeComponent implements OnInit {
 
   allGames$: Observable<GameVO[]>;
+  isLoading$: Observable<boolean>;
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private store: Store<IAppState>
   ) { }
 
   ngOnInit() {
-    this.allGames$ = this.route.data.pipe(
-      map(data => data.games)
-    );
+    this.store.dispatch(homeActions.getGames());
+    this.allGames$ = this.store.pipe(select(selectGamesList));
+    this.isLoading$ = this.store.pipe(select(gamesListLoading));
   }
 
   startNewGame() {
