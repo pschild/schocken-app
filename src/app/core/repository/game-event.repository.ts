@@ -24,7 +24,7 @@ export class GameEventRepository {
   getAllByGameIdAndPlayerId(gameId: string, playerId: string): Observable<FindResponse<GameEvent>> {
     const selector = { datetime: { '$gt': null }, gameId, playerId, type: EntityType.GAME_EVENT };
     const orderBy = [{ datetime: 'desc' }];
-    return from(this.pouchDb.findWithPlugin(selector, orderBy));
+    return from(this.pouchDb.find(selector, orderBy));
   }
 
   create(data: Partial<GameEvent>): Observable<PutResponse> {

@@ -24,7 +24,7 @@ export class RoundEventRepository {
   getAllByRoundIdAndPlayerId(roundId: string, playerId: string): Observable<FindResponse<RoundEvent>> {
     const selector = { datetime: { '$gt': null }, roundId, playerId, type: EntityType.ROUND_EVENT };
     const orderBy = [{ datetime: 'desc' }];
-    return from(this.pouchDb.findWithPlugin(selector, orderBy));
+    return from(this.pouchDb.find(selector, orderBy));
   }
 
   create(data: Partial<RoundEvent>): Observable<PutResponse> {

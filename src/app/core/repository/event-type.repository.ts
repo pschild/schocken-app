@@ -19,7 +19,7 @@ export class EventTypeRepository {
 
   getAllByContext(context: EventTypeContext): Observable<FindResponse<EventType>> {
     const selector = { context, type: EntityType.EVENT_TYPE };
-    return from(this.pouchDb.findWithPlugin(selector));
+    return from(this.pouchDb.find(selector));
   }
 
   getById(id: string): Observable<EventType> {

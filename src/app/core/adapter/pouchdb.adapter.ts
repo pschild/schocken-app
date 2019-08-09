@@ -84,7 +84,7 @@ export class PouchDbAdapter {
     return this.instance.get(id);
   }
 
-  findWithPlugin(selector, orderBy?: any[]): Promise<any> {
+  find(selector, orderBy?: any[]): Promise<any> {
     console.log(`%cFIND WITH PLUGIN ${JSON.stringify(selector)}`, 'color: #00f');
     return this.instance.find({
       selector,

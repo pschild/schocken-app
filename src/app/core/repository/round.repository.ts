@@ -40,6 +40,6 @@ export class RoundRepository {
   getRoundsByGameId(gameId: string): Observable<FindResponse<Round>> {
     const selector = { datetime: { '$gt': null }, gameId, type: EntityType.ROUND };
     const orderBy = [{ datetime: 'asc' }];
-    return from(this.pouchDb.findWithPlugin(selector, orderBy));
+    return from(this.pouchDb.find(selector, orderBy));
   }
 }
