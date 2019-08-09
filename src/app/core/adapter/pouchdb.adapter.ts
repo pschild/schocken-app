@@ -54,7 +54,12 @@ export class PouchDbAdapter {
         fields: ['datetime', 'gameId']
       }
     });
-    return forkJoin(from(createRoundIndex), from(createGameIndex));
+    const createTypeIndex = this.instance.createIndex({
+      index: {
+        fields: ['datetime', 'type']
+      }
+    });
+    return forkJoin(from(createRoundIndex), from(createGameIndex), from(createTypeIndex));
   }
 
   createIndex(fields): Promise<any> {

@@ -22,9 +22,7 @@ export class HomeEffects {
                     )),
                     map(([game, round]: [Game, Round]) => this.gameVoMapper.mapToVO(game, round)),
                     toArray(), // transform gameVo, gameVo, ... => [gameVo, gameVo, ...]
-                    map((gameVos: GameVO[]) => {
-                        return homeActions.getGamesSuccess({ payload: gameVos });
-                    }),
+                    map((gameVos: GameVO[]) => homeActions.getGamesSuccess({ payload: gameVos })),
                     catchError(error =>
                         of(homeActions.getGamesError({ error }))
                     )
