@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Round } from 'src/app/interfaces';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { RoundRepository } from '../repository/round.repository';
 import { PutResponse, FindResponse } from '../adapter/pouchdb.adapter';
 
@@ -37,9 +37,11 @@ export class RoundProvider {
   getLatestRoundByGameId(gameId: string): Observable<Round> {
     return this.repository.getRoundsByGameId(gameId).pipe(
       map((res: FindResponse<Round>) => res.docs),
+      tap(_ => console.warn('_compareFn ggf. nicht notwendig?')),
       map((rounds: Round[]) => rounds.sort(this._compareFn)),
       map((sortedRounds: Round[]) => sortedRounds[0])
     );
+
   }
 
   private _compareFn(a: Round, b: Round) {

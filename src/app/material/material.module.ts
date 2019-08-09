@@ -30,7 +30,8 @@ import {
   MatSnackBarModule,
   MatRadioModule,
   MatCheckboxModule,
-  MatTabsModule
+  MatTabsModule,
+  MatProgressSpinnerModule
 } from '@angular/material';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatPaginatorIntlCustom } from './material-custom-paginator';
@@ -66,7 +67,8 @@ const materialModules = [
   MatRadioModule,
   MatCheckboxModule,
   MatTabsModule,
-  DragDropModule
+  DragDropModule,
+  MatProgressSpinnerModule
 ];
 
 @NgModule({
