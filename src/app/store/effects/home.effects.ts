@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 import { Game, Round } from 'src/app/interfaces';
 import { RoundProvider } from 'src/app/core/provider/round.provider';
 import { GameListMapperService } from 'src/app/home/game-list-mapper.service';
-import { GameVO } from '../../core/domain/gameVo.model';
+import { GameVO } from 'src/app/core/domain/gameVo.model';
 
 @Injectable()
 export class HomeEffects {

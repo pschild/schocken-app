@@ -1,4 +1,4 @@
-import { GameVO } from '../../core/domain/gameVO.model';
+import { GameVO } from 'src/app/core/domain/gameVo.model';
 
 export interface IHomeState {
     loading: boolean;
