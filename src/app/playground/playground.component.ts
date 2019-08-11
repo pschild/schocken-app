@@ -120,14 +120,6 @@ export class PlaygroundComponent implements OnInit {
       });
   }
 
-  newRound() {
-    const round: Round = { _id: `round-${Math.floor(Math.random() * 100000)}`, type: EntityType.ROUND, datetime: new Date(), gameId: this.chosenGameId };
-    this.db.put(round, (err, result) => {
-      console.log(err, result);
-      this.loadAllRounds();
-    });
-  }
-
   removeRound(round: Round) {
     this.db.remove(round)
       .then(r => {

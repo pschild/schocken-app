@@ -1,7 +1,6 @@
 <mat-accordion>
     <mat-expansion-panel>
         <mat-expansion-panel-header>Games</mat-expansion-panel-header>
-        <button (click)="newGame()">New Game</button>
         <ul>
             <li *ngFor="let game of (allGames$ | async)?.rows" (click)="chosenGameId = game.doc._id">
                 {{game | json}}
@@ -11,7 +10,6 @@
     </mat-expansion-panel>
     <mat-expansion-panel>
         <mat-expansion-panel-header>Rounds</mat-expansion-panel-header>
-        <button *ngIf="chosenGameId" (click)="newRound()">New Round (#{{chosenGameId}})</button>
         <ul>
             <li *ngFor="let round of (allRounds$ | async)?.rows" (click)="chosenRoundId = round.doc._id">
                 {{round.doc._id}}, {{round.doc.datetime}}, gameId={{round.doc.gameId}}
@@ -21,8 +19,6 @@
     </mat-expansion-panel>
     <mat-expansion-panel>
         <mat-expansion-panel-header>RoundEvents</mat-expansion-panel-header>
-        <button *ngIf="chosenRoundId && chosenEventTypeId" (click)="newRoundEvent()">New RoundEvent
-            (#{{chosenRoundId}}/#{{chosenEventTypeId}})</button>
         <ul>
             <li *ngFor="let event of (allRoundEvents$ | async)?.rows" (click)="chosenRoundEventId = event.doc._id">
                 {{event.doc | json}}
@@ -49,7 +45,6 @@
             <option value="game">game</option>
         </select>
         {{context}}
-        <button (click)="newEventType()">New EventType</button>
         <ul>
             <li *ngFor="let eventType of (allEventTypes$ | async)?.rows"
                 (click)="chosenEventTypeId = eventType.doc._id">

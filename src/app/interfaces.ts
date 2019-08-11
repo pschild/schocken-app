@@ -30,8 +30,8 @@ export interface Game extends Entity {
 export interface Round extends Entity {
     datetime: Date;
     gameId: string;
+    currentPlayerId: string;
     participatingPlayerIds?: Array<{playerId: string; inGame: boolean}>;
-    currentPlayerId?: string;
 }
 
 export interface Player extends Entity {

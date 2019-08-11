@@ -69,7 +69,8 @@ export class AttendeeListComponent implements OnInit {
           of(response),
           this.roundProvider.create({
             gameId: response.id,
-            participatingPlayerIds: this.participatingPlayers.map(item => ({ playerId: item.player._id, inGame: item.inGame }))
+            participatingPlayerIds: this.participatingPlayers.map(item => ({ playerId: item.player._id, inGame: item.inGame })),
+            currentPlayerId: this.participatingPlayers[0].player._id
           })
         );
       })
