@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Game, Round } from '../interfaces';
-import { GameVO } from '../core/domain/gameVo.model';
+import { GameVO } from '../core/domain/gameVO.model';
 
 @Injectable({
   providedIn: 'root'

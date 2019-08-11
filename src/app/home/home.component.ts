@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
-import { GameVO } from '../core/domain/gameVo.model';
+import { GameVO } from '../core/domain/gameVO.model';
 import { IAppState } from '../store/state/app.state';
 import { Store, select } from '@ngrx/store';
 import { selectGamesList, gamesListLoading } from '../store/selectors/home.selectors';
