@@ -52,6 +52,10 @@ export class RoundEventsComponent implements OnInit {
     });
   }
 
+  handleRemovePlayerFromGameClicked() {
+
+  }
+
   // _handleSpecialCases(eventType: EventType) {
   //   switch (eventType._id) {
   //     case 'eventType-52612':
