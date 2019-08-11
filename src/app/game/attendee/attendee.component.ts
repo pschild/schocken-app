@@ -1,8 +1,9 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 import { Player } from 'src/app/interfaces';
-import { PlayerProvider } from 'src/app/core/provider/player.provider';
 import { ChangePlayer } from 'src/app/core/domain/change-player.enum';
+import { Store } from '@ngrx/store';
+import { IAppState } from 'src/app/store/state/app.state';
+import { getPlayer, updateRound } from 'src/app/store/actions/game.actions';
 
 @Component({
   selector: 'app-attendee',
@@ -11,26 +12,15 @@ import { ChangePlayer } from 'src/app/core/domain/change-player.enum';
 })
 export class AttendeeComponent implements OnInit {
 
-  @Input() currentPlayerId: string;
+  @Input() currentPlayer: Player;
   @Input() participatingPlayerIds: any[];
   @Output() currentPlayerChanged = new EventEmitter();
 
-  currentPlayer$: BehaviorSubject<Player> = new BehaviorSubject(null);
-
   constructor(
-    private playerProvider: PlayerProvider
+    private store: Store<IAppState>
   ) { }
 
   ngOnInit() {
-    this.setCurrentPlayer(this.currentPlayerId);
-  }
-
-  setCurrentPlayer(id: string) {
-    this.playerProvider.getById(id).subscribe((player: Player) => {
-      this.currentPlayerId = id;
-      this.currentPlayer$.next(player);
-      this.currentPlayerChanged.emit(player);
-    });
   }
 
   nextPlayer(): void {
@@ -42,8 +32,9 @@ export class AttendeeComponent implements OnInit {
   }
 
   private _changePlayer(direction: ChangePlayer): void {
-    const nextPlayerId = this._calculateNextPlayerId(direction, this.currentPlayerId, this.participatingPlayerIds);
-    this.setCurrentPlayer(nextPlayerId);
+    const nextPlayerId = this._calculateNextPlayerId(direction, this.currentPlayer._id, this.participatingPlayerIds);
+    this.store.dispatch(getPlayer({ playerId: nextPlayerId }));
+    this.currentPlayerChanged.emit(nextPlayerId);
   }
 
   // // TODO: move to service

@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { first } from 'rxjs/operators';
 import { Round, Player, Game } from '../../interfaces';
 import { Router, ActivatedRoute } from '@angular/router';
-import { RoundProvider } from 'src/app/core/provider/round.provider';
-import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
+import { IAppState } from 'src/app/store/state/app.state';
+import { Store, select } from '@ngrx/store';
+import { getGame, getGameRounds, getRound, updateRound } from 'src/app/store/actions/game.actions';
+import { selectCurrentRoundNo, selectGame, selectRound, selectPlayer } from 'src/app/store/selectors/game.selectors';
 
 @Component({
   selector: 'app-round',
@@ -13,47 +15,44 @@ import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
 })
 export class RoundComponent implements OnInit {
 
-  game: Game;
-  round: Round;
-  currentRoundNo: number;
-  currentPlayerId$: Observable<string>;
-  currentPlayer$: BehaviorSubject<Player> = new BehaviorSubject(null);
+  game$: Observable<Game>;
+  round$: Observable<Round>;
+  currentRoundNo$: Observable<number>;
+  currentPlayer$: Observable<Player>;
   participatingPlayerIds$: Observable<any[]>;
 
   constructor(
-    private router: Router,
     private route: ActivatedRoute,
-    private roundProvider: RoundProvider
+    private router: Router,
+    private store: Store<IAppState>
   ) { }
 
   ngOnInit() {
-    this.route.data.subscribe(data => {
-      this.game = data.gameData.game;
-      this.round = data.gameData.round;
-      this.currentRoundNo = this._calculateCurrentRoundNo(data.gameData.round._id, data.gameData.gameRounds)
+    this.currentRoundNo$ = this.store.pipe(select(selectCurrentRoundNo));
+    this.game$ = this.store.pipe(select(selectGame));
+    this.round$ = this.store.pipe(select(selectRound));
+    this.currentPlayer$ = this.store.pipe(select(selectPlayer));
+
+    this.route.params.subscribe(params => {
+      this.store.dispatch(getGame({ gameId: params.gameId }));
+      this.store.dispatch(getGameRounds({ gameId: params.gameId }));
+      this.store.dispatch(getRound({ roundId: params.roundId }));
     });
 
-    this.participatingPlayerIds$ = this.route.data.pipe(map(data => data.gameData.round.participatingPlayerIds));
-    this.currentPlayerId$ = this.route.data.pipe(
-      map(data => this._calculateCurrentPlayerId(data.gameData.round.currentPlayerId, data.gameData.round.participatingPlayerIds))
-    );
+    // this.store.subscribe(console.log);
   }
 
-  onPlayerChanged(player: Player) {
-    // attention: this.round does not hold the latest value after update!
-    this.roundProvider.update(this.round._id, { currentPlayerId: player._id })
-      .subscribe((response: PutResponse) => {
-        this.currentPlayer$.next(player);
-      });
+  onPlayerChanged(playerId: string) {
+    // attention: round$ does not hold the latest currentPlayerId after update!
+    this.round$.pipe(first()).subscribe((round: Round) => {
+      this.store.dispatch(updateRound({ roundId: round._id, data: { currentPlayerId: playerId } }));
+    });
   }
 
   showAttendeeList(): void {
-    this.router.navigate(['game', 'attendees', { gameId: this.round.gameId, roundId: this.round._id }]);
-  }
-
-  // TODO: move to service
-  private _calculateCurrentRoundNo(roundId: string, rounds: Round[]): number {
-    return rounds.findIndex((round: Round) => round._id === roundId) + 1;
+    this.round$.pipe(first()).subscribe((round: Round) => {
+      this.router.navigate(['game', 'attendees', { gameId: round.gameId, roundId: round._id }]);
+    });
   }
 
   // TODO: move to service

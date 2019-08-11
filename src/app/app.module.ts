@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, APP_INITIALIZER, Injector } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -23,6 +24,8 @@ import { StoreModule } from '@ngrx/store';
 import { HomeEffects } from './store/effects/home.effects';
 import { EffectsModule } from '@ngrx/effects';
 import * as fromHome from './store/reducers/home.reducers';
+import * as fromGame from './store/reducers/game.reducers';
+import { GameEffects } from './store/effects/game.effect';
 
 @NgModule({
   declarations: [
@@ -40,8 +43,12 @@ import * as fromHome from './store/reducers/home.reducers';
     SharedModule,
     AppRoutingModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
-    StoreModule.forRoot({ home: fromHome.reducer }),
-    EffectsModule.forRoot([HomeEffects]),
+    StoreModule.forRoot({
+      home: fromHome.reducer,
+      game: fromGame.reducer
+    }),
+    StoreDevtoolsModule.instrument(),
+    EffectsModule.forRoot([HomeEffects, GameEffects]),
     BrowserAnimationsModule,
     MaterialModule,
     LayoutModule

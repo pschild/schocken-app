@@ -29,6 +29,7 @@
     "@angular/service-worker": "~8.1.0",
     "@ngrx/effects": "^8.2.0",
     "@ngrx/store": "^8.2.0",
+    "@ngrx/store-devtools": "^8.2.0",
     "core-js": "^2.5.4",
     "hammerjs": "^2.0.8",
     "pouchdb": "^7.0.0",

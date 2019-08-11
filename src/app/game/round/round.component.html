@@ -3,28 +3,22 @@
     <ng-template mat-tab-label>
       <mat-icon>euro_symbol</mat-icon>Runde
     </ng-template>
-    Runde: {{currentRoundNo}} [id={{round._id}}]
-    <ng-container *ngIf="currentPlayerId$ | async as currentPlayerId">
-      <ng-container *ngIf="participatingPlayerIds$ | async as participatingPlayerIds">
-        <app-attendee
-          [currentPlayerId]="currentPlayerId"
-          [participatingPlayerIds]="participatingPlayerIds"
-          (currentPlayerChanged)="onPlayerChanged($event)"></app-attendee>
-      </ng-container>
-    </ng-container>
+    Runde: {{currentRoundNo$ | async}} [id={{(round$ | async)?._id}}]
+    <app-attendee [currentPlayer]="currentPlayer$ | async"
+      [participatingPlayerIds]="(round$ | async)?.participatingPlayerIds"
+      (currentPlayerChanged)="onPlayerChanged($event)"></app-attendee>
     <button (click)="showAttendeeList()">Teilnehmer</button>
-    <app-round-events *ngIf="currentPlayer$ | async as currentPlayer"
-      [round]="round"
-      [player]="currentPlayer"
-      (playerLostEvent)="handlePlayerLost($event)"
-      (schockAusEvent)="handleSchockAus($event)"
-      (playerWonEvent)="handlePlayerWon($event)">
-    </app-round-events>
+    <ng-container *ngIf="currentPlayer$ | async as currentPlayer">
+      <app-round-events *ngIf="round$ | async as round" [round]="round" [player]="currentPlayer"
+        (playerLostEvent)="handlePlayerLost($event)" (schockAusEvent)="handleSchockAus($event)"
+        (playerWonEvent)="handlePlayerWon($event)">
+      </app-round-events>
+    </ng-container>
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>
       <mat-icon>euro_symbol</mat-icon>Spiel / Feststellungen
     </ng-template>
-    <app-game-events [game]="game"></app-game-events>
+    <app-game-events *ngIf="game$ | async as game" [game]="game"></app-game-events>
   </mat-tab>
 </mat-tab-group>
