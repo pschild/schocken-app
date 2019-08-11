@@ -3,10 +3,12 @@ import { Injectable } from '@angular/core';
 import * as gameActions from '../actions/game.actions';
 import { GameProvider } from 'src/app/core/provider/game.provider';
 import { switchMap, map, tap } from 'rxjs/operators';
-import { Game, Round, Player } from 'src/app/interfaces';
+import { Game, Round, Player, RoundEvent } from 'src/app/interfaces';
 import { RoundProvider } from 'src/app/core/provider/round.provider';
 import { PlayerProvider } from 'src/app/core/provider/player.provider';
 import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
+import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
+import { SpecialEventHandlerService } from 'src/app/core/services/special-event-handler.service';
 
 @Injectable()
 export class GameEffects {
@@ -58,10 +60,38 @@ export class GameEffects {
         )
     );
 
+    loadRoundEvents$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(gameActions.getRoundEvents),
+            switchMap(action => this.roundEventProvider.getAllByRoundIdAndPlayerId(action.roundId, action.playerId).pipe(
+                map((roundEvents: RoundEvent[]) => gameActions.getRoundEventsSuccess({ playerId: action.playerId, roundEvents }))
+            ))
+        )
+    );
+
+    addRoundEvent$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(gameActions.addRoundEvent),
+            switchMap(action => this.roundEventProvider.create({
+                    eventTypeId: action.eventTypeId,
+                    roundId: action.round._id,
+                    playerId: action.playerId,
+                    multiplicatorValue: action.multiplicatorValue
+                }).pipe(
+                    switchMap((response: PutResponse) => this.roundEventProvider.getById(response.id)),
+                    tap((roundEvent: RoundEvent) => this.specialEventHandler.handle(action.eventTypeId, action.round)),
+                    map((roundEvent: RoundEvent) => gameActions.addRoundEventSuccess({ playerId: action.playerId, event: roundEvent }))
+                )
+            )
+        )
+    );
+
     constructor(
         private gameProvider: GameProvider,
         private roundProvider: RoundProvider,
+        private roundEventProvider: RoundEventProvider,
         private playerProvider: PlayerProvider,
+        private specialEventHandler: SpecialEventHandlerService,
         private actions$: Actions
     ) { }
 }

@@ -8,7 +8,6 @@ import { GameEvent, RoundEvent } from 'src/app/interfaces';
 export class GameStateService {
 
   gameEventsForPlayer$: BehaviorSubject<GameEvent[]> = new BehaviorSubject([]);
-  roundEventsForPlayer$: BehaviorSubject<RoundEvent[]> = new BehaviorSubject([]);
 
   constructor() { }
 

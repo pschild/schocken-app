@@ -4,6 +4,9 @@ import { switchMap } from 'rxjs/operators';
 import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
 import { PutResponse, RemoveResponse } from 'src/app/core/adapter/pouchdb.adapter';
 import { GameStateService } from 'src/app/core/services/game-state.service';
+import { IAppState } from 'src/app/store/state/app.state';
+import { Store } from '@ngrx/store';
+import { addRoundEvent } from 'src/app/store/actions/game.actions';
 
 @Component({
   selector: 'app-round-events',
@@ -21,35 +24,27 @@ export class RoundEventsComponent implements OnInit {
 
   constructor(
     private roundEventProvider: RoundEventProvider,
-    private state: GameStateService
+    private store: Store<IAppState>
   ) { }
 
   ngOnInit() {
   }
 
   handleEventAdded(eventType: EventType) {
-    // TODO: move to service
-    this.roundEventProvider.create({
-      eventTypeId: eventType._id,
-      roundId: this.round._id,
+    this.store.dispatch(addRoundEvent({
+      round: this.round,
       playerId: this.player._id,
+      eventTypeId: eventType._id,
       multiplicatorValue: eventType['formValue']
-    }).pipe(
-      switchMap((response: PutResponse) => this.roundEventProvider.getById(response.id))
-    ).subscribe((event: RoundEvent) => {
-      const newList = [event, ...this.state.roundEventsForPlayer$.getValue()];
-      this.state.roundEventsForPlayer$.next(newList);
-    });
-
-    // TODO: handle special cases
+    }));
   }
 
   handleEventRemoved(event: Event) {
     // TODO: move to service
-    this.roundEventProvider.remove(event as RoundEvent).subscribe((response: RemoveResponse) => {
-      const newList = this.state.roundEventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
-      this.state.roundEventsForPlayer$.next(newList);
-    });
+    // this.roundEventProvider.remove(event as RoundEvent).subscribe((response: RemoveResponse) => {
+    //   const newList = this.state.roundEventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
+    //   this.state.roundEventsForPlayer$.next(newList);
+    // });
   }
 
   handleRemovePlayerFromGameClicked() {

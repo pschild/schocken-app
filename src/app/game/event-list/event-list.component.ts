@@ -7,6 +7,10 @@ import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
 import { EventTypeProvider } from 'src/app/core/provider/event-type.provider';
 import { FindResponse } from 'src/app/core/adapter/pouchdb.adapter';
 import { GameStateService } from 'src/app/core/services/game-state.service';
+import { select, Store } from '@ngrx/store';
+import { selectRoundEvents } from 'src/app/store/selectors/game.selectors';
+import { IAppState } from 'src/app/store/state/app.state';
+import { getRoundEvents } from 'src/app/store/actions/game.actions';
 
 @Component({
   selector: 'app-event-list',
@@ -36,7 +40,8 @@ export class EventListComponent implements OnInit, OnChanges {
     private gameEventProvider: GameEventProvider,
     private roundEventProvider: RoundEventProvider,
     private eventTypeProvider: EventTypeProvider,
-    private state: GameStateService
+    private state: GameStateService,
+    private store: Store<IAppState>
   ) { }
 
   ngOnInit() {
@@ -53,17 +58,18 @@ export class EventListComponent implements OnInit, OnChanges {
     ).subscribe((events: GameEvent[]) => this.state.gameEventsForPlayer$.next(events));
 
     // handle round events
-    // TODO: move to service
     latestInputs$.pipe(
-      filter(([gameId, roundId, playerId]) => !!roundId && !!playerId),
-      switchMap(([gameId, roundId, playerId]) => this.roundEventProvider.getAllByRoundIdAndPlayerId(roundId, playerId)),
-      map((response: FindResponse<RoundEvent>) => response.docs)
-    ).subscribe((events: RoundEvent[]) => this.state.roundEventsForPlayer$.next(events));
+      filter(([gameId, roundId, playerId]) => !!roundId && !!playerId)
+    ).subscribe(([gameId, roundId, playerId]) => this.store.dispatch(getRoundEvents({ roundId, playerId })));
+
+    this.roundEventsForPlayer$ = this.playerId$.pipe(
+      switchMap(playerId => this.store.pipe(select(selectRoundEvents, { playerId })))
+    );
 
     // TODO: move to service
     this.mergedList$ = combineLatest(
       this.eventTypes$,
-      this.gameId ? this.state.gameEventsForPlayer$ : this.state.roundEventsForPlayer$
+      this.gameId ? this.state.gameEventsForPlayer$ : this.roundEventsForPlayer$
     ).pipe(
       map(result => {
         const eventTypes: EventType[] = result[0];

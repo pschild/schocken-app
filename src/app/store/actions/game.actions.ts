@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Game, Round, Player } from 'src/app/interfaces';
+import { Game, Round, Player, EventType, RoundEvent } from 'src/app/interfaces';
 import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
 
 export const getGame = createAction('[Game] Get Game', props<{ gameId: string }>());
@@ -18,3 +18,15 @@ export const getPlayerSuccess = createAction('[Game] Get Player Success', props<
 
 export const nextPlayer = createAction('[Game] Next Player');
 export const previousPlayer = createAction('[Game] Previous Player');
+
+export const getRoundEvents = createAction('[Game] Get Round Events', props<{ roundId: string, playerId: string }>());
+export const getRoundEventsSuccess = createAction(
+    '[Game] Get Round Events Success',
+    props<{ playerId: string, roundEvents: RoundEvent[] }>()
+);
+export const addRoundEvent = createAction(
+    '[Game] Add Round Event',
+    props<{ round: Round, playerId: string, eventTypeId: string, multiplicatorValue?: number }>()
+);
+export const addRoundEventSuccess = createAction('[Game] Add Round Event Success', props<{ playerId: string, event: RoundEvent }>());
+export const handleSpecialEvent = createAction('[Game] Handle Special Event', props<{ eventType: EventType }>());

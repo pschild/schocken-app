@@ -25,7 +25,7 @@ import { HomeEffects } from './store/effects/home.effects';
 import { EffectsModule } from '@ngrx/effects';
 import * as fromHome from './store/reducers/home.reducers';
 import * as fromGame from './store/reducers/game.reducers';
-import { GameEffects } from './store/effects/game.effect';
+import { GameEffects } from './store/effects/game.effects';
 
 @NgModule({
   declarations: [

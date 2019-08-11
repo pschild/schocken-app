@@ -13,3 +13,9 @@ export const selectCurrentRoundNo = createSelector(selectGameState, (state: IGam
         return state.gameRounds.findIndex((round: Round) => round._id === state.currentRound._id) + 1;
     }
 });
+export const selectRoundEvents = createSelector(selectGameState, (state: IGameState, props) => {
+    if (state.roundEventsForPlayer && state.roundEventsForPlayer[props.playerId]) {
+        return state.roundEventsForPlayer[props.playerId];
+    }
+    return [];
+});
