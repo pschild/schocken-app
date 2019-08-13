@@ -2,13 +2,17 @@ import { createEffect, ofType, Actions } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import * as gameActions from '../actions/game.actions';
 import { GameProvider } from 'src/app/core/provider/game.provider';
-import { switchMap, map, tap } from 'rxjs/operators';
+import { switchMap, map, tap, withLatestFrom } from 'rxjs/operators';
 import { Game, Round, Player, RoundEvent } from 'src/app/interfaces';
 import { RoundProvider } from 'src/app/core/provider/round.provider';
 import { PlayerProvider } from 'src/app/core/provider/player.provider';
 import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
 import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
 import { SpecialEventHandlerService } from 'src/app/core/services/special-event-handler.service';
+import { selectRound } from '../selectors/game.selectors';
+import { select, Store } from '@ngrx/store';
+import { IAppState } from '../state/app.state';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class GameEffects {
@@ -51,6 +55,26 @@ export class GameEffects {
         )
     );
 
+    startNewRound$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(gameActions.startNewRound),
+            withLatestFrom(this.store.pipe(select(selectRound))),
+            switchMap(([action, round]) => this.roundProvider.create({
+                gameId: round.gameId,
+                currentPlayerId: round.currentPlayerId,
+                participatingPlayerIds: round.participatingPlayerIds.map(item => {
+                    item.inGame = true;
+                    return item;
+                })
+            })),
+            switchMap((response: PutResponse) => this.roundProvider.getById(response.id)),
+            tap((round: Round) => this.router.navigate(
+                ['game', { gameId: round.gameId, roundId: round._id }]
+            ))
+        ),
+        { dispatch: false }
+    );
+
     loadPlayer$ = createEffect(() =>
         this.actions$.pipe(
             ofType(gameActions.getPlayer),
@@ -73,15 +97,15 @@ export class GameEffects {
         this.actions$.pipe(
             ofType(gameActions.addRoundEvent),
             switchMap(action => this.roundEventProvider.create({
-                    eventTypeId: action.eventTypeId,
-                    roundId: action.round._id,
-                    playerId: action.playerId,
-                    multiplicatorValue: action.multiplicatorValue
-                }).pipe(
-                    switchMap((response: PutResponse) => this.roundEventProvider.getById(response.id)),
-                    tap((roundEvent: RoundEvent) => this.specialEventHandler.handle(action.eventTypeId, action.round)),
-                    map((roundEvent: RoundEvent) => gameActions.addRoundEventSuccess({ playerId: action.playerId, event: roundEvent }))
-                )
+                eventTypeId: action.eventTypeId,
+                roundId: action.round._id,
+                playerId: action.playerId,
+                multiplicatorValue: action.multiplicatorValue
+            }).pipe(
+                switchMap((response: PutResponse) => this.roundEventProvider.getById(response.id)),
+                tap((roundEvent: RoundEvent) => this.specialEventHandler.handle(action.eventTypeId, action.round)),
+                map((roundEvent: RoundEvent) => gameActions.addRoundEventSuccess({ playerId: action.playerId, event: roundEvent }))
+            )
             )
         )
     );
@@ -92,6 +116,8 @@ export class GameEffects {
         private roundEventProvider: RoundEventProvider,
         private playerProvider: PlayerProvider,
         private specialEventHandler: SpecialEventHandlerService,
-        private actions$: Actions
+        private actions$: Actions,
+        private store: Store<IAppState>,
+        private router: Router
     ) { }
 }

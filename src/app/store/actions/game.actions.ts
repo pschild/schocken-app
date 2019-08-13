@@ -12,6 +12,7 @@ export const getRound = createAction('[Game] Get Round', props<{ roundId: string
 export const getRoundSuccess = createAction('[Game] Get Round Success', props<{ payload: Round }>());
 export const updateRound = createAction('[Game] Update Round', props<{ roundId: string, data: Partial<Round> }>());
 export const updateRoundSuccess = createAction('[Game] Update Round Success', props<{ response: PutResponse }>());
+export const startNewRound = createAction('[Game] Start New Round');
 
 export const getPlayer = createAction('[Game] Get Player', props<{ playerId: string }>());
 export const getPlayerSuccess = createAction('[Game] Get Player Success', props<{ payload: Player }>());

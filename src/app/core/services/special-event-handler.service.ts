@@ -4,7 +4,7 @@ import { IAppState } from 'src/app/store/state/app.state';
 import { Store } from '@ngrx/store';
 import { map } from 'rxjs/operators';
 import { PlayerProvider } from '../provider/player.provider';
-import { addRoundEvent } from 'src/app/store/actions/game.actions';
+import { addRoundEvent, startNewRound } from 'src/app/store/actions/game.actions';
 
 enum SpecialEventIdMap {
   SCHOCK_AUS = 'eventType-42300',
@@ -61,7 +61,7 @@ export class SpecialEventHandlerService {
   private _handlePlayerLostEvent() {
     console.log('_handlePlayerLostEvent');
     // create new round: currentPlayerId = state.currentPlayer._id; participatingPlayers = inGame = true for all
-    // this.store.dispatch(createRound({ ... }));
+    this.store.dispatch(startNewRound());
   }
 
   private _handlePlayerWonEvent() {
