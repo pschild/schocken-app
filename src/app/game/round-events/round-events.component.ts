@@ -1,9 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Player, Round, EventType, RoundEvent, Event } from 'src/app/interfaces';
-import { switchMap } from 'rxjs/operators';
-import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
-import { PutResponse, RemoveResponse } from 'src/app/core/adapter/pouchdb.adapter';
-import { GameStateService } from 'src/app/core/services/game-state.service';
+import { Player, Round, EventType, Event } from 'src/app/interfaces';
 import { IAppState } from 'src/app/store/state/app.state';
 import { Store } from '@ngrx/store';
 import { addRoundEvent } from 'src/app/store/actions/game.actions';
@@ -23,7 +19,6 @@ export class RoundEventsComponent implements OnInit {
   @Output() playerWonEvent = new EventEmitter<any>();
 
   constructor(
-    private roundEventProvider: RoundEventProvider,
     private store: Store<IAppState>
   ) { }
 
@@ -50,18 +45,6 @@ export class RoundEventsComponent implements OnInit {
   handleRemovePlayerFromGameClicked() {
 
   }
-
-  // _handleSpecialCases(eventType: EventType) {
-  //   switch (eventType._id) {
-  //     case 'eventType-52612':
-  //     case 'eventType-68434':
-  //       this.lostEvent.emit();
-  //       break;
-  //     case 'eventType-42300':
-  //       this.schockAusEvent.emit();
-  //       break;
-  //   }
-  // }
 
   // TODO: abstract handling of special events in separate service
   /*handleLostEvent() {

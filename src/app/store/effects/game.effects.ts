@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import * as gameActions from '../actions/game.actions';
 import { GameProvider } from 'src/app/core/provider/game.provider';
 import { switchMap, map, tap, withLatestFrom } from 'rxjs/operators';
-import { Game, Round, Player, RoundEvent } from 'src/app/interfaces';
+import { Game, Round, Player, RoundEvent, GameEvent } from 'src/app/interfaces';
 import { RoundProvider } from 'src/app/core/provider/round.provider';
 import { PlayerProvider } from 'src/app/core/provider/player.provider';
 import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
@@ -13,6 +13,7 @@ import { selectRound } from '../selectors/game.selectors';
 import { select, Store } from '@ngrx/store';
 import { IAppState } from '../state/app.state';
 import { Router } from '@angular/router';
+import { GameEventProvider } from 'src/app/core/provider/game-event.provider';
 
 @Injectable()
 export class GameEffects {
@@ -110,10 +111,36 @@ export class GameEffects {
         )
     );
 
+    loadGameEvents$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(gameActions.getGameEvents),
+            switchMap(action => this.gameEventProvider.getAllByGameIdAndPlayerId(action.gameId, action.playerId).pipe(
+                map((gameEvents: GameEvent[]) => gameActions.getGameEventsSuccess({ playerId: action.playerId, gameEvents }))
+            ))
+        )
+    );
+
+    addGameEvent$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(gameActions.addGameEvent),
+            switchMap(action => this.gameEventProvider.create({
+                eventTypeId: action.eventTypeId,
+                gameId: action.game._id,
+                playerId: action.playerId,
+                multiplicatorValue: action.multiplicatorValue
+            }).pipe(
+                switchMap((response: PutResponse) => this.gameEventProvider.getById(response.id)),
+                map((gameEvent: GameEvent) => gameActions.addGameEventSuccess({ playerId: action.playerId, event: gameEvent }))
+            )
+            )
+        )
+    );
+
     constructor(
         private gameProvider: GameProvider,
         private roundProvider: RoundProvider,
         private roundEventProvider: RoundEventProvider,
+        private gameEventProvider: GameEventProvider,
         private playerProvider: PlayerProvider,
         private specialEventHandler: SpecialEventHandlerService,
         private actions$: Actions,

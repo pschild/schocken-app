@@ -6,7 +6,9 @@ import {
     getRoundSuccess,
     getPlayerSuccess,
     addRoundEventSuccess,
-    getRoundEventsSuccess
+    getRoundEventsSuccess,
+    addGameEventSuccess,
+    getGameEventsSuccess
 } from '../actions/game.actions';
 
 const gameReducer = createReducer(
@@ -43,6 +45,20 @@ const gameReducer = createReducer(
         roundEventsForPlayer: {
             ...state.roundEventsForPlayer,
             [playerId]: [event, ...state.roundEventsForPlayer[playerId]]
+        }
+    })),
+    on(getGameEventsSuccess, (state, { playerId, gameEvents }) => ({
+        ...state,
+        gameEventsForPlayer: {
+            ...state.gameEventsForPlayer,
+            [playerId]: gameEvents
+        }
+    })),
+    on(addGameEventSuccess, (state, { playerId, event }) => ({
+        ...state,
+        gameEventsForPlayer: {
+            ...state.gameEventsForPlayer,
+            [playerId]: [event, ...state.gameEventsForPlayer[playerId]]
         }
     })
 ));

@@ -2,14 +2,11 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitte
 import { EventType, GameEvent, RoundEvent, Event } from 'src/app/interfaces';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, switchMap, map, share } from 'rxjs/operators';
-import { GameEventProvider } from 'src/app/core/provider/game-event.provider';
-import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
 import { EventTypeProvider } from 'src/app/core/provider/event-type.provider';
-import { GameStateService } from 'src/app/core/services/game-state.service';
 import { select, Store } from '@ngrx/store';
-import { selectRoundEvents } from 'src/app/store/selectors/game.selectors';
+import { selectRoundEvents, selectGameEvents } from 'src/app/store/selectors/game.selectors';
 import { IAppState } from 'src/app/store/state/app.state';
-import { getRoundEvents } from 'src/app/store/actions/game.actions';
+import { getRoundEvents, getGameEvents } from 'src/app/store/actions/game.actions';
 
 @Component({
   selector: 'app-event-list',
@@ -36,9 +33,7 @@ export class EventListComponent implements OnInit, OnChanges {
   penalties$: Observable<Array<{unit: string, sum: number}>>;
 
   constructor(
-    private gameEventProvider: GameEventProvider,
     private eventTypeProvider: EventTypeProvider,
-    private state: GameStateService,
     private store: Store<IAppState>
   ) { }
 
@@ -48,11 +43,9 @@ export class EventListComponent implements OnInit, OnChanges {
     const latestInputs$ = combineLatest(this.gameId$, this.roundId$, this.playerId$);
 
     // handle game events
-    // TODO: move to service
     latestInputs$.pipe(
-      filter(([gameId, roundId, playerId]) => !!gameId && !!playerId),
-      switchMap(([gameId, roundId, playerId]) => this.gameEventProvider.getAllByGameIdAndPlayerId(gameId, playerId))
-    ).subscribe((events: GameEvent[]) => this.state.gameEventsForPlayer$.next(events));
+      filter(([gameId, roundId, playerId]) => !!gameId && !!playerId)
+    ).subscribe(([gameId, roundId, playerId]) => this.store.dispatch(getGameEvents({ gameId, playerId })));
 
     // handle round events
     latestInputs$.pipe(
@@ -63,10 +56,14 @@ export class EventListComponent implements OnInit, OnChanges {
       switchMap(playerId => this.store.pipe(select(selectRoundEvents, { playerId })))
     );
 
+    this.gameEventsForPlayer$ = this.playerId$.pipe(
+      switchMap(playerId => this.store.pipe(select(selectGameEvents, { playerId })))
+    );
+
     // TODO: move to service
     this.mergedList$ = combineLatest(
       this.eventTypes$,
-      this.gameId ? this.state.gameEventsForPlayer$ : this.roundEventsForPlayer$
+      this.gameId ? this.gameEventsForPlayer$ : this.roundEventsForPlayer$
     ).pipe(
       map(result => {
         const eventTypes: EventType[] = result[0];

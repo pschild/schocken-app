@@ -19,3 +19,9 @@ export const selectRoundEvents = createSelector(selectGameState, (state: IGameSt
     }
     return [];
 });
+export const selectGameEvents = createSelector(selectGameState, (state: IGameState, props) => {
+    if (state.gameEventsForPlayer && state.gameEventsForPlayer[props.playerId]) {
+        return state.gameEventsForPlayer[props.playerId];
+    }
+    return [];
+});

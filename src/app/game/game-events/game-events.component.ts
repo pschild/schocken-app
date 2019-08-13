@@ -1,11 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { Event, Player, Game, EventType, GameEvent } from '../../interfaces';
-import { tap, switchMap } from 'rxjs/operators';
+import { Event, Player, Game, EventType } from '../../interfaces';
+import { tap } from 'rxjs/operators';
 import { PlayerProvider } from 'src/app/core/provider/player.provider';
-import { GameEventProvider } from 'src/app/core/provider/game-event.provider';
-import { PutResponse, RemoveResponse } from 'src/app/core/adapter/pouchdb.adapter';
-import { GameStateService } from 'src/app/core/services/game-state.service';
+import { Store } from '@ngrx/store';
+import { IAppState } from 'src/app/store/state/app.state';
+import { addGameEvent } from 'src/app/store/actions/game.actions';
 
 @Component({
   selector: 'app-game-events',
@@ -23,8 +23,7 @@ export class GameEventsComponent implements OnInit {
 
   constructor(
     private playerProvider: PlayerProvider,
-    private gameEventProvider: GameEventProvider,
-    private state: GameStateService
+    private store: Store<IAppState>
   ) { }
 
   ngOnInit() {
@@ -40,26 +39,20 @@ export class GameEventsComponent implements OnInit {
   }
 
   handleEventAdded(eventType: EventType) {
-    // TODO: move to service
-    this.gameEventProvider.create({
-      eventTypeId: eventType._id,
-      gameId: this.game._id,
+    this.store.dispatch(addGameEvent({
+      game: this.game,
       playerId: this.selectedPlayer$.getValue()._id,
+      eventTypeId: eventType._id,
       multiplicatorValue: eventType['formValue']
-    }).pipe(
-      switchMap((response: PutResponse) => this.gameEventProvider.getById(response.id))
-    ).subscribe((event: GameEvent) => {
-      const newList = [event, ...this.state.gameEventsForPlayer$.getValue()];
-      this.state.gameEventsForPlayer$.next(newList);
-    });
+    }));
   }
 
   handleEventRemoved(event: Event) {
     // TODO: move to service
-    this.gameEventProvider.remove(event as GameEvent).subscribe((response: RemoveResponse) => {
-      const newList = this.state.gameEventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
-      this.state.gameEventsForPlayer$.next(newList);
-    });
+    // this.gameEventProvider.remove(event as GameEvent).subscribe((response: RemoveResponse) => {
+    //   const newList = this.state.gameEventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
+    //   this.state.gameEventsForPlayer$.next(newList);
+    // });
   }
 
 }
