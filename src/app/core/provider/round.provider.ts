@@ -3,14 +3,15 @@ import { Observable } from 'rxjs';
 import { Round } from 'src/app/interfaces';
 import { map, tap } from 'rxjs/operators';
 import { RoundRepository } from '../repository/round.repository';
-import { PutResponse, FindResponse } from '../adapter/pouchdb.adapter';
+import { PutResponse } from '../adapter/pouchdb.adapter';
+import { SortService, SortDirection } from '../services/sort.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RoundProvider {
 
-  constructor(private repository: RoundRepository) { }
+  constructor(private repository: RoundRepository, private sortService: SortService) { }
 
   getAll(): Observable<Round[]> {
     return this.repository.getAll();
@@ -30,27 +31,14 @@ export class RoundProvider {
 
   getRoundsByGameId(gameId: string): Observable<Round[]> {
     return this.repository.getRoundsByGameId(gameId).pipe(
-      map((res: FindResponse<Round>) => res.docs)
+      map((rounds: Round[]) => rounds.sort((a, b) => this.sortService.compare(a, b, 'datetime')))
     );
   }
 
   getLatestRoundByGameId(gameId: string): Observable<Round> {
-    return this.repository.getRoundsByGameId(gameId).pipe(
-      map((res: FindResponse<Round>) => res.docs),
-      tap(_ => console.warn('_compareFn ggf. nicht notwendig?')),
-      map((rounds: Round[]) => rounds.sort(this._compareFn)),
-      map((sortedRounds: Round[]) => sortedRounds[0])
+    return this.getRoundsByGameId(gameId).pipe(
+      map((sortedRounds: Round[]) => sortedRounds[sortedRounds.length - 1])
     );
 
-  }
-
-  private _compareFn(a: Round, b: Round) {
-    if (a.datetime > b.datetime) {
-      return -1;
-    }
-    if (a.datetime < b.datetime) {
-      return 1;
-    }
-    return 0;
   }
 }

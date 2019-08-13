@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { GameEvent } from 'src/app/interfaces';
-import { FindResponse, PutResponse } from '../adapter/pouchdb.adapter';
+import { PutResponse } from '../adapter/pouchdb.adapter';
 import { GameEventRepository } from '../repository/game-event.repository';
 
 @Injectable({
@@ -19,7 +19,7 @@ export class GameEventProvider {
     return this.repository.getById(id);
   }
 
-  getAllByGameIdAndPlayerId(gameId: string, playerId: string): Observable<FindResponse<GameEvent>> {
+  getAllByGameIdAndPlayerId(gameId: string, playerId: string): Observable<GameEvent[]> {
     return this.repository.getAllByGameIdAndPlayerId(gameId, playerId);
   }
 

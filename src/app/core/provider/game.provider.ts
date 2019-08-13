@@ -3,16 +3,20 @@ import { Observable } from 'rxjs';
 import { Game } from 'src/app/interfaces';
 import { GameRepository } from '../repository/game.repository';
 import { PutResponse } from '../adapter/pouchdb.adapter';
+import { map } from 'rxjs/operators';
+import { SortDirection, SortService } from '../services/sort.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameProvider {
 
-  constructor(private repository: GameRepository) { }
+  constructor(private repository: GameRepository, private sortService: SortService) { }
 
   getAll(): Observable<Game[]> {
-    return this.repository.getAll();
+    return this.repository.getAll().pipe(
+      map((games: Game[]) => games.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC)))
+    );
   }
 
   getById(id: string): Observable<Game> {

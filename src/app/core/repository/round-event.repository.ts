@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { RoundEvent, EntityType } from 'src/app/interfaces';
-import { PouchDbAdapter, GetResponse, FindResponse, PutResponse } from '../adapter/pouchdb.adapter';
+import { PouchDbAdapter, GetResponse, PutResponse } from '../adapter/pouchdb.adapter';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,7 @@ export class RoundEventRepository {
   constructor(private pouchDb: PouchDbAdapter) { }
 
   getAll(): Observable<RoundEvent[]> {
-    return from(this.pouchDb.getAll('roundEvent')).pipe(
+    return from(this.pouchDb.getAll(EntityType.ROUND_EVENT)).pipe(
       map((res: GetResponse<RoundEvent>) => res.rows.map(row => row.doc)),
     );
   }
@@ -21,15 +21,15 @@ export class RoundEventRepository {
     return from(this.pouchDb.getOne(id));
   }
 
-  getAllByRoundIdAndPlayerId(roundId: string, playerId: string): Observable<FindResponse<RoundEvent>> {
-    const selector = { datetime: { '$gt': null }, roundId, playerId, type: EntityType.ROUND_EVENT };
-    const orderBy = [{ datetime: 'desc' }];
-    return from(this.pouchDb.find(selector, orderBy));
+  getAllByRoundIdAndPlayerId(roundId: string, playerId: string): Observable<RoundEvent[]> {
+    return this.getAll().pipe(
+      map((roundEvents: RoundEvent[]) => roundEvents.filter(re => re.roundId === roundId && re.playerId === playerId))
+    );
   }
 
   create(data: Partial<RoundEvent>): Observable<PutResponse> {
     const roundEvent: RoundEvent = {
-      _id: this.pouchDb.generateId('roundEvent'),
+      _id: this.pouchDb.generateId(EntityType.ROUND_EVENT),
       type: EntityType.ROUND_EVENT,
       datetime: new Date(),
       eventTypeId: data.eventTypeId,

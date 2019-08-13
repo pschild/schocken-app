@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RoundEvent } from 'src/app/interfaces';
 import { RoundEventRepository } from '../repository/round-event.repository';
-import { FindResponse, PutResponse } from '../adapter/pouchdb.adapter';
-import { map } from 'rxjs/operators';
+import { PutResponse } from '../adapter/pouchdb.adapter';
 
 @Injectable({
   providedIn: 'root'
@@ -21,9 +20,7 @@ export class RoundEventProvider {
   }
 
   getAllByRoundIdAndPlayerId(roundId: string, playerId: string): Observable<RoundEvent[]> {
-    return this.repository.getAllByRoundIdAndPlayerId(roundId, playerId).pipe(
-      map((response: FindResponse<RoundEvent>) => response.docs)
-    );
+    return this.repository.getAllByRoundIdAndPlayerId(roundId, playerId);
   }
 
   create(data: Partial<RoundEvent>): Observable<PutResponse> {

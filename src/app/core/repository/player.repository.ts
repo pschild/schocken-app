@@ -12,7 +12,7 @@ export class PlayerRepository {
   constructor(private pouchDb: PouchDbAdapter) { }
 
   getAll(): Observable<Player[]> {
-    return from(this.pouchDb.getAll('player')).pipe(
+    return from(this.pouchDb.getAll(EntityType.PLAYER)).pipe(
       map((res: GetResponse<Player>) => res.rows.map(row => row.doc))
     );
   }
@@ -23,7 +23,7 @@ export class PlayerRepository {
 
   create(data: Partial<Player>): Observable<PutResponse> {
     const player: Player = {
-      _id: this.pouchDb.generateId('player'),
+      _id: this.pouchDb.generateId(EntityType.PLAYER),
       type: EntityType.PLAYER,
       registered: new Date(),
       name: data.name,

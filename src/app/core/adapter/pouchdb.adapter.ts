@@ -14,10 +14,6 @@ export interface GetResponse<E> {
   rows: Array<{ key: string; id: string; value: string; doc?: E }>;
 }
 
-export interface FindResponse<E> {
-  docs: E[];
-}
-
 export interface PutResponse {
   ok: boolean;
   id: string;
@@ -77,10 +73,15 @@ export class PouchDbAdapter {
 
   getAll(key: string): Promise<GetResponse<any>> {
     console.log(`%cGET_ALL ${key}`, 'color: #00f');
+    const rand = Math.random();
+    console.time(`GET_ALL-${key}-${rand}`);
     return this.instance.allDocs({
       include_docs: true,
       startkey: `${key}-`,
       endkey: `${key}-\ufff0`
+    }).then(r => {
+      console.timeEnd(`GET_ALL-${key}-${rand}`);
+      return r;
     });
   }
 
@@ -89,11 +90,19 @@ export class PouchDbAdapter {
     return this.instance.get(id);
   }
 
+  /**
+   * @deprecated
+   */
   find(selector, orderBy?: any[]): Promise<any> {
     console.log(`%cFIND ${JSON.stringify(selector)}`, 'color: #00f');
+    const rand = Math.random();
+    console.time(`FIND-${JSON.stringify(selector)}-${rand}`);
     return this.instance.find({
       selector,
       sort: orderBy
+    }).then(r => {
+      console.timeEnd(`FIND-${JSON.stringify(selector)}-${rand}`);
+      return r;
     });
   }
 

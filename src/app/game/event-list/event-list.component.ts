@@ -5,7 +5,6 @@ import { filter, switchMap, map, share } from 'rxjs/operators';
 import { GameEventProvider } from 'src/app/core/provider/game-event.provider';
 import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
 import { EventTypeProvider } from 'src/app/core/provider/event-type.provider';
-import { FindResponse } from 'src/app/core/adapter/pouchdb.adapter';
 import { GameStateService } from 'src/app/core/services/game-state.service';
 import { select, Store } from '@ngrx/store';
 import { selectRoundEvents } from 'src/app/store/selectors/game.selectors';
@@ -38,7 +37,6 @@ export class EventListComponent implements OnInit, OnChanges {
 
   constructor(
     private gameEventProvider: GameEventProvider,
-    private roundEventProvider: RoundEventProvider,
     private eventTypeProvider: EventTypeProvider,
     private state: GameStateService,
     private store: Store<IAppState>
@@ -53,8 +51,7 @@ export class EventListComponent implements OnInit, OnChanges {
     // TODO: move to service
     latestInputs$.pipe(
       filter(([gameId, roundId, playerId]) => !!gameId && !!playerId),
-      switchMap(([gameId, roundId, playerId]) => this.gameEventProvider.getAllByGameIdAndPlayerId(gameId, playerId)),
-      map((response: FindResponse<GameEvent>) => response.docs)
+      switchMap(([gameId, roundId, playerId]) => this.gameEventProvider.getAllByGameIdAndPlayerId(gameId, playerId))
     ).subscribe((events: GameEvent[]) => this.state.gameEventsForPlayer$.next(events));
 
     // handle round events

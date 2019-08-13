@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { EventType, EventTypeContext } from 'src/app/interfaces';
 import { map } from 'rxjs/operators';
 import { EventTypeRepository } from '../repository/event-type.repository';
-import { FindResponse, PutResponse } from '../adapter/pouchdb.adapter';
+import { PutResponse } from '../adapter/pouchdb.adapter';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class EventTypeProvider {
     );
   }
 
-  getAllByContext(context: EventTypeContext): Observable<FindResponse<EventType>> {
+  getAllByContext(context: EventTypeContext): Observable<EventType[]> {
     return this.repository.getAllByContext(context);
   }
 

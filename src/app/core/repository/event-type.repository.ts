@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
 import { map, switchMap, pluck } from 'rxjs/operators';
 import { EventType, EventTypeContext, EntityType, EventTypeHistoryEntry } from 'src/app/interfaces';
-import { PouchDbAdapter, GetResponse, FindResponse, PutResponse } from '../adapter/pouchdb.adapter';
+import { PouchDbAdapter, GetResponse, PutResponse } from '../adapter/pouchdb.adapter';
 
 @Injectable({
   providedIn: 'root'
@@ -12,14 +12,15 @@ export class EventTypeRepository {
   constructor(private pouchDb: PouchDbAdapter) { }
 
   getAll(): Observable<EventType[]> {
-    return from(this.pouchDb.getAll('eventType')).pipe(
+    return from(this.pouchDb.getAll(EntityType.EVENT_TYPE)).pipe(
       map((res: GetResponse<EventType>) => res.rows.map(row => row.doc)),
     );
   }
 
-  getAllByContext(context: EventTypeContext): Observable<FindResponse<EventType>> {
-    const selector = { context, type: EntityType.EVENT_TYPE };
-    return from(this.pouchDb.find(selector));
+  getAllByContext(context: EventTypeContext): Observable<EventType[]> {
+    return this.getAll().pipe(
+      map((eventTypes: EventType[]) => eventTypes.filter(e => e.context === context))
+    );
   }
 
   getById(id: string): Observable<EventType> {
@@ -28,7 +29,7 @@ export class EventTypeRepository {
 
   create(data: Partial<EventType>): Observable<PutResponse> {
     const eventType: EventType = {
-      _id: this.pouchDb.generateId('eventType'),
+      _id: this.pouchDb.generateId(EntityType.EVENT_TYPE),
       type: EntityType.EVENT_TYPE,
       name: data.name,
       context: data.context,

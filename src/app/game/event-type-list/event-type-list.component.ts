@@ -1,9 +1,8 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { EventType, EventTypeContext } from '../../interfaces';
-import { map, filter, switchMap } from 'rxjs/operators';
+import { filter, switchMap } from 'rxjs/operators';
 import { EventTypeProvider } from 'src/app/core/provider/event-type.provider';
-import { FindResponse } from 'src/app/core/adapter/pouchdb.adapter';
 
 @Component({
   selector: 'app-event-type-list',
@@ -38,8 +37,7 @@ export class EventTypeListComponent implements OnInit, OnChanges {
         } else {
           return this.eventTypeProvider.getAllByContext(EventTypeContext.ROUND);
         }
-      }),
-      map((response: FindResponse<EventType>) => response.docs)
+      })
     );
   }
 
