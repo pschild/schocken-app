@@ -6,7 +6,7 @@ import { switchMap, map, tap, withLatestFrom } from 'rxjs/operators';
 import { Game, Round, Player, RoundEvent, GameEvent } from 'src/app/interfaces';
 import { RoundProvider } from 'src/app/core/provider/round.provider';
 import { PlayerProvider } from 'src/app/core/provider/player.provider';
-import { PutResponse } from 'src/app/core/adapter/pouchdb.adapter';
+import { PutResponse, RemoveResponse } from 'src/app/core/adapter/pouchdb.adapter';
 import { RoundEventProvider } from 'src/app/core/provider/round-event.provider';
 import { SpecialEventHandlerService } from 'src/app/core/services/special-event-handler.service';
 import { selectRound } from '../selectors/game.selectors';
@@ -111,6 +111,15 @@ export class GameEffects {
         )
     );
 
+    removeRoundEvent$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(gameActions.removeRoundEvent),
+            switchMap(action => this.roundEventProvider.remove(action.event).pipe(
+                map((response: RemoveResponse) => gameActions.removeRoundEventSuccess({ playerId: action.playerId, eventId: response.id }))
+            ))
+        )
+    );
+
     loadGameEvents$ = createEffect(() =>
         this.actions$.pipe(
             ofType(gameActions.getGameEvents),
@@ -133,6 +142,15 @@ export class GameEffects {
                 map((gameEvent: GameEvent) => gameActions.addGameEventSuccess({ playerId: action.playerId, event: gameEvent }))
             )
             )
+        )
+    );
+
+    removeGameEvent$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(gameActions.removeGameEvent),
+            switchMap(action => this.gameEventProvider.remove(action.event).pipe(
+                map((response: RemoveResponse) => gameActions.removeGameEventSuccess({ playerId: action.playerId, eventId: response.id }))
+            ))
         )
     );
 

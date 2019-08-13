@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Player, Round, EventType, Event } from 'src/app/interfaces';
+import { Player, Round, EventType, Event, RoundEvent } from 'src/app/interfaces';
 import { IAppState } from 'src/app/store/state/app.state';
 import { Store } from '@ngrx/store';
-import { addRoundEvent } from 'src/app/store/actions/game.actions';
+import { addRoundEvent, removeRoundEvent } from 'src/app/store/actions/game.actions';
 
 @Component({
   selector: 'app-round-events',
@@ -35,11 +35,7 @@ export class RoundEventsComponent implements OnInit {
   }
 
   handleEventRemoved(event: Event) {
-    // TODO: move to service
-    // this.roundEventProvider.remove(event as RoundEvent).subscribe((response: RemoveResponse) => {
-    //   const newList = this.state.roundEventsForPlayer$.getValue().filter((e: Event) => event._id !== e._id);
-    //   this.state.roundEventsForPlayer$.next(newList);
-    // });
+    this.store.dispatch(removeRoundEvent({ playerId: this.player._id, event: event as RoundEvent }));
   }
 
   handleRemovePlayerFromGameClicked() {

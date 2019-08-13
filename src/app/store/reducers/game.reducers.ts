@@ -8,7 +8,9 @@ import {
     addRoundEventSuccess,
     getRoundEventsSuccess,
     addGameEventSuccess,
-    getGameEventsSuccess
+    getGameEventsSuccess,
+    removeRoundEventSuccess,
+    removeGameEventSuccess
 } from '../actions/game.actions';
 
 const gameReducer = createReducer(
@@ -47,6 +49,13 @@ const gameReducer = createReducer(
             [playerId]: [event, ...state.roundEventsForPlayer[playerId]]
         }
     })),
+    on(removeRoundEventSuccess, (state, { playerId, eventId }) => ({
+        ...state,
+        roundEventsForPlayer: {
+            ...state.roundEventsForPlayer,
+            [playerId]: state.roundEventsForPlayer[playerId].filter(e => e._id !== eventId)
+        }
+    })),
     on(getGameEventsSuccess, (state, { playerId, gameEvents }) => ({
         ...state,
         gameEventsForPlayer: {
@@ -60,8 +69,15 @@ const gameReducer = createReducer(
             ...state.gameEventsForPlayer,
             [playerId]: [event, ...state.gameEventsForPlayer[playerId]]
         }
-    })
-));
+    })),
+    on(removeGameEventSuccess, (state, { playerId, eventId }) => ({
+        ...state,
+        gameEventsForPlayer: {
+            ...state.gameEventsForPlayer,
+            [playerId]: state.gameEventsForPlayer[playerId].filter(e => e._id !== eventId)
+        }
+    }))
+);
 
 export function reducer(state: IGameState | undefined, action: Action) {
     return gameReducer(state, action);

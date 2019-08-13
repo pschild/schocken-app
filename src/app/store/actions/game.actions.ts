@@ -30,6 +30,8 @@ export const addRoundEvent = createAction(
     props<{ round: Round, playerId: string, eventTypeId: string, multiplicatorValue?: number }>()
 );
 export const addRoundEventSuccess = createAction('[Game] Add Round Event Success', props<{ playerId: string, event: RoundEvent }>());
+export const removeRoundEvent = createAction('[Game] Remove Round Event', props<{ playerId: string, event: RoundEvent }>());
+export const removeRoundEventSuccess = createAction('[Game] Remove Round Event Success', props<{ playerId: string, eventId: string }>());
 
 export const getGameEvents = createAction('[Game] Get Game Events', props<{ gameId: string, playerId: string }>());
 export const getGameEventsSuccess = createAction(
@@ -41,5 +43,7 @@ export const addGameEvent = createAction(
     props<{ game: Game, playerId: string, eventTypeId: string, multiplicatorValue?: number }>()
 );
 export const addGameEventSuccess = createAction('[Game] Add Game Event Success', props<{ playerId: string, event: GameEvent }>());
+export const removeGameEvent = createAction('[Game] Remove Game Event', props<{ playerId: string, event: GameEvent }>());
+export const removeGameEventSuccess = createAction('[Game] Remove Game Event Success', props<{ playerId: string, eventId: string }>());
 
 export const handleSpecialEvent = createAction('[Game] Handle Special Event', props<{ eventType: EventType }>());
