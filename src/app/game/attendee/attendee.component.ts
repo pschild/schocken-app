@@ -33,7 +33,6 @@ export class AttendeeComponent implements OnInit {
 
   private _changePlayer(direction: ChangePlayer): void {
     const nextPlayerId = this._calculateNextPlayerId(direction, this.currentPlayer._id, this.participatingPlayerIds);
-    this.store.dispatch(getPlayer({ playerId: nextPlayerId }));
     this.currentPlayerChanged.emit(nextPlayerId);
   }
 

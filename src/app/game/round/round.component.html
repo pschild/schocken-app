@@ -9,9 +9,7 @@
       (currentPlayerChanged)="onPlayerChanged($event)"></app-attendee>
     <button (click)="showAttendeeList()">Teilnehmer</button>
     <ng-container *ngIf="currentPlayer$ | async as currentPlayer">
-      <app-round-events *ngIf="round$ | async as round" [round]="round" [player]="currentPlayer"
-        (playerLostEvent)="handlePlayerLost($event)" (schockAusEvent)="handleSchockAus($event)"
-        (playerWonEvent)="handlePlayerWon($event)">
+      <app-round-events *ngIf="round$ | async as round" [round]="round" [player]="currentPlayer">
       </app-round-events>
     </ng-container>
   </mat-tab>

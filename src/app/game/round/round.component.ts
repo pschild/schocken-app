@@ -43,7 +43,6 @@ export class RoundComponent implements OnInit {
   }
 
   onPlayerChanged(playerId: string) {
-    // attention: round$ does not hold the latest currentPlayerId after update!
     this.round$.pipe(first()).subscribe((round: Round) => {
       this.store.dispatch(updateRound({ roundId: round._id, data: { currentPlayerId: playerId } }));
     });
@@ -69,28 +68,4 @@ export class RoundComponent implements OnInit {
       return playersInGame[0].playerId;
     }
   }
-
-  /*
-  ngOnInit() {
-    this.roundProvider.getRoundsByGameId(this.game._id).pipe(
-      map((response: FindResponse<Round>) => response.docs)
-    ).subscribe((rounds: Round[]) => {
-      this.gameRounds$.next(rounds);
-      if (this.roundId) {
-        this.currentRound$.next(rounds.find((round: Round) => round._id === this.roundId));
-      } else {
-        throw new Error(`No current roundId given!`);
-      }
-    });
-  }
-
-  handlePlayerLost(round: Round) {
-    this.gameRounds$.next([...this.gameRounds$.getValue(), round]);
-    this.currentRound$.next(round);
-  }
-
-  handlePlayerWon(event) {
-    this._changePlayer(1);
-  }*/
-
 }

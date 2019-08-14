@@ -2,7 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Player, Round, EventType, Event, RoundEvent } from 'src/app/interfaces';
 import { IAppState } from 'src/app/store/state/app.state';
 import { Store } from '@ngrx/store';
-import { addRoundEvent, removeRoundEvent } from 'src/app/store/actions/game.actions';
+import { addRoundEvent, removeRoundEvent, updateRound } from 'src/app/store/actions/game.actions';
+import { ChangePlayer } from 'src/app/core/domain/change-player.enum';
 
 @Component({
   selector: 'app-round-events',
@@ -38,67 +39,46 @@ export class RoundEventsComponent implements OnInit {
     this.store.dispatch(removeRoundEvent({ playerId: this.player._id, event: event as RoundEvent }));
   }
 
-  handleRemovePlayerFromGameClicked() {
+  handleRemovePlayerFromRoundClicked() {
+    const participatingPlayers = this.round.participatingPlayerIds.filter(item => item.inGame === true);
+    if (participatingPlayers.length <= 2) {
+      // (set current player inGame = false)
+      // add lost-event for other player
+      // new round
+    } else {
+      const nextPlayerId = this._calculateNextPlayerId(ChangePlayer.NEXT, this.player._id, this.round.participatingPlayerIds);
 
-  }
-
-  // TODO: abstract handling of special events in separate service
-  /*handleLostEvent() {
-    const confirmationResult = confirm(`${this.currentPlayer.name} hat verloren. Eine neue Runde wird gestartet.`);
-    if (confirmationResult) {
-      this.roundProvider.create({
-        gameId: this.route.snapshot.paramMap.get('gameId'),
-        currentPlayerId: this.currentPlayer._id,
-        participatingPlayerIds: this.currentRound.participatingPlayerIds.map(item => {
-          item.inGame = true;
-          return item;
-        })
-      }).pipe(
-        switchMap((response: PutResponse) => this.roundProvider.getById(response.id))
-      ).subscribe((round: Round) => {
-        this.playerLostEvent.emit(round);
+      const participatingPlayerIds = this.round.participatingPlayerIds.map(e => {
+        if (e.playerId === this.player._id) {
+          e.inGame = false;
+        }
+        return e;
       });
+
+      this.store.dispatch(updateRound({
+        roundId: this.round._id,
+        data: {
+          currentPlayerId: nextPlayerId,
+          participatingPlayerIds
+        }
+      }));
     }
   }
 
-  // TODO: abstract handling of special events in separate service
-  handleSchockAusEvent() {
-    const playerIdsInGame = this.currentRound.participatingPlayerIds
-      .filter(item => item.inGame === true)
-      .map(item => item.playerId);
-
-    this.playerProvider.getAll().subscribe((response: Player[]) => {
-      const playersToPunish = response.filter(
-        (player: Player) => playerIdsInGame.includes(player._id) && player._id !== this.currentPlayer._id
-      );
-
-      const playerNames = playersToPunish.map((player: Player) => player.name);
-      const confirmationResult = confirm(`Schock-Aus-Strafe wird an folgende Spieler verteilt: ${playerNames.join(',')}`);
-      if (confirmationResult) {
-        forkJoin(playersToPunish.map((player: Player) => this.roundEventProvider.create({
-          eventTypeId: 'eventType-23023',
-          roundId: this.currentRound._id,
-          playerId: player._id
-        }))).subscribe(() => this.schockAusEvent.emit());
-      }
-    });
-  }
-
-  handleRemovePlayerFromGameClicked() {
-    // set inGame = false for current player
-    // if playerCount > 1:
-      // switch to next player
-    // else:
-      // create new round for game
-      // switch to new round
-
-    const participatingPlayer = this.currentRound.participatingPlayerIds.find(item => item.playerId === this.currentPlayer._id);
-    if (!participatingPlayer) {
-      throw new Error(`Could not find player with id ${this.currentPlayer._id}`);
+  // // TODO: move to service
+  private _calculateNextPlayerId(
+    direction: ChangePlayer, currentPlayerId: string, playerIds: Array<{ playerId: string; inGame: boolean }>
+  ): string {
+    const playersInGame = playerIds.filter(item => item.inGame === true);
+    const currentPlayerIdIndex = playersInGame.findIndex(item => item.playerId === currentPlayerId);
+    if (direction === ChangePlayer.NEXT) {
+      return currentPlayerIdIndex === playersInGame.length - 1
+        ? playersInGame[0].playerId
+        : playersInGame[currentPlayerIdIndex + 1].playerId;
+    } else if (direction === ChangePlayer.PREVIOUS) {
+      return currentPlayerIdIndex === 0
+        ? playersInGame[playersInGame.length - 1].playerId
+        : playersInGame[currentPlayerIdIndex - 1].playerId;
     }
-    participatingPlayer.inGame = false;
-    this.roundProvider.update(this.currentRound._id, { participatingPlayerIds: this.currentRound.participatingPlayerIds })
-      .subscribe((response: PutResponse) => this.playerWonEvent.emit());
-  }*/
-
+  }
 }

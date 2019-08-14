@@ -59,15 +59,7 @@ export class SpecialEventHandlerService {
   }
 
   private _handlePlayerLostEvent() {
-    console.log('_handlePlayerLostEvent');
-    // create new round: currentPlayerId = state.currentPlayer._id; participatingPlayers = inGame = true for all
     this.store.dispatch(startNewRound());
-  }
-
-  private _handlePlayerWonEvent() {
-    console.log('_handlePlayerWonEvent');
-    // set inGame = false in state.round.participatingPlayerIds for state.currentPlayer
-    // this.store.dispatch();
   }
 
 }

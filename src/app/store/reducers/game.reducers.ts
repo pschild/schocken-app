@@ -25,7 +25,8 @@ const gameReducer = createReducer(
     })),
     on(getRoundSuccess, (state, { payload }) => ({
         ...state,
-        currentRound: payload
+        currentRound: payload,
+        roundEventsForPlayer: null
     })),
     on(getPlayerSuccess, (state, { payload }) => ({
         ...state,

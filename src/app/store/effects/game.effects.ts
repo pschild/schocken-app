@@ -51,11 +51,12 @@ export class GameEffects {
         this.actions$.pipe(
             ofType(gameActions.updateRound),
             switchMap(action => this.roundProvider.update(action.roundId, action.data).pipe(
-                map((response: PutResponse) => gameActions.updateRoundSuccess({ response }))
+                map((response: PutResponse) => gameActions.getRound({ roundId: response.id }))
             ))
         )
     );
 
+    // TODO: SpecialEventsEffects
     startNewRound$ = createEffect(() =>
         this.actions$.pipe(
             ofType(gameActions.startNewRound),
