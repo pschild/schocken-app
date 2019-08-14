@@ -47,7 +47,7 @@ const gameReducer = createReducer(
         ...state,
         roundEventsForPlayer: {
             ...state.roundEventsForPlayer,
-            [playerId]: [event, ...state.roundEventsForPlayer[playerId]]
+            [playerId]: [event, ...state.roundEventsForPlayer[playerId] || []]
         }
     })),
     on(removeRoundEventSuccess, (state, { playerId, eventId }) => ({
