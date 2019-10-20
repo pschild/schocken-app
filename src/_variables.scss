@@ -1,0 +1,108 @@
+@import '~@angular/material/theming';
+
+$hop-primary: (
+    50: #E7EFE4,
+    100: #C3D6BB,
+    200: #9CBB8E,
+    300: #749F61,
+    400: #568B3F,
+    500: #38761D,
+    600: #326E1A,
+    700: #2B6315,
+    800: #245911,
+    900: #17460A,
+    A100: #94FF7D,
+    A200: #6AFF4A,
+    A400: #40FF17,
+    A700: #2DFC00,
+    contrast: (
+        50: $black-87-opacity,
+        100: $black-87-opacity,
+        200: $black-87-opacity,
+        300: $black-87-opacity,
+        400: $black-87-opacity,
+        500: white,
+        600: white,
+        700: white,
+        800: white,
+        900: white,
+        A100: $black-87-opacity,
+        A200: $black-87-opacity,
+        A400: $black-87-opacity,
+        A700: white,
+    )
+);
+
+$hop-accent: (
+    50: #FDF8E6,
+    100: #FBEDC2,
+    200: #F8E199,
+    300: #F5D470,
+    400: #F3CB51,
+    500: #F1C232,
+    600: #EFBC2D,
+    700: #EDB426,
+    800: #EBAC1F,
+    900: #E79F13,
+    A100: #FFFFFF,
+    A200: #FFF4E2,
+    A400: #FFE2AF,
+    A700: #FFD896,
+    contrast: (
+        50: $black-87-opacity,
+        100: $black-87-opacity,
+        200: $black-87-opacity,
+        300: $black-87-opacity,
+        400: $black-87-opacity,
+        500: white,
+        600: white,
+        700: white,
+        800: white,
+        900: white,
+        A100: $black-87-opacity,
+        A200: $black-87-opacity,
+        A400: $black-87-opacity,
+        A700: white,
+    )
+);
+
+$hop-warn: (
+    50: #F9E0E0,
+    100: #F0B3B3,
+    200: #E68080,
+    300: #DB4D4D,
+    400: #D42626,
+    500: #CC0000,
+    600: #C70000,
+    700: #C00000,
+    800: #B90000,
+    900: #AD0000,
+    A100: #FFD7D7,
+    A200: #FFA4A4,
+    A400: #FF7171,
+    A700: #FF5858,
+    contrast: (
+        50: $black-87-opacity,
+        100: $black-87-opacity,
+        200: $black-87-opacity,
+        300: $black-87-opacity,
+        400: $black-87-opacity,
+        500: white,
+        600: white,
+        700: white,
+        800: white,
+        900: white,
+        A100: $black-87-opacity,
+        A200: $black-87-opacity,
+        A400: $black-87-opacity,
+        A700: white,
+    )
+);
+
+// mandatory stuff for theming
+$hop-palette-primary: mat-palette($hop-primary);
+$hop-palette-accent: mat-palette($hop-accent);
+$hop-palette-warn: mat-palette($hop-warn);
+
+// include the custom theme components into a theme object
+$hop-theme: mat-light-theme($hop-palette-primary, $hop-palette-accent, $hop-palette-warn);
