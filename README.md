@@ -30,3 +30,10 @@ component -----> provider -----> repository +-------------------> HTTP
 * `repository`: Processes backend calls; uses `HttpClient`
 * `service`: Wraps functionality like mapping entities, handling on-/offline-state etc.
 * `adapter`: Abstracts access to a specific DB, like PouchDB
+
+## NGRX
+
+* `actions`: simple objects, retrieving an optional payload
+* `effect`: Business Logic, Services could be injected, error actions could be dispatched, actions can optionally dispatch other actions
+* `reducer`: KISS! No logic.
+* `selector`: Combine parts of state, grouping, sorting, filtering

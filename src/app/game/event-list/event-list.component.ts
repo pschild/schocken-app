@@ -80,10 +80,10 @@ export class EventListComponent implements OnInit, OnChanges {
     this.penalties$ = this.mergedList$.pipe(
       map(mergedItems => {
         const groupedByPenaltyUnit = mergedItems.reduce((penaltyUnits, item) => {
-          if (!item.eventType.penalty.unit) {
+          if (!item.eventType.penalty || !item.eventType.penalty.unit) {
             return penaltyUnits;
           }
-          const group = (penaltyUnits[item.eventType.penalty.unit] || []);
+          const group = penaltyUnits[item.eventType.penalty.unit] || [];
           group.push(item);
           penaltyUnits[item.eventType.penalty.unit] = group;
           return penaltyUnits;

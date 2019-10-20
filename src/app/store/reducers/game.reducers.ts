@@ -68,7 +68,7 @@ const gameReducer = createReducer(
         ...state,
         gameEventsForPlayer: {
             ...state.gameEventsForPlayer,
-            [playerId]: [event, ...state.gameEventsForPlayer[playerId]]
+            [playerId]: [event, ...state.gameEventsForPlayer[playerId] || []]
         }
     })),
     on(removeGameEventSuccess, (state, { playerId, eventId }) => ({

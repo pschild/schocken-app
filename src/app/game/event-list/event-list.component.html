@@ -5,7 +5,7 @@
     {{item.event.datetime}}
     {{item.eventType.name}}
     <span *ngIf="item.eventType?.multiplicatorUnit">{{item.event.multiplicatorValue}} {{item.eventType.multiplicatorUnit}}</span>
-    <span *ngIf="item.eventType?.penalty.unit">[{{item.eventType.penalty.value * (item.event.multiplicatorValue || 1)}} {{item.eventType.penalty.unit}}]</span>
+    <span *ngIf="item.eventType?.penalty?.unit">[{{item.eventType.penalty.value * (item.event.multiplicatorValue || 1)}} {{item.eventType.penalty.unit}}]</span>
     <button (click)="handleRemoveEventClicked(item.event)">X</button>
   </div>
   <div *ngIf="penalties$ | async as penalties">
