@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, APP_INITIALIZER, Injector } from '@angular/core';
+import { NgModule, APP_INITIALIZER, Injector, ErrorHandler } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
@@ -26,6 +26,7 @@ import { EffectsModule } from '@ngrx/effects';
 import * as fromHome from './store/reducers/home.reducers';
 import * as fromGame from './store/reducers/game.reducers';
 import { GameEffects } from './store/effects/game.effects';
+import { GlobalErrorHandler } from './core/services/error.service';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,10 @@ import { GameEffects } from './store/effects/game.effects';
       useFactory: appInitializerFn,
       multi: true,
       deps: [AppConfigProvider, PouchDbAdapter, Injector]
+    },
+    {
+      provide: ErrorHandler,
+      useClass: GlobalErrorHandler
     }
   ],
   bootstrap: [AppComponent]

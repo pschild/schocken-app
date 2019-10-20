@@ -39,7 +39,13 @@ export class GameEffects {
         this.actions$.pipe(
             ofType(gameActions.getRound),
             switchMap(action => this.roundProvider.getById(action.roundId)),
-            tap(x => console.log(`What if round.particPlayers does not contain round.currentPlayerId? service._calculateCurrentPlayerId`)),
+            tap((round: Round) => {
+                if (round.participatingPlayerIds.filter(
+                    item => item.playerId === round.currentPlayerId && item.inGame === true
+                ).length !== 1) {
+                    throw new Error('currentPlayerId not in participatingPlayerIds or not in game');
+                }
+            }),
             switchMap((round: Round) => [
                 gameActions.getRoundSuccess({ payload: round }),
                 gameActions.getPlayer({ playerId: round.currentPlayerId })
