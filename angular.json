@@ -25,7 +25,8 @@
             "aot": false,
             "assets": [
               "projects/hop-web/src/favicon.ico",
-              "projects/hop-web/src/assets"
+              "projects/hop-web/src/assets",
+              "projects/hop-web/src/manifest.webmanifest"
             ],
             "styles": [
               "projects/hop-web/src/styles.scss"
@@ -55,7 +56,9 @@
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
                 }
-              ]
+              ],
+              "serviceWorker": true,
+              "ngswConfigPath": "projects/hop-web/ngsw-config.json"
             }
           }
         },
@@ -85,7 +88,8 @@
             "karmaConfig": "projects/hop-web/karma.conf.js",
             "assets": [
               "projects/hop-web/src/favicon.ico",
-              "projects/hop-web/src/assets"
+              "projects/hop-web/src/assets",
+              "projects/hop-web/src/manifest.webmanifest"
             ],
             "styles": [
               "projects/hop-web/src/styles.scss"
