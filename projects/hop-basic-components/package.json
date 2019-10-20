@@ -1,5 +1,5 @@
 {
-  "name": "hop-basic-components",
+  "name": "@hop-basic-components",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^8.1.0",

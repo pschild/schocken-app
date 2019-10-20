@@ -1,0 +1,8 @@
+export enum EntityType {
+  GAME = 'GAME',
+  ROUND = 'ROUND',
+  PLAYER = 'PLAYER',
+  EVENT_TYPE = 'EVENT_TYPE',
+  GAME_EVENT = 'GAME_EVENT',
+  ROUND_EVENT = 'ROUND_EVENT'
+}
