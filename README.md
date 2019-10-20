@@ -1,39 +1,27 @@
-# SchockApp
+# SchockenApp
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.1.4.
-
-## Preparations
-
-Copy `src/assets/config.json.template` to `src/assets/config.json` and provide according information for your PouchDB.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.1.0.
 
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
+## Code scaffolding
+
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+
 ## Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
-# Architecture
+## Running unit tests
 
-## Responsibilities of classes
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-```
-component -----> provider -----> repository +-------------------> HTTP
-   |                 |                      |
-   |                 |                      |
-   +---> service <---+                      +----> adapter -----> DB
-```
+## Running end-to-end tests
 
-* `component`: Shows the UI; may only import `provider`s; may use `service`s to process entities, map data, etc.
-* `provider`: Calls the repository; usually passes the request to the repo; may use `service`s to process entities, map data, etc.
-* `repository`: Processes backend calls; uses `HttpClient`
-* `service`: Wraps functionality like mapping entities, handling on-/offline-state etc.
-* `adapter`: Abstracts access to a specific DB, like PouchDB
+Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
-## NGRX
+## Further help
 
-* `actions`: simple objects, retrieving an optional payload
-* `effect`: Business Logic, Services could be injected, error actions could be dispatched, actions can optionally dispatch other actions
-* `reducer`: KISS! No logic.
-* `selector`: Combine parts of state, grouping, sorting, filtering
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).

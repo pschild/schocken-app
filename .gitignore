@@ -4,6 +4,8 @@
 /dist
 /tmp
 /out-tsc
+# Only exists if Bazel was run
+/bazel-out
 
 # dependencies
 /node_modules
@@ -27,6 +29,7 @@ speed-measure-plugin.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.history/*
 
 # misc
 /.sass-cache
@@ -41,6 +44,3 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
-
-src/assets/config.json
-src/version.json

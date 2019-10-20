@@ -1,0 +1,8 @@
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.main-content-container {
+  padding: 16px;
+}
+
+@import './styles/schocken-app-theme';
