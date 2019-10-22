@@ -1,2 +1,2 @@
 export * from './enum/entity-type.enum';
-export * from './model/entity.model';
+export * from './model/entity.dto';
