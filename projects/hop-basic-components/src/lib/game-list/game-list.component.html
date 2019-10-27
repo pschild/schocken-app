@@ -1,0 +1,10 @@
+<ul>
+  <h2>Laufende Spiele</h2>
+  <li *ngFor="let game of activeGames">
+    {{ game.id }}, {{ game.datetime | date:'dd.MM.yyyy HH:mm:ss' }} Uhr, {{ game.roundCount }} Runde(n), {{ game.currentRoundId }}
+  </li>
+  <h2>Historie</h2>
+  <li *ngFor="let game of completedGames">
+    {{ game.id }}, {{ game.datetime | date:'dd.MM.yyyy HH:mm:ss' }} Uhr, {{ game.roundCount }} Runde(n), {{ game.currentRoundId }}
+  </li>
+</ul>

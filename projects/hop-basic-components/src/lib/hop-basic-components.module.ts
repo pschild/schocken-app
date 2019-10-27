@@ -2,10 +2,12 @@ import { NgModule } from '@angular/core';
 import { MaterialModule } from './material/material.module';
 import { NavigationComponent } from './navigation/navigation.component';
 import { RouterModule } from '@angular/router';
+import { GameListComponent } from './game-list/game-list.component';
 
 @NgModule({
   declarations: [
-    NavigationComponent
+    NavigationComponent,
+    GameListComponent
   ],
   imports: [
     MaterialModule,
@@ -13,7 +15,8 @@ import { RouterModule } from '@angular/router';
   ],
   exports: [
     MaterialModule,
-    NavigationComponent
+    NavigationComponent,
+    GameListComponent
   ]
 })
 export class HopBasicComponentsModule { }

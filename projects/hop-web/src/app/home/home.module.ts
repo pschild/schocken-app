@@ -4,6 +4,7 @@ import { HomeComponent } from './home.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HomeRoutingModule } from './home-routing.module';
+import { HopBasicComponentsModule } from '@hop-basic-components';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,8 @@ import { HomeRoutingModule } from './home-routing.module';
   imports: [
     CommonModule,
     FormsModule,
-    HomeRoutingModule
+    HomeRoutingModule,
+    HopBasicComponentsModule
   ],
   providers: []
 })

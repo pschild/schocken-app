@@ -5,7 +5,7 @@ import { GetResponse } from '../../db/model/get-response.model';
 import { RemoveResponse } from '../../db/model/remove-response.model';
 import { EntityType } from '../../entity/enum/entity-type.enum';
 import { map } from 'rxjs/operators';
-import { Observable, from } from 'rxjs';
+import { Observable, from, of } from 'rxjs';
 import { GameDTO } from '../model/game.dto';
 
 @Injectable({
@@ -30,9 +30,14 @@ export class GameRepository {
   }
 
   getAll(): Observable<GameDTO[]> {
-    return from(this.pouchDb.getAll(EntityType.GAME)).pipe(
-      map((res: GetResponse<GameDTO>) => res.rows.map(row => row.doc))
-    );
+    return of([
+      { _id: 'ga', type: EntityType.GAME, deleted: false, datetime: new Date('2019-01-01'), completed: false },
+      { _id: 'gb', type: EntityType.GAME, deleted: false, datetime: new Date('2019-04-01'), completed: false },
+      { _id: 'gc', type: EntityType.GAME, deleted: false, datetime: new Date('2019-02-01'), completed: true }
+    ]);
+    // return from(this.pouchDb.getAll(EntityType.GAME)).pipe(
+    //   map((res: GetResponse<GameDTO>) => res.rows.map(row => row.doc))
+    // );
   }
 
   update(id: string, data: Partial<GameDTO>): Observable<PutResponse> {
