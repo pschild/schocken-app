@@ -5,8 +5,9 @@ import { GetResponse } from '../../db/model/get-response.model';
 import { RemoveResponse } from '../../db/model/remove-response.model';
 import { EntityType } from '../../entity/enum/entity-type.enum';
 import { map } from 'rxjs/operators';
-import { Observable, from, of } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { RoundDTO } from '../model/round.dto';
+import { FindResponse } from '../../db/model/find-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class RoundRepository {
 
   constructor(private pouchDb: PouchDbAdapter) { }
 
-  create(data: Partial<RoundDTO>): Observable<PutResponse> {
+  create(data: Partial<RoundDTO>): Observable<string> {
     const round: RoundDTO = {
       _id: this.pouchDb.generateId(EntityType.ROUND),
       type: EntityType.ROUND,
@@ -25,36 +26,36 @@ export class RoundRepository {
       // playerIds: data.playerIds,
       completed: false
     };
-    return from(this.pouchDb.create(round));
+    return from(this.pouchDb.create(round)).pipe(
+      map((response: PutResponse) => response.id)
+    );
   }
 
   get(id: string): Observable<RoundDTO> {
-    return from(this.pouchDb.getOne(id));
+    return from(this.pouchDb.getOne<RoundDTO>(id));
   }
 
   getAll(): Observable<RoundDTO[]> {
-    return of([
-      { _id: 'ra', type: EntityType.ROUND, deleted: false, datetime: new Date('2019-01-02'), gameId: 'ga', currentPlayerId: 'y', completed: false },
-      { _id: 'rb', type: EntityType.ROUND, deleted: false, datetime: new Date('2019-01-03'), gameId: 'gb', currentPlayerId: 'y', completed: false },
-      { _id: 'rc', type: EntityType.ROUND, deleted: false, datetime: new Date('2019-01-04'), gameId: 'ga', currentPlayerId: 'y', completed: true },
-      { _id: 'rd', type: EntityType.ROUND, deleted: false, datetime: new Date('2019-01-05'), gameId: 'gc', currentPlayerId: 'y', completed: true }
-    ]);
-    // return from(this.pouchDb.getAll(EntityType.ROUND)).pipe(
-    //   map((res: GetResponse<RoundDTO>) => res.rows.map(row => row.doc))
-    // );
+    return from(this.pouchDb.getAll<RoundDTO>(EntityType.ROUND)).pipe(
+      map((res: GetResponse<RoundDTO>) => res.rows.map(row => row.doc as RoundDTO))
+    );
   }
 
-  update(id: string, data: Partial<RoundDTO>): Observable<PutResponse> {
-    return from(this.pouchDb.update(id, data));
+  update(id: string, data: Partial<RoundDTO>): Observable<string> {
+    return from(this.pouchDb.update(id, data)).pipe(
+      map((response: PutResponse) => response.id)
+    );
   }
 
-  remove(round: RoundDTO): Observable<RemoveResponse> {
-    return from(this.pouchDb.remove(round));
+  remove(round: RoundDTO): Observable<string> {
+    return from(this.pouchDb.remove(round)).pipe(
+      map((response: RemoveResponse) => response.id)
+    );
   }
 
   getRoundsByGameId(gameId: string): Observable<RoundDTO[]> {
-    return this.getAll().pipe(
-      map((rounds: RoundDTO[]) => rounds.filter(r => r.gameId === gameId))
+    return from(this.pouchDb.find({gameId: {$eq: gameId}})).pipe(
+      map((res: FindResponse<RoundDTO>) => res.docs.map(doc => doc as RoundDTO))
     );
   }
 }

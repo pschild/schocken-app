@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import PouchDB from 'pouchdb';
 import * as PouchDBFind from 'pouchdb-find';
 // import { AppConfigProvider } from '../config/app-config.provider';
-import { from, forkJoin, Observable } from 'rxjs';
+import { from, Observable, forkJoin } from 'rxjs';
 import { EntityDTO } from '../entity';
 import { PutResponse } from './model/put-response.model';
 import { GetResponse } from './model/get-response.model';
@@ -25,22 +25,14 @@ export class PouchDbAdapter {
       throw new Error(`PouchDB already initialized`);
     }
     this.instance = new PouchDB(/*this.appConfig.config.COUCHDB_DATABASE*/'dummy');
-    const createRoundIndex = this.instance.createIndex({
+
+    // to find a round by its gameId
+    const findByGameIdIndex = this.instance.createIndex({
       index: {
-        fields: ['datetime', 'roundId', 'playerId']
+        fields: ['gameId']
       }
     });
-    const createGameIndex = this.instance.createIndex({
-      index: {
-        fields: ['datetime', 'gameId']
-      }
-    });
-    const createTypeIndex = this.instance.createIndex({
-      index: {
-        fields: ['datetime', 'type']
-      }
-    });
-    return forkJoin(from(createRoundIndex), from(createGameIndex), from(createTypeIndex));
+    return forkJoin(from(findByGameIdIndex));
   }
 
   createIndex(fields): Promise<any> {
@@ -56,7 +48,7 @@ export class PouchDbAdapter {
     return this.instance.put(entity);
   }
 
-  getAll(key: string): Promise<GetResponse<any>> {
+  getAll<T>(key: string): Promise<GetResponse<T>> {
     console.log(`%cGET_ALL ${key}`, 'color: #00f');
     const rand = Math.random();
     console.time(`GET_ALL-${key}-${rand}`);
@@ -64,13 +56,13 @@ export class PouchDbAdapter {
       include_docs: true,
       startkey: `${key}-`,
       endkey: `${key}-\ufff0`
-    }).then(r => {
+    }).then((response: GetResponse<T>) => {
       console.timeEnd(`GET_ALL-${key}-${rand}`);
-      return r;
+      return response;
     });
   }
 
-  getOne(id: string): Promise<any> {
+  getOne<T>(id: string): Promise<T> {
     console.log(`%cGET ${id}`, 'color: #00f');
     return this.instance.get(id);
   }
@@ -96,18 +88,12 @@ export class PouchDbAdapter {
     return this.instance.get(id)
       .then(doc => {
         return this.instance.put(Object.assign(doc, data));
-      })
-      .catch(err => {
-        throw err;
       });
   }
 
   remove(doc: EntityDTO): Promise<RemoveResponse> {
     console.log(`%cREMOVE ${doc._id}`, 'color: #00f');
-    return this.instance.remove(doc)
-      .catch(err => {
-        throw err;
-      });
+    return this.instance.remove(doc);
   }
 
   generateId(prefix: string): string {

@@ -5,7 +5,7 @@ import { GetResponse } from '../../db/model/get-response.model';
 import { RemoveResponse } from '../../db/model/remove-response.model';
 import { EntityType } from '../../entity/enum/entity-type.enum';
 import { map } from 'rxjs/operators';
-import { Observable, from, of } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { GameDTO } from '../model/game.dto';
 
 @Injectable({
@@ -15,36 +15,37 @@ export class GameRepository {
 
   constructor(private pouchDb: PouchDbAdapter) { }
 
-  create(data: Partial<GameDTO>): Observable<PutResponse> {
+  create(data?: Partial<GameDTO>): Observable<string> {
     const game: GameDTO = {
       _id: this.pouchDb.generateId(EntityType.GAME),
       type: EntityType.GAME,
       datetime: new Date(),
       completed: false
     };
-    return from(this.pouchDb.create(game));
+    return from(this.pouchDb.create(game)).pipe(
+      map((response: PutResponse) => response.id)
+    );
   }
 
   get(id: string): Observable<GameDTO> {
-    return from(this.pouchDb.getOne(id));
+    return from(this.pouchDb.getOne<GameDTO>(id));
   }
 
   getAll(): Observable<GameDTO[]> {
-    return of([
-      { _id: 'ga', type: EntityType.GAME, deleted: false, datetime: new Date('2019-01-01'), completed: false },
-      { _id: 'gb', type: EntityType.GAME, deleted: false, datetime: new Date('2019-04-01'), completed: false },
-      { _id: 'gc', type: EntityType.GAME, deleted: false, datetime: new Date('2019-02-01'), completed: true }
-    ]);
-    // return from(this.pouchDb.getAll(EntityType.GAME)).pipe(
-    //   map((res: GetResponse<GameDTO>) => res.rows.map(row => row.doc))
-    // );
+    return from(this.pouchDb.getAll<GameDTO>(EntityType.GAME)).pipe(
+      map((res: GetResponse<GameDTO>) => res.rows.map(row => row.doc as GameDTO))
+    );
   }
 
-  update(id: string, data: Partial<GameDTO>): Observable<PutResponse> {
-    return from(this.pouchDb.update(id, data));
+  update(id: string, data: Partial<GameDTO>): Observable<string> {
+    return from(this.pouchDb.update(id, data)).pipe(
+      map((response: PutResponse) => response.id)
+    );
   }
 
-  remove(game: GameDTO): Observable<RemoveResponse> {
-    return from(this.pouchDb.remove(game));
+  remove(game: GameDTO): Observable<string> {
+    return from(this.pouchDb.remove(game)).pipe(
+      map((response: RemoveResponse) => response.id)
+    );
   }
 }

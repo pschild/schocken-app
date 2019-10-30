@@ -1,1 +1,1 @@
-<hop-game-list [gameListItems]="gameListItems$ | async"></hop-game-list>
+<hop-game-list *ngIf="gameListItems$ | async as gameListItems" [gameListItems]="gameListItems"></hop-game-list>

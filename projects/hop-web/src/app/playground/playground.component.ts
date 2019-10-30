@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PlaygroundDataProvider } from './playground.data-provider';
 
 @Component({
   selector: 'hop-playground',
@@ -7,9 +8,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PlaygroundComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private dataProvider: PlaygroundDataProvider
+  ) { }
 
   ngOnInit() {
+  }
+
+  createGameWithRandomRounds(): void {
+    this.dataProvider.createGameWithRandomRounds();
   }
 
 }
