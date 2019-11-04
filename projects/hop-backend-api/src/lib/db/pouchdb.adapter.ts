@@ -32,7 +32,14 @@ export class PouchDbAdapter {
         fields: ['gameId']
       }
     });
-    return forkJoin(from(findByGameIdIndex));
+
+    // to find active players
+    const findActivePlayersIndex = this.instance.createIndex({
+      index: {
+        fields: ['type', 'active']
+      }
+    });
+    return forkJoin(from(findByGameIdIndex), from(findActivePlayersIndex));
   }
 
   createIndex(fields): Promise<any> {
