@@ -3,11 +3,13 @@ import { MaterialModule } from './material/material.module';
 import { NavigationComponent } from './navigation/navigation.component';
 import { RouterModule } from '@angular/router';
 import { GameListComponent } from './game-list/game-list.component';
+import { RoundListComponent } from './round-list/round-list.component';
 
 @NgModule({
   declarations: [
     NavigationComponent,
-    GameListComponent
+    GameListComponent,
+    RoundListComponent
   ],
   imports: [
     MaterialModule,
@@ -16,7 +18,8 @@ import { GameListComponent } from './game-list/game-list.component';
   exports: [
     MaterialModule,
     NavigationComponent,
-    GameListComponent
+    GameListComponent,
+    RoundListComponent
   ]
 })
 export class HopBasicComponentsModule { }

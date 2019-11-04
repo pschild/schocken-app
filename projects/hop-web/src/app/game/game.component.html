@@ -1,1 +1,16 @@
-<p>game works!</p>
+<h2>Details zum Spiel</h2>
+<div *ngIf="gameDetailsVo$ | async as gameDetails">
+  Datum: {{gameDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
+</div>
+<hop-round-list *ngIf="roundListItems$ | async as roundListItems" [roundListItems]="roundListItems"></hop-round-list>
+
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Feststellungen
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <p>Lorem ipsum.</p>
+
+</mat-expansion-panel>
