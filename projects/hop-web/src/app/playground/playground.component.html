@@ -1,2 +1,25 @@
-<p>playground works!</p>
-<button (click)="createGameWithRandomRounds()">create game with random rounds</button>
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Game with Rounds
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <button (click)="createGameWithRandomRounds()">create game with 30-50 rounds</button>
+
+</mat-expansion-panel>
+
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Player
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <ul *ngIf="allPlayers$ | async as allPlayers">
+    <li *ngFor="let player of allPlayers">{{player._id}} // {{player.name}}</li>
+  </ul>
+
+  <button (click)="createPlayer()">create player</button>
+
+</mat-expansion-panel>

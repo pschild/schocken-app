@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { GameRepository, RoundRepository } from '@hop-backend-api';
+import { forkJoin, Observable } from 'rxjs';
+import { GameRepository, RoundRepository, PlayerRepository, PlayerDTO } from '@hop-backend-api';
 import { switchMap } from 'rxjs/operators';
 
 @Injectable({
@@ -11,8 +11,13 @@ export class PlaygroundDataProvider {
 
   constructor(
     private gameRepository: GameRepository,
-    private roundRepository: RoundRepository
+    private roundRepository: RoundRepository,
+    private playerRepository: PlayerRepository
   ) {
+  }
+
+  getAllPlayers(): Observable<PlayerDTO[]> {
+    return this.playerRepository.getAll();
   }
 
   createGameWithRandomRounds(): void {
@@ -33,5 +38,9 @@ export class PlaygroundDataProvider {
     );
 
     createGame$.subscribe(rounds => console.log(`created a game with ${rounds.length} rounds`));
+  }
+
+  createPlayer(): void {
+    this.playerRepository.create({ name: `gen-player-${Math.floor(Math.random() * 10000) + 1}` });
   }
 }
