@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { GameDataProvider } from './game.data-provider';
 import { Observable, Subject } from 'rxjs';
-import { RoundListItemVO, PlayerSelectionVO } from '@hop-basic-components';
+import { RoundListItemVO, PlayerSelectionVO, GameEventListItemVO } from '@hop-basic-components';
 import { switchMap, withLatestFrom } from 'rxjs/operators';
 import { GameDetailsVO } from './model/game-details.vo';
 
@@ -16,7 +16,7 @@ export class GameComponent implements OnInit {
   gameDetailsVo$: Observable<GameDetailsVO>;
   roundListItemVos$: Observable<RoundListItemVO[]>;
   activePlayerVos$: Observable<PlayerSelectionVO[]>;
-  gameEvents$: Observable<any>;
+  gameEvents$: Observable<GameEventListItemVO[]>;
 
   selectedPlayer$: Subject<string> = new Subject();
 

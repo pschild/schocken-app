@@ -17,8 +17,9 @@
     (playerChange)="onPlayerChanged($event)"
   ></hop-player-select>
 
-  <ul *ngIf="gameEvents$ | async as gameEvents">
-    <li *ngFor="let event of gameEvents">{{event.id}} {{event.playerId}} {{event.gameId}}</li>
-  </ul>
+  <hop-game-event-list
+    *ngIf="gameEvents$ | async as gameEvents"
+    [gameEvents]="gameEvents"
+  ></hop-game-event-list>
 
 </mat-expansion-panel>

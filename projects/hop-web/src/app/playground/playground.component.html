@@ -23,3 +23,18 @@
   <button (click)="createPlayer()">create player</button>
 
 </mat-expansion-panel>
+
+<mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        GameEvents
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+  
+    <ul *ngIf="allGameEvents$ | async as allGameEvents">
+      <li *ngFor="let event of allGameEvents">{{event._id}} // {{event.playerId}} // {{event.gameId}}</li>
+    </ul>
+  
+    <button (click)="createGameEvent()">create game event</button>
+  
+  </mat-expansion-panel>
