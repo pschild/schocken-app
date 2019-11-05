@@ -1,4 +1,7 @@
 <h1>Spieler verwalten</h1>
 
 <!-- <button mat-raised-button color="primary" (click)="showForm()">Neuer Spieler</button> -->
-<hop-table-wrapper [config]="tableConfig" [columns]="columns" [elements]="allPlayers$ | async"></hop-table-wrapper>
+<hop-player-table
+  *ngIf="allPlayers$ | async as allPlayers"
+  [players]="allPlayers"
+></hop-player-table>

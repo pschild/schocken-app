@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { UserListComponent } from './user-list/user-list.component';
-import { UserFormComponent } from './user-form/user-form.component';
+import { PlayerListComponent } from './player/player-list/player-list.component';
 
 
 const routes: Routes = [
@@ -10,13 +9,13 @@ const routes: Routes = [
     redirectTo: 'users'
   },
   {
-    path: 'users',
-    component: UserListComponent
-  },
+    path: 'players',
+    component: PlayerListComponent
+  }/* ,
   {
-    path: 'users/form',
+    path: 'players/form',
     component: UserFormComponent
-  }
+  } */
 ];
 
 @NgModule({

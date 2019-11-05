@@ -12,5 +12,8 @@ export * from './lib/round-list/model';
 
 export * from './lib/player-select/model';
 
+export * from './lib/player-table/mapper';
+export * from './lib/player-table/model';
+
 export * from './lib/game-event-list/mapper';
 export * from './lib/game-event-list/model';
