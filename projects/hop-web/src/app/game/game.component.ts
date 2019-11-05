@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { GameDataProvider } from './game.data-provider';
-import { Observable } from 'rxjs';
-import { RoundListItemVO } from '@hop-basic-components';
-import { switchMap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { RoundListItemVO, PlayerSelectionVO } from '@hop-basic-components';
+import { switchMap, withLatestFrom } from 'rxjs/operators';
 import { GameDetailsVO } from './model/game-details.vo';
 
 @Component({
@@ -14,7 +14,11 @@ import { GameDetailsVO } from './model/game-details.vo';
 export class GameComponent implements OnInit {
 
   gameDetailsVo$: Observable<GameDetailsVO>;
-  roundListItems$: Observable<RoundListItemVO[]>;
+  roundListItemVos$: Observable<RoundListItemVO[]>;
+  activePlayerVos$: Observable<PlayerSelectionVO[]>;
+  gameEvents$: Observable<any>;
+
+  selectedPlayer$: Subject<string> = new Subject();
 
   constructor(
     private route: ActivatedRoute,
@@ -26,9 +30,20 @@ export class GameComponent implements OnInit {
       switchMap((params: Params) => this.dataProvider.getGameById(params.gameId))
     );
 
-    this.roundListItems$ = this.route.params.pipe(
+    this.roundListItemVos$ = this.route.params.pipe(
       switchMap((params: Params) => this.dataProvider.getRoundsByGameId(params.gameId))
     );
+
+    this.activePlayerVos$ = this.dataProvider.getActivePlayers();
+
+    this.gameEvents$ = this.selectedPlayer$.pipe(
+      withLatestFrom(this.route.params),
+      switchMap(([playerId, params]: [string, Params]) => this.dataProvider.getGameEventsByPlayerAndGame(playerId, params.gameId))
+    );
+  }
+
+  onPlayerChanged(player: PlayerSelectionVO): void {
+    this.selectedPlayer$.next(player.id);
   }
 
 }

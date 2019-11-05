@@ -2,7 +2,7 @@
 <div *ngIf="gameDetailsVo$ | async as gameDetails">
   Datum: {{gameDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
 </div>
-<hop-round-list *ngIf="roundListItems$ | async as roundListItems" [roundListItems]="roundListItems"></hop-round-list>
+<hop-round-list *ngIf="roundListItemVos$ | async as roundListItems" [roundListItems]="roundListItems"></hop-round-list>
 
 <mat-expansion-panel>
   <mat-expansion-panel-header>
@@ -11,6 +11,14 @@
     </mat-panel-title>
   </mat-expansion-panel-header>
 
-  <p>Lorem ipsum.</p>
+  <hop-player-select
+    *ngIf="activePlayerVos$ | async as activePlayerVos"
+    [playerList]="activePlayerVos"
+    (playerChange)="onPlayerChanged($event)"
+  ></hop-player-select>
+
+  <ul *ngIf="gameEvents$ | async as gameEvents">
+    <li *ngFor="let event of gameEvents">{{event.id}} {{event.playerId}} {{event.gameId}}</li>
+  </ul>
 
 </mat-expansion-panel>

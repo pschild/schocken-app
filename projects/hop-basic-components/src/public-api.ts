@@ -9,3 +9,5 @@ export * from './lib/game-list/model';
 
 export * from './lib/round-list/mapper';
 export * from './lib/round-list/model';
+
+export * from './lib/player-select/model';
