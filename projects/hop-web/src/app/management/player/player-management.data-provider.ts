@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { PlayerTableItemVO, PlayerTableItemVOMapperService } from '@hop-basic-components';
 import { Observable } from 'rxjs';
 import { PlayerRepository, PlayerDTO } from '@hop-backend-api';
 import { map } from 'rxjs/operators';
 import { SortService, SortDirection } from '../../core/service/sort.service';
 import { PlayerFormVO } from './player-form/model/player-form.vo';
 import { PlayerFormVOMapperService } from './player-form/mapper/player-form-vo-mapper.service';
+import { PlayerTableItemVOMapperService } from './player-list/mapper/player-table-item-vo-mapper.service';
+import { PlayerTableItemVO } from './player-list/model/player-table-item.vo';
 
 @Injectable({
   providedIn: 'root'

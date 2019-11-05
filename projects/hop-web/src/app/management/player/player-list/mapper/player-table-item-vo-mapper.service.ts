@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PlayerDTO } from '@hop-backend-api';
-import { PlayerTableItemVO } from '../model';
+import { PlayerTableItemVO } from '../model/player-table-item.vo';
 
 @Injectable({
   providedIn: 'root'
