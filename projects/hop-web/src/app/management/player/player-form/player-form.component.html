@@ -1,0 +1,28 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-card>
+    <mat-card-title>Spieler</mat-card-title>
+    <mat-card-content>
+      <div fxLayout="column" fxLayoutAlign="center start" fxLayoutGap="30px">
+        <input type="hidden" formControlName="id" readonly>
+
+        <div fxLayout="row">
+          <mat-form-field>
+            <input matInput placeholder="Name" formControlName="name">
+          </mat-form-field>
+        </div>
+
+        <div fxLayout="row">
+          <div>
+            <mat-slide-toggle formControlName="active">Aktiv</mat-slide-toggle>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="10px">
+        <button mat-button (click)="navigateBack()">Abbrechen</button>
+        <button type="submit" mat-raised-button color="primary">Speichern</button>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+</form>

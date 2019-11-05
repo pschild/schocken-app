@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { ITableConfig } from '../table-wrapper/ITableConfig';
 import { IColumnInterface } from '../table-wrapper/IColumnDefinition';
 import { PlayerTableItemVO } from './model';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'hop-player-table',
@@ -44,14 +45,17 @@ export class PlayerTableComponent {
     }
   ];
 
-  constructor() { }
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) { }
 
   remove(player: PlayerTableItemVO) {
     console.log(`remove ${player.name}`);
   }
 
   edit(player: PlayerTableItemVO) {
-    console.log(`edit ${player.name}`);
+    this.router.navigate(['form', { playerId: player.id }], { relativeTo: this.route });
   }
 
 }
