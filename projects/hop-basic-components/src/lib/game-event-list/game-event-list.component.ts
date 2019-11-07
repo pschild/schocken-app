@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { GameEventListItemVO } from './model';
 
 @Component({
@@ -6,13 +6,15 @@ import { GameEventListItemVO } from './model';
   templateUrl: './game-event-list.component.html',
   styleUrls: ['./game-event-list.component.scss']
 })
-export class GameEventListComponent implements OnInit {
+export class GameEventListComponent {
 
   @Input() gameEvents: GameEventListItemVO[];
+  @Output() remove: EventEmitter<string> = new EventEmitter<string>();
 
   constructor() { }
 
-  ngOnInit() {
+  removeEvent(event: GameEventListItemVO): void {
+    this.remove.emit(event.id);
   }
 
 }

@@ -4,7 +4,7 @@ import { PutResponse } from '../../db/model/put-response.model';
 import { GetResponse } from '../../db/model/get-response.model';
 import { RemoveResponse } from '../../db/model/remove-response.model';
 import { EntityType } from '../../entity/enum/entity-type.enum';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { Observable, from } from 'rxjs';
 import { GameEventDTO } from '../model/game-event.dto';
 import { FindResponse } from '../../db/model/find-response.model';
@@ -59,6 +59,12 @@ export class GameEventRepository {
   remove(event: GameEventDTO): Observable<string> {
     return from(this.pouchDb.remove(event)).pipe(
       map((response: RemoveResponse) => response.id)
+    );
+  }
+
+  removeById(id: string): Observable<string> {
+    return this.get(id).pipe(
+      switchMap((event: GameEventDTO) => this.remove(event))
     );
   }
 }

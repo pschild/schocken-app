@@ -79,4 +79,12 @@ export class GameDataProvider {
       map((eventTypes: EventTypeDTO[]) => this.eventTypeItemVOMapperService.mapToVOs(eventTypes))
     );
   }
+
+  createGameEvent(gameId: string, playerId: string, eventTypeId: string): Observable<string> {
+    return this.gameEventRepository.create({ gameId, playerId, eventTypeId });
+  }
+
+  removeGameEvent(gameEventId: string): Observable<string> {
+    return this.gameEventRepository.removeById(gameEventId);
+  }
 }
