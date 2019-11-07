@@ -1,0 +1,90 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-card>
+    <mat-card-title>Ereignis</mat-card-title>
+    <mat-card-content>
+
+      <div fxLayout="column" fxLayoutAlign="center start" fxLayoutGap="30px">
+        <input type="hidden" formControlName="id" readonly>
+
+        <div fxLayout="row">
+          <mat-form-field>
+            <input matInput placeholder="Name" formControlName="description">
+          </mat-form-field>
+        </div>
+        <div fxLayout="row" fxLayoutGap="10px">
+          <label>Typ:</label>
+          <mat-radio-group formControlName="context" fxLayoutGap="10px">
+            <mat-radio-button [value]="eventTypeContexts.ROUND">Runde</mat-radio-button>
+            <mat-radio-button [value]="eventTypeContexts.GAME">Spiel</mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <mat-checkbox formControlName="hasPenalty">Ereignis ist eine Strafe</mat-checkbox>
+        <div *ngIf="form.get('hasPenalty').value">
+          <div fxLayout="row" fxLayoutGap="10px">
+            <div fxFlexAlign="center">
+              <mat-form-field>
+                <input matInput placeholder="Strafe" type="number" formControlName="penaltyValue">
+              </mat-form-field>
+            </div>
+            <div fxFlexAlign="center">
+              <mat-form-field>
+                <mat-select formControlName="penaltyUnit">
+                  <mat-option value="€">€</mat-option>
+                  <mat-option value="Kiste(n)">Kiste(n)</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div fxLayout="row">
+            <div fxFlexAlign="center" fxLayoutGap="10px">
+              <mat-form-field hintLabel="Bsp.: Woche, Monat, Augenzahl, ...">
+                <input matInput placeholder="Multiplikator" formControlName="multiplicatorUnit">
+              </mat-form-field>
+              <span
+                *ngIf="form.value.penaltyValue && form.value.penaltyUnit && form.value.multiplicatorUnit">{{form.value.penaltyValue}}
+                {{form.value.penaltyUnit}} pro {{form.value.multiplicatorUnit}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div fxFill *ngIf="history && history.length">
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>history</mat-icon> Änderungsverlauf
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <mat-list>
+              <mat-list-item *ngFor="let entry of history">
+                <h3 matLine>
+                  <div>Name: {{entry.eventType.description}}</div>
+                  <div *ngIf="entry.eventType.penalty as penalty">
+                    Strafe: {{penalty.value}} {{penalty.unit}}
+                    <span *ngIf="entry.eventType.multiplicatorUnit as multiplicatorUnit">
+                      pro {{multiplicatorUnit}}
+                    </span>
+                  </div>
+                  <div *ngIf="!entry.eventType.penalty">
+                    Strafe: keine
+                  </div>
+                </h3>
+                <p matLine>
+                  <span>ab {{entry.validFrom | date:'dd.MM.yyyy HH:mm:ss'}} Uhr</span>
+                </p>
+              </mat-list-item>
+            </mat-list>
+          </mat-expansion-panel>
+        </div>
+      </div>
+
+    </mat-card-content>
+    <mat-card-actions>
+      <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="10px">
+        <button mat-button (click)="navigateBack()">Abbrechen</button>
+        <button type="submit" mat-raised-button color="primary">Speichern</button>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+</form>

@@ -8,6 +8,7 @@ import { PlayerSelectComponent } from './player-select/player-select.component';
 import { FormsModule } from '@angular/forms';
 import { GameEventListComponent } from './game-event-list/game-event-list.component';
 import { TableWrapperComponent } from './table-wrapper/table-wrapper.component';
+import { EventTypeListComponent } from './event-type-list/event-type-list.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { TableWrapperComponent } from './table-wrapper/table-wrapper.component';
     RoundListComponent,
     PlayerSelectComponent,
     GameEventListComponent,
-    TableWrapperComponent
+    TableWrapperComponent,
+    EventTypeListComponent
   ],
   imports: [
     MaterialModule,
@@ -30,7 +32,8 @@ import { TableWrapperComponent } from './table-wrapper/table-wrapper.component';
     RoundListComponent,
     PlayerSelectComponent,
     GameEventListComponent,
-    TableWrapperComponent
+    TableWrapperComponent,
+    EventTypeListComponent
   ]
 })
 export class HopBasicComponentsModule { }

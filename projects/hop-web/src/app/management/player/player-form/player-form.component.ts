@@ -34,10 +34,18 @@ export class PlayerFormComponent implements OnInit {
 
   onSubmit() {
     if (this.form.valid) {
-      // map this.form.value to dto
-      // if id: update
-      // else: create
-      this.router.navigate(['management', 'players']);
+      // TODO: MAPPING + SNACKBAR
+      const { name, active } = this.form.value;
+      if (this.form.value.id) {
+        this.playerManagementDataProvider.update(
+          this.form.value.id,
+          { name, active }
+        ).subscribe((id: string) => this.router.navigate(['management', 'players']));
+      } else {
+        this.playerManagementDataProvider.create(
+          { name, active }
+        ).subscribe((id: string) => this.router.navigate(['management', 'players']));
+      }
     }
   }
 

@@ -33,4 +33,16 @@ export class PlayerManagementDataProvider {
       map((playerDto: PlayerDTO) => this.playerFormVOMapperService.mapToVO(playerDto))
     );
   }
+
+  create(data: Partial<PlayerDTO>): Observable<string> {
+    return this.playerRepository.create(data);
+  }
+
+  update(id: string, data: Partial<PlayerDTO>): Observable<string> {
+    return this.playerRepository.update(id, data);
+  }
+
+  removeById(id: string): Observable<string> {
+    return this.playerRepository.removeById(id);
+  }
 }

@@ -1,7 +1,28 @@
 import { Injectable } from '@angular/core';
-import { RoundListItemVOMapperService, RoundListItemVO, PlayerSelectionVO, GameEventListItemVO, GameEventListItemVOMapperService } from '@hop-basic-components';
+import {
+  RoundListItemVO,
+  PlayerSelectionVO,
+  GameEventListItemVO,
+  EventTypeItemVO,
+  RoundListItemVOMapperService,
+  PlayerSelectVOMapperService,
+  GameEventListItemVOMapperService,
+  EventTypeItemVOMapperService
+} from '@hop-basic-components';
 import { Observable } from 'rxjs';
-import { RoundRepository, GameRepository, PlayerRepository, GameEventRepository, GameDTO, RoundDTO, PlayerDTO, GameEventDTO } from '@hop-backend-api';
+import {
+  RoundRepository,
+  GameRepository,
+  PlayerRepository,
+  GameEventRepository,
+  EventTypeRepository,
+  GameDTO,
+  RoundDTO,
+  PlayerDTO,
+  GameEventDTO,
+  EventTypeDTO,
+  EventTypeContext
+} from '@hop-backend-api';
 import { map } from 'rxjs/operators';
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { GameDetailsVO } from './model/game-details.vo';
@@ -17,9 +38,12 @@ export class GameDataProvider {
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
     private gameEventRepository: GameEventRepository,
+    private eventTypeRepository: EventTypeRepository,
     private gameDetailsVOMapperService: GameDetailsVOMapperService,
     private roundListItemVOMapperService: RoundListItemVOMapperService,
     private gameEventListItemVOMapperService: GameEventListItemVOMapperService,
+    private playerSelectVOMapperService: PlayerSelectVOMapperService,
+    private eventTypeItemVOMapperService: EventTypeItemVOMapperService,
     private sortService: SortService
   ) {
   }
@@ -39,10 +63,7 @@ export class GameDataProvider {
 
   getActivePlayers(): Observable<PlayerSelectionVO[]> {
     return this.playerRepository.getAllActive().pipe(
-      map((activePlayers: PlayerDTO[]) => activePlayers.map((player: PlayerDTO) => ({
-        id: player._id,
-        name: player.name
-      })))
+      map((activePlayers: PlayerDTO[]) => this.playerSelectVOMapperService.mapToVOs(activePlayers))
     );
   }
 
@@ -50,6 +71,12 @@ export class GameDataProvider {
     return this.gameEventRepository.findByPlayerIdAndGameId(playerId, gameId).pipe(
       map((gameEventDtos: GameEventDTO[]) => gameEventDtos.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC))),
       map((gameEventDtos: GameEventDTO[]) => this.gameEventListItemVOMapperService.mapToVOs(gameEventDtos))
+    );
+  }
+
+  getGameEventTypes(): Observable<EventTypeItemVO[]> {
+    return this.eventTypeRepository.findByContext(EventTypeContext.GAME).pipe(
+      map((eventTypes: EventTypeDTO[]) => this.eventTypeItemVOMapperService.mapToVOs(eventTypes))
     );
   }
 }

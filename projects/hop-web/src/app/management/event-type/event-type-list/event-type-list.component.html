@@ -1,0 +1,4 @@
+<h1>Ereignisse verwalten</h1>
+
+<button mat-raised-button color="primary" (click)="showForm()">Neues Ereignis</button>
+<hop-table-wrapper [config]="tableConfig" [columns]="columns" [elements]="allEventTypes$ | async"></hop-table-wrapper>

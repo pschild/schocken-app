@@ -8,13 +8,13 @@ import { GameEventListItemVO } from '../model';
 export class GameEventListItemVOMapperService {
 
   mapToVO(input: GameEventDTO): GameEventListItemVO {
-    const gameEventListVo = new GameEventListItemVO();
-    gameEventListVo.id = input._id;
-    gameEventListVo.datetime = input.datetime;
-    gameEventListVo.playerId = input.playerId;
-    gameEventListVo.gameId = input.gameId;
-    gameEventListVo.eventTypeId = input.eventTypeId;
-    return gameEventListVo;
+    const vo = new GameEventListItemVO();
+    vo.id = input._id;
+    vo.datetime = input.datetime;
+    vo.playerId = input.playerId;
+    vo.gameId = input.gameId;
+    vo.eventTypeId = input.eventTypeId;
+    return vo;
   }
 
   mapToVOs(input: GameEventDTO[]): GameEventListItemVO[] {

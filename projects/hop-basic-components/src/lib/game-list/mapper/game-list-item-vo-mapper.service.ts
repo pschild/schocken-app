@@ -7,17 +7,13 @@ import { GameListItemVO } from '../model';
 })
 export class GameListItemVOMapperService {
 
-  mapToVO(input: GameDTO): GameListItemVO {
-    const gameListVo = new GameListItemVO();
-    gameListVo.id = input._id;
-    gameListVo.datetime = input.datetime;
-    gameListVo.completed = input.completed;
-    gameListVo.currentRoundId = 'xxx';
-    gameListVo.roundCount = 42;
-    return gameListVo;
-  }
-
-  mapToVOs(input: GameDTO[]): GameListItemVO[] {
-    return input.map(item => this.mapToVO(item));
+  mapToVO(input: GameDTO, roundId: string, roundCount: number): GameListItemVO {
+    const vo = new GameListItemVO();
+    vo.id = input._id;
+    vo.datetime = input.datetime;
+    vo.completed = input.completed;
+    vo.currentRoundId = roundId;
+    vo.roundCount = roundCount;
+    return vo;
   }
 }

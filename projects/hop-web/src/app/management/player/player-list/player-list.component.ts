@@ -61,7 +61,10 @@ export class PlayerListComponent implements OnInit {
   }
 
   remove(player: PlayerTableItemVO) {
-    console.log(`remove ${player.name}`);
+    // TODO: NOTIFICATION + SNACKBAR
+    this.playerManagementDataProvider.removeById(player.id).subscribe((id: string) => {
+      this.allPlayers$ = this.playerManagementDataProvider.getAll();
+    });
   }
 
   edit(player: PlayerTableItemVO) {
