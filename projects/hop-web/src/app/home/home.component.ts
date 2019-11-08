@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { HomeDataProvider } from './home.data-provider';
 import { Observable } from 'rxjs';
-import { GameListItemVO } from '@hop-basic-components/public-api';
+import { GameListItemVo } from '@hop-basic-components';
 
 @Component({
   selector: 'hop-home',
@@ -10,12 +11,19 @@ import { GameListItemVO } from '@hop-basic-components/public-api';
 })
 export class HomeComponent implements OnInit {
 
-  gameListItems$: Observable<GameListItemVO[]>;
+  gameListItems$: Observable<GameListItemVo[]>;
 
-  constructor(private dataProvider: HomeDataProvider) { }
+  constructor(
+    private router: Router,
+    private dataProvider: HomeDataProvider
+  ) { }
 
   ngOnInit() {
     this.gameListItems$ = this.dataProvider.getGameList();
+  }
+
+  onNewGameClicked(): void {
+    this.router.navigate(['attendees']);
   }
 
 }

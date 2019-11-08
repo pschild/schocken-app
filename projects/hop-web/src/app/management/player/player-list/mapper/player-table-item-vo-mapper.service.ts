@@ -1,22 +1,22 @@
 import { Injectable } from '@angular/core';
-import { PlayerDTO } from '@hop-backend-api';
-import { PlayerTableItemVO } from '../model/player-table-item.vo';
+import { PlayerDto } from '@hop-backend-api';
+import { PlayerTableItemVo } from '../model/player-table-item.vo';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PlayerTableItemVOMapperService {
+export class PlayerTableItemVoMapperService {
 
-  mapToVO(input: PlayerDTO): PlayerTableItemVO {
-    const playerVo = new PlayerTableItemVO();
-    playerVo.id = input._id;
-    playerVo.name = input.name;
-    playerVo.active = input.active;
-    playerVo.registered = input.registered;
-    return playerVo;
+  mapToVo(input: PlayerDto): PlayerTableItemVo {
+    const vo = new PlayerTableItemVo();
+    vo.id = input._id;
+    vo.name = input.name;
+    vo.active = input.active;
+    vo.registered = input.registered;
+    return vo;
   }
 
-  mapToVOs(input: PlayerDTO[]): PlayerTableItemVO[] {
-    return input.map(item => this.mapToVO(item));
+  mapToVos(input: PlayerDto[]): PlayerTableItemVo[] {
+    return input.map(item => this.mapToVo(item));
   }
 }

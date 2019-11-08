@@ -1,1 +1,1 @@
-export { EventTypeItemVOMapperService } from './event-type-item-vo-mapper.service';
+export { EventTypeItemVoMapperService } from './event-type-item-vo-mapper.service';

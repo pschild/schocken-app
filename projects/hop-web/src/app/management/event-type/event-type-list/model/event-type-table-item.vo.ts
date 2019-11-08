@@ -1,6 +1,6 @@
 import { EventTypeContext } from '@hop-backend-api';
 
-export class EventTypeTableItemVO {
+export class EventTypeTableItemVo {
   id: string;
   description: string;
   context: EventTypeContext;

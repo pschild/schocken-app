@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { GameListItemVO } from './model';
+import { GameListItemVo } from './model';
 
 @Component({
   selector: 'hop-game-list',
@@ -8,15 +8,15 @@ import { GameListItemVO } from './model';
 })
 export class GameListComponent implements OnInit {
 
-  activeGames: GameListItemVO[] = [];
-  completedGames: GameListItemVO[] = [];
+  activeGames: GameListItemVo[] = [];
+  completedGames: GameListItemVo[] = [];
 
-  @Input() gameListItems: GameListItemVO[];
+  @Input() gameListItems: GameListItemVo[];
 
   constructor() { }
 
   ngOnInit() {
-    this.gameListItems.map((game: GameListItemVO) => {
+    this.gameListItems.map((game: GameListItemVo) => {
       if (game.completed) {
         this.completedGames.push(game);
       } else {

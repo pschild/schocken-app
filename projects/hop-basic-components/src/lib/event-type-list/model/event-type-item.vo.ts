@@ -1,6 +1,6 @@
 import { EventTypeContext,EventTypePenalty } from '@hop-backend-api';
 
-export class EventTypeItemVO {
+export class EventTypeItemVo {
   id: string;
   description: string;
   context: EventTypeContext;

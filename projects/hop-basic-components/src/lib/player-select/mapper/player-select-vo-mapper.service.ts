@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
-import { PlayerDTO } from '@hop-backend-api';
-import { PlayerSelectionVO } from '../model';
+import { PlayerDto } from '@hop-backend-api';
+import { PlayerSelectionVo } from '../model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PlayerSelectVOMapperService {
+export class PlayerSelectVoMapperService {
 
-  mapToVO(input: PlayerDTO): PlayerSelectionVO {
-    const vo = new PlayerSelectionVO();
+  mapToVo(input: PlayerDto): PlayerSelectionVo {
+    const vo = new PlayerSelectionVo();
     vo.id = input._id;
     vo.name = input.name;
     return vo;
   }
 
-  mapToVOs(input: PlayerDTO[]): PlayerSelectionVO[] {
-    return input.map(item => this.mapToVO(item));
+  mapToVos(input: PlayerDto[]): PlayerSelectionVo[] {
+    return input.map(item => this.mapToVo(item));
   }
 }

@@ -1,1 +1,1 @@
-export { RoundListItemVO } from './round-list-item.vo';
+export { RoundListItemVo } from './round-list-item.vo';

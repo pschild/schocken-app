@@ -1,6 +1,6 @@
-import { EntityDTO } from '../../entity/model/entity.dto';
+import { EntityDto } from '../../entity/model/entity.dto';
 
-export interface PlayerDTO extends EntityDTO {
+export interface PlayerDto extends EntityDto {
   name: string;
   registered: Date;
   active: boolean;

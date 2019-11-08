@@ -1,1 +1,1 @@
-export { PlayerSelectVOMapperService } from './player-select-vo-mapper.service';
+export { PlayerSelectVoMapperService } from './player-select-vo-mapper.service';

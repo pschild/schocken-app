@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PlaygroundDataProvider } from './playground.data-provider';
 import { Observable } from 'rxjs';
-import { PlayerDTO, GameEventDTO } from '@hop-backend-api';
+import { PlayerDto, GameEventDto } from '@hop-backend-api';
 
 @Component({
   selector: 'hop-playground',
@@ -10,8 +10,8 @@ import { PlayerDTO, GameEventDTO } from '@hop-backend-api';
 })
 export class PlaygroundComponent implements OnInit {
 
-  allPlayers$: Observable<PlayerDTO[]>;
-  allGameEvents$: Observable<GameEventDTO[]>;
+  allPlayers$: Observable<PlayerDto[]>;
+  allGameEvents$: Observable<GameEventDto[]>;
 
   constructor(
     private dataProvider: PlaygroundDataProvider

@@ -3,7 +3,7 @@ import PouchDB from 'pouchdb';
 import * as PouchDBFind from 'pouchdb-find';
 // import { AppConfigProvider } from '../config/app-config.provider';
 import { from, Observable, forkJoin } from 'rxjs';
-import { EntityDTO } from '../entity';
+import { EntityDto } from '../entity';
 import { PutResponse } from './model/put-response.model';
 import { GetResponse } from './model/get-response.model';
 import { RemoveResponse } from './model/remove-response.model';
@@ -26,10 +26,10 @@ export class PouchDbAdapter {
     }
     this.instance = new PouchDB(/*this.appConfig.config.COUCHDB_DATABASE*/'dummy');
 
-    // to find a round by its gameId
+    // to find a round or event by its gameId
     const findByGameIdIndex = this.instance.createIndex({
       index: {
-        fields: ['gameId']
+        fields: ['type', 'gameId']
       }
     });
 
@@ -50,7 +50,7 @@ export class PouchDbAdapter {
     });
   }
 
-  create(entity: EntityDTO): Promise<PutResponse> {
+  create(entity: EntityDto): Promise<PutResponse> {
     console.log(`%cCREATE ${entity._id}`, 'color: #00f');
     return this.instance.put(entity);
   }
@@ -90,7 +90,7 @@ export class PouchDbAdapter {
     });
   }
 
-  update(id: string, data: Partial<EntityDTO>): Promise<PutResponse> {
+  update(id: string, data: Partial<EntityDto>): Promise<PutResponse> {
     console.log(`%cUPDATE ${id}`, 'color: #00f');
     return this.instance.get(id)
       .then(doc => {
@@ -98,7 +98,7 @@ export class PouchDbAdapter {
       });
   }
 
-  remove(doc: EntityDTO): Promise<RemoveResponse> {
+  remove(doc: EntityDto): Promise<RemoveResponse> {
     console.log(`%cREMOVE ${doc._id}`, 'color: #00f');
     return this.instance.remove(doc);
   }

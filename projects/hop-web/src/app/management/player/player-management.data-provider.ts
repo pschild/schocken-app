@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PlayerRepository, PlayerDTO } from '@hop-backend-api';
+import { PlayerRepository, PlayerDto } from '@hop-backend-api';
 import { map } from 'rxjs/operators';
 import { SortService, SortDirection } from '../../core/service/sort.service';
-import { PlayerFormVO } from './player-form/model/player-form.vo';
-import { PlayerFormVOMapperService } from './player-form/mapper/player-form-vo-mapper.service';
-import { PlayerTableItemVOMapperService } from './player-list/mapper/player-table-item-vo-mapper.service';
-import { PlayerTableItemVO } from './player-list/model/player-table-item.vo';
+import { PlayerFormVo } from './player-form/model/player-form.vo';
+import { PlayerFormVoMapperService } from './player-form/mapper/player-form-vo-mapper.service';
+import { PlayerTableItemVoMapperService } from './player-list/mapper/player-table-item-vo-mapper.service';
+import { PlayerTableItemVo } from './player-list/model/player-table-item.vo';
 
 @Injectable({
   providedIn: 'root'
@@ -15,30 +15,30 @@ export class PlayerManagementDataProvider {
 
   constructor(
     private playerRepository: PlayerRepository,
-    private playerTableItemVOMapperService: PlayerTableItemVOMapperService,
-    private playerFormVOMapperService: PlayerFormVOMapperService,
+    private playerTableItemVoMapperService: PlayerTableItemVoMapperService,
+    private playerFormVoMapperService: PlayerFormVoMapperService,
     private sortService: SortService
   ) {
   }
 
-  getAll(): Observable<PlayerTableItemVO[]> {
+  getAll(): Observable<PlayerTableItemVo[]> {
     return this.playerRepository.getAll().pipe(
-      map((playerDtos: PlayerDTO[]) => playerDtos.sort((a, b) => this.sortService.compare(a, b, 'name', SortDirection.ASC))),
-      map((playerDtos: PlayerDTO[]) => this.playerTableItemVOMapperService.mapToVOs(playerDtos))
+      map((playerDtos: PlayerDto[]) => playerDtos.sort((a, b) => this.sortService.compare(a, b, 'name', SortDirection.ASC))),
+      map((playerDtos: PlayerDto[]) => this.playerTableItemVoMapperService.mapToVos(playerDtos))
     );
   }
 
-  getForEdit(playerId: string): Observable<PlayerFormVO> {
+  getForEdit(playerId: string): Observable<PlayerFormVo> {
     return this.playerRepository.get(playerId).pipe(
-      map((playerDto: PlayerDTO) => this.playerFormVOMapperService.mapToVO(playerDto))
+      map((playerDto: PlayerDto) => this.playerFormVoMapperService.mapToVo(playerDto))
     );
   }
 
-  create(data: Partial<PlayerDTO>): Observable<string> {
+  create(data: Partial<PlayerDto>): Observable<string> {
     return this.playerRepository.create(data);
   }
 
-  update(id: string, data: Partial<PlayerDTO>): Observable<string> {
+  update(id: string, data: Partial<PlayerDto>): Observable<string> {
     return this.playerRepository.update(id, data);
   }
 

@@ -6,7 +6,7 @@ import { RemoveResponse } from '../../db/model/remove-response.model';
 import { EntityType } from '../../entity/enum/entity-type.enum';
 import { map, switchMap } from 'rxjs/operators';
 import { Observable, from } from 'rxjs';
-import { PlayerDTO } from '../model/player.dto';
+import { PlayerDto } from '../model/player.dto';
 import { FindResponse } from '../../db/model/find-response.model';
 
 @Injectable({
@@ -16,42 +16,45 @@ export class PlayerRepository {
 
   constructor(private pouchDb: PouchDbAdapter) { }
 
-  create(data: Partial<PlayerDTO>): Observable<string> {
-    const player: PlayerDTO = {
+  create(data: Partial<PlayerDto>): Observable<string> {
+    const player: PlayerDto = {
       _id: this.pouchDb.generateId(EntityType.PLAYER),
       type: EntityType.PLAYER,
       name: data.name,
       registered: new Date(),
-      active: true
+      active: data.active
     };
     return from(this.pouchDb.create(player)).pipe(
       map((response: PutResponse) => response.id)
     );
   }
 
-  get(id: string): Observable<PlayerDTO> {
-    return from(this.pouchDb.getOne<PlayerDTO>(id));
+  get(id: string): Observable<PlayerDto> {
+    return from(this.pouchDb.getOne<PlayerDto>(id));
   }
 
-  getAll(): Observable<PlayerDTO[]> {
-    return from(this.pouchDb.getAll<PlayerDTO>(EntityType.PLAYER)).pipe(
-      map((res: GetResponse<PlayerDTO>) => res.rows.map(row => row.doc as PlayerDTO))
+  getAll(): Observable<PlayerDto[]> {
+    return from(this.pouchDb.getAll<PlayerDto>(EntityType.PLAYER)).pipe(
+      map((res: GetResponse<PlayerDto>) => res.rows.map(row => row.doc as PlayerDto))
     );
   }
 
-  getAllActive(): Observable<PlayerDTO[]> {
-    return from(this.pouchDb.find({type: {$eq: EntityType.PLAYER}, active: {$eq: true}})).pipe(
-      map((res: FindResponse<PlayerDTO>) => res.docs.map(doc => doc as PlayerDTO))
+  getAllActive(): Observable<PlayerDto[]> {
+    return from(this.pouchDb.find({
+      type: {$eq: EntityType.PLAYER},
+      active: {$eq: true}
+    })).pipe(
+      map((res: FindResponse<PlayerDto>) => res.docs.map(doc => doc as PlayerDto))
     );
   }
 
-  update(id: string, data: Partial<PlayerDTO>): Observable<string> {
+  update(id: string, data: Partial<PlayerDto>): Observable<string> {
     return from(this.pouchDb.update(id, data)).pipe(
       map((response: PutResponse) => response.id)
     );
   }
 
-  remove(player: PlayerDTO): Observable<string> {
+  remove(player: PlayerDto): Observable<string> {
     return from(this.pouchDb.remove(player)).pipe(
       map((response: RemoveResponse) => response.id)
     );
@@ -59,7 +62,7 @@ export class PlayerRepository {
 
   removeById(id: string): Observable<string> {
     return this.get(id).pipe(
-      switchMap((player: PlayerDTO) => this.remove(player))
+      switchMap((player: PlayerDto) => this.remove(player))
     );
   }
 }

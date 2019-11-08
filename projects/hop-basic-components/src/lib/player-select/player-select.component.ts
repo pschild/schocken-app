@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { PlayerSelectionVO } from './model/player-selection.vo';
+import { PlayerSelectionVo } from './model/player-selection.vo';
 
 @Component({
   selector: 'hop-player-select',
@@ -8,10 +8,10 @@ import { PlayerSelectionVO } from './model/player-selection.vo';
 })
 export class PlayerSelectComponent implements OnInit {
 
-  @Input() playerList: PlayerSelectionVO[];
-  @Output() playerChange: EventEmitter<PlayerSelectionVO> = new EventEmitter<PlayerSelectionVO>();
+  @Input() playerList: PlayerSelectionVo[];
+  @Output() playerChange: EventEmitter<PlayerSelectionVo> = new EventEmitter<PlayerSelectionVo>();
 
-  selectedPlayer: PlayerSelectionVO;
+  selectedPlayer: PlayerSelectionVo;
 
   constructor() { }
 
@@ -20,7 +20,7 @@ export class PlayerSelectComponent implements OnInit {
     this.playerChange.emit(this.playerList[0]);
   }
 
-  onPlayerChange(player: PlayerSelectionVO): void {
+  onPlayerChange(player: PlayerSelectionVo): void {
     this.playerChange.emit(player);
   }
 

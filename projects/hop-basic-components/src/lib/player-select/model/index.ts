@@ -1,1 +1,1 @@
-export { PlayerSelectionVO } from './player-selection.vo';
+export { PlayerSelectionVo } from './player-selection.vo';

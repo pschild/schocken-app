@@ -1,4 +1,4 @@
-export class PlayerFormVO {
+export class PlayerFormVo {
   id: string;
   name: string;
   registered: Date;

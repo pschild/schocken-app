@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { RoundListItemVO } from './model';
+import { RoundListItemVo } from './model';
 
 @Component({
   selector: 'hop-round-list',
@@ -8,7 +8,7 @@ import { RoundListItemVO } from './model';
 })
 export class RoundListComponent implements OnInit {
 
-  @Input() roundListItems: RoundListItemVO[];
+  @Input() roundListItems: RoundListItemVo[];
 
   constructor() { }
 

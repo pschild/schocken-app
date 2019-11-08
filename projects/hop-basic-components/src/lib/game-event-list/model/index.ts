@@ -1,1 +1,1 @@
-export { GameEventListItemVO } from './game-event-list-item.vo';
+export { GameEventListItemVo } from './game-event-list-item.vo';

@@ -1,1 +1,1 @@
-export { EventTypeItemVO } from './event-type-item.vo';
+export { EventTypeItemVo } from './event-type-item.vo';

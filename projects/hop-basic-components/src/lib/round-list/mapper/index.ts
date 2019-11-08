@@ -1,1 +1,1 @@
-export { RoundListItemVOMapperService } from './round-list-item-vo-mapper.service';
+export { RoundListItemVoMapperService } from './round-list-item-vo-mapper.service';

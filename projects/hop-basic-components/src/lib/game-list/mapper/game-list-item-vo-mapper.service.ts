@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { GameDTO } from '@hop-backend-api';
-import { GameListItemVO } from '../model';
+import { GameDto } from '@hop-backend-api';
+import { GameListItemVo } from '../model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GameListItemVOMapperService {
+export class GameListItemVoMapperService {
 
-  mapToVO(input: GameDTO, roundId: string, roundCount: number): GameListItemVO {
-    const vo = new GameListItemVO();
+  mapToVo(input: GameDto, roundId: string, roundCount: number): GameListItemVo {
+    const vo = new GameListItemVo();
     vo.id = input._id;
     vo.datetime = input.datetime;
     vo.completed = input.completed;

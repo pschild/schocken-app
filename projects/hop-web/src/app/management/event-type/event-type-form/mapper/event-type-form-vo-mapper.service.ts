@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { EventTypeDTO } from '@hop-backend-api';
-import { EventTypeFormVO } from '../model/event-type-form.vo';
+import { EventTypeDto } from '@hop-backend-api';
+import { EventTypeFormVo } from '../model/event-type-form.vo';
 
 @Injectable({
   providedIn: 'root'
 })
-export class EventTypeFormVOMapperService {
+export class EventTypeFormVoMapperService {
 
-  mapToVO(input: EventTypeDTO): EventTypeFormVO {
-    const vo = new EventTypeFormVO();
+  mapToVo(input: EventTypeDto): EventTypeFormVo {
+    const vo = new EventTypeFormVo();
     vo.id = input._id;
     vo.description = input.description;
     vo.context = input.context;

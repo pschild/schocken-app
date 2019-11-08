@@ -1,6 +1,6 @@
-import { EntityDTO } from '../../entity/model/entity.dto';
+import { EntityDto } from '../../entity/model/entity.dto';
 
-export interface GameDTO extends EntityDTO {
+export interface GameDto extends EntityDto {
   datetime: Date;
   completed: boolean;
 }

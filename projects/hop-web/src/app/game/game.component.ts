@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { GameDataProvider } from './game.data-provider';
 import { Observable } from 'rxjs';
-import { RoundListItemVO, PlayerSelectionVO, GameEventListItemVO, EventTypeItemVO } from '@hop-basic-components';
-import { switchMap, map } from 'rxjs/operators';
-import { GameDetailsVO } from './model/game-details.vo';
+import { RoundListItemVo, PlayerSelectionVo, GameEventListItemVo, EventTypeItemVo } from '@hop-basic-components';
+import { switchMap, map, share } from 'rxjs/operators';
+import { GameDetailsVo } from './model/game-details.vo';
 
 @Component({
   selector: 'hop-game',
@@ -14,11 +14,11 @@ import { GameDetailsVO } from './model/game-details.vo';
 export class GameComponent implements OnInit {
 
   gameId$: Observable<string>;
-  gameDetailsVo$: Observable<GameDetailsVO>;
-  roundListItemVos$: Observable<RoundListItemVO[]>;
-  activePlayerVos$: Observable<PlayerSelectionVO[]>;
-  gameEvents$: Observable<GameEventListItemVO[]>;
-  gameEventTypes$: Observable<EventTypeItemVO[]>;
+  gameDetailsVo$: Observable<GameDetailsVo>;
+  roundListItemVos$: Observable<RoundListItemVo[]>;
+  activePlayerVos$: Observable<PlayerSelectionVo[]>;
+  gameEvents$: Observable<GameEventListItemVo[]>;
+  gameEventTypes$: Observable<EventTypeItemVo[]>;
 
   selectedPlayerId: string;
 
@@ -35,13 +35,14 @@ export class GameComponent implements OnInit {
       switchMap((gameId: string) => this.dataProvider.getGameById(gameId))
     );
     this.roundListItemVos$ = this.gameId$.pipe(
-      switchMap((gameId: string) => this.dataProvider.getRoundsByGameId(gameId))
+      switchMap((gameId: string) => this.dataProvider.getRoundsByGameId(gameId)),
+      share()
     );
     this.activePlayerVos$ = this.dataProvider.getActivePlayers();
     this.gameEventTypes$ = this.dataProvider.getGameEventTypes();
   }
 
-  onPlayerChanged(player: PlayerSelectionVO): void {
+  onPlayerChanged(player: PlayerSelectionVo): void {
     this.selectedPlayerId = player.id;
     this._loadGameEvents();
   }

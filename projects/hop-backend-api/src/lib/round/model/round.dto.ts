@@ -1,9 +1,10 @@
-import { EntityDTO } from '../../entity/model/entity.dto';
+import { EntityDto } from '../../entity/model/entity.dto';
+import { ParticipationDto } from './participation.dto';
 
-export interface RoundDTO extends EntityDTO {
+export interface RoundDto extends EntityDto {
   datetime: Date;
   gameId: string;
   currentPlayerId: string;
-  // attendanceList: Participation[];
+  attendeeList: ParticipationDto[];
   completed: boolean;
 }

@@ -1,1 +1,1 @@
-export { GameListItemVOMapperService } from './game-list-item-vo-mapper.service';
+export { GameListItemVoMapperService } from './game-list-item-vo-mapper.service';

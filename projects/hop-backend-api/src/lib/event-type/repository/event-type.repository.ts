@@ -6,7 +6,7 @@ import { RemoveResponse } from '../../db/model/remove-response.model';
 import { EntityType } from '../../entity/enum/entity-type.enum';
 import { map, pluck, switchMap } from 'rxjs/operators';
 import { Observable, from } from 'rxjs';
-import { EventTypeDTO } from '../model/event-type.dto';
+import { EventTypeDto } from '../model/event-type.dto';
 import { EventTypeContext } from '../enum/event-type-context.enum';
 import { FindResponse } from '../../db/model/find-response.model';
 import { EventTypeHistoryItem } from '../model/event-type-history-item';
@@ -18,8 +18,8 @@ export class EventTypeRepository {
 
   constructor(private pouchDb: PouchDbAdapter) { }
 
-  create(data: Partial<EventTypeDTO>): Observable<string> {
-    const eventType: EventTypeDTO = {
+  create(data: Partial<EventTypeDto>): Observable<string> {
+    const eventType: EventTypeDto = {
       _id: this.pouchDb.generateId(EntityType.EVENT_TYPE),
       type: EntityType.EVENT_TYPE,
       description: data.description,
@@ -38,26 +38,26 @@ export class EventTypeRepository {
     );
   }
 
-  get(id: string): Observable<EventTypeDTO> {
-    return from(this.pouchDb.getOne<EventTypeDTO>(id));
+  get(id: string): Observable<EventTypeDto> {
+    return from(this.pouchDb.getOne<EventTypeDto>(id));
   }
 
-  getAll(): Observable<EventTypeDTO[]> {
-    return from(this.pouchDb.getAll<EventTypeDTO>(EntityType.EVENT_TYPE)).pipe(
-      map((res: GetResponse<EventTypeDTO>) => res.rows.map(row => row.doc as EventTypeDTO))
+  getAll(): Observable<EventTypeDto[]> {
+    return from(this.pouchDb.getAll<EventTypeDto>(EntityType.EVENT_TYPE)).pipe(
+      map((res: GetResponse<EventTypeDto>) => res.rows.map(row => row.doc as EventTypeDto))
     );
   }
 
-  findByContext(context: EventTypeContext): Observable<EventTypeDTO[]> {
+  findByContext(context: EventTypeContext): Observable<EventTypeDto[]> {
     return from(this.pouchDb.find({
       type: {$eq: EntityType.EVENT_TYPE},
       context: {$eq: context}
     })).pipe(
-      map((res: FindResponse<EventTypeDTO>) => res.docs.map(doc => doc as EventTypeDTO))
+      map((res: FindResponse<EventTypeDto>) => res.docs.map(doc => doc as EventTypeDto))
     );
   }
 
-  update(id: string, data: Partial<EventTypeDTO>): Observable<string> {
+  update(id: string, data: Partial<EventTypeDto>): Observable<string> {
     return this.get(id).pipe(
       // retrieve the old history...
       pluck('history'),
@@ -74,7 +74,7 @@ export class EventTypeRepository {
     );
   }
 
-  remove(event: EventTypeDTO): Observable<string> {
+  remove(event: EventTypeDto): Observable<string> {
     return from(this.pouchDb.remove(event)).pipe(
       map((response: RemoveResponse) => response.id)
     );
@@ -82,7 +82,7 @@ export class EventTypeRepository {
 
   removeById(id: string): Observable<string> {
     return this.get(id).pipe(
-      switchMap((eventType: EventTypeDTO) => this.remove(eventType))
+      switchMap((eventType: EventTypeDto) => this.remove(eventType))
     );
   }
 }

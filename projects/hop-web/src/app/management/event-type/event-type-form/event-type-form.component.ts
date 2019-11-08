@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 import { filter, switchMap } from 'rxjs/operators';
 import { EventTypeManagementDataProvider } from '../event-type-management.data-provider';
-import { EventTypeFormVO } from './model/event-type-form.vo';
+import { EventTypeFormVo } from './model/event-type-form.vo';
 
 @Component({
   selector: 'hop-event-type-form',
@@ -38,7 +38,7 @@ export class EventTypeFormComponent implements OnInit {
     this.route.params.pipe(
       filter(params => !!params.eventTypeId),
       switchMap(params => this.eventTypeManagementDataProvider.getForEdit(params.eventTypeId))
-    ).subscribe((eventType: EventTypeFormVO) => {
+    ).subscribe((eventType: EventTypeFormVo) => {
       this.form.patchValue(Object.assign(eventType, {
         penaltyValue: eventType.penalty ? eventType.penalty.value : undefined,
         penaltyUnit: eventType.penalty ? eventType.penalty.unit : undefined,

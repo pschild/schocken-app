@@ -1,4 +1,4 @@
-export class GameEventListItemVO {
+export class GameEventListItemVo {
   id: string;
   datetime: Date;
   gameId: string;

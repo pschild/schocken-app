@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, Observable } from 'rxjs';
-import { GameRepository, RoundRepository, PlayerRepository, GameEventRepository, GameEventDTO, PlayerDTO } from '@hop-backend-api';
+import { GameRepository, RoundRepository, PlayerRepository, GameEventRepository, GameEventDto, PlayerDto } from '@hop-backend-api';
 import { switchMap } from 'rxjs/operators';
 
 @Injectable({
@@ -17,11 +17,11 @@ export class PlaygroundDataProvider {
   ) {
   }
 
-  getAllPlayers(): Observable<PlayerDTO[]> {
+  getAllPlayers(): Observable<PlayerDto[]> {
     return this.playerRepository.getAll();
   }
 
-  getAllGameEvents(): Observable<GameEventDTO[]> {
+  getAllGameEvents(): Observable<GameEventDto[]> {
     return this.gameEventRepository.getAll();
   }
 

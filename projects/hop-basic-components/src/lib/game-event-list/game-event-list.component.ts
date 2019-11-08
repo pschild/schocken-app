@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { GameEventListItemVO } from './model';
+import { GameEventListItemVo } from './model';
 
 @Component({
   selector: 'hop-game-event-list',
@@ -8,12 +8,12 @@ import { GameEventListItemVO } from './model';
 })
 export class GameEventListComponent {
 
-  @Input() gameEvents: GameEventListItemVO[];
+  @Input() gameEvents: GameEventListItemVo[];
   @Output() remove: EventEmitter<string> = new EventEmitter<string>();
 
   constructor() { }
 
-  removeEvent(event: GameEventListItemVO): void {
+  removeEvent(event: GameEventListItemVo): void {
     this.remove.emit(event.id);
   }
 

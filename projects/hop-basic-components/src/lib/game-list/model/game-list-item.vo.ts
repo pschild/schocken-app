@@ -1,4 +1,4 @@
-export class GameListItemVO {
+export class GameListItemVo {
   id: string;
   datetime: Date;
   completed: boolean;

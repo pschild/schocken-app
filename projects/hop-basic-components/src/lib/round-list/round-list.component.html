@@ -1,3 +1,3 @@
 <li *ngFor="let roundItem of roundListItems; let i = index">
-  Runde {{ roundListItems.length - i }}: {{ roundItem.datetime | date:'dd.MM.yyyy HH:mm:ss' }} Uhr
+  Runde {{ roundListItems.length - i }}: <a href="" [routerLink]="['/round', roundItem.id]">{{ roundItem.id }}</a> // {{ roundItem.datetime | date:'dd.MM.yyyy HH:mm:ss.SSS' }} Uhr
 </li>

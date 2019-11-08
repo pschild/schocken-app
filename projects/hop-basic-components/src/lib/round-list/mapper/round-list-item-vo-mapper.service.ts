@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
-import { RoundDTO } from '@hop-backend-api';
-import { RoundListItemVO } from '../model';
+import { RoundDto } from '@hop-backend-api';
+import { RoundListItemVo } from '../model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RoundListItemVOMapperService {
+export class RoundListItemVoMapperService {
 
-  mapToVO(input: RoundDTO): RoundListItemVO {
-    const roundListVo = new RoundListItemVO();
-    roundListVo.id = input._id;
-    roundListVo.datetime = input.datetime;
-    roundListVo.completed = input.completed;
-    return roundListVo;
+  mapToVo(input: RoundDto): RoundListItemVo {
+    const vo = new RoundListItemVo();
+    vo.id = input._id;
+    vo.datetime = input.datetime;
+    vo.completed = input.completed;
+    return vo;
   }
 
-  mapToVOs(input: RoundDTO[]): RoundListItemVO[] {
-    return input.map(item => this.mapToVO(item));
+  mapToVos(input: RoundDto[]): RoundListItemVo[] {
+    return input.map(item => this.mapToVo(item));
   }
 }

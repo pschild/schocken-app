@@ -1,4 +1,4 @@
-export class PlayerSelectionVO {
+export class PlayerSelectionVo {
   id: string;
   name: string;
 }

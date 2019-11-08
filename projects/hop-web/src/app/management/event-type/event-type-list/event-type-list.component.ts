@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { EventTypeManagementDataProvider } from '../event-type-management.data-provider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { EventTypeTableItemVO } from './model/event-type-table-item.vo';
+import { EventTypeTableItemVo } from './model/event-type-table-item.vo';
 import { ITableConfig, IColumnInterface } from '@hop-basic-components';
 
 @Component({
@@ -12,7 +12,7 @@ import { ITableConfig, IColumnInterface } from '@hop-basic-components';
 })
 export class EventTypeListComponent implements OnInit {
 
-  allEventTypes$: Observable<EventTypeTableItemVO[]>;
+  allEventTypes$: Observable<EventTypeTableItemVo[]>;
 
   tableConfig: ITableConfig = {
     enablePaging: true,
@@ -22,26 +22,26 @@ export class EventTypeListComponent implements OnInit {
     {
       columnDef: 'id',
       header: 'ID',
-      cellContent: (element: EventTypeTableItemVO) => `${element.id}`
+      cellContent: (element: EventTypeTableItemVo) => `${element.id}`
     },
     {
       columnDef: 'description',
       header: 'Name',
       isSearchable: true,
-      cellContent: (element: EventTypeTableItemVO) => `${element.description}`
+      cellContent: (element: EventTypeTableItemVo) => `${element.description}`
     },
     {
       columnDef: 'editAction',
       header: '',
       cellContent: () => '',
-      cellAction: (element: EventTypeTableItemVO) => this.edit(element),
+      cellAction: (element: EventTypeTableItemVo) => this.edit(element),
       icon: 'edit'
     },
     {
       columnDef: 'deleteAction',
       header: '',
       cellContent: () => '',
-      cellAction: (element: EventTypeTableItemVO) => this.remove(element),
+      cellAction: (element: EventTypeTableItemVo) => this.remove(element),
       icon: 'delete'
     }
   ];
@@ -60,14 +60,14 @@ export class EventTypeListComponent implements OnInit {
     this.router.navigate(['form'], { relativeTo: this.route });
   }
 
-  remove(eventType: EventTypeTableItemVO) {
+  remove(eventType: EventTypeTableItemVo) {
     // TODO: NOTIFICATION + SNACKBAR
     this.eventTypeManagementDataProvider.removeById(eventType.id).subscribe((id: string) => {
       this.allEventTypes$ = this.eventTypeManagementDataProvider.getAll();
     });
   }
 
-  edit(eventType: EventTypeTableItemVO) {
+  edit(eventType: EventTypeTableItemVo) {
     this.router.navigate(['form', { eventTypeId: eventType.id }], { relativeTo: this.route });
   }
 
