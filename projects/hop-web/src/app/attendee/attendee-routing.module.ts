@@ -1,12 +1,16 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { RoundComponent } from './round.component';
+import { AttendeeComponent } from './attendee.component';
 
 
 const routes: Routes = [
   {
+    path: '',
+    component: AttendeeComponent
+  },
+  {
     path: ':roundId',
-    component: RoundComponent
+    component: AttendeeComponent
   }
 ];
 
@@ -14,4 +18,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class RoundRoutingModule { }
+export class AttendeeRoutingModule { }

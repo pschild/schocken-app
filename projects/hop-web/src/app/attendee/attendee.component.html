@@ -1,0 +1,29 @@
+<h2>Teilnehmer</h2>
+<div class="list-container">
+    <div cdkDropList #participatingList="cdkDropList" [cdkDropListData]="participatingPlayers"
+        [cdkDropListConnectedTo]="[otherList]" class="list" (cdkDropListDropped)="dropOnParticipating($event)">
+        <div class="list-item" *ngFor="let item of participatingPlayers" cdkDrag [cdkDragData]="item">
+            <div class="list-item-content-wrapper">
+                <mat-icon>drag_indicator</mat-icon>
+                {{item.name}} {{item.inGameStatus}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2>Übrige Spieler</h2>
+<div class="list-container">
+    <div cdkDropList #otherList="cdkDropList" [cdkDropListData]="otherPlayers"
+        [cdkDropListConnectedTo]="[participatingList]" class="list" (cdkDropListDropped)="dropOnOther($event)">
+        <div class="list-item" *ngFor="let item of otherPlayers" cdkDrag [cdkDragData]="item">
+            <div class="list-item-content-wrapper">
+                <mat-icon>drag_indicator</mat-icon>
+                {{item.name}} {{item.inGameStatus}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<button (click)="onCancelClick()">Abbrechen</button>
+<button *ngIf="roundId$ | async" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">Speichern und Runde fortsetzen</button>
+<button *ngIf="!(roundId$ | async)" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">Spiel starten</button>
