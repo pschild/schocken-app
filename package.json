@@ -15,7 +15,9 @@
     "build:hop-basic-components": "ng build hop-basic-components",
     "build:hop-backend-api": "ng build hop-backend-api",
     "watch:hop-basic-components": "npm run build:hop-basic-components -- --watch",
-    "watch:hop-backend-api": "npm run build:hop-backend-api -- --watch"
+    "watch:hop-backend-api": "npm run build:hop-backend-api -- --watch",
+    "wbc": "npm run watch:hop-basic-components",
+    "wba": "npm run watch:hop-backend-api"
   },
   "private": true,
   "dependencies": {

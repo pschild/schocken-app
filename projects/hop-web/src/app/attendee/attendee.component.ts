@@ -51,27 +51,24 @@ export class AttendeeComponent implements OnInit {
     );
   }
 
+  /**
+   * Updates round and navigates to round.
+   */
   onContinueRoundClick(): void {
-    // TODO: move to DP
     this.roundAttendees$.pipe(
-      map((roundAttendees: RoundAttendeesVo) => {
-        if (this.participatingPlayers.find((player: AttendeeItemVo) => player.id === roundAttendees.currentPlayerId)) {
-          return roundAttendees.currentPlayerId;
-        }
-        return this.participatingPlayers[0].id;
-      }),
+      map((roundAttendees: RoundAttendeesVo) => this._getCurrentPlayerId(roundAttendees, this.participatingPlayers)),
       withLatestFrom(this.roundId$),
       switchMap(([currentPlayerId, roundId]: [string, string]) => this.dataProvider.setAttendeesForRound(
         roundId,
         currentPlayerId,
-        this.participatingPlayers.map((player: AttendeeItemVo) => ({
-          playerId: player.id,
-          inGameStatus: player.inGameStatus
-        }))
+        this.participatingPlayers.map((player: AttendeeItemVo) => ({ playerId: player.id, inGameStatus: player.inGameStatus }))
       ))
     ).subscribe((updatedRoundId: string) => this.router.navigate(['round', updatedRoundId]));
   }
 
+  /**
+   * Navigates back, either to home or to round overview, depending on whether a new game should be created or a round should be updated.
+   */
   onCancelClick(): void {
     this.roundId$.subscribe((roundId: string) => {
       if (roundId) {
@@ -82,6 +79,9 @@ export class AttendeeComponent implements OnInit {
     });
   }
 
+  /**
+   * Creates a game and a round, then navigates to the game overview.
+   */
   onStartGameClick(): void {
     // TODO: move to DP
     this.dataProvider.createGame().pipe(
@@ -120,7 +120,26 @@ export class AttendeeComponent implements OnInit {
     }
   }
 
-  // TODO: move to DP
+  /**
+   * Calculates the id of the current player. If the current player of the round is also contained in the participation list (UI),
+   * its id will be returned. Otherwise the id of the first player in the participation list (UI) will be returned.
+   * @param roundAttendees Players that are participating in a round
+   * @param participatingPlayers Players that are marked for participation in the UI
+   * @returns The id of the current player
+   */
+  private _getCurrentPlayerId(roundAttendees: RoundAttendeesVo, participatingPlayers: AttendeeItemVo[]): string {
+    if (participatingPlayers.find((player: AttendeeItemVo) => player.id === roundAttendees.currentPlayerId)) {
+      return roundAttendees.currentPlayerId;
+    }
+    return participatingPlayers[0].id;
+  }
+
+  /**
+   * Returns a list of players that are attending in the round.
+   * @param allPlayers All players from the database
+   * @param attendees Players that are participating in a round
+   * @returns A list of attending players for showing them in the correct list (UI)
+   */
   private _getParticipatingPlayers(allPlayers: AttendeeItemVo[], attendees: ParticipationDto[]): AttendeeItemVo[] {
     const returnValue: AttendeeItemVo[] = [];
     let accordingPlayer: AttendeeItemVo;
@@ -131,7 +150,12 @@ export class AttendeeComponent implements OnInit {
     return returnValue;
   }
 
-  // TODO: move to DP
+  /**
+   * Returns a list of players that are not attending in the round.
+   * @param allPlayers All players from the database
+   * @param attendees Players that are participating in a round
+   * @returns A list of not participating players for showing them in the correct list (UI)
+   */
   private _getNotParticipatingPlayers(allPlayers: AttendeeItemVo[], attendees: ParticipationDto[]): AttendeeItemVo[] {
     return allPlayers
       .filter((player: AttendeeItemVo) => !attendees.find((attendee: ParticipationDto) => attendee.playerId === player.id))
