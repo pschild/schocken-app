@@ -1,1 +1,31 @@
-<a *ngIf="roundId$ | async as roundId" href="" [routerLink]="['/attendees', roundId]">Teilnehmer bearbeiten</a>
+<div *ngIf="roundDetailsVo$ | async as roundDetails">
+  gestartet: {{roundDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
+
+  <div>
+    <a *ngIf="roundDetails.previousRoundId" href="" [routerLink]="['/round', roundDetails.previousRoundId]"><</a>
+    <span>Runde {{roundDetails.roundIndex}}</span>
+    <a *ngIf="roundDetails.nextRoundId" href="" [routerLink]="['/round', roundDetails.nextRoundId]">></a>
+  </div>
+</div>
+
+<div>
+  <a *ngIf="roundId$ | async as roundId" href="" [routerLink]="['/attendees', roundId]">Teilnehmer bearbeiten</a>
+</div>
+
+<hop-player-select
+  *ngIf="attendingPlayerVos$ | async as attendingPlayerVos"
+  [playerList]="attendingPlayerVos"
+  (playerChange)="onPlayerChanged($event)"
+></hop-player-select>
+
+<hop-event-type-list
+  *ngIf="roundEventTypes$ | async as roundEventTypes"
+  [eventTypes]="roundEventTypes"
+  (add)="onAddEvent($event)"
+></hop-event-type-list>
+
+<hop-round-event-list
+  *ngIf="roundEvents$ | async as roundEvents"
+  [roundEvents]="roundEvents"
+  (remove)="onRemoveEvent($event)"
+></hop-round-event-list>

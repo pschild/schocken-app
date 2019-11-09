@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { GameEventListComponent } from './game-event-list/game-event-list.component';
 import { TableWrapperComponent } from './table-wrapper/table-wrapper.component';
 import { EventTypeListComponent } from './event-type-list/event-type-list.component';
+import { RoundEventListComponent } from './round-event-list/round-event-list.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { EventTypeListComponent } from './event-type-list/event-type-list.compon
     RoundListComponent,
     PlayerSelectComponent,
     GameEventListComponent,
+    RoundEventListComponent,
     TableWrapperComponent,
     EventTypeListComponent
   ],
@@ -32,6 +34,7 @@ import { EventTypeListComponent } from './event-type-list/event-type-list.compon
     RoundListComponent,
     PlayerSelectComponent,
     GameEventListComponent,
+    RoundEventListComponent,
     TableWrapperComponent,
     EventTypeListComponent
   ]

@@ -16,6 +16,9 @@ export * from './lib/player-select/model';
 export * from './lib/game-event-list/mapper';
 export * from './lib/game-event-list/model';
 
+export * from './lib/round-event-list/mapper';
+export * from './lib/round-event-list/model';
+
 export * from './lib/event-type-list/mapper';
 export * from './lib/event-type-list/model';
 

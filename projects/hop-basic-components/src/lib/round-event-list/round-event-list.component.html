@@ -1,0 +1,6 @@
+<ul>
+  <li *ngFor="let event of roundEvents">
+    {{event.datetime | date:'dd.MM.yyyy HH:mm:ss.SSS'}} {{event.id}}
+    <button (click)="removeEvent(event)">x</button>
+  </li>
+</ul>
