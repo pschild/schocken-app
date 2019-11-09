@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, share } from 'rxjs/operators';
 import { RoundDataProvider } from './round.data-provider';
 import { PlayerSelectionVo, RoundEventListItemVo, EventTypeItemVo } from '@hop-basic-components';
 import { RoundDetailsVo } from './model/round-details.vo';
@@ -31,7 +31,8 @@ export class RoundComponent implements OnInit {
       map((params: Params) => params.roundId)
     );
     this.roundDetailsVo$ = this.roundId$.pipe(
-      switchMap((roundId: string) => this.dataProvider.getRoundDetails(roundId))
+      switchMap((roundId: string) => this.dataProvider.getRoundDetails(roundId)),
+      share()
     );
     this.attendingPlayerVos$ = this.roundId$.pipe(
       switchMap((roundId: string) => this.dataProvider.getAttendingPlayersByRoundId(roundId))
@@ -39,8 +40,8 @@ export class RoundComponent implements OnInit {
     this.roundEventTypes$ = this.dataProvider.getRoundEventTypes();
   }
 
-  onPlayerChanged(player: PlayerSelectionVo): void {
-    this.selectedPlayerId = player.id;
+  onPlayerChanged(playerId: string): void {
+    this.selectedPlayerId = playerId;
     this._loadRoundEvents();
   }
 

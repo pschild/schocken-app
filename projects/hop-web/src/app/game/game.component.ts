@@ -42,8 +42,8 @@ export class GameComponent implements OnInit {
     this.gameEventTypes$ = this.dataProvider.getGameEventTypes();
   }
 
-  onPlayerChanged(player: PlayerSelectionVo): void {
-    this.selectedPlayerId = player.id;
+  onPlayerChanged(playerId: string): void {
+    this.selectedPlayerId = playerId;
     this._loadGameEvents();
   }
 

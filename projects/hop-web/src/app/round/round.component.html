@@ -12,11 +12,14 @@
   <a *ngIf="roundId$ | async as roundId" href="" [routerLink]="['/attendees', roundId]">Teilnehmer bearbeiten</a>
 </div>
 
-<hop-player-select
-  *ngIf="attendingPlayerVos$ | async as attendingPlayerVos"
-  [playerList]="attendingPlayerVos"
-  (playerChange)="onPlayerChanged($event)"
-></hop-player-select>
+<ng-container *ngIf="roundDetailsVo$ | async as roundDetails">
+  <hop-player-select
+    *ngIf="attendingPlayerVos$ | async as attendingPlayerVos"
+    [playerList]="attendingPlayerVos"
+    [selectedId]="roundDetails.currentPlayerId"
+    (playerChange)="onPlayerChanged($event)"
+  ></hop-player-select>
+</ng-container>
 
 <hop-event-type-list
   *ngIf="roundEventTypes$ | async as roundEventTypes"

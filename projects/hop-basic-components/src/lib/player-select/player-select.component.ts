@@ -9,19 +9,20 @@ import { PlayerSelectionVo } from './model/player-selection.vo';
 export class PlayerSelectComponent implements OnInit {
 
   @Input() playerList: PlayerSelectionVo[];
-  @Output() playerChange: EventEmitter<PlayerSelectionVo> = new EventEmitter<PlayerSelectionVo>();
+  @Input() selectedId: string;
+  @Output() playerChange: EventEmitter<string> = new EventEmitter<string>();
 
-  selectedPlayer: PlayerSelectionVo;
+  selectedPlayerId: string;
 
   constructor() { }
 
   ngOnInit() {
-    this.selectedPlayer = this.playerList[0];
-    this.playerChange.emit(this.playerList[0]);
+    this.selectedPlayerId = this.selectedId || this.playerList[0].id;
+    this.playerChange.emit(this.selectedPlayerId);
   }
 
-  onPlayerChange(player: PlayerSelectionVo): void {
-    this.playerChange.emit(player);
+  onPlayerChange(playerId: string): void {
+    this.playerChange.emit(playerId);
   }
 
 }
