@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable } from 'rxjs';
-import { GameRepository, RoundRepository, PlayerRepository, GameEventRepository, GameEventDto, PlayerDto } from '@hop-backend-api';
+import { forkJoin, Observable, of } from 'rxjs';
+import { GameRepository, RoundRepository, PlayerRepository, GameEventRepository, GameEventDto, PlayerDto, EventTypeRepository, EventTypeContext, RoundEventRepository } from '@hop-backend-api';
 import { switchMap } from 'rxjs/operators';
 
 @Injectable({
@@ -13,7 +13,9 @@ export class PlaygroundDataProvider {
     private gameRepository: GameRepository,
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
-    private gameEventRepository: GameEventRepository
+    private eventTypeRepository: EventTypeRepository,
+    private gameEventRepository: GameEventRepository,
+    private roundEventRepository: RoundEventRepository
   ) {
   }
 
@@ -26,23 +28,64 @@ export class PlaygroundDataProvider {
   }
 
   createGameWithRandomRounds(): void {
-    const createRound$ = (id: string) => this.roundRepository.create({
-      currentPlayerId: '42',
-      gameId: id,
+    const createPlayers$ = forkJoin(
+      this.playerRepository.create({ name: 'Dummy 1', active: true }),
+      this.playerRepository.create({ name: 'Dummy 2', active: true }),
+      this.playerRepository.create({ name: 'Dummy 3', active: true })
+    );
+
+    const createEventTypes$ = forkJoin(
+      this.eventTypeRepository.create({ description: 'RoundEventType 1', context: EventTypeContext.ROUND }),
+      this.eventTypeRepository.create({ description: 'RoundEventType 2', context: EventTypeContext.ROUND }),
+      this.eventTypeRepository.create({ description: 'RoundEventType 3', context: EventTypeContext.ROUND })
+    );
+
+    // tslint:disable-next-line:max-line-length
+    const createRound$ = (gameId: string, currentPlayerId: string, attendeeList: {playerId: string, inGameStatus: boolean}[]) => this.roundRepository.create({
+      currentPlayerId,
+      gameId,
+      attendeeList,
       completed: false
     });
 
-    const createGame$ = this.gameRepository.create().pipe(
-      switchMap(id => {
-        const rounds = [];
-        for (let i = 0; i < Math.floor(Math.random() * 50) + 30; i++) {
-          rounds.push(createRound$(id));
-        }
-        return forkJoin(rounds);
-      })
-    );
+    // tslint:disable-next-line:max-line-length
+    const createRoundEvent$ = (roundId: string, playerId: string, eventTypeId: string) => this.roundEventRepository.create({
+      roundId,
+      playerId,
+      eventTypeId
+    });
 
-    createGame$.subscribe(rounds => console.log(`created a game with ${rounds.length} rounds`));
+    createPlayers$.pipe(
+      switchMap(([...playerIds]) => forkJoin(of(playerIds), createEventTypes$)),
+      switchMap(([[...playerIds], [...eventTypeIds]]) => {
+        const games = [];
+        for (let i = 0; i < Math.floor(Math.random() * 5) + 24; i++) {
+          games.push(this.gameRepository.create());
+        }
+        return forkJoin(of(playerIds), of(eventTypeIds), forkJoin(games));
+      }),
+      switchMap(([[...playerIds], [...eventTypeIds], [...gameIds]]) => {
+        const rounds = [];
+        for (const gameId of gameIds) {
+          for (let i = 0; i < Math.floor(Math.random() * 5) + 25; i++) {
+            rounds.push(createRound$(gameId, playerIds[0], playerIds.map(id => ({playerId: id, inGameStatus: true}))));
+          }
+        }
+        return forkJoin(of(playerIds), of(eventTypeIds), of(gameIds), forkJoin(rounds));
+      }),
+      switchMap(([[...playerIds], [...eventTypeIds], [...gameIds], [...roundIds]]) => {
+        const roundEvents = [];
+        for (const roundId of roundIds) {
+          for (const playerId of playerIds) {
+            for (let i = 0; i < Math.floor(Math.random() * 5) + 5; i++) {
+              roundEvents.push(createRoundEvent$(roundId, playerId, eventTypeIds[0]));
+            }
+          }
+        }
+        return forkJoin(of(playerIds), of(eventTypeIds), of(gameIds), of(roundIds), forkJoin(roundEvents));
+      })
+    ).subscribe(console.log);
+    // [Array(3), Array(3), Array(25), Array(664), Array(12946)]
   }
 
   createPlayer(): void {
