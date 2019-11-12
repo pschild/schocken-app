@@ -1,30 +1,27 @@
-<div>
-  <a *ngIf="roundId$ | async as roundId" href="" [routerLink]="['/attendees', roundId]">Teilnehmer bearbeiten</a>
-</div>
+<div *ngIf="roundDetails$ | async as roundDetails">
+    <a href="" [routerLink]="['/attendees', roundDetails.id]">Teilnehmer bearbeiten</a>
+    gestartet: {{roundDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
 
-<div *ngIf="roundDetailsState$ | async as roundDetailsState">
-  gestartet: {{roundDetailsState.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
+    <div>
+      <a *ngIf="roundDetails.previousRoundId" href="" [routerLink]="['/round', roundDetails.previousRoundId]"><</a>
+      <span>Runde {{roundDetails.roundIndex}}</span>
+      <a *ngIf="roundDetails.nextRoundId" href="" [routerLink]="['/round', roundDetails.nextRoundId]">></a>
+    </div>
 
-  <div>
-    <a *ngIf="roundDetailsState.previousRoundId" href="" [routerLink]="['/round', roundDetailsState.previousRoundId]"><</a>
-    <span>Runde {{roundDetailsState.roundIndex}}</span>
-    <a *ngIf="roundDetailsState.nextRoundId" href="" [routerLink]="['/round', roundDetailsState.nextRoundId]">></a>
-  </div>
-
-  <hop-player-select
-    *ngIf="attendingPlayerVos$ | async as attendingPlayerVos"
-    [playerList]="attendingPlayerVos"
-    [selectedId]="roundDetailsState.currentPlayerId"
-    (playerChange)="onPlayerChanged($event)"
-  ></hop-player-select>
+    <hop-player-select
+      *ngIf="attendeeList$ | async as attendeeList"
+      [playerList]="attendeeList"
+      [selectedId]="roundDetails.currentPlayerId"
+      (playerChange)="onPlayerChanged($event)"
+    ></hop-player-select>
 </div>
 
 <div>
-  <mat-slide-toggle [checked]="currentPlayerIsInGame() | async" (change)="onInGameStatusChanged($event)">im Spiel</mat-slide-toggle>
+  <mat-slide-toggle [checked]="isInGame$ | async" (change)="onInGameStatusChanged($event)">im Spiel</mat-slide-toggle>
   <hop-event-type-list
     *ngIf="roundEventTypes$ | async as roundEventTypes"
     [eventTypes]="roundEventTypes"
-    [disableButtons]="!(currentPlayerIsInGame() | async)"
+    [disableButtons]="!(isInGame$ | async)"
     (add)="onAddEvent($event)"
   ></hop-event-type-list>
 </div>
@@ -35,12 +32,12 @@
   (remove)="onRemoveEvent($event)"
 ></hop-round-event-list>
 
-<mat-expansion-panel *ngIf="roundDetailsState$ | async as roundDetailsState">
+<mat-expansion-panel *ngIf="roundDetails$ | async as roundDetails">
   <mat-expansion-panel-header>
     <mat-panel-title>
       JSON
     </mat-panel-title>
   </mat-expansion-panel-header>
   
-  <pre>{{roundDetailsState | json}}</pre>
+  <pre>{{roundDetails | json}}</pre>
 </mat-expansion-panel>

@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { Observable, BehaviorSubject, of, forkJoin } from 'rxjs';
-import { map, switchMap, withLatestFrom, take, filter } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { RoundDataProvider } from './round.data-provider';
 import { PlayerSelectionVo, RoundEventListItemVo, EventTypeItemVo } from '@hop-basic-components';
 import { RoundDetailsVo } from './model/round-details.vo';
 import { MatSlideToggleChange } from '@angular/material';
-import { ParticipationDto } from 'projects/hop-backend-api/src/lib/round';
 
 @Component({
   selector: 'hop-round',
@@ -15,11 +13,12 @@ import { ParticipationDto } from 'projects/hop-backend-api/src/lib/round';
 })
 export class RoundComponent implements OnInit {
 
-  roundId$: Observable<string>;
-  roundDetailsState$: BehaviorSubject<RoundDetailsVo> = new BehaviorSubject(null);
-  attendingPlayerVos$: Observable<PlayerSelectionVo[]>;
+  attendeeList$: Observable<PlayerSelectionVo[]>;
   roundEventTypes$: Observable<EventTypeItemVo[]>;
   roundEvents$: Observable<RoundEventListItemVo[]>;
+
+  roundDetails$: Observable<RoundDetailsVo>;
+  isInGame$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -27,85 +26,29 @@ export class RoundComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.roundId$ = this.route.params.pipe(
-      map((params: Params) => params.roundId)
-    );
+    this.route.params.subscribe((params: Params) => this.dataProvider.loadRoundDetails(params.roundId));
 
-    this.roundId$.pipe(
-      switchMap((roundId: string) => this.dataProvider.getRoundDetails(roundId))
-    ).subscribe((round: RoundDetailsVo) => this.roundDetailsState$.next(round));
+    this.roundDetails$ = this.dataProvider.getRoundDetailsState();
+    this.roundEvents$ = this.dataProvider.getRoundEventsState();
 
-    this.attendingPlayerVos$ = this.roundDetailsState$.pipe(
-      switchMap((round: RoundDetailsVo) => this.dataProvider.getAttendingPlayers(round.attendeeList))
-    );
-
-    this.roundEventTypes$ = this.dataProvider.getRoundEventTypes();
+    this.attendeeList$ = this.dataProvider.getAttendeeList();
+    this.isInGame$ = this.dataProvider.getIsInGame();
+    this.roundEventTypes$ = this.dataProvider.loadRoundEventTypes();
   }
 
   onPlayerChanged(playerId: string): void {
-    this.roundDetailsState$.pipe(
-      take(1), // because in the subscription the source observable will receive a new value
-      map((roundDetails: RoundDetailsVo) => {
-        return { ...roundDetails, currentPlayerId: playerId };
-      }),
-      switchMap((updatedRoundDetails: RoundDetailsVo) => forkJoin(
-        of(updatedRoundDetails),
-        this.dataProvider.updateRound(updatedRoundDetails.id, { currentPlayerId: updatedRoundDetails.currentPlayerId })
-      ))
-    ).subscribe(([updatedRoundDetails, roundId]: [RoundDetailsVo, string]) => {
-      this.roundDetailsState$.next(updatedRoundDetails);
-      this._loadRoundEvents();
-    });
+    this.dataProvider.handlePlayerChanged(playerId);
   }
 
   onInGameStatusChanged(event: MatSlideToggleChange) {
-    this.roundDetailsState$.pipe(
-      take(1), // because in the subscription the source observable will receive a new value
-      map((roundDetails: RoundDetailsVo) => {
-        const tempAttendeeList = [...roundDetails.attendeeList];
-        const currentPlayer = tempAttendeeList.find(i => i.playerId === roundDetails.currentPlayerId);
-        currentPlayer.inGameStatus = event.checked;
-        roundDetails.attendeeList = tempAttendeeList;
-        return roundDetails;
-      }),
-      switchMap((roundDetails: RoundDetailsVo) => forkJoin(
-        of(roundDetails),
-        this.dataProvider.updateRound(roundDetails.id, { attendeeList: roundDetails.attendeeList })
-      )),
-      map(([roundDetails, roundId]: [RoundDetailsVo, string]) => ({ ...roundDetails, attendeeList: roundDetails.attendeeList }))
-    ).subscribe((updatedRoundDetails: RoundDetailsVo) => this.roundDetailsState$.next(updatedRoundDetails));
-  }
-
-  currentPlayerIsInGame() {
-    return this.roundDetailsState$.pipe(
-      filter((roundDetails: RoundDetailsVo) => roundDetails && roundDetails.attendeeList && roundDetails.attendeeList.length > 0),
-      map((roundDetails: RoundDetailsVo) => {
-        return roundDetails.attendeeList.find(
-          (attendee: ParticipationDto) => attendee.playerId === roundDetails.currentPlayerId
-        ).inGameStatus;
-      })
-    );
+    this.dataProvider.handleInGameStatusChanged(event.checked);
   }
 
   onAddEvent(eventTypeId: string): void {
-    this.roundId$.pipe(
-      withLatestFrom(this.roundDetailsState$),
-      switchMap(([roundId, roundDetails]: [string, RoundDetailsVo]) => this.dataProvider.createRoundEvent(
-        roundId, roundDetails.currentPlayerId, eventTypeId
-      ))
-    ).subscribe(_ => this._loadRoundEvents());
+    this.dataProvider.handleEventAdded(eventTypeId);
   }
 
   onRemoveEvent(eventId: string): void {
-    this.dataProvider.removeRoundEvent(eventId).subscribe(_ => this._loadRoundEvents());
-  }
-
-  _loadRoundEvents(): void {
-    this.roundEvents$ = this.roundId$.pipe(
-      withLatestFrom(this.roundDetailsState$),
-      switchMap(([roundId, roundDetails]: [string, RoundDetailsVo]) => this.dataProvider.getRoundEventsByPlayerAndRound(
-        roundDetails.currentPlayerId, roundId
-      ))
-    );
+    this.dataProvider.handleEventRemoved(eventId);
   }
 }

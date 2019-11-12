@@ -18,7 +18,6 @@ export class PlayerSelectComponent implements OnInit {
 
   ngOnInit() {
     this.selectedPlayerId = this.selectedId || this.playerList[0].id;
-    this.playerChange.emit(this.selectedPlayerId);
   }
 
   onPlayerChange(playerId: string): void {
