@@ -63,18 +63,21 @@ export class RoundDataProvider {
     );
   }
 
-  getAttendingPlayersByRoundId(roundId: string): Observable<PlayerSelectionVo[]> {
-    return this.roundRepository.get(roundId).pipe(
-      switchMap((round: RoundDto) => forkJoin(
-        of(round.attendeeList.map((attendee: ParticipationDto) => attendee.playerId)),
-        this.playerRepository.getAllActive()
-      )),
-      map(([attendeeIds, activePlayers]: [string[], PlayerDto[]]) => {
+  getAttendingPlayers(attendeeList: ParticipationDto[]): Observable<PlayerSelectionVo[]> {
+    return this.playerRepository.getAllActive().pipe(
+      map((activePlayers: PlayerDto[]) => {
+        const attendeeIds = attendeeList.map((attendee: ParticipationDto) => attendee.playerId);
         return this.playerSelectVoMapperService.mapToVos(
           attendeeIds.map((id: string) => activePlayers.find((player: PlayerDto) => player._id === id))
         );
       })
-    )
+    );
+  }
+
+  getRoundEventTypes(): Observable<EventTypeItemVo[]> {
+    return this.eventTypeRepository.findByContext(EventTypeContext.ROUND).pipe(
+      map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(eventTypes))
+    );
   }
 
   getRoundEventsByPlayerAndRound(playerId: string, roundId: string): Observable<RoundEventListItemVo[]> {
@@ -85,10 +88,8 @@ export class RoundDataProvider {
     );
   }
 
-  getRoundEventTypes(): Observable<EventTypeItemVo[]> {
-    return this.eventTypeRepository.findByContext(EventTypeContext.ROUND).pipe(
-      map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(eventTypes))
-    );
+  updateRound(roundId: string, updatedAttributes: Partial<RoundDto>): Observable<string> {
+    return this.roundRepository.update(roundId, updatedAttributes);
   }
 
   createRoundEvent(roundId: string, playerId: string, eventTypeId: string): Observable<string> {

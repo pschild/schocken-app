@@ -9,6 +9,7 @@ import { EventTypeItemVo } from './model';
 export class EventTypeListComponent {
 
   @Input() eventTypes: EventTypeItemVo[];
+  @Input() disableButtons: boolean;
   @Output() add: EventEmitter<string> = new EventEmitter<string>();
 
   constructor() { }

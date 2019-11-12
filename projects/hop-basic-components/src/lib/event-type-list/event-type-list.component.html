@@ -1,3 +1,7 @@
 <div>
-  <button *ngFor="let eventType of eventTypes" (click)="addEventType(eventType)">{{eventType.description}} ({{eventType.context}})</button>
+  <button
+    *ngFor="let eventType of eventTypes"
+    (click)="addEventType(eventType)"
+    [disabled]="disableButtons"
+  >{{eventType.description}} ({{eventType.context}})</button>
 </div>

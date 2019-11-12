@@ -100,10 +100,12 @@ export class AttendeeComponent implements OnInit {
   }
 
   dropOnParticipating(event: CdkDragDrop<string[]>): void {
+    (event.item.data as AttendeeItemVo).inGameStatus = true;
     this._handleDrop(event);
   }
 
   dropOnOther(event: CdkDragDrop<string[]>): void {
+    (event.item.data as AttendeeItemVo).inGameStatus = false;
     this._handleDrop(event);
   }
 

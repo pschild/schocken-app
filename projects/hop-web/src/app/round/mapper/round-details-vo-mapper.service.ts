@@ -12,6 +12,7 @@ export class RoundDetailsVoMapperService {
     vo.id = input._id;
     vo.datetime = input.datetime;
     vo.currentPlayerId = input.currentPlayerId;
+    vo.attendeeList = input.attendeeList;
     vo.roundIndex = roundIndex;
     vo.nextRoundId = nextRoundId;
     vo.previousRoundId = previousRoundId;

@@ -1,34 +1,46 @@
-<div *ngIf="roundDetailsVo$ | async as roundDetails">
-  gestartet: {{roundDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
-
-  <div>
-    <a *ngIf="roundDetails.previousRoundId" href="" [routerLink]="['/round', roundDetails.previousRoundId]"><</a>
-    <span>Runde {{roundDetails.roundIndex}}</span>
-    <a *ngIf="roundDetails.nextRoundId" href="" [routerLink]="['/round', roundDetails.nextRoundId]">></a>
-  </div>
-</div>
-
 <div>
   <a *ngIf="roundId$ | async as roundId" href="" [routerLink]="['/attendees', roundId]">Teilnehmer bearbeiten</a>
 </div>
 
-<ng-container *ngIf="roundDetailsVo$ | async as roundDetails">
+<div *ngIf="roundDetailsState$ | async as roundDetailsState">
+  gestartet: {{roundDetailsState.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
+
+  <div>
+    <a *ngIf="roundDetailsState.previousRoundId" href="" [routerLink]="['/round', roundDetailsState.previousRoundId]"><</a>
+    <span>Runde {{roundDetailsState.roundIndex}}</span>
+    <a *ngIf="roundDetailsState.nextRoundId" href="" [routerLink]="['/round', roundDetailsState.nextRoundId]">></a>
+  </div>
+
   <hop-player-select
     *ngIf="attendingPlayerVos$ | async as attendingPlayerVos"
     [playerList]="attendingPlayerVos"
-    [selectedId]="roundDetails.currentPlayerId"
+    [selectedId]="roundDetailsState.currentPlayerId"
     (playerChange)="onPlayerChanged($event)"
   ></hop-player-select>
-</ng-container>
+</div>
 
-<hop-event-type-list
-  *ngIf="roundEventTypes$ | async as roundEventTypes"
-  [eventTypes]="roundEventTypes"
-  (add)="onAddEvent($event)"
-></hop-event-type-list>
+<div>
+  <mat-slide-toggle [checked]="currentPlayerIsInGame() | async" (change)="onInGameStatusChanged($event)">im Spiel</mat-slide-toggle>
+  <hop-event-type-list
+    *ngIf="roundEventTypes$ | async as roundEventTypes"
+    [eventTypes]="roundEventTypes"
+    [disableButtons]="!(currentPlayerIsInGame() | async)"
+    (add)="onAddEvent($event)"
+  ></hop-event-type-list>
+</div>
 
 <hop-round-event-list
   *ngIf="roundEvents$ | async as roundEvents"
   [roundEvents]="roundEvents"
   (remove)="onRemoveEvent($event)"
 ></hop-round-event-list>
+
+<mat-expansion-panel *ngIf="roundDetailsState$ | async as roundDetailsState">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      JSON
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  
+  <pre>{{roundDetailsState | json}}</pre>
+</mat-expansion-panel>
