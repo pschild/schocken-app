@@ -4,10 +4,9 @@ import { PutResponse } from '../../db/model/put-response.model';
 import { GetResponse } from '../../db/model/get-response.model';
 import { RemoveResponse } from '../../db/model/remove-response.model';
 import { EntityType } from '../../entity/enum/entity-type.enum';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Observable, from } from 'rxjs';
 import { GameDto } from '../model/game.dto';
-import { FindResponse } from '../../db/model/find-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +19,6 @@ export class GameRepository {
     const rawId: string = this.pouchDb.generateId(EntityType.GAME);
     const game: GameDto = {
       _id: `${EntityType.GAME}__${rawId}`,
-      rawId,
       type: EntityType.GAME,
       datetime: new Date(),
       completed: false
@@ -35,13 +33,13 @@ export class GameRepository {
   }
 
   getAll(): Observable<GameDto[]> {
-    return from(this.pouchDb.getAll<GameDto>('GAME__GAME')).pipe(
+    return from(this.pouchDb.getAll<GameDto>(`${EntityType.GAME}__${EntityType.GAME}`)).pipe(
       map((res: GetResponse<GameDto>) => res.rows.map(row => row.doc as GameDto))
     );
   }
 
   findAllIncomplete(): Observable<GameDto[]> {
-    return from(this.pouchDb.getAll<GameDto>('GAME__GAME')).pipe(
+    return from(this.pouchDb.getAll<GameDto>(`${EntityType.GAME}__${EntityType.GAME}`)).pipe(
       map((res: GetResponse<GameDto>) => res.rows.map(row => row.doc as GameDto)),
       map((dtos: GameDto[]) => dtos.filter((dto: GameDto) => dto.completed === false))
     );

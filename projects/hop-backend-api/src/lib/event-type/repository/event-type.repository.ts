@@ -8,7 +8,6 @@ import { map, pluck, switchMap } from 'rxjs/operators';
 import { Observable, from } from 'rxjs';
 import { EventTypeDto } from '../model/event-type.dto';
 import { EventTypeContext } from '../enum/event-type-context.enum';
-import { FindResponse } from '../../db/model/find-response.model';
 import { EventTypeHistoryItem } from '../model/event-type-history-item';
 
 @Injectable({
@@ -22,7 +21,6 @@ export class EventTypeRepository {
     const rawId: string = this.pouchDb.generateId(EntityType.EVENT_TYPE);
     const eventType: EventTypeDto = {
       _id: `${EntityType.EVENT_TYPE}__${rawId}`,
-      rawId,
       type: EntityType.EVENT_TYPE,
       description: data.description,
       context: data.context,
@@ -45,13 +43,13 @@ export class EventTypeRepository {
   }
 
   getAll(): Observable<EventTypeDto[]> {
-    return from(this.pouchDb.getAll<EventTypeDto>('EVENT_TYPE__EVENT_TYPE')).pipe(
+    return from(this.pouchDb.getAll<EventTypeDto>(`${EntityType.EVENT_TYPE}__${EntityType.EVENT_TYPE}`)).pipe(
       map((res: GetResponse<EventTypeDto>) => res.rows.map(row => row.doc as EventTypeDto))
     );
   }
 
   findByContext(context: EventTypeContext): Observable<EventTypeDto[]> {
-    return from(this.pouchDb.getAll<EventTypeDto>('EVENT_TYPE__EVENT_TYPE')).pipe(
+    return from(this.pouchDb.getAll<EventTypeDto>(`${EntityType.EVENT_TYPE}__${EntityType.EVENT_TYPE}`)).pipe(
       map((res: GetResponse<EventTypeDto>) => res.rows.map(row => row.doc as EventTypeDto)),
       map((dtos: EventTypeDto[]) => dtos.filter((dto: EventTypeDto) => dto.context === context))
     );

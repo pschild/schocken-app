@@ -7,7 +7,6 @@ import { EntityType } from '../../entity/enum/entity-type.enum';
 import { map, switchMap } from 'rxjs/operators';
 import { Observable, from } from 'rxjs';
 import { PlayerDto } from '../model/player.dto';
-import { FindResponse } from '../../db/model/find-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +19,6 @@ export class PlayerRepository {
     const rawId: string = this.pouchDb.generateId(EntityType.PLAYER);
     const player: PlayerDto = {
       _id: `${EntityType.PLAYER}__${rawId}`,
-      rawId,
       type: EntityType.PLAYER,
       name: data.name,
       registered: new Date(),
@@ -36,13 +34,13 @@ export class PlayerRepository {
   }
 
   getAll(): Observable<PlayerDto[]> {
-    return from(this.pouchDb.getAll<PlayerDto>('PLAYER__PLAYER')).pipe(
+    return from(this.pouchDb.getAll<PlayerDto>(`${EntityType.PLAYER}__${EntityType.PLAYER}`)).pipe(
       map((res: GetResponse<PlayerDto>) => res.rows.map(row => row.doc as PlayerDto))
     );
   }
 
   getAllActive(): Observable<PlayerDto[]> {
-    return from(this.pouchDb.getAll<PlayerDto>('PLAYER__PLAYER')).pipe(
+    return from(this.pouchDb.getAll<PlayerDto>(`${EntityType.PLAYER}__${EntityType.PLAYER}`)).pipe(
       map((res: GetResponse<PlayerDto>) => res.rows.map(row => row.doc as PlayerDto)),
       map((dtos: PlayerDto[]) => dtos.filter((dto: PlayerDto) => dto.active === true))
     );

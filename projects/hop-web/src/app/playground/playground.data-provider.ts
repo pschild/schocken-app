@@ -133,9 +133,9 @@ export class PlaygroundDataProvider {
   }
 
   createGameWithRandomRounds(): void {
-    const gamesCount = 2;
-    const roundsPerGameCount = 2;
-    const roundEventsPerPlayerPerRoundCount = 2;
+    const gamesCount = 24;
+    const roundsPerGameCount = 30;
+    const roundEventsPerPlayerPerRoundCount = 10;
 
     const createPlayers$ = forkJoin(
       this.playerRepository.create({ name: 'Dummy 1', active: true }),

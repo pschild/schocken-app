@@ -7,7 +7,6 @@ import { EntityType } from '../../entity/enum/entity-type.enum';
 import { map, switchMap } from 'rxjs/operators';
 import { Observable, from } from 'rxjs';
 import { RoundEventDto } from '../model/round-event.dto';
-import { FindResponse } from '../../db/model/find-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +18,7 @@ export class RoundEventRepository {
   create(data: Partial<RoundEventDto>): Observable<string> {
     const rawId: string = this.pouchDb.generateId(EntityType.ROUND_EVENT);
     const event: RoundEventDto = {
-      _id: `${EntityType.ROUND_EVENT}__${data.roundId}__${rawId}`,
-      rawId,
+      _id: `${EntityType.ROUND_EVENT}__${this.pouchDb.toRawId(data.roundId, EntityType.ROUND)}__${rawId}`,
       type: EntityType.ROUND_EVENT,
       datetime: new Date(),
       roundId: data.roundId,
@@ -37,17 +35,15 @@ export class RoundEventRepository {
   }
 
   getAll(): Observable<RoundEventDto[]> {
-    return from(this.pouchDb.getAll<RoundEventDto>(EntityType.ROUND_EVENT)).pipe(
+    return from(this.pouchDb.getAll<RoundEventDto>(`${EntityType.ROUND_EVENT}__${EntityType.ROUND_EVENT}`)).pipe(
       map((res: GetResponse<RoundEventDto>) => res.rows.map(row => row.doc as RoundEventDto))
     );
   }
 
   findByPlayerIdAndRoundId(playerId: string, roundId: string): Observable<RoundEventDto[]> {
-    const rawPlayerId = playerId.match(/PLAYER-\d+-\d+/)[0];
-    const rawRoundId = roundId.match(/ROUND-\d+-\d+/)[0];
-    return from(this.pouchDb.getAll<RoundEventDto>(`ROUND_EVENT__${rawRoundId}__ROUND_EVENT`)).pipe(
+    return from(this.pouchDb.getAll<RoundEventDto>(`${EntityType.ROUND_EVENT}__${this.pouchDb.toRawId(roundId, EntityType.ROUND)}__${EntityType.ROUND_EVENT}`)).pipe(
       map((res: GetResponse<RoundEventDto>) => res.rows.map(row => row.doc as RoundEventDto)),
-      map((dtos: RoundEventDto[]) => dtos.filter((dto: RoundEventDto) => dto.playerId === rawPlayerId))
+      map((dtos: RoundEventDto[]) => dtos.filter((dto: RoundEventDto) => dto.playerId === playerId))
     );
   }
 

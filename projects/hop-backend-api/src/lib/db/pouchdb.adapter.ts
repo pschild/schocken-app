@@ -113,13 +113,16 @@ export class PouchDbAdapter {
     return this.instance.remove(doc);
   }
 
-  extractRawId(primaryKey: string, entityType: EntityType): string {
-    console.log(primaryKey, entityType);
+  toRawId(primaryKey: string, entityType: EntityType): string {
     const matches = primaryKey.match(new RegExp(`${entityType}-[a-z0-9-]{8}-[a-z0-9-]{4}-[a-z0-9-]{4}-[a-z0-9-]{4}-[a-z0-9-]{12}`));
     if (!matches || matches.length === 0) {
       throw new Error(`neee`);
     }
     return matches[0];
+  }
+
+  toPrimaryKey(rawId: string, entityType: EntityType): string {
+    return `${entityType}__${rawId}`;
   }
 
   generateId(prefix: string): string {

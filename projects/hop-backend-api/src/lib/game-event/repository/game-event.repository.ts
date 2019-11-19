@@ -7,7 +7,6 @@ import { EntityType } from '../../entity/enum/entity-type.enum';
 import { map, switchMap } from 'rxjs/operators';
 import { Observable, from } from 'rxjs';
 import { GameEventDto } from '../model/game-event.dto';
-import { FindResponse } from '../../db/model/find-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +18,7 @@ export class GameEventRepository {
   create(data: Partial<GameEventDto>): Observable<string> {
     const rawId: string = this.pouchDb.generateId(EntityType.GAME_EVENT);
     const event: GameEventDto = {
-      _id: `${EntityType.GAME_EVENT}__${data.gameId}__${rawId}`,
-      rawId,
+      _id: `${EntityType.GAME_EVENT}__${this.pouchDb.toRawId(data.gameId, EntityType.GAME)}__${rawId}`,
       type: EntityType.GAME_EVENT,
       datetime: new Date(),
       gameId: data.gameId,
@@ -37,17 +35,15 @@ export class GameEventRepository {
   }
 
   getAll(): Observable<GameEventDto[]> {
-    return from(this.pouchDb.getAll<GameEventDto>('GAME_EVENT__GAME')).pipe(
+    return from(this.pouchDb.getAll<GameEventDto>(`${EntityType.GAME_EVENT}__${EntityType.GAME_EVENT}`)).pipe(
       map((res: GetResponse<GameEventDto>) => res.rows.map(row => row.doc as GameEventDto))
     );
   }
 
   findByPlayerIdAndGameId(playerId: string, gameId: string): Observable<GameEventDto[]> {
-    const rawPlayerId = playerId.match(/PLAYER-\d+-\d+/)[0];
-    const rawGameId = gameId.match(/GAME-\d+-\d+/)[0];
-    return from(this.pouchDb.getAll<GameEventDto>(`GAME_EVENT__${rawGameId}__GAME_EVENT`)).pipe(
+    return from(this.pouchDb.getAll<GameEventDto>(`${EntityType.GAME_EVENT}__${this.pouchDb.toRawId(gameId, EntityType.GAME)}__${EntityType.GAME_EVENT}`)).pipe(
       map((res: GetResponse<GameEventDto>) => res.rows.map(row => row.doc as GameEventDto)),
-      map((dtos: GameEventDto[]) => dtos.filter((dto: GameEventDto) => dto.playerId === rawPlayerId))
+      map((dtos: GameEventDto[]) => dtos.filter((dto: GameEventDto) => dto.playerId === playerId))
     );
   }
 
