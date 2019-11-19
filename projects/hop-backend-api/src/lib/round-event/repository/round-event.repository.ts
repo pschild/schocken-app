@@ -17,8 +17,10 @@ export class RoundEventRepository {
   constructor(private pouchDb: PouchDbAdapter) { }
 
   create(data: Partial<RoundEventDto>): Observable<string> {
+    const rawId: string = this.pouchDb.generateId(EntityType.ROUND_EVENT);
     const event: RoundEventDto = {
-      _id: this.pouchDb.generateId(EntityType.ROUND_EVENT),
+      _id: `${EntityType.ROUND_EVENT}__${data.roundId}__${rawId}`,
+      rawId,
       type: EntityType.ROUND_EVENT,
       datetime: new Date(),
       roundId: data.roundId,
@@ -41,12 +43,11 @@ export class RoundEventRepository {
   }
 
   findByPlayerIdAndRoundId(playerId: string, roundId: string): Observable<RoundEventDto[]> {
-    return from(this.pouchDb.find({
-      type: {$eq: EntityType.ROUND_EVENT},
-      playerId: {$eq: playerId},
-      roundId: {$eq: roundId}
-    })).pipe(
-      map((res: FindResponse<RoundEventDto>) => res.docs.map(doc => doc as RoundEventDto))
+    const rawPlayerId = playerId.match(/PLAYER-\d+-\d+/)[0];
+    const rawRoundId = roundId.match(/ROUND-\d+-\d+/)[0];
+    return from(this.pouchDb.getAll<RoundEventDto>(`ROUND_EVENT__${rawRoundId}__ROUND_EVENT`)).pipe(
+      map((res: GetResponse<RoundEventDto>) => res.rows.map(row => row.doc as RoundEventDto)),
+      map((dtos: RoundEventDto[]) => dtos.filter((dto: RoundEventDto) => dto.playerId === rawPlayerId))
     );
   }
 

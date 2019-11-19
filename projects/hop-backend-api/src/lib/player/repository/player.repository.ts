@@ -17,8 +17,10 @@ export class PlayerRepository {
   constructor(private pouchDb: PouchDbAdapter) { }
 
   create(data: Partial<PlayerDto>): Observable<string> {
+    const rawId: string = this.pouchDb.generateId(EntityType.PLAYER);
     const player: PlayerDto = {
-      _id: this.pouchDb.generateId(EntityType.PLAYER),
+      _id: `${EntityType.PLAYER}__${rawId}`,
+      rawId,
       type: EntityType.PLAYER,
       name: data.name,
       registered: new Date(),
@@ -34,17 +36,15 @@ export class PlayerRepository {
   }
 
   getAll(): Observable<PlayerDto[]> {
-    return from(this.pouchDb.getAll<PlayerDto>(EntityType.PLAYER)).pipe(
+    return from(this.pouchDb.getAll<PlayerDto>('PLAYER__PLAYER')).pipe(
       map((res: GetResponse<PlayerDto>) => res.rows.map(row => row.doc as PlayerDto))
     );
   }
 
   getAllActive(): Observable<PlayerDto[]> {
-    return from(this.pouchDb.find({
-      type: {$eq: EntityType.PLAYER},
-      active: {$eq: true}
-    })).pipe(
-      map((res: FindResponse<PlayerDto>) => res.docs.map(doc => doc as PlayerDto))
+    return from(this.pouchDb.getAll<PlayerDto>('PLAYER__PLAYER')).pipe(
+      map((res: GetResponse<PlayerDto>) => res.rows.map(row => row.doc as PlayerDto)),
+      map((dtos: PlayerDto[]) => dtos.filter((dto: PlayerDto) => dto.active === true))
     );
   }
 

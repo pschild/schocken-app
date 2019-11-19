@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { PlaygroundRoutingModule } from './playground-routing.module';
 import { PlaygroundComponent } from './playground.component';
 import { HopBasicComponentsModule } from '@hop-basic-components';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -10,6 +11,7 @@ import { HopBasicComponentsModule } from '@hop-basic-components';
   ],
   imports: [
     CommonModule,
+    FormsModule,
     PlaygroundRoutingModule,
     HopBasicComponentsModule
   ]

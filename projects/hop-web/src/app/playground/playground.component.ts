@@ -13,13 +13,27 @@ export class PlaygroundComponent implements OnInit {
   allPlayers$: Observable<PlayerDto[]>;
   allGameEvents$: Observable<GameEventDto[]>;
 
+  gameIdForPerf: string;
+
   constructor(
     private dataProvider: PlaygroundDataProvider
   ) { }
 
   ngOnInit() {
-    this.allPlayers$ = this.dataProvider.getAllPlayers();
-    this.allGameEvents$ = this.dataProvider.getAllGameEvents();
+    // this.allPlayers$ = this.dataProvider.getAllPlayers();
+    // this.allGameEvents$ = this.dataProvider.getAllGameEvents();
+  }
+
+  testPerformanceQuery() {
+    this.dataProvider.testPerformanceQuery(this.gameIdForPerf);
+  }
+
+  testPerformanceAllDocs() {
+    this.dataProvider.testPerformanceAllDocs(this.gameIdForPerf);
+  }
+
+  testPerformanceFind() {
+    this.dataProvider.testPerformanceFind(this.gameIdForPerf);
   }
 
   createGameWithRandomRounds(): void {

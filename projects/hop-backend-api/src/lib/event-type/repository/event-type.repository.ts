@@ -19,8 +19,10 @@ export class EventTypeRepository {
   constructor(private pouchDb: PouchDbAdapter) { }
 
   create(data: Partial<EventTypeDto>): Observable<string> {
+    const rawId: string = this.pouchDb.generateId(EntityType.EVENT_TYPE);
     const eventType: EventTypeDto = {
-      _id: this.pouchDb.generateId(EntityType.EVENT_TYPE),
+      _id: `${EntityType.EVENT_TYPE}__${rawId}`,
+      rawId,
       type: EntityType.EVENT_TYPE,
       description: data.description,
       context: data.context,
@@ -43,17 +45,15 @@ export class EventTypeRepository {
   }
 
   getAll(): Observable<EventTypeDto[]> {
-    return from(this.pouchDb.getAll<EventTypeDto>(EntityType.EVENT_TYPE)).pipe(
+    return from(this.pouchDb.getAll<EventTypeDto>('EVENT_TYPE__EVENT_TYPE')).pipe(
       map((res: GetResponse<EventTypeDto>) => res.rows.map(row => row.doc as EventTypeDto))
     );
   }
 
   findByContext(context: EventTypeContext): Observable<EventTypeDto[]> {
-    return from(this.pouchDb.find({
-      type: {$eq: EntityType.EVENT_TYPE},
-      context: {$eq: context}
-    })).pipe(
-      map((res: FindResponse<EventTypeDto>) => res.docs.map(doc => doc as EventTypeDto))
+    return from(this.pouchDb.getAll<EventTypeDto>('EVENT_TYPE__EVENT_TYPE')).pipe(
+      map((res: GetResponse<EventTypeDto>) => res.rows.map(row => row.doc as EventTypeDto)),
+      map((dtos: EventTypeDto[]) => dtos.filter((dto: EventTypeDto) => dto.context === context))
     );
   }
 

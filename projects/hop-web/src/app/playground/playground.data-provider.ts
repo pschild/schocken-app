@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
-import { GameRepository, RoundRepository, PlayerRepository, GameEventRepository, GameEventDto, PlayerDto, EventTypeRepository, EventTypeContext, RoundEventRepository } from '@hop-backend-api';
+import { GameRepository, RoundRepository, PlayerRepository, GameEventRepository, GameEventDto, PlayerDto, EventTypeRepository, EventTypeContext, RoundEventRepository, PouchDbAdapter } from '@hop-backend-api';
 import { switchMap } from 'rxjs/operators';
+
+declare function emit(val: any);
+declare function emit(key: any, value: any);
 
 @Injectable({
   providedIn: 'root'
@@ -15,8 +18,110 @@ export class PlaygroundDataProvider {
     private playerRepository: PlayerRepository,
     private eventTypeRepository: EventTypeRepository,
     private gameEventRepository: GameEventRepository,
-    private roundEventRepository: RoundEventRepository
+    private roundEventRepository: RoundEventRepository,
+    private db: PouchDbAdapter
   ) {
+  }
+
+  testPerformanceQuery(gameId) {
+    const dbi = this.db.getInstance();
+    const ddoc = {
+      _id: '_design/by_gameId',
+      views: {
+        by_gameId: {
+          map: ((doc) => {
+            if (doc.type === 'ROUND') {
+              emit(doc.gameId);
+            }
+          }).toString()
+        }
+      }
+    };
+
+    const putPromise = new Promise((res, rej) => {
+      return dbi.put(ddoc)
+        .then(r => {
+          console.log(r);
+          res(r);
+        })
+        .catch(e => {
+          console.log(e);
+          res(null);
+        });
+    });
+
+    const queryProm = new Promise((res, rej) => {
+      console.time('QUERY');
+      return dbi.query('by_gameId', {
+        include_docs: true,
+        key: gameId
+      }).then(r => {
+        console.log(r);
+        console.timeEnd('QUERY');
+        res(r);
+      });
+    });
+
+    Promise.all([putPromise, queryProm]).then(r => {
+      console.log(r);
+    });
+  }
+
+  testPerformanceAllDocs(gameId) {
+    const dbi = this.db.getInstance();
+    console.log(`ROUND__${gameId}__ROUND-`);
+    console.time('ALLDOCS');
+    dbi.allDocs({
+      include_docs: true,
+      // startkey: `ROUND__${gameId}__ROUND-\ufff0`,
+      startkey: `ROUND_EVENT__ROUND-\ufff0`,
+      // endkey: `ROUND__${gameId}__ROUND-`,
+      endkey: `ROUND_EVENT__ROUND-`,
+      descending: true
+    }).then(r => {
+      console.timeEnd('ALLDOCS');
+      console.log(r);
+    });
+  }
+
+  testPerformanceFind(gameId) {
+    const dbi = this.db.getInstance();
+    console.time('FIND-WITHOUT-INDEX');
+    dbi.find({
+      selector: {
+        type: {$eq: 'ROUND'},
+        gameId: {$eq: gameId}
+      }
+    }).then(r => {
+      console.log(r);
+      console.timeEnd(`FIND-WITHOUT-INDEX`);
+    });
+
+    console.time(`FIND-WITH-INDEX`);
+    dbi.createIndex({
+      index: {
+        fields: ['type', 'gameId']
+      }
+    }).then(r => {
+      return dbi.find({
+        selector: {
+          type: {$eq: 'ROUND'},
+          gameId: {$eq: gameId}
+        }
+      });
+    }).then(r => {
+      console.log(r);
+      console.timeEnd(`FIND-WITH-INDEX`);
+    });
+  }
+
+  createDesignDoc(name, mapFunction) {
+    const ddoc = {
+      _id: '_design/' + name,
+      views: { }
+    };
+    ddoc.views[name] = { map: mapFunction.toString() };
+    return ddoc;
   }
 
   getAllPlayers(): Observable<PlayerDto[]> {
@@ -28,10 +133,17 @@ export class PlaygroundDataProvider {
   }
 
   createGameWithRandomRounds(): void {
+    const gamesCount = 2;
+    const roundsPerGameCount = 2;
+    const roundEventsPerPlayerPerRoundCount = 2;
+
     const createPlayers$ = forkJoin(
       this.playerRepository.create({ name: 'Dummy 1', active: true }),
       this.playerRepository.create({ name: 'Dummy 2', active: true }),
-      this.playerRepository.create({ name: 'Dummy 3', active: true })
+      this.playerRepository.create({ name: 'Dummy 3', active: true }),
+      this.playerRepository.create({ name: 'Dummy 4', active: true }),
+      this.playerRepository.create({ name: 'Dummy 5', active: true }),
+      this.playerRepository.create({ name: 'Dummy 6', active: true })
     );
 
     const createEventTypes$ = forkJoin(
@@ -59,7 +171,7 @@ export class PlaygroundDataProvider {
       switchMap(([...playerIds]) => forkJoin(of(playerIds), createEventTypes$)),
       switchMap(([[...playerIds], [...eventTypeIds]]) => {
         const games = [];
-        for (let i = 0; i < Math.floor(Math.random() * 5) + 24; i++) {
+        for (let i = 0; i < gamesCount; i++) {
           games.push(this.gameRepository.create());
         }
         return forkJoin(of(playerIds), of(eventTypeIds), forkJoin(games));
@@ -67,7 +179,7 @@ export class PlaygroundDataProvider {
       switchMap(([[...playerIds], [...eventTypeIds], [...gameIds]]) => {
         const rounds = [];
         for (const gameId of gameIds) {
-          for (let i = 0; i < Math.floor(Math.random() * 5) + 25; i++) {
+          for (let i = 0; i < roundsPerGameCount; i++) {
             rounds.push(createRound$(gameId, playerIds[0], playerIds.map(id => ({playerId: id, inGameStatus: true}))));
           }
         }
@@ -77,15 +189,17 @@ export class PlaygroundDataProvider {
         const roundEvents = [];
         for (const roundId of roundIds) {
           for (const playerId of playerIds) {
-            for (let i = 0; i < Math.floor(Math.random() * 5) + 5; i++) {
+            for (let i = 0; i < roundEventsPerPlayerPerRoundCount; i++) {
               roundEvents.push(createRoundEvent$(roundId, playerId, eventTypeIds[0]));
             }
           }
         }
         return forkJoin(of(playerIds), of(eventTypeIds), of(gameIds), of(roundIds), forkJoin(roundEvents));
       })
-    ).subscribe(console.log);
-    // [Array(3), Array(3), Array(25), Array(664), Array(12946)]
+    ).subscribe(_ => {
+      console.log(_);
+      console.log(_[2][0]);
+    });
   }
 
   createPlayer(): void {

@@ -17,8 +17,10 @@ export class GameEventRepository {
   constructor(private pouchDb: PouchDbAdapter) { }
 
   create(data: Partial<GameEventDto>): Observable<string> {
+    const rawId: string = this.pouchDb.generateId(EntityType.GAME_EVENT);
     const event: GameEventDto = {
-      _id: this.pouchDb.generateId(EntityType.GAME_EVENT),
+      _id: `${EntityType.GAME_EVENT}__${data.gameId}__${rawId}`,
+      rawId,
       type: EntityType.GAME_EVENT,
       datetime: new Date(),
       gameId: data.gameId,
@@ -35,18 +37,17 @@ export class GameEventRepository {
   }
 
   getAll(): Observable<GameEventDto[]> {
-    return from(this.pouchDb.getAll<GameEventDto>(EntityType.GAME_EVENT)).pipe(
+    return from(this.pouchDb.getAll<GameEventDto>('GAME_EVENT__GAME')).pipe(
       map((res: GetResponse<GameEventDto>) => res.rows.map(row => row.doc as GameEventDto))
     );
   }
 
   findByPlayerIdAndGameId(playerId: string, gameId: string): Observable<GameEventDto[]> {
-    return from(this.pouchDb.find({
-      type: {$eq: EntityType.GAME_EVENT},
-      playerId: {$eq: playerId},
-      gameId: {$eq: gameId}
-    })).pipe(
-      map((res: FindResponse<GameEventDto>) => res.docs.map(doc => doc as GameEventDto))
+    const rawPlayerId = playerId.match(/PLAYER-\d+-\d+/)[0];
+    const rawGameId = gameId.match(/GAME-\d+-\d+/)[0];
+    return from(this.pouchDb.getAll<GameEventDto>(`GAME_EVENT__${rawGameId}__GAME_EVENT`)).pipe(
+      map((res: GetResponse<GameEventDto>) => res.rows.map(row => row.doc as GameEventDto)),
+      map((dtos: GameEventDto[]) => dtos.filter((dto: GameEventDto) => dto.playerId === rawPlayerId))
     );
   }
 
