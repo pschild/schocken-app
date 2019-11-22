@@ -198,7 +198,7 @@ export class PlaygroundDataProvider {
       })
     ).subscribe(_ => {
       console.log(_);
-      console.log(_[2][0]);
+      alert('Done.');
     });
   }
 
