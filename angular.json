@@ -26,6 +26,7 @@
             "assets": [
               "projects/hop-web/src/favicon.ico",
               "projects/hop-web/src/assets",
+              "projects/hop-web/src/_redirects",
               "projects/hop-web/src/manifest.webmanifest"
             ],
             "styles": [
