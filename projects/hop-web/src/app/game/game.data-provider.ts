@@ -36,7 +36,7 @@ export class GameDataProvider {
   private gameDetailsState$: BehaviorSubject<GameDetailsVo> = new BehaviorSubject(null);
   private gameEventsState$: BehaviorSubject<GameEventListItemVo[]> = new BehaviorSubject([]);
 
-  private selectedPlayerId: string;
+  private selectedPlayerId$: BehaviorSubject<string> = new BehaviorSubject(undefined);
 
   constructor(
     private gameRepository: GameRepository,
@@ -83,22 +83,23 @@ export class GameDataProvider {
     return this.playerRepository.getAllActive().pipe(
       map((activePlayers: PlayerDto[]) => this.playerSelectVoMapperService.mapToVos(activePlayers)),
       tap((playerVos: PlayerSelectionVo[]) => {
-        this.selectedPlayerId = playerVos[0].id;
+        this.selectedPlayerId$.next(playerVos[0].id);
         this._loadGameEvents();
       })
     );
   }
 
   handlePlayerChanged(playerId: string): void {
-    this.selectedPlayerId = playerId;
+    this.selectedPlayerId$.next(playerId);
     this._loadGameEvents();
   }
 
   handleEventAdded(eventTypeId: string): void {
     this.gameDetailsState$.pipe(
       take(1),
-      switchMap((gameDetails: GameDetailsVo) => this._createGameEvent(
-        gameDetails.id, this.selectedPlayerId, eventTypeId
+      withLatestFrom(this.selectedPlayerId$),
+      switchMap(([gameDetails, selectedPlayerId]: [GameDetailsVo, string]) => this._createGameEvent(
+        gameDetails.id, selectedPlayerId, eventTypeId
       )),
       switchMap((roundEventId: string) => this._loadGameEvent(roundEventId)),
       withLatestFrom(this.gameEventsState$),
@@ -124,9 +125,10 @@ export class GameDataProvider {
   private _loadGameEvents(): void {
     this.gameDetailsState$.pipe(
       take(1),
-      filter((gameDetails: GameDetailsVo) => !!gameDetails.id && !!this.selectedPlayerId),
-      switchMap((gameDetails: GameDetailsVo) => this._loadGameEventsByPlayerAndGame(
-        this.selectedPlayerId, gameDetails.id
+      withLatestFrom(this.selectedPlayerId$),
+      filter(([gameDetails, selectedPlayerId]: [GameDetailsVo, string]) => !!gameDetails.id && !!selectedPlayerId),
+      switchMap(([gameDetails, selectedPlayerId]: [GameDetailsVo, string]) => this._loadGameEventsByPlayerAndGame(
+        selectedPlayerId, gameDetails.id
       ))
     ).subscribe((gameEvents: GameEventListItemVo[]) => {
       this.gameEventsState$.next(gameEvents);
