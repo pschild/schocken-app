@@ -1,46 +1,37 @@
 <h2>Details zum Spiel</h2>
-<div *ngIf="gameDetailsVo$ | async as gameDetails">
+<div *ngIf="gameDetails$ | async as gameDetails">
   Datum: {{gameDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
-  <div *ngIf="roundListItemVos$ | async as roundListItems">
-    {{roundListItems.length}} Runden
-    <a *ngIf="roundListItems.length > 0" href="" [routerLink]="['/round', roundListItems[0].id]">Aktuelle Runde fortsetzen</a>
+  <div>
+    {{gameDetails.rounds.length}} Runde(n)
+    <a *ngIf="gameDetails.rounds.length > 0" href="" [routerLink]="['/round', gameDetails.latestRound.id]">Aktuelle Runde fortsetzen</a>
   </div>
+
+  <mat-accordion>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Runden
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <hop-round-list [roundListItems]="gameDetails.rounds"></hop-round-list>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Feststellungen
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <hop-player-select *ngIf="activePlayers$ | async as activePlayers" [playerList]="activePlayers"
+        (playerChange)="onPlayerChanged($event)"></hop-player-select>
+
+      <hop-event-type-list *ngIf="gameEventTypes$ | async as gameEventTypes" [eventTypes]="gameEventTypes"
+        (add)="onAddEvent($event)"></hop-event-type-list>
+
+      <hop-game-event-list *ngIf="gameEvents$ | async as gameEvents" [gameEvents]="gameEvents"
+        (remove)="onRemoveEvent($event)"></hop-game-event-list>
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>
-
-<mat-accordion>
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        Runden
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-    
-    <hop-round-list *ngIf="roundListItemVos$ | async as roundListItems" [roundListItems]="roundListItems"></hop-round-list>
-  </mat-expansion-panel>
-
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        Feststellungen
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-
-    <hop-player-select
-      *ngIf="activePlayerVos$ | async as activePlayerVos"
-      [playerList]="activePlayerVos"
-      (playerChange)="onPlayerChanged($event)"
-    ></hop-player-select>
-
-    <hop-event-type-list
-      *ngIf="gameEventTypes$ | async as gameEventTypes"
-      [eventTypes]="gameEventTypes"
-      (add)="onAddEvent($event)"
-    ></hop-event-type-list>
-
-    <hop-game-event-list
-      *ngIf="gameEvents$ | async as gameEvents"
-      [gameEvents]="gameEvents"
-      (remove)="onRemoveEvent($event)"
-    ></hop-game-event-list>
-  </mat-expansion-panel>
-</mat-accordion>

@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { GameDataProvider } from './game.data-provider';
 import { Observable } from 'rxjs';
-import { RoundListItemVo, PlayerSelectionVo, GameEventListItemVo, EventTypeItemVo } from '@hop-basic-components';
-import { switchMap, map, share } from 'rxjs/operators';
+import { PlayerSelectionVo, GameEventListItemVo, EventTypeItemVo } from '@hop-basic-components';
 import { GameDetailsVo } from './model/game-details.vo';
 
 @Component({
@@ -13,14 +12,10 @@ import { GameDetailsVo } from './model/game-details.vo';
 })
 export class GameComponent implements OnInit {
 
-  gameId$: Observable<string>;
-  gameDetailsVo$: Observable<GameDetailsVo>;
-  roundListItemVos$: Observable<RoundListItemVo[]>;
-  activePlayerVos$: Observable<PlayerSelectionVo[]>;
+  gameDetails$: Observable<GameDetailsVo>;
   gameEvents$: Observable<GameEventListItemVo[]>;
+  activePlayers$: Observable<PlayerSelectionVo[]>;
   gameEventTypes$: Observable<EventTypeItemVo[]>;
-
-  selectedPlayerId: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -28,39 +23,25 @@ export class GameComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.gameId$ = this.route.params.pipe(
-      map((params: Params) => params.gameId)
-    );
-    this.gameDetailsVo$ = this.gameId$.pipe(
-      switchMap((gameId: string) => this.dataProvider.getGameById(gameId))
-    );
-    this.roundListItemVos$ = this.gameId$.pipe(
-      switchMap((gameId: string) => this.dataProvider.getRoundsByGameId(gameId)),
-      share()
-    );
-    this.activePlayerVos$ = this.dataProvider.getActivePlayers();
-    this.gameEventTypes$ = this.dataProvider.getGameEventTypes();
+    this.route.params.subscribe((params: Params) => this.dataProvider.loadGameDetails(params.gameId));
+
+    this.gameDetails$ = this.dataProvider.getGameDetailsState();
+    this.gameEvents$ = this.dataProvider.getGameEventsState();
+
+    this.activePlayers$ = this.dataProvider.loadActivePlayers();
+    this.gameEventTypes$ = this.dataProvider.loadGameEventTypes();
   }
 
   onPlayerChanged(playerId: string): void {
-    this.selectedPlayerId = playerId;
-    this._loadGameEvents();
+    this.dataProvider.handlePlayerChanged(playerId);
   }
 
   onAddEvent(eventTypeId: string): void {
-    this.gameId$.pipe(
-      switchMap((gameId: string) => this.dataProvider.createGameEvent(gameId, this.selectedPlayerId, eventTypeId))
-    ).subscribe(_ => this._loadGameEvents());
+    this.dataProvider.handleEventAdded(eventTypeId);
   }
 
   onRemoveEvent(eventId: string): void {
-    this.dataProvider.removeGameEvent(eventId).subscribe(_ => this._loadGameEvents());
-  }
-
-  _loadGameEvents(): void {
-    this.gameEvents$ = this.gameId$.pipe(
-      switchMap(gameId => this.dataProvider.getGameEventsByPlayerAndGame(this.selectedPlayerId, gameId))
-    );
+    this.dataProvider.handleEventRemoved(eventId);
   }
 
 }
