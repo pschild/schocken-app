@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { PlaygroundDataProvider } from './playground.data-provider';
 import { Observable } from 'rxjs';
 import { PlayerDto, GameEventDto } from '@hop-backend-api';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'hop-playground',
@@ -15,7 +16,12 @@ export class PlaygroundComponent implements OnInit {
 
   gameIdForPerf: string;
 
+  myForm: FormGroup = this.formBuilder.group({
+    from: [new Date()]
+  });
+
   constructor(
+    private formBuilder: FormBuilder,
     private dataProvider: PlaygroundDataProvider
   ) { }
 

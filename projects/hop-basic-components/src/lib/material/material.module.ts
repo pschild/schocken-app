@@ -36,6 +36,11 @@ import {
   MatTabsModule,
   MatProgressSpinnerModule
 } from '@angular/material';
+import { MatDatetimepickerModule, MatNativeDatetimeModule } from '@mat-datetimepicker/core';
+
+const materialDatetimePickerModules = [
+  MatDatetimepickerModule, MatNativeDatetimeModule
+];
 
 const materialModules = [
   MatButtonModule,
@@ -75,11 +80,13 @@ const materialModules = [
 @NgModule({
   imports: [
     CommonModule,
-    ...materialModules
+    ...materialModules,
+    ...materialDatetimePickerModules
   ],
   exports: [
     CommonModule,
-    ...materialModules
+    ...materialModules,
+    ...materialDatetimePickerModules
   ],
   providers: [
     { provide: MatPaginatorIntl, useClass: MatPaginatorIntlCustom },

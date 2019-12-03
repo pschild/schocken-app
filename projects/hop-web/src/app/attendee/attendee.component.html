@@ -1,3 +1,7 @@
+<button (click)="onCancelClick()">Abbrechen</button>
+<button *ngIf="roundId$ | async" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">Speichern und Runde fortsetzen</button>
+<button *ngIf="!(roundId$ | async)" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">Spiel starten</button>
+
 <h2>Teilnehmer</h2>
 <div class="list-container">
     <div cdkDropList #participatingList="cdkDropList" [cdkDropListData]="participatingPlayers"

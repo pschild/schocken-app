@@ -1,6 +1,8 @@
 @import '~@angular/material/theming';
+@import '~@mat-datetimepicker/core/datetimepicker/datetimepicker-theme';
 @import 'variables';
 
 @include mat-core();
 
 @include angular-material-theme($hop-theme);
+@include mat-datetimepicker-theme($hop-theme);

@@ -2,6 +2,24 @@
   <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title>
+        UI Components
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <form [formGroup]="myForm">
+      <mat-form-field class="datepicker">
+        <mat-label>Datum und Uhrzeit</mat-label>
+        <mat-datetimepicker-toggle [for]="from" matSuffix></mat-datetimepicker-toggle>
+        <mat-datetimepicker #from type="datetime" openOnFocus="true" timeInterval="1"></mat-datetimepicker>
+        <input matInput formControlName="from" [matDatetimepicker]="from">
+      </mat-form-field>
+    </form>
+
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
         Game with Rounds
       </mat-panel-title>
     </mat-expansion-panel-header>
@@ -26,31 +44,31 @@
   </mat-expansion-panel>
 
   <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          GameEvents
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-    
-      <ul *ngIf="allGameEvents$ | async as allGameEvents">
-        <li *ngFor="let event of allGameEvents">{{event._id}} // {{event.playerId}} // {{event.gameId}}</li>
-      </ul>
-    
-      <button (click)="createGameEvent()">create game event</button>
-    
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        GameEvents
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <ul *ngIf="allGameEvents$ | async as allGameEvents">
+      <li *ngFor="let event of allGameEvents">{{event._id}} // {{event.playerId}} // {{event.gameId}}</li>
+    </ul>
+
+    <button (click)="createGameEvent()">create game event</button>
+
   </mat-expansion-panel>
 
   <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Performance Test
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-    
-      <input [(ngModel)]="gameIdForPerf" />
-      <button (click)="testPerformanceQuery()">QUERY</button>
-      <button (click)="testPerformanceAllDocs()">ALLDOCS</button>
-      <button (click)="testPerformanceFind()">FIND</button>
-    
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Performance Test
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <input [(ngModel)]="gameIdForPerf" />
+    <button (click)="testPerformanceQuery()">QUERY</button>
+    <button (click)="testPerformanceAllDocs()">ALLDOCS</button>
+    <button (click)="testPerformanceFind()">FIND</button>
+
   </mat-expansion-panel>
 </mat-accordion>
