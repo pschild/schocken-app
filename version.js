@@ -5,7 +5,7 @@ const { writeFileSync } = require('fs-extra');
 
 const info = getRepoInfo();
 const sha = info.abbreviatedSha;
-const date = new Date(info.committerDate);
+const date = new Date();
 
 const file = resolve(__dirname, 'projects', 'hop-web', 'src', 'environments', 'version.ts');
 writeFileSync(file, `
@@ -18,6 +18,3 @@ export const COMMIT_DATE = '${date.toLocaleString()}';
 );
 
 console.log(`Wrote version info to ${resolve(__dirname, 'projects', 'hop-web', 'src', 'environments', 'version.ts')}:`);
-console.log(date);
-console.log(date.toLocaleString());
-console.log(JSON.stringify(info));
