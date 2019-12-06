@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, Inject, OnInit } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
@@ -10,7 +10,7 @@ import { MatSidenav } from '@angular/material';
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.scss']
 })
-export class NavigationComponent {
+export class NavigationComponent implements OnInit {
 
   @ViewChild('drawer', { static: true }) drawer: MatSidenav;
 
@@ -19,8 +19,16 @@ export class NavigationComponent {
       map(result => result.matches)
     );
 
-  constructor(private breakpointObserver: BreakpointObserver, router: Router) {
-    router.events.pipe(
+  constructor(
+    private breakpointObserver: BreakpointObserver,
+    private router: Router,
+    @Inject('version') public version: string,
+    @Inject('commitHash') public commitHash: string,
+    @Inject('commitDate') public commitDate: string
+  ) {}
+
+  ngOnInit() {
+    this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(_ => this.drawer.close());
   }

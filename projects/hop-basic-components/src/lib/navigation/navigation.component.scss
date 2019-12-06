@@ -8,6 +8,12 @@
 .sidenav {
   width: 200px;
 
+  .sidenav-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
   .mat-nav-list {
     overflow-x: hidden;
 
@@ -39,4 +45,9 @@
 
 .spacer {
   flex: 1 1 auto;
+}
+
+.version-info-container {
+  text-align: center;
+  margin-bottom: 20px;
 }

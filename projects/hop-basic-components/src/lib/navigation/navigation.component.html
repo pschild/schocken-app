@@ -1,26 +1,34 @@
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="'dialog'" [mode]="'over'" [opened]="false">
-    <mat-toolbar>Menu</mat-toolbar>
-    <mat-nav-list>
-      <a mat-list-item routerLink="/home" routerLinkActive="active">
-        <mat-icon matListIcon>home</mat-icon>Home
-      </a>
-      <a mat-list-item routerLink="/management">
-        <mat-icon matListIcon>settings</mat-icon>Verwaltung
-      </a>
-      <a mat-list-item routerLink="/management/players" routerLinkActive="active" class="sub-item">
-        <mat-icon matListIcon>people</mat-icon>Spieler
-      </a>
-      <a mat-list-item routerLink="/management/eventTypes" routerLinkActive="active" class="sub-item">
-        <mat-icon matListIcon>euro_symbol</mat-icon>Ereignisse
-      </a>
-      <a mat-list-item routerLink="/about" routerLinkActive="active">
-        <mat-icon matListIcon>info</mat-icon>About
-      </a>
-      <a mat-list-item routerLink="/playground" routerLinkActive="active">
-        <mat-icon matListIcon>child_care</mat-icon>Playground
-      </a>
-    </mat-nav-list>
+    <div class="sidenav-wrapper">
+      <mat-toolbar>Menu</mat-toolbar>
+      <mat-nav-list>
+        <a mat-list-item routerLink="/home" routerLinkActive="active">
+          <mat-icon matListIcon>home</mat-icon>Home
+        </a>
+        <a mat-list-item routerLink="/management">
+          <mat-icon matListIcon>settings</mat-icon>Verwaltung
+        </a>
+        <a mat-list-item routerLink="/management/players" routerLinkActive="active" class="sub-item">
+          <mat-icon matListIcon>people</mat-icon>Spieler
+        </a>
+        <a mat-list-item routerLink="/management/eventTypes" routerLinkActive="active" class="sub-item">
+          <mat-icon matListIcon>euro_symbol</mat-icon>Ereignisse
+        </a>
+        <a mat-list-item routerLink="/about" routerLinkActive="active">
+          <mat-icon matListIcon>info</mat-icon>About
+        </a>
+        <a mat-list-item routerLink="/playground" routerLinkActive="active">
+          <mat-icon matListIcon>child_care</mat-icon>Playground
+        </a>
+      </mat-nav-list>
+      <span class="spacer"></span>
+      <div class="version-info-container mat-small">
+        <div>v{{version}}</div>
+        <div>{{commitHash}}</div>
+        <div>{{commitDate}}</div>
+      </div>
+    </div>
   </mat-sidenav>
   <mat-sidenav-content>
     <mat-toolbar color="primary">

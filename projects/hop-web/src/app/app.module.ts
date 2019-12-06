@@ -9,6 +9,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { appInitializerFn } from './initialization/bootstrap';
 import { PouchDbAdapter } from '@hop-backend-api';
+import { VERSION, COMMIT_SHA, COMMIT_DATE } from '../environments/version';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,18 @@ import { PouchDbAdapter } from '@hop-backend-api';
       useFactory: appInitializerFn,
       multi: true,
       deps: [/*AppConfigProvider, */PouchDbAdapter, Injector]
+    },
+    {
+      provide: 'version',
+      useValue: VERSION
+    },
+    {
+      provide: 'commitHash',
+      useValue: COMMIT_SHA
+    },
+    {
+      provide: 'commitDate',
+      useValue: COMMIT_DATE
     }
   ],
   bootstrap: [AppComponent]
