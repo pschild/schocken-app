@@ -17,4 +17,7 @@ export const COMMIT_DATE = '${date.toLocaleString()}';
   { encoding: 'utf-8' }
 );
 
-console.log(`Wrote version info to ${resolve(__dirname, 'projects', 'hop-web', 'src', 'environments', 'version.ts')}`);
+console.log(`Wrote version info to ${resolve(__dirname, 'projects', 'hop-web', 'src', 'environments', 'version.ts')}:`);
+console.log(date);
+console.log(date.toLocaleString());
+console.log(JSON.stringify(info));
