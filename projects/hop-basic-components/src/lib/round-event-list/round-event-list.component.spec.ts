@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RoundEventListComponent } from './round-event-list.component';
 
-describe('RoundEventListComponent', () => {
+xdescribe('RoundEventListComponent', () => {
   let component: RoundEventListComponent;
   let fixture: ComponentFixture<RoundEventListComponent>;
 

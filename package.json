@@ -19,7 +19,14 @@
     "watch:hop-basic-components": "npm run build:hop-basic-components -- --watch",
     "watch:hop-backend-api": "npm run build:hop-backend-api -- --watch",
     "wbc": "npm run watch:hop-basic-components",
-    "wba": "npm run watch:hop-backend-api"
+    "wba": "npm run watch:hop-backend-api",
+    "test:hop-web": "ng test hop-web --source-map=false",
+    "test:hop-web:nowatch": "npm run test:hop-web -- --watch=false",
+    "test:hop-basic-components": "ng test hop-basic-components",
+    "test:hop-basic-components:nowatch": "npm run test:hop-basic-components -- --watch=false",
+    "test:hop-backend-api": "ng test hop-backend-api",
+    "test:hop-backend-api:nowatch": "npm run test:hop-backend-api -- --watch=false",
+    "test:all": "npm run test:hop-web:nowatch && npm run test:hop-basic-components:nowatch && npm run test:hop-backend-api:nowatch"
   },
   "private": true,
   "dependencies": {

@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GameEventListComponent } from './game-event-list.component';
 
-describe('GameEventListComponent', () => {
+xdescribe('GameEventListComponent', () => {
   let component: GameEventListComponent;
   let fixture: ComponentFixture<GameEventListComponent>;
 

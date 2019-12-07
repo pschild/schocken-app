@@ -53,7 +53,6 @@ export class EventListService {
     return sums;
   }
 
-  // TODO: this can be tested easily
   getActiveHistoryItemAtDatetime(historyItems: EventTypeHistoryItem[], event: GameEventDto): Partial<EventTypeDto> {
     const eventDatetime = new Date(event.datetime).getTime();
     let eventTypeAtEventTime: Partial<EventTypeDto> = null;
