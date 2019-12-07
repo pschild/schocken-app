@@ -25,6 +25,7 @@ export class GameComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe((params: Params) => this.dataProvider.loadGameDetails(params.gameId));
+    this.dataProvider.loadGameEventTypes();
 
     this.gameDetails$ = this.dataProvider.getGameDetailsState();
     this.gameEvents$ = this.dataProvider.getGameEventsState();

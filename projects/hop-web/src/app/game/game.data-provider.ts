@@ -56,7 +56,6 @@ export class GameDataProvider {
     private eventListService: EventListService,
     private sortService: SortService
   ) {
-    this._loadGameEventTypes();
     combineLatest(
       this.gameEventTypesState$,
       this.gameEventsState$
@@ -142,7 +141,7 @@ export class GameDataProvider {
     ).subscribe((gameEvents: GameEventDto[]) => this.gameEventsState$.next(gameEvents));
   }
 
-  private _loadGameEventTypes(): void {
+  loadGameEventTypes(): void {
     this.eventTypeRepository.findByContext(EventTypeContext.GAME).subscribe((eventTypes: EventTypeDto[]) => {
       this.gameEventTypesState$.next(eventTypes);
     });
