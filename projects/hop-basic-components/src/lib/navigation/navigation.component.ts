@@ -24,7 +24,7 @@ export class NavigationComponent implements OnInit {
     private router: Router,
     @Inject('version') public version: string,
     @Inject('commitHash') public commitHash: string,
-    @Inject('commitDate') public commitDate: string
+    @Inject('commitDate') public commitDate: Date
   ) {}
 
   ngOnInit() {

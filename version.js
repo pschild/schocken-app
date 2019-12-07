@@ -12,7 +12,7 @@ writeFileSync(file, `
 // AUTO GENERATED! DO NOT MANUALLY EDIT OR CHECKIN!
 export const VERSION = '${version}';
 export const COMMIT_SHA = '${sha}';
-export const COMMIT_DATE = '${date.toLocaleString()}';
+export const COMMIT_DATE = new Date('${date}');
 `,
   { encoding: 'utf-8' }
 );
