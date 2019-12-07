@@ -1,7 +1,17 @@
-<div>
+<div *ngFor="let eventType of eventTypes">
+  <span *ngIf="eventType.penalty && eventType.multiplicatorUnit">
+    <mat-form-field>
+      <input matInput [placeholder]="eventType.multiplicatorUnit" [(ngModel)]="eventType.multiplicatorValue" type="number" min="0">
+      <span matSuffix>á {{eventType.penalty.value}} {{eventType.penalty.unit}}</span>
+    </mat-form-field>
+  </span>
   <button
-    *ngFor="let eventType of eventTypes"
+    mat-stroked-button
     (click)="addEventType(eventType)"
-    [disabled]="disableButtons"
-  >{{eventType.description}} ({{eventType.context}})</button>
+    [disabled]="disableButtons || (eventType.multiplicatorUnit && !eventType.multiplicatorValue)">
+    {{eventType.description}}
+    <span *ngIf="eventType.penalty">
+      ({{eventType.penalty.value * eventType.multiplicatorValue}} {{eventType.penalty.unit}})
+    </span>
+  </button>
 </div>

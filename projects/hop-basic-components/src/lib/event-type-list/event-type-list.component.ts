@@ -10,12 +10,12 @@ export class EventTypeListComponent {
 
   @Input() eventTypes: EventTypeItemVo[];
   @Input() disableButtons: boolean;
-  @Output() add: EventEmitter<string> = new EventEmitter<string>();
+  @Output() add: EventEmitter<EventTypeItemVo> = new EventEmitter<EventTypeItemVo>();
 
   constructor() { }
 
   addEventType(eventType: EventTypeItemVo): void {
-    this.add.emit(eventType.id);
+    this.add.emit(eventType);
   }
 
 }

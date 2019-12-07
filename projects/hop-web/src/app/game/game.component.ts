@@ -39,8 +39,8 @@ export class GameComponent implements OnInit {
     this.dataProvider.handlePlayerChanged(playerId);
   }
 
-  onAddEvent(eventTypeId: string): void {
-    this.dataProvider.handleEventAdded(eventTypeId);
+  onAddEvent(eventType: EventTypeItemVo): void {
+    this.dataProvider.handleEventAdded(eventType.id, eventType.multiplicatorValue);
   }
 
   onRemoveEvent(eventId: string): void {

@@ -17,4 +17,4 @@ export const COMMIT_DATE = new Date('${date}');
   { encoding: 'utf-8' }
 );
 
-console.log(`Wrote version info to ${resolve(__dirname, 'projects', 'hop-web', 'src', 'environments', 'version.ts')}:`);
+console.log(`Wrote version info to ${resolve(__dirname, 'projects', 'hop-web', 'src', 'environments', 'version.ts')}`);

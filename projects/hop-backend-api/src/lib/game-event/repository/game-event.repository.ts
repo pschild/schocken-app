@@ -23,7 +23,8 @@ export class GameEventRepository {
       datetime: new Date(),
       gameId: data.gameId,
       playerId: data.playerId,
-      eventTypeId: data.eventTypeId
+      eventTypeId: data.eventTypeId,
+      multiplicatorValue: data.multiplicatorValue
     };
     return from(this.pouchDb.create(event)).pipe(
       map((response: PutResponse) => response.id)

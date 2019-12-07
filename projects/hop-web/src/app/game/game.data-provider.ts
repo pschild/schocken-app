@@ -119,12 +119,12 @@ export class GameDataProvider {
     this._loadGameEvents();
   }
 
-  handleEventAdded(eventTypeId: string): void {
+  handleEventAdded(eventTypeId: string, multiplicatorValue: number): void {
     this.gameDetailsState$.pipe(
       take(1),
       withLatestFrom(this.selectedPlayerId$),
       switchMap(([gameDetails, selectedPlayerId]: [GameDetailsVo, string]) => this._createGameEvent(
-        gameDetails.id, selectedPlayerId, eventTypeId
+        gameDetails.id, selectedPlayerId, eventTypeId, multiplicatorValue
       )),
       switchMap((roundEventId: string) => this._loadGameEvent(roundEventId)),
       withLatestFrom(this.gameEventsState$),
@@ -166,8 +166,8 @@ export class GameDataProvider {
     );
   }
 
-  private _createGameEvent(gameId: string, playerId: string, eventTypeId: string): Observable<string> {
-    return this.gameEventRepository.create({ gameId, playerId, eventTypeId });
+  private _createGameEvent(gameId: string, playerId: string, eventTypeId: string, multiplicatorValue: number): Observable<string> {
+    return this.gameEventRepository.create({ gameId, playerId, eventTypeId, multiplicatorValue });
   }
 
   private _loadGameEvent(gameEventId: string): Observable<GameEventDto> {

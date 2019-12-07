@@ -1,4 +1,4 @@
-import { EventTypeContext,EventTypePenalty } from '@hop-backend-api';
+import { EventTypeContext, EventTypePenalty } from '@hop-backend-api';
 
 export class EventTypeItemVo {
   id: string;
@@ -6,4 +6,5 @@ export class EventTypeItemVo {
   context: EventTypeContext;
   penalty?: EventTypePenalty;
   multiplicatorUnit?: string;
+  multiplicatorValue?: number;
 }
