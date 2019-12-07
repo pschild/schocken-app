@@ -5,4 +5,5 @@ export interface GameEventDto extends EntityDto {
   gameId: string;
   playerId: string;
   eventTypeId: string;
+  multiplicatorValue?: number;
 }

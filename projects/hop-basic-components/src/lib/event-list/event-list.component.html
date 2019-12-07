@@ -1,0 +1,15 @@
+<ul>
+  <li *ngFor="let event of events">
+    {{event.description}}
+    {{event.penaltyValue}} {{event.penaltyUnit}}
+    {{event.datetime | date:'dd.MM.yyyy HH:mm'}}
+    <button (click)="removeEvent(event)">x</button>
+  </li>
+</ul>
+
+Gesamt:
+<ul>
+  <li *ngFor="let unitSum of getSumsPerUnit(events)">
+    {{unitSum.sum}} {{unitSum.unit}}
+  </li>
+</ul>

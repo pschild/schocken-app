@@ -30,8 +30,8 @@
       <hop-event-type-list *ngIf="gameEventTypes$ | async as gameEventTypes" [eventTypes]="gameEventTypes"
         (add)="onAddEvent($event)"></hop-event-type-list>
 
-      <hop-game-event-list *ngIf="gameEvents$ | async as gameEvents" [gameEvents]="gameEvents"
-        (remove)="onRemoveEvent($event)"></hop-game-event-list>
+      <hop-event-list *ngIf="combinedEvents$ | async as combinedEvents" [events]="combinedEvents"
+        (remove)="onRemoveEvent($event)"></hop-event-list>
     </mat-expansion-panel>
   </mat-accordion>
 </div>

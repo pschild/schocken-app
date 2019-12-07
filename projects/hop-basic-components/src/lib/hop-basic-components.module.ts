@@ -10,6 +10,7 @@ import { GameEventListComponent } from './game-event-list/game-event-list.compon
 import { TableWrapperComponent } from './table-wrapper/table-wrapper.component';
 import { EventTypeListComponent } from './event-type-list/event-type-list.component';
 import { RoundEventListComponent } from './round-event-list/round-event-list.component';
+import { EventListComponent } from './event-list/event-list.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { RoundEventListComponent } from './round-event-list/round-event-list.com
     GameEventListComponent,
     RoundEventListComponent,
     TableWrapperComponent,
-    EventTypeListComponent
+    EventTypeListComponent,
+    EventListComponent
   ],
   imports: [
     MaterialModule,
@@ -36,7 +38,8 @@ import { RoundEventListComponent } from './round-event-list/round-event-list.com
     GameEventListComponent,
     RoundEventListComponent,
     TableWrapperComponent,
-    EventTypeListComponent
+    EventTypeListComponent,
+    EventListComponent
   ]
 })
 export class HopBasicComponentsModule { }

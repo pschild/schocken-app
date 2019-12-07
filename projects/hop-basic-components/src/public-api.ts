@@ -19,6 +19,10 @@ export * from './lib/game-event-list/model';
 export * from './lib/round-event-list/mapper';
 export * from './lib/round-event-list/model';
 
+export * from './lib/event-list/mapper';
+export * from './lib/event-list/model';
+export * from './lib/event-list/event-list.service';
+
 export * from './lib/event-type-list/mapper';
 export * from './lib/event-type-list/model';
 

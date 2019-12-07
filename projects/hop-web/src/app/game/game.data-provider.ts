@@ -4,12 +4,14 @@ import {
   PlayerSelectionVo,
   GameEventListItemVo,
   EventTypeItemVo,
+  EventListItemVo,
   RoundListItemVoMapperService,
   PlayerSelectVoMapperService,
   GameEventListItemVoMapperService,
-  EventTypeItemVoMapperService
+  EventTypeItemVoMapperService,
+  EventListService
 } from '@hop-basic-components';
-import { Observable, BehaviorSubject, of, forkJoin } from 'rxjs';
+import { Observable, BehaviorSubject, of, forkJoin, combineLatest } from 'rxjs';
 import {
   RoundRepository,
   GameRepository,
@@ -34,7 +36,9 @@ import { GameDetailsVoMapperService } from './mapper/game-details-vo-mapper.serv
 export class GameDataProvider {
 
   private gameDetailsState$: BehaviorSubject<GameDetailsVo> = new BehaviorSubject(null);
-  private gameEventsState$: BehaviorSubject<GameEventListItemVo[]> = new BehaviorSubject([]);
+  private gameEventsState$: BehaviorSubject<GameEventDto[]> = new BehaviorSubject([]);
+  private gameEventTypesState$: BehaviorSubject<EventTypeDto[]> = new BehaviorSubject([]);
+  private combinedGameEventListState$: BehaviorSubject<EventListItemVo[]> = new BehaviorSubject([]);
 
   private selectedPlayerId$: BehaviorSubject<string> = new BehaviorSubject(undefined);
 
@@ -49,8 +53,18 @@ export class GameDataProvider {
     private gameEventListItemVoMapperService: GameEventListItemVoMapperService,
     private playerSelectVoMapperService: PlayerSelectVoMapperService,
     private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
+    private eventListService: EventListService,
     private sortService: SortService
   ) {
+    this._loadGameEventTypes();
+    combineLatest(
+      this.gameEventTypesState$,
+      this.gameEventsState$
+    ).pipe(
+      map(([eventTypes, events]: [EventTypeDto[], GameEventDto[]]) => this.eventListService.createCombinedList(eventTypes, events))
+    ).subscribe((eventListItems: EventListItemVo[]) => {
+      this.combinedGameEventListState$.next(eventListItems);
+    });
   }
 
   getGameDetailsState(): Observable<GameDetailsVo> {
@@ -58,7 +72,19 @@ export class GameDataProvider {
   }
 
   getGameEventsState(): Observable<GameEventListItemVo[]> {
-    return this.gameEventsState$.asObservable();
+    return this.gameEventsState$.asObservable().pipe(
+      map((gameEventDtos: GameEventDto[]) => this.gameEventListItemVoMapperService.mapToVos(gameEventDtos))
+    );
+  }
+
+  getGameEventTypesState(): Observable<EventTypeItemVo[]> {
+    return this.gameEventTypesState$.asObservable().pipe(
+      map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(eventTypes))
+    );
+  }
+
+  getCombinedGameEventListState(): Observable<EventListItemVo[]> {
+    return this.combinedGameEventListState$.asObservable();
   }
 
   loadGameDetails(gameId: string): void {
@@ -103,8 +129,8 @@ export class GameDataProvider {
       )),
       switchMap((roundEventId: string) => this._loadGameEvent(roundEventId)),
       withLatestFrom(this.gameEventsState$),
-      map(([createdEvent, gameEvents]: [GameEventListItemVo, GameEventListItemVo[]]) => [createdEvent, ...gameEvents])
-    ).subscribe((gameEvents: GameEventListItemVo[]) => this.gameEventsState$.next(gameEvents));
+      map(([createdEvent, gameEvents]: [GameEventDto, GameEventDto[]]) => [createdEvent, ...gameEvents])
+    ).subscribe((gameEvents: GameEventDto[]) => this.gameEventsState$.next(gameEvents));
   }
 
   handleEventRemoved(eventId: string): void {
@@ -112,14 +138,14 @@ export class GameDataProvider {
       take(1),
       switchMap((gameDetails: GameDetailsVo) => this._removeGameEvent(eventId)),
       withLatestFrom(this.gameEventsState$),
-      map(([removedEventId, gameEvents]: [string, GameEventListItemVo[]]) => gameEvents.filter(e => e.id !== removedEventId))
-    ).subscribe((gameEvents: GameEventListItemVo[]) => this.gameEventsState$.next(gameEvents));
+      map(([removedEventId, gameEvents]: [string, GameEventDto[]]) => gameEvents.filter(e => e._id !== removedEventId))
+    ).subscribe((gameEvents: GameEventDto[]) => this.gameEventsState$.next(gameEvents));
   }
 
-  loadGameEventTypes(): Observable<EventTypeItemVo[]> {
-    return this.eventTypeRepository.findByContext(EventTypeContext.GAME).pipe(
-      map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(eventTypes))
-    );
+  private _loadGameEventTypes(): void {
+    this.eventTypeRepository.findByContext(EventTypeContext.GAME).subscribe((eventTypes: EventTypeDto[]) => {
+      this.gameEventTypesState$.next(eventTypes);
+    });
   }
 
   private _loadGameEvents(): void {
@@ -130,15 +156,14 @@ export class GameDataProvider {
       switchMap(([gameDetails, selectedPlayerId]: [GameDetailsVo, string]) => this._loadGameEventsByPlayerAndGame(
         selectedPlayerId, gameDetails.id
       ))
-    ).subscribe((gameEvents: GameEventListItemVo[]) => {
+    ).subscribe((gameEvents: GameEventDto[]) => {
       this.gameEventsState$.next(gameEvents);
     });
   }
 
-  private _loadGameEventsByPlayerAndGame(playerId: string, gameId: string): Observable<GameEventListItemVo[]> {
+  private _loadGameEventsByPlayerAndGame(playerId: string, gameId: string): Observable<GameEventDto[]> {
     return this.gameEventRepository.findByPlayerIdAndGameId(playerId, gameId).pipe(
-      map((gameEventDtos: GameEventDto[]) => gameEventDtos.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC))),
-      map((gameEventDtos: GameEventDto[]) => this.gameEventListItemVoMapperService.mapToVos(gameEventDtos))
+      map((gameEventDtos: GameEventDto[]) => gameEventDtos.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC)))
     );
   }
 
@@ -146,10 +171,8 @@ export class GameDataProvider {
     return this.gameEventRepository.create({ gameId, playerId, eventTypeId });
   }
 
-  private _loadGameEvent(gameEventId: string): Observable<GameEventListItemVo> {
-    return this.gameEventRepository.get(gameEventId).pipe(
-      map((gameEventDto: GameEventDto) => this.gameEventListItemVoMapperService.mapToVo(gameEventDto))
-    );
+  private _loadGameEvent(gameEventId: string): Observable<GameEventDto> {
+    return this.gameEventRepository.get(gameEventId);
   }
 
   private _removeGameEvent(gameEventId: string): Observable<string> {

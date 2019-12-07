@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { GameDataProvider } from './game.data-provider';
 import { Observable } from 'rxjs';
-import { PlayerSelectionVo, GameEventListItemVo, EventTypeItemVo } from '@hop-basic-components';
+import { PlayerSelectionVo, GameEventListItemVo, EventTypeItemVo, EventListItemVo } from '@hop-basic-components';
 import { GameDetailsVo } from './model/game-details.vo';
 
 @Component({
@@ -16,6 +16,7 @@ export class GameComponent implements OnInit {
   gameEvents$: Observable<GameEventListItemVo[]>;
   activePlayers$: Observable<PlayerSelectionVo[]>;
   gameEventTypes$: Observable<EventTypeItemVo[]>;
+  combinedEvents$: Observable<EventListItemVo[]>;
 
   constructor(
     private route: ActivatedRoute,
@@ -27,9 +28,10 @@ export class GameComponent implements OnInit {
 
     this.gameDetails$ = this.dataProvider.getGameDetailsState();
     this.gameEvents$ = this.dataProvider.getGameEventsState();
+    this.gameEventTypes$ = this.dataProvider.getGameEventTypesState();
+    this.combinedEvents$ = this.dataProvider.getCombinedGameEventListState();
 
     this.activePlayers$ = this.dataProvider.loadActivePlayers();
-    this.gameEventTypes$ = this.dataProvider.loadGameEventTypes();
   }
 
   onPlayerChanged(playerId: string): void {

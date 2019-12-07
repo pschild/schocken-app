@@ -5,4 +5,5 @@ export interface RoundEventDto extends EntityDto {
   roundId: string;
   playerId: string;
   eventTypeId: string;
+  multiplicatorValue?: number;
 }
