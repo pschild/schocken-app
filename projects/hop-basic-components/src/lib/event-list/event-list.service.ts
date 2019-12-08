@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { EventListItemVo } from './model';
-import { EventTypeDto, GameEventDto, EventTypeHistoryItem } from '@hop-backend-api';
+import { EventTypeDto, EventDto, EventTypeHistoryItem } from '@hop-backend-api';
 import { EventListItemVoMapperService } from './mapper';
 
 export interface PenaltyPerUnit {
@@ -17,8 +17,8 @@ export class EventListService {
     private eventListItemVoMapperService: EventListItemVoMapperService
   ) { }
 
-  createCombinedList(eventTypes: EventTypeDto[], events: GameEventDto[]): EventListItemVo[] {
-    return events.map((event: GameEventDto) => {
+  createCombinedList(eventTypes: EventTypeDto[], events: EventDto[]): EventListItemVo[] {
+    return events.map((event: EventDto) => {
       const eventType: EventTypeDto = eventTypes.find((type: EventTypeDto) => type._id === event.eventTypeId);
       if (!eventType) {
         throw Error('Could not find eventType by events eventTypeId');
@@ -53,7 +53,7 @@ export class EventListService {
     return sums;
   }
 
-  getActiveHistoryItemAtDatetime(historyItems: EventTypeHistoryItem[], event: GameEventDto): Partial<EventTypeDto> {
+  getActiveHistoryItemAtDatetime(historyItems: EventTypeHistoryItem[], event: EventDto): Partial<EventTypeDto> {
     const eventDatetime = new Date(event.datetime).getTime();
     let eventTypeAtEventTime: Partial<EventTypeDto> = null;
     let datetimeRef = -1;

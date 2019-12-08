@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Observable } from 'rxjs';
 import { RoundDataProvider } from './round.data-provider';
-import { PlayerSelectionVo, RoundEventListItemVo, EventTypeItemVo } from '@hop-basic-components';
+import { PlayerSelectionVo, RoundEventListItemVo, EventTypeItemVo, EventListItemVo } from '@hop-basic-components';
 import { RoundDetailsVo } from './model/round-details.vo';
 import { MatSlideToggleChange } from '@angular/material';
 
@@ -13,11 +13,12 @@ import { MatSlideToggleChange } from '@angular/material';
 })
 export class RoundComponent implements OnInit {
 
-  attendeeList$: Observable<PlayerSelectionVo[]>;
-  roundEventTypes$: Observable<EventTypeItemVo[]>;
-  roundEvents$: Observable<RoundEventListItemVo[]>;
-
   roundDetails$: Observable<RoundDetailsVo>;
+  roundEvents$: Observable<RoundEventListItemVo[]>;
+  roundEventTypes$: Observable<EventTypeItemVo[]>;
+  combinedEvents$: Observable<EventListItemVo[]>;
+
+  attendeeList$: Observable<PlayerSelectionVo[]>;
   isInGame$: Observable<boolean>;
 
   constructor(
@@ -27,13 +28,15 @@ export class RoundComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe((params: Params) => this.dataProvider.loadRoundDetails(params.roundId));
+    this.dataProvider.loadRoundEventTypes();
 
     this.roundDetails$ = this.dataProvider.getRoundDetailsState();
     this.roundEvents$ = this.dataProvider.getRoundEventsState();
+    this.roundEventTypes$ = this.dataProvider.getRoundEventTypesState();
+    this.combinedEvents$ = this.dataProvider.getCombinedRoundEventListState();
 
     this.attendeeList$ = this.dataProvider.getAttendeeList();
     this.isInGame$ = this.dataProvider.getIsInGame();
-    this.roundEventTypes$ = this.dataProvider.loadRoundEventTypes();
   }
 
   onPlayerChanged(playerId: string): void {
@@ -44,8 +47,8 @@ export class RoundComponent implements OnInit {
     this.dataProvider.handleInGameStatusChanged(event.checked);
   }
 
-  onAddEvent(eventTypeId: string): void {
-    this.dataProvider.handleEventAdded(eventTypeId);
+  onAddEvent(eventType: EventTypeItemVo): void {
+    this.dataProvider.handleEventAdded(eventType.id, eventType.multiplicatorValue);
   }
 
   onRemoveEvent(eventId: string): void {

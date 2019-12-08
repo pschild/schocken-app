@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { EventListService } from './event-list.service';
 import { EventListItemVo, PenaltyPerUnit } from '@hop-basic-components';
-import { EventTypeDto, EventTypeHistoryItem, GameEventDto, EntityType } from '@hop-backend-api';
+import { EventTypeDto, EventTypeHistoryItem, EventDto, EntityType } from '@hop-backend-api';
 
 describe('EventListService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
@@ -43,11 +43,10 @@ describe('EventListService', () => {
       { validFrom: new Date('2019-12-06 18:00:00'), eventType: { _id: '2' } },
       { validFrom: new Date('2019-12-07 10:59:00'), eventType: { _id: '3' } }
     ];
-    const event: GameEventDto = {
+    const event: EventDto = {
       _id: '1',
       datetime: new Date('2019-12-07 12:00:00'),
       type: EntityType.GAME,
-      gameId: '1',
       playerId: '1',
       eventTypeId: '1'
     };

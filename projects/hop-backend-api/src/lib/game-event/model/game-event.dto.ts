@@ -1,9 +1,5 @@
-import { EntityDto } from '../../entity/model/entity.dto';
+import { EventDto } from '../../event';
 
-export interface GameEventDto extends EntityDto {
-  datetime: Date;
+export interface GameEventDto extends EventDto {
   gameId: string;
-  playerId: string;
-  eventTypeId: string;
-  multiplicatorValue?: number;
 }

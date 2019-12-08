@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, forkJoin, of, BehaviorSubject } from 'rxjs';
+import { Observable, forkJoin, of, BehaviorSubject, combineLatest } from 'rxjs';
 import {
   RoundRepository,
   PlayerRepository,
@@ -18,7 +18,9 @@ import {
   RoundEventListItemVoMapperService,
   PlayerSelectionVo,
   EventTypeItemVo,
-  RoundEventListItemVo
+  RoundEventListItemVo,
+  EventListItemVo,
+  EventListService
 } from '@hop-basic-components';
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { map, switchMap, take, filter, withLatestFrom } from 'rxjs/operators';
@@ -31,7 +33,9 @@ import { RoundDetailsVoMapperService } from './mapper/round-details-vo-mapper.se
 export class RoundDataProvider {
 
   private roundDetailsState$: BehaviorSubject<RoundDetailsVo> = new BehaviorSubject(null);
-  private roundEventsState$: BehaviorSubject<RoundEventListItemVo[]> = new BehaviorSubject([]);
+  private roundEventsState$: BehaviorSubject<RoundEventDto[]> = new BehaviorSubject([]);
+  private roundEventTypesState$: BehaviorSubject<EventTypeDto[]> = new BehaviorSubject([]);
+  private combinedRoundEventListState$: BehaviorSubject<EventListItemVo[]> = new BehaviorSubject([]);
 
   constructor(
     private roundRepository: RoundRepository,
@@ -42,8 +46,17 @@ export class RoundDataProvider {
     private roundDetailsVoMapperService: RoundDetailsVoMapperService,
     private playerSelectVoMapperService: PlayerSelectVoMapperService,
     private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
+    private eventListService: EventListService,
     private sortService: SortService
   ) {
+    combineLatest(
+      this.roundEventTypesState$,
+      this.roundEventsState$
+    ).pipe(
+      map(([eventTypes, events]: [EventTypeDto[], RoundEventDto[]]) => this.eventListService.createCombinedList(eventTypes, events))
+    ).subscribe((eventListItems: EventListItemVo[]) => {
+      this.combinedRoundEventListState$.next(eventListItems);
+    });
   }
 
   getRoundDetailsState(): Observable<RoundDetailsVo> {
@@ -51,7 +64,19 @@ export class RoundDataProvider {
   }
 
   getRoundEventsState(): Observable<RoundEventListItemVo[]> {
-    return this.roundEventsState$.asObservable();
+    return this.roundEventsState$.asObservable().pipe(
+      map((roundEventDtos: RoundEventDto[]) => this.roundEventListItemVoMapperService.mapToVos(roundEventDtos))
+    );
+  }
+
+  getRoundEventTypesState(): Observable<EventTypeItemVo[]> {
+    return this.roundEventTypesState$.asObservable().pipe(
+      map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(eventTypes))
+    );
+  }
+
+  getCombinedRoundEventListState(): Observable<EventListItemVo[]> {
+    return this.combinedRoundEventListState$.asObservable();
   }
 
   handlePlayerChanged(playerId: string): void {
@@ -88,16 +113,16 @@ export class RoundDataProvider {
     ).subscribe((updatedRoundDetails: RoundDetailsVo) => this.roundDetailsState$.next(updatedRoundDetails));
   }
 
-  handleEventAdded(eventTypeId: string): void {
+  handleEventAdded(eventTypeId: string, multiplicatorValue: number): void {
     this.roundDetailsState$.pipe(
       take(1),
       switchMap((roundDetails: RoundDetailsVo) => this._createRoundEvent(
-        roundDetails.id, roundDetails.currentPlayerId, eventTypeId
+        roundDetails.id, roundDetails.currentPlayerId, eventTypeId, multiplicatorValue
       )),
       switchMap((roundEventId: string) => this._loadRoundEvent(roundEventId)),
       withLatestFrom(this.roundEventsState$),
-      map(([createdEvent, roundEvents]: [RoundEventListItemVo, RoundEventListItemVo[]]) => [createdEvent, ...roundEvents])
-    ).subscribe((roundEvents: RoundEventListItemVo[]) => this.roundEventsState$.next(roundEvents));
+      map(([createdEvent, roundEvents]: [RoundEventDto, RoundEventDto[]]) => [createdEvent, ...roundEvents])
+    ).subscribe((roundEvents: RoundEventDto[]) => this.roundEventsState$.next(roundEvents));
   }
 
   handleEventRemoved(eventId: string): void {
@@ -105,8 +130,8 @@ export class RoundDataProvider {
       take(1),
       switchMap((roundDetails: RoundDetailsVo) => this._removeRoundEvent(eventId)),
       withLatestFrom(this.roundEventsState$),
-      map(([removedEventId, roundEvents]: [string, RoundEventListItemVo[]]) => roundEvents.filter(e => e.id !== removedEventId))
-    ).subscribe((roundEvents: RoundEventListItemVo[]) => this.roundEventsState$.next(roundEvents));
+      map(([removedEventId, roundEvents]: [string, RoundEventDto[]]) => roundEvents.filter(e => e._id !== removedEventId))
+    ).subscribe((roundEvents: RoundEventDto[]) => this.roundEventsState$.next(roundEvents));
   }
 
   getIsInGame(): Observable<boolean> {
@@ -149,10 +174,10 @@ export class RoundDataProvider {
     });
   }
 
-  loadRoundEventTypes(): Observable<EventTypeItemVo[]> {
-    return this.eventTypeRepository.findByContext(EventTypeContext.ROUND).pipe(
-      map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(eventTypes))
-    );
+  loadRoundEventTypes(): void {
+    this.eventTypeRepository.findByContext(EventTypeContext.ROUND).subscribe((eventTypes: EventTypeDto[]) => {
+      this.roundEventTypesState$.next(eventTypes);
+    });
   }
 
   private _loadRoundEvents(): void {
@@ -161,7 +186,7 @@ export class RoundDataProvider {
       switchMap((roundDetails: RoundDetailsVo) => this._loadRoundEventsByPlayerAndRound(
         roundDetails.currentPlayerId, roundDetails.id
       ))
-    ).subscribe((roundEvents: RoundEventListItemVo[]) => this.roundEventsState$.next(roundEvents));
+    ).subscribe((roundEvents: RoundEventDto[]) => this.roundEventsState$.next(roundEvents));
   }
 
   private _getAttendingPlayers(attendeeList: ParticipationDto[]): Observable<PlayerSelectionVo[]> {
@@ -179,22 +204,19 @@ export class RoundDataProvider {
     return this.roundRepository.update(roundId, updatedAttributes);
   }
 
-  private _loadRoundEventsByPlayerAndRound(playerId: string, roundId: string): Observable<RoundEventListItemVo[]> {
+  private _loadRoundEventsByPlayerAndRound(playerId: string, roundId: string): Observable<RoundEventDto[]> {
     return this.roundEventRepository.findByPlayerIdAndRoundId(playerId, roundId).pipe(
       // tslint:disable-next-line:max-line-length
-      map((roundEventDtos: RoundEventDto[]) => roundEventDtos.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC))),
-      map((roundEventDtos: RoundEventDto[]) => this.roundEventListItemVoMapperService.mapToVos(roundEventDtos))
+      map((roundEventDtos: RoundEventDto[]) => roundEventDtos.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC)))
     );
   }
 
-  private _createRoundEvent(roundId: string, playerId: string, eventTypeId: string): Observable<string> {
-    return this.roundEventRepository.create({ roundId, playerId, eventTypeId });
+  private _createRoundEvent(roundId: string, playerId: string, eventTypeId: string, multiplicatorValue: number): Observable<string> {
+    return this.roundEventRepository.create({ roundId, playerId, eventTypeId, multiplicatorValue });
   }
 
-  private _loadRoundEvent(roundEventId: string): Observable<RoundEventListItemVo> {
-    return this.roundEventRepository.get(roundEventId).pipe(
-      map((roundEventDto: RoundEventDto) => this.roundEventListItemVoMapperService.mapToVo(roundEventDto))
-    );
+  private _loadRoundEvent(roundEventId: string): Observable<RoundEventDto> {
+    return this.roundEventRepository.get(roundEventId);
   }
 
   private _removeRoundEvent(roundEventId: string): Observable<string> {

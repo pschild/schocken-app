@@ -42,7 +42,7 @@
                 <input matInput placeholder="Multiplikator" formControlName="multiplicatorUnit">
               </mat-form-field>
               <span
-                *ngIf="form.value.penaltyValue && form.value.penaltyUnit && form.value.multiplicatorUnit">{{form.value.penaltyValue}}
+                *ngIf="form.value.penaltyValue && form.value.penaltyUnit && form.value.multiplicatorUnit">{{form.value.penaltyValue | number:'1.2'}}
                 {{form.value.penaltyUnit}} pro {{form.value.multiplicatorUnit}}</span>
             </div>
           </div>
@@ -61,7 +61,7 @@
                 <h3 matLine>
                   <div>Name: {{entry.eventType.description}}</div>
                   <div *ngIf="entry.eventType.penalty as penalty">
-                    Strafe: {{penalty.value}} {{penalty.unit}}
+                    Strafe: {{penalty.value | number:'1.2'}} {{penalty.unit}}
                     <span *ngIf="entry.eventType.multiplicatorUnit as multiplicatorUnit">
                       pro {{multiplicatorUnit}}
                     </span>

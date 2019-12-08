@@ -26,11 +26,11 @@
   ></hop-event-type-list>
 </div>
 
-<hop-round-event-list
-  *ngIf="roundEvents$ | async as roundEvents"
-  [roundEvents]="roundEvents"
+<hop-event-list
+  *ngIf="combinedEvents$ | async as combinedEvents"
+  [events]="combinedEvents"
   (remove)="onRemoveEvent($event)"
-></hop-round-event-list>
+></hop-event-list>
 
 <mat-expansion-panel *ngIf="roundDetails$ | async as roundDetails">
   <mat-expansion-panel-header>
