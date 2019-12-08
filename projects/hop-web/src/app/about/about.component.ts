@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { buffer, debounceTime, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'hop-about',
@@ -7,9 +10,24 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AboutComponent implements OnInit {
 
-  constructor() { }
+  secretClick$: Subject<void> = new Subject<void>();
+
+  constructor(
+    private router: Router,
+    @Inject('version') public version: string,
+    @Inject('commitHash') public commitHash: string,
+    @Inject('commitDate') public commitDate: Date
+  ) { }
 
   ngOnInit() {
+    this.secretClick$.pipe(
+      buffer(this.secretClick$.pipe(debounceTime(250))),
+      filter(clickList => clickList.length >= 7),
+    ).subscribe(_ => this.router.navigateByUrl('playground'));
+  }
+
+  handleSecretClick() {
+    this.secretClick$.next();
   }
 
 }
