@@ -28,3 +28,8 @@ export * from './lib/event-type-list/model';
 
 export * from './lib/table-wrapper/IColumnDefinition';
 export * from './lib/table-wrapper/ITableConfig';
+
+/**
+ * Services
+ */
+export * from './lib/dialog/snack-bar-notification/snack-bar-notification.service';

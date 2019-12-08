@@ -22,7 +22,7 @@ export class AboutComponent implements OnInit {
   ngOnInit() {
     this.secretClick$.pipe(
       buffer(this.secretClick$.pipe(debounceTime(250))),
-      filter(clickList => clickList.length >= 7),
+      filter(clicks => clicks.length >= 7),
     ).subscribe(_ => this.router.navigateByUrl('playground'));
   }
 

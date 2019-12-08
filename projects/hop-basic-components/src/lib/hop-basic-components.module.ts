@@ -11,6 +11,7 @@ import { TableWrapperComponent } from './table-wrapper/table-wrapper.component';
 import { EventTypeListComponent } from './event-type-list/event-type-list.component';
 import { RoundEventListComponent } from './round-event-list/round-event-list.component';
 import { EventListComponent } from './event-list/event-list.component';
+import { SnackBarNotificationComponent } from './dialog/snack-bar-notification/snack-bar-notification.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { EventListComponent } from './event-list/event-list.component';
     RoundEventListComponent,
     TableWrapperComponent,
     EventTypeListComponent,
-    EventListComponent
+    EventListComponent,
+    SnackBarNotificationComponent
   ],
   imports: [
     MaterialModule,
@@ -40,6 +42,9 @@ import { EventListComponent } from './event-list/event-list.component';
     TableWrapperComponent,
     EventTypeListComponent,
     EventListComponent
+  ],
+  entryComponents: [
+    SnackBarNotificationComponent
   ]
 })
 export class HopBasicComponentsModule { }
