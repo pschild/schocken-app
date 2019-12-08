@@ -14,7 +14,7 @@ export class EventTypeItemVoMapperService {
     vo.context = input.context;
     vo.penalty = input.penalty;
     vo.multiplicatorUnit = input.multiplicatorUnit;
-    vo.multiplicatorValue = 0;
+    vo.multiplicatorValue = 1;
     return vo;
   }
 

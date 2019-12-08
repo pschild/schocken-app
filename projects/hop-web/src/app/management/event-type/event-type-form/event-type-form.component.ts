@@ -51,17 +51,19 @@ export class EventTypeFormComponent implements OnInit {
   }
 
   onSubmit() {
-    // penalty: formData.hasPenalty ? penalty : undefined,
-    // multiplicatorUnit: formData.hasPenalty ? formData.multiplicatorUnit : undefined
-
     if (this.form.valid) {
       // TODO: MAPPING + SNACKBAR
       const { description, context } = this.form.value;
-      const penalty = this.form.value.hasPenalty ? {
-        unit: this.form.value.penaltyUnit,
-        value: this.form.value.penaltyValue
-      } : undefined;
-      const multiplicatorUnit = this.form.value.hasPenalty ? this.form.value.multiplicatorUnit : undefined;
+      let penalty;
+      let multiplicatorUnit;
+      if (this.form.value.hasPenalty) {
+        penalty = {
+          unit: this.form.value.penaltyUnit,
+          value: this.form.value.penaltyValue
+        };
+        multiplicatorUnit = this.form.value.multiplicatorUnit !== '' ? this.form.value.multiplicatorUnit : undefined;
+      }
+
       if (this.form.value.id) {
         this.eventTypeManagementDataProvider.update(
           this.form.value.id,
