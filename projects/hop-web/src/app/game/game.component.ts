@@ -40,7 +40,7 @@ export class GameComponent implements OnInit {
   }
 
   onAddEvent(eventType: EventTypeItemVo): void {
-    this.dataProvider.handleEventAdded(eventType.id, eventType.multiplicatorValue);
+    this.dataProvider.handleEventAdded(eventType);
   }
 
   onRemoveEvent(eventId: string): void {

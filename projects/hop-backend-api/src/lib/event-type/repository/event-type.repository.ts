@@ -24,6 +24,7 @@ export class EventTypeRepository {
       type: EntityType.EVENT_TYPE,
       description: data.description,
       context: data.context,
+      trigger: data.trigger,
       penalty: data.penalty,
       multiplicatorUnit: data.multiplicatorUnit,
       history: [

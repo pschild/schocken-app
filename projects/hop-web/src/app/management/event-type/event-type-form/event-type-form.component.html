@@ -48,6 +48,18 @@
           </div>
         </div>
 
+        <div fxFill>
+          <mat-form-field>
+            <mat-label>Auslöser wählen</mat-label>
+            <mat-select formControlName="trigger">
+              <mat-option>Kein Auslöser</mat-option>
+              <mat-option *ngFor="let trigger of eventTypeTriggers" [value]="trigger">
+                {{trigger}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
         <div fxFill *ngIf="history && history.length">
           <mat-expansion-panel>
             <mat-expansion-panel-header>

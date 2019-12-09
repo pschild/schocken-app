@@ -5,6 +5,7 @@ import { RoundDataProvider } from './round.data-provider';
 import { PlayerSelectionVo, RoundEventListItemVo, EventTypeItemVo, EventListItemVo } from '@hop-basic-components';
 import { RoundDetailsVo } from './model/round-details.vo';
 import { MatSlideToggleChange } from '@angular/material';
+import { share } from 'rxjs/operators';
 
 @Component({
   selector: 'hop-round',
@@ -30,7 +31,7 @@ export class RoundComponent implements OnInit {
     this.route.params.subscribe((params: Params) => this.dataProvider.loadRoundDetails(params.roundId));
     this.dataProvider.loadRoundEventTypes();
 
-    this.roundDetails$ = this.dataProvider.getRoundDetailsState();
+    this.roundDetails$ = this.dataProvider.getRoundDetailsState().pipe(share());
     this.roundEvents$ = this.dataProvider.getRoundEventsState();
     this.roundEventTypes$ = this.dataProvider.getRoundEventTypesState();
     this.combinedEvents$ = this.dataProvider.getCombinedRoundEventListState();
@@ -48,7 +49,7 @@ export class RoundComponent implements OnInit {
   }
 
   onAddEvent(eventType: EventTypeItemVo): void {
-    this.dataProvider.handleEventAdded(eventType.id, eventType.multiplicatorValue);
+    this.dataProvider.handleEventAdded(eventType);
   }
 
   onRemoveEvent(eventId: string): void {

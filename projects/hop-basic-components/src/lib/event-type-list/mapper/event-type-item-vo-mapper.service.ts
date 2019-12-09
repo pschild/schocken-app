@@ -12,6 +12,7 @@ export class EventTypeItemVoMapperService {
     vo.id = input._id;
     vo.description = input.description;
     vo.context = input.context;
+    vo.trigger = input.trigger;
     vo.penalty = input.penalty;
     vo.multiplicatorUnit = input.multiplicatorUnit;
     vo.multiplicatorValue = 1;

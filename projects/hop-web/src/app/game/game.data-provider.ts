@@ -29,13 +29,14 @@ import { map, take, switchMap, withLatestFrom, tap, filter } from 'rxjs/operator
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { GameDetailsVo } from './model/game-details.vo';
 import { GameDetailsVoMapperService } from './mapper/game-details-vo-mapper.service';
+import { EventHandlerService } from '../core/service/event-handler.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameDataProvider {
 
-  private gameDetailsState$: BehaviorSubject<GameDetailsVo> = new BehaviorSubject(null);
+  private gameDetailsState$: BehaviorSubject<GameDto> = new BehaviorSubject(null);
   private gameEventsState$: BehaviorSubject<GameEventDto[]> = new BehaviorSubject([]);
   private gameEventTypesState$: BehaviorSubject<EventTypeDto[]> = new BehaviorSubject([]);
   private combinedGameEventListState$: BehaviorSubject<EventListItemVo[]> = new BehaviorSubject([]);
@@ -54,6 +55,7 @@ export class GameDataProvider {
     private playerSelectVoMapperService: PlayerSelectVoMapperService,
     private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
     private eventListService: EventListService,
+    private eventHandlerService: EventHandlerService,
     private sortService: SortService
   ) {
     combineLatest(
@@ -67,7 +69,19 @@ export class GameDataProvider {
   }
 
   getGameDetailsState(): Observable<GameDetailsVo> {
-    return this.gameDetailsState$.asObservable();
+    return this.gameDetailsState$.asObservable().pipe(
+      filter((game: GameDto) => !!game),
+      switchMap((game: GameDto) => forkJoin(
+        of(game),
+        this.roundRepository.getRoundsByGameId(game._id).pipe(
+          map((roundDtos: RoundDto[]) => roundDtos.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC))),
+          map((roundDtos: RoundDto[]) => this.roundListItemVoMapperService.mapToVos(roundDtos))
+        )
+      )),
+      map(([game, rounds]: [GameDto, RoundListItemVo[]]) => {
+        return this.gameDetailsVoMapperService.mapToVo(game, rounds, rounds[0]);
+      })
+    );
   }
 
   getGameEventsState(): Observable<GameEventListItemVo[]> {
@@ -87,19 +101,8 @@ export class GameDataProvider {
   }
 
   loadGameDetails(gameId: string): void {
-    this.gameRepository.get(gameId).pipe(
-      switchMap((game: GameDto) => forkJoin(
-        of(game),
-        this.roundRepository.getRoundsByGameId(gameId).pipe(
-          map((roundDtos: RoundDto[]) => roundDtos.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC))),
-          map((roundDtos: RoundDto[]) => this.roundListItemVoMapperService.mapToVos(roundDtos))
-        )
-      )),
-      map(([game, rounds]: [GameDto, RoundListItemVo[]]) => {
-        return this.gameDetailsVoMapperService.mapToVo(game, rounds, rounds[0]);
-      })
-    ).subscribe((gameDetails: GameDetailsVo) => {
-      this.gameDetailsState$.next(gameDetails);
+    this.gameRepository.get(gameId).subscribe((game: GameDto) => {
+      this.gameDetailsState$.next(game);
       this._loadGameEvents();
     });
   }
@@ -119,12 +122,13 @@ export class GameDataProvider {
     this._loadGameEvents();
   }
 
-  handleEventAdded(eventTypeId: string, multiplicatorValue: number): void {
+  handleEventAdded(eventType: EventTypeItemVo): void {
     this.gameDetailsState$.pipe(
       take(1),
+      tap((game: GameDto) => this.eventHandlerService.handleGameEvent(eventType, game)),
       withLatestFrom(this.selectedPlayerId$),
-      switchMap(([gameDetails, selectedPlayerId]: [GameDetailsVo, string]) => this._createGameEvent(
-        gameDetails.id, selectedPlayerId, eventTypeId, multiplicatorValue
+      switchMap(([game, selectedPlayerId]: [GameDto, string]) => this._createGameEvent(
+        game._id, selectedPlayerId, eventType.id, eventType.multiplicatorValue
       )),
       switchMap((roundEventId: string) => this._loadGameEvent(roundEventId)),
       withLatestFrom(this.gameEventsState$),
@@ -135,7 +139,7 @@ export class GameDataProvider {
   handleEventRemoved(eventId: string): void {
     this.gameDetailsState$.pipe(
       take(1),
-      switchMap((gameDetails: GameDetailsVo) => this._removeGameEvent(eventId)),
+      switchMap((game: GameDto) => this._removeGameEvent(eventId)),
       withLatestFrom(this.gameEventsState$),
       map(([removedEventId, gameEvents]: [string, GameEventDto[]]) => gameEvents.filter(e => e._id !== removedEventId))
     ).subscribe((gameEvents: GameEventDto[]) => this.gameEventsState$.next(gameEvents));
@@ -151,9 +155,9 @@ export class GameDataProvider {
     this.gameDetailsState$.pipe(
       take(1),
       withLatestFrom(this.selectedPlayerId$),
-      filter(([gameDetails, selectedPlayerId]: [GameDetailsVo, string]) => !!gameDetails.id && !!selectedPlayerId),
-      switchMap(([gameDetails, selectedPlayerId]: [GameDetailsVo, string]) => this._loadGameEventsByPlayerAndGame(
-        selectedPlayerId, gameDetails.id
+      filter(([game, selectedPlayerId]: [GameDto, string]) => !!game._id && !!selectedPlayerId),
+      switchMap(([game, selectedPlayerId]: [GameDto, string]) => this._loadGameEventsByPlayerAndGame(
+        selectedPlayerId, game._id
       ))
     ).subscribe((gameEvents: GameEventDto[]) => {
       this.gameEventsState$.next(gameEvents);

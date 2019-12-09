@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { EventTypeHistoryItem, EventTypeContext, EventTypePenalty } from '@hop-backend-api';
+import { EventTypeHistoryItem, EventTypeContext, EventTypeTrigger } from '@hop-backend-api';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
 import { filter, switchMap } from 'rxjs/operators';
@@ -21,11 +21,14 @@ export class EventTypeFormComponent implements OnInit {
     id: [''],
     description: ['', Validators.required],
     context: [EventTypeContext.ROUND, Validators.required],
+    trigger: [''],
     penaltyValue: [''],
     penaltyUnit: [''],
     multiplicatorUnit: [''],
     hasPenalty: [false]
   });
+
+  eventTypeTriggers: string[] = Object.keys(EventTypeTrigger);
 
   constructor(
     private router: Router,
@@ -53,7 +56,7 @@ export class EventTypeFormComponent implements OnInit {
   onSubmit() {
     if (this.form.valid) {
       // TODO: MAPPING + SNACKBAR
-      const { description, context } = this.form.value;
+      const { description, context, trigger } = this.form.value;
       let penalty;
       let multiplicatorUnit;
       if (this.form.value.hasPenalty) {
@@ -67,11 +70,11 @@ export class EventTypeFormComponent implements OnInit {
       if (this.form.value.id) {
         this.eventTypeManagementDataProvider.update(
           this.form.value.id,
-          { description, context, penalty, multiplicatorUnit }
+          { description, context, trigger, penalty, multiplicatorUnit }
         ).subscribe((id: string) => this.router.navigate(['management', 'eventTypes']));
       } else {
         this.eventTypeManagementDataProvider.create(
-          { description, context, penalty, multiplicatorUnit }
+          { description, context, trigger, penalty, multiplicatorUnit }
         ).subscribe((id: string) => this.router.navigate(['management', 'eventTypes']));
       }
     }
