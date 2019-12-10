@@ -1,3 +1,4 @@
+<hop-snowflakes></hop-snowflakes>
 <mat-accordion>
   <mat-expansion-panel>
     <mat-expansion-panel-header>
@@ -13,6 +14,10 @@
         <mat-datetimepicker #from type="datetime" openOnFocus="true" timeInterval="1" touchUi="true"></mat-datetimepicker>
         <input matInput formControlName="from" [matDatetimepicker]="from">
       </mat-form-field>
+
+      <input type="datetime-local" placeholder="Datum & Uhrzeit"/>
+      <input type="date" placeholder="Datum"/>
+      <input type="time" placeholder="Uhrzeit"/>
     </form>
 
   </mat-expansion-panel>

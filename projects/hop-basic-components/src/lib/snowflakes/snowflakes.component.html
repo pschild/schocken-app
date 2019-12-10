@@ -1,0 +1,13 @@
+<div class="snowflakes">
+  <div
+    *ngFor="let snowflake of snowflakes"
+    [ngStyle]="{
+      'left.%': snowflake.left,
+      '-webkit-animation-delay': snowflake.delay + 's,' + snowflake.ka + 's',
+      'animation-delay': snowflake.delay + 's,' + snowflake.ka + 's'
+    }"
+    class="snowflake"
+  >
+    {{snowflake.figure}}
+  </div>
+</div>

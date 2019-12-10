@@ -9,6 +9,7 @@ import { Observable, from } from 'rxjs';
 import { EventTypeDto } from '../model/event-type.dto';
 import { EventTypeContext } from '../enum/event-type-context.enum';
 import { EventTypeHistoryItem } from '../model/event-type-history-item';
+import { EventTypeTrigger } from '../enum/event-type-trigger.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -53,6 +54,13 @@ export class EventTypeRepository {
     return from(this.pouchDb.getAll<EventTypeDto>(`${EntityType.EVENT_TYPE}__${EntityType.EVENT_TYPE}`)).pipe(
       map((res: GetResponse<EventTypeDto>) => res.rows.map(row => row.doc as EventTypeDto)),
       map((dtos: EventTypeDto[]) => dtos.filter((dto: EventTypeDto) => dto.context === context))
+    );
+  }
+
+  findByTrigger(trigger: EventTypeTrigger): Observable<EventTypeDto[]> {
+    return from(this.pouchDb.getAll<EventTypeDto>(`${EntityType.EVENT_TYPE}__${EntityType.EVENT_TYPE}`)).pipe(
+      map((res: GetResponse<EventTypeDto>) => res.rows.map(row => row.doc as EventTypeDto)),
+      map((dtos: EventTypeDto[]) => dtos.filter((dto: EventTypeDto) => dto.trigger === trigger))
     );
   }
 

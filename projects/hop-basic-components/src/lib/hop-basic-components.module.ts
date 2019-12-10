@@ -12,6 +12,7 @@ import { EventTypeListComponent } from './event-type-list/event-type-list.compon
 import { RoundEventListComponent } from './round-event-list/round-event-list.component';
 import { EventListComponent } from './event-list/event-list.component';
 import { SnackBarNotificationComponent } from './dialog/snack-bar-notification/snack-bar-notification.component';
+import { SnowflakesComponent } from './snowflakes/snowflakes.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { SnackBarNotificationComponent } from './dialog/snack-bar-notification/s
     TableWrapperComponent,
     EventTypeListComponent,
     EventListComponent,
-    SnackBarNotificationComponent
+    SnackBarNotificationComponent,
+    SnowflakesComponent
   ],
   imports: [
     MaterialModule,
@@ -41,7 +43,8 @@ import { SnackBarNotificationComponent } from './dialog/snack-bar-notification/s
     RoundEventListComponent,
     TableWrapperComponent,
     EventTypeListComponent,
-    EventListComponent
+    EventListComponent,
+    SnowflakesComponent
   ],
   entryComponents: [
     SnackBarNotificationComponent
