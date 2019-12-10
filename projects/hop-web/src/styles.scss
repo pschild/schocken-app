@@ -5,4 +5,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   padding: 16px;
 }
 
+.form-button-container {
+  display: flex;
+  justify-content: flex-end;
+
+  & > button {
+    margin-right: 10px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
 @import './styles/schocken-app-theme';

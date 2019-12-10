@@ -33,3 +33,8 @@ export * from './lib/table-wrapper/ITableConfig';
  * Services
  */
 export * from './lib/dialog/snack-bar-notification/snack-bar-notification.service';
+
+/**
+ * Modals
+ */
+export * from './lib/dialog/change-game-date-modal/change-game-date-modal.component';

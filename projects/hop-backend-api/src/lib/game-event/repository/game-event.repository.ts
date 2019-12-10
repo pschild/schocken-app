@@ -41,9 +41,14 @@ export class GameEventRepository {
     );
   }
 
-  findByPlayerIdAndGameId(playerId: string, gameId: string): Observable<GameEventDto[]> {
+  findByGameId(gameId: string): Observable<GameEventDto[]> {
     return from(this.pouchDb.getAll<GameEventDto>(`${EntityType.GAME_EVENT}__${this.pouchDb.toRawId(gameId, EntityType.GAME)}__${EntityType.GAME_EVENT}`)).pipe(
-      map((res: GetResponse<GameEventDto>) => res.rows.map(row => row.doc as GameEventDto)),
+      map((res: GetResponse<GameEventDto>) => res.rows.map(row => row.doc as GameEventDto))
+    );
+  }
+
+  findByPlayerIdAndGameId(playerId: string, gameId: string): Observable<GameEventDto[]> {
+    return this.findByGameId(gameId).pipe(
       map((dtos: GameEventDto[]) => dtos.filter((dto: GameEventDto) => dto.playerId === playerId))
     );
   }

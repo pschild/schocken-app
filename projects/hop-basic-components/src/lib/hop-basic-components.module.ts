@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { GameListComponent } from './game-list/game-list.component';
 import { RoundListComponent } from './round-list/round-list.component';
 import { PlayerSelectComponent } from './player-select/player-select.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GameEventListComponent } from './game-event-list/game-event-list.component';
 import { TableWrapperComponent } from './table-wrapper/table-wrapper.component';
 import { EventTypeListComponent } from './event-type-list/event-type-list.component';
@@ -13,6 +13,7 @@ import { RoundEventListComponent } from './round-event-list/round-event-list.com
 import { EventListComponent } from './event-list/event-list.component';
 import { SnackBarNotificationComponent } from './dialog/snack-bar-notification/snack-bar-notification.component';
 import { SnowflakesComponent } from './snowflakes/snowflakes.component';
+import { ChangeGameDateModalComponent } from './dialog/change-game-date-modal/change-game-date-modal.component';
 
 @NgModule({
   declarations: [
@@ -26,12 +27,14 @@ import { SnowflakesComponent } from './snowflakes/snowflakes.component';
     EventTypeListComponent,
     EventListComponent,
     SnackBarNotificationComponent,
-    SnowflakesComponent
+    SnowflakesComponent,
+    ChangeGameDateModalComponent
   ],
   imports: [
     MaterialModule,
     RouterModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   exports: [
     MaterialModule,
@@ -47,7 +50,8 @@ import { SnowflakesComponent } from './snowflakes/snowflakes.component';
     SnowflakesComponent
   ],
   entryComponents: [
-    SnackBarNotificationComponent
+    SnackBarNotificationComponent,
+    ChangeGameDateModalComponent
   ]
 })
 export class HopBasicComponentsModule { }

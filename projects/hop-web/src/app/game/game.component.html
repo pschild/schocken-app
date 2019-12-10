@@ -1,6 +1,7 @@
 <h2>Details zum Spiel</h2>
 <div *ngIf="gameDetails$ | async as gameDetails">
   Datum: {{gameDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
+  <button mat-button (click)="handleChangeDateClick()">Datum ändern</button>
   <div>
     {{gameDetails.rounds.length}} Runde(n)
     <a *ngIf="gameDetails.rounds.length > 0" href="" [routerLink]="['/round', gameDetails.latestRound.id]">Aktuelle Runde fortsetzen</a>

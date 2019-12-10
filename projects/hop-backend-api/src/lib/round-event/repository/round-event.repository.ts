@@ -41,9 +41,14 @@ export class RoundEventRepository {
     );
   }
 
-  findByPlayerIdAndRoundId(playerId: string, roundId: string): Observable<RoundEventDto[]> {
+  findByRoundId(roundId: string): Observable<RoundEventDto[]> {
     return from(this.pouchDb.getAll<RoundEventDto>(`${EntityType.ROUND_EVENT}__${this.pouchDb.toRawId(roundId, EntityType.ROUND)}__${EntityType.ROUND_EVENT}`)).pipe(
-      map((res: GetResponse<RoundEventDto>) => res.rows.map(row => row.doc as RoundEventDto)),
+      map((res: GetResponse<RoundEventDto>) => res.rows.map(row => row.doc as RoundEventDto))
+    );
+  }
+
+  findByPlayerIdAndRoundId(playerId: string, roundId: string): Observable<RoundEventDto[]> {
+    return this.findByRoundId(roundId).pipe(
       map((dtos: RoundEventDto[]) => dtos.filter((dto: RoundEventDto) => dto.playerId === playerId))
     );
   }

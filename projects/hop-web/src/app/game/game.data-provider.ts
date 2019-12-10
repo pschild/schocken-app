@@ -23,7 +23,9 @@ import {
   PlayerDto,
   GameEventDto,
   EventTypeDto,
-  EventTypeContext
+  EventTypeContext,
+  RoundEventRepository,
+  RoundEventDto
 } from '@hop-backend-api';
 import { map, take, switchMap, withLatestFrom, tap, filter } from 'rxjs/operators';
 import { SortService, SortDirection } from '../core/service/sort.service';
@@ -48,6 +50,7 @@ export class GameDataProvider {
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
     private gameEventRepository: GameEventRepository,
+    private roundEventRepository: RoundEventRepository,
     private eventTypeRepository: EventTypeRepository,
     private gameDetailsVoMapperService: GameDetailsVoMapperService,
     private roundListItemVoMapperService: RoundListItemVoMapperService,
@@ -180,5 +183,72 @@ export class GameDataProvider {
 
   private _removeGameEvent(gameEventId: string): Observable<string> {
     return this.gameEventRepository.removeById(gameEventId);
+  }
+
+  changeDate(gameId: string, newDate: Date): void {
+    this.changeDateOfGame(gameId, newDate).pipe(
+        switchMap((updatedGameId: string) => this.gameEventRepository.findByGameId(gameId)),
+        // tslint:disable-next-line:max-line-length
+        switchMap((events: GameEventDto[]) => forkJoin(events.map((event: GameEventDto) => this.changeDateOfGameEvent(event._id, newDate)))),
+        switchMap((gameEventIds: string[]) => this.roundRepository.getRoundsByGameId(gameId)),
+        switchMap((rounds: RoundDto[]) => forkJoin(rounds.map((round: RoundDto) => this.changeDateOfRound(round._id, newDate)))),
+        // tslint:disable-next-line:max-line-length
+        switchMap((updatedRoundIds: string[]) => forkJoin(updatedRoundIds.map((roundId: string) => this.roundEventRepository.findByRoundId(roundId)))),
+        map((roundEventsPerRound: RoundEventDto[][]) => [].concat(...roundEventsPerRound)),
+        // tslint:disable-next-line:max-line-length
+        switchMap((allRoundEvents: RoundEventDto[]) => forkJoin(allRoundEvents.map((event: RoundEventDto) => this.changeDateOfRoundEvent(event._id, newDate))))
+    ).subscribe(() => this.loadGameDetails(gameId));
+  }
+
+  private changeDateOfGame(gameId: string, newDate: Date): Observable<string> {
+    return this.gameRepository.get(gameId).pipe(
+      switchMap((game: GameDto) => {
+        const updatedDate: Date = new Date(game.datetime);
+        updatedDate.setDate(newDate.getDate());
+        updatedDate.setMonth(newDate.getMonth());
+        updatedDate.setFullYear(newDate.getFullYear());
+        return this.gameRepository.update(game._id, { datetime: updatedDate });
+      }),
+      tap((updatedId: string) => console.log(`updated game ${updatedId}`))
+    );
+  }
+
+  private changeDateOfRound(roundId: string, newDate: Date): Observable<string> {
+    return this.roundRepository.get(roundId).pipe(
+      switchMap((round: RoundDto) => {
+        const updatedDate: Date = new Date(round.datetime);
+        updatedDate.setDate(newDate.getDate());
+        updatedDate.setMonth(newDate.getMonth());
+        updatedDate.setFullYear(newDate.getFullYear());
+        return this.roundRepository.update(round._id, { datetime: updatedDate });
+      }),
+      tap((updatedId: string) => console.log(`updated round ${updatedId}`))
+    );
+  }
+
+  private changeDateOfGameEvent(eventId: string, newDate: Date): Observable<string> {
+    return this.gameEventRepository.get(eventId).pipe(
+      switchMap((event: GameEventDto) => {
+        const updatedDate: Date = new Date(event.datetime);
+        updatedDate.setDate(newDate.getDate());
+        updatedDate.setMonth(newDate.getMonth());
+        updatedDate.setFullYear(newDate.getFullYear());
+        return this.gameEventRepository.update(event._id, { datetime: updatedDate });
+      }),
+      tap((updatedId: string) => console.log(`updated game event ${updatedId}`))
+    );
+  }
+
+  private changeDateOfRoundEvent(eventId: string, newDate: Date): Observable<string> {
+    return this.roundEventRepository.get(eventId).pipe(
+      switchMap((event: RoundEventDto) => {
+        const updatedDate: Date = new Date(event.datetime);
+        updatedDate.setDate(newDate.getDate());
+        updatedDate.setMonth(newDate.getMonth());
+        updatedDate.setFullYear(newDate.getFullYear());
+        return this.roundEventRepository.update(event._id, { datetime: updatedDate });
+      }),
+      tap((updatedId: string) => console.log(`updated round event ${updatedId}`))
+    );
   }
 }

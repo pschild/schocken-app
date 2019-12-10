@@ -4,6 +4,9 @@ import { GameDataProvider } from './game.data-provider';
 import { Observable } from 'rxjs';
 import { PlayerSelectionVo, GameEventListItemVo, EventTypeItemVo, EventListItemVo } from '@hop-basic-components';
 import { GameDetailsVo } from './model/game-details.vo';
+import { MatDialog } from '@angular/material';
+import { ChangeGameDateModalComponent } from '@hop-basic-components';
+import { filter, withLatestFrom, take } from 'rxjs/operators';
 
 @Component({
   selector: 'hop-game',
@@ -20,6 +23,7 @@ export class GameComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private dialog: MatDialog,
     private dataProvider: GameDataProvider
   ) { }
 
@@ -45,6 +49,15 @@ export class GameComponent implements OnInit {
 
   onRemoveEvent(eventId: string): void {
     this.dataProvider.handleEventRemoved(eventId);
+  }
+
+  handleChangeDateClick(): void {
+    const dialogRef = this.dialog.open(ChangeGameDateModalComponent);
+    dialogRef.afterClosed().pipe(
+      filter((result) => !!result),
+      withLatestFrom(this.route.params),
+      take(1)
+    ).subscribe(([newDate, params]: [Date, Params]) => this.dataProvider.changeDate(params.gameId, newDate));
   }
 
 }
