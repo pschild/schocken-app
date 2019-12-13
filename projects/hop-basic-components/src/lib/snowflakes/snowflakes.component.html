@@ -3,8 +3,11 @@
     *ngFor="let snowflake of snowflakes"
     [ngStyle]="{
       'left.%': snowflake.left,
-      '-webkit-animation-delay': snowflake.delay + 's,' + snowflake.ka + 's',
-      'animation-delay': snowflake.delay + 's,' + snowflake.ka + 's'
+      'fontSize.em': snowflake.fontSize,
+      '-webkit-animation-delay': snowflake.fallDelay + 's,' + snowflake.shakeDelay + 's',
+      '-webkit-animation-duration': snowflake.fallDuration + 's,' + snowflake.shakeDuration + 's',
+      'animation-delay': snowflake.fallDelay + 's,' + snowflake.shakeDelay + 's',
+      'animation-duration': snowflake.fallDuration + 's,' + snowflake.shakeDuration + 's'
     }"
     class="snowflake"
   >

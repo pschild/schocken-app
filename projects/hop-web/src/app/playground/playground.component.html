@@ -11,14 +11,52 @@
       <mat-form-field class="datepicker">
         <mat-label>Datum und Uhrzeit</mat-label>
         <mat-datetimepicker-toggle [for]="from" matSuffix></mat-datetimepicker-toggle>
-        <mat-datetimepicker #from type="datetime" openOnFocus="true" timeInterval="1" touchUi="true"></mat-datetimepicker>
+        <mat-datetimepicker #from type="datetime" openOnFocus="true" timeInterval="1" touchUi="true">
+        </mat-datetimepicker>
         <input matInput formControlName="from" [matDatetimepicker]="from">
       </mat-form-field>
 
-      <input type="datetime-local" placeholder="Datum & Uhrzeit"/>
-      <input type="date" placeholder="Datum"/>
-      <input type="time" placeholder="Uhrzeit"/>
+      <input type="datetime-local" placeholder="Datum & Uhrzeit" />
+      <input type="date" placeholder="Datum" />
+      <input type="time" placeholder="Uhrzeit" />
     </form>
+
+    <div class="example-container mat-elevation-z8">
+      <table mat-table [dataSource]="dataSource">
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name" sticky>
+          <th mat-header-cell *matHeaderCellDef> Name </th>
+          <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+          <td mat-footer-cell *matFooterCellDef> Total: </td>
+        </ng-container>
+
+        <!-- Position Column -->
+        <ng-container matColumnDef="position">
+          <th mat-header-cell *matHeaderCellDef> No. </th>
+          <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+          <td mat-footer-cell *matFooterCellDef> 42 </td>
+        </ng-container>
+
+        <!-- Weight Column -->
+        <ng-container matColumnDef="weight">
+          <th mat-header-cell *matHeaderCellDef> Weight </th>
+          <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
+          <td mat-footer-cell *matFooterCellDef> 42 </td>
+        </ng-container>
+
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="symbol">
+          <th mat-header-cell *matHeaderCellDef> Symbol </th>
+          <td mat-cell *matCellDef="let element"> {{element.symbol}} </td>
+          <td mat-footer-cell *matFooterCellDef> 42 </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></tr>
+      </table>
+    </div>
 
   </mat-expansion-panel>
 

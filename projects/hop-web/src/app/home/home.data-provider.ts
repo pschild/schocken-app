@@ -20,7 +20,7 @@ export class HomeDataProvider {
   }
 
   getGameList(): Observable<GameListItemVo[]> {
-    return this.gameRepository.findAllIncomplete().pipe(
+    return this.gameRepository.getAll().pipe(
       map((games: GameDto[]) => games.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC))), // sort games
       mergeAll(), // transform [GameDto, GameDto, ...] to GameDto, GameDto, ...
       mergeMap((game: GameDto) => this.roundRepository.getRoundsByGameId(game._id).pipe(

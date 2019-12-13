@@ -9,7 +9,8 @@ import {
   PlayerRepository,
   PlayerDto,
   EventTypeRepository,
-  EventTypeDto
+  EventTypeDto,
+  GameRepository
 } from '@hop-backend-api';
 import { EventTypeItemVo } from '@hop-basic-components';
 import { Router } from '@angular/router';
@@ -23,6 +24,7 @@ export class EventHandlerService {
 
   constructor(
     private router: Router,
+    private gameRepository: GameRepository,
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
     private eventTypeRepository: EventTypeRepository,
@@ -82,7 +84,7 @@ export class EventHandlerService {
   }
 
   private _handlePlayerLostRoundTrigger(currentRound: RoundDto): void {
-    const confirmationResult = confirm(`Neue Runde starten?`);
+    let confirmationResult = confirm(`Neue Runde starten?`);
     if (confirmationResult) {
       this.roundRepository.create({
         gameId: currentRound.gameId,
@@ -92,6 +94,13 @@ export class EventHandlerService {
           return participation;
         })
       }).subscribe((newRoundId: string) => this.router.navigate(['round', newRoundId]));
+    } else {
+      confirmationResult = confirm(`Spiel beenden?`);
+      if (confirmationResult) {
+        this.gameRepository.update(currentRound.gameId, { completed: true }).subscribe(
+          (updatedGameId: string) => this.router.navigate(['home'])
+        );
+      }
     }
   }
 }

@@ -10,7 +10,7 @@ export class SnowflakesComponent implements OnInit {
   private static SNOWFLAKE_COUNT = 25;
   private static FIGURES: string[] = ['❅', '❆'];
 
-  snowflakes: {figure: string, left: number, delay: number, ka: number}[] = [];
+  snowflakes: {figure: string, fontSize: number, left: number, fallDelay: number, shakeDelay: number, fallDuration: number, shakeDuration: number}[] = [];
 
   constructor() { }
 
@@ -18,9 +18,12 @@ export class SnowflakesComponent implements OnInit {
     for (let i = 0; i < SnowflakesComponent.SNOWFLAKE_COUNT; i++) {
       this.snowflakes.push({
         figure: SnowflakesComponent.FIGURES[Math.round(Math.random())],
+        fontSize: Math.floor(Math.random() * (1.5 * 100 - 100) + 100) / 100,
         left: Math.floor(Math.random() * 90) + 1,
-        delay: Math.floor(Math.random() * (15 * 100 - 100) + 100) / 100,
-        ka: Math.floor(Math.random() * (5 * 100 - 100) + 100) / 100
+        fallDelay: Math.floor(Math.random() * (15 * 100 - 100) + 100) / 100,
+        shakeDelay: Math.floor(Math.random() * (1 * 100 - 100) + 100) / 100,
+        fallDuration: (Math.floor(Math.random() * (10 * 100 - 100) + 100) / 100) + 5,
+        shakeDuration: 3
       });
     }
   }

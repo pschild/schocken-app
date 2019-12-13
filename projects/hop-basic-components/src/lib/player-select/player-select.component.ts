@@ -12,12 +12,10 @@ export class PlayerSelectComponent implements OnInit {
   @Input() selectedId: string;
   @Output() playerChange: EventEmitter<string> = new EventEmitter<string>();
 
-  selectedPlayerId: string;
-
   constructor() { }
 
   ngOnInit() {
-    this.selectedPlayerId = this.selectedId || this.playerList[0].id;
+    this.selectedId = this.selectedId || this.playerList[0].id;
   }
 
   onPlayerChange(playerId: string): void {
