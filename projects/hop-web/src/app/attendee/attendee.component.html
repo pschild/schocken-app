@@ -9,7 +9,7 @@
         <div class="list-item" *ngFor="let item of participatingPlayers" cdkDrag [cdkDragData]="item">
             <div class="list-item-content-wrapper">
                 <mat-icon>drag_indicator</mat-icon>
-                {{item.name}} {{item.inGameStatus}}
+                {{item.name}}
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@
         <div class="list-item" *ngFor="let item of otherPlayers" cdkDrag [cdkDragData]="item">
             <div class="list-item-content-wrapper">
                 <mat-icon>drag_indicator</mat-icon>
-                {{item.name}} {{item.inGameStatus}}
+                {{item.name}}
             </div>
         </div>
     </div>
