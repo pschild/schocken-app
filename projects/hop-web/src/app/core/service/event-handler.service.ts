@@ -22,7 +22,7 @@ import {
 } from '@hop-basic-components';
 import { Router } from '@angular/router';
 import { map, concatMap, switchMap, filter, tap } from 'rxjs/operators';
-import { of, forkJoin, EMPTY } from 'rxjs';
+import { of, forkJoin, EMPTY, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -110,22 +110,36 @@ export class EventHandlerService {
       filter((dialogResult: IDialogResult) => dialogResult.result !== DialogResult.ABORT),
       switchMap((dialogResult: IDialogResult) => {
         if (dialogResult.result === DialogResult.NEW_ROUND) {
-          return this.roundRepository.create({
-            gameId: currentRound.gameId,
-            currentPlayerId: currentRound.currentPlayerId,
-            attendeeList: currentRound.attendeeList.map((participation: ParticipationDto) => {
-              participation.inGameStatus = true;
-              return participation;
-            })
-          }).pipe(
+          return this.completeRound(currentRound._id).pipe(
+            switchMap((updatedRoundId: string) => this.createRound(currentRound)),
             map((newRoundId: string) => ['round', newRoundId])
           );
         } else if (dialogResult.result === DialogResult.FINISH_GAME) {
-          return this.gameRepository.update(currentRound.gameId, { completed: true }).pipe(
+          return this.completeRound(currentRound._id).pipe(
+            switchMap((updatedRoundId: string) => this.completeGame(currentRound.gameId)),
             map((updatedGameId: string) => ['home'])
           );
         }
       })
     ).subscribe((redirect: string[]) => this.router.navigate(redirect));
+  }
+
+  private completeRound(roundId: string): Observable<string> {
+    return this.roundRepository.update(roundId, { completed: true });
+  }
+
+  private completeGame(gameId: string): Observable<string> {
+    return this.gameRepository.update(gameId, { completed: true });
+  }
+
+  private createRound(currentRound: RoundDto): Observable<string> {
+    return this.roundRepository.create({
+      gameId: currentRound.gameId,
+      currentPlayerId: currentRound.currentPlayerId,
+      attendeeList: currentRound.attendeeList.map((participation: ParticipationDto) => {
+        participation.inGameStatus = true;
+        return participation;
+      })
+    });
   }
 }

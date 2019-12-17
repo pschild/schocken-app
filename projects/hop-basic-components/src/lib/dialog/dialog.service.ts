@@ -47,7 +47,7 @@ export class DialogService {
 
   openDialog(component: typeof DialogComponent, config: IDialogConfig) {
     const dialogRef = this.dialog.open(component, {
-      width: '50%',
+      width: '80%',
       autoFocus: false,
       panelClass: config.panelClass,
       data: config

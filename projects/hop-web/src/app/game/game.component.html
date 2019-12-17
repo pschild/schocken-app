@@ -4,7 +4,7 @@
   <button mat-button (click)="handleChangeDateClick()">Datum ändern</button>
   <div>
     {{gameDetails.rounds.length}} Runde(n)
-    <a *ngIf="gameDetails.rounds.length > 0" href="" [routerLink]="['/round', gameDetails.latestRound.id]">Aktuelle Runde fortsetzen</a>
+    <a *ngIf="gameDetails.rounds.length > 0 && !(isGameCompleted$ | async)" href="" [routerLink]="['/round', gameDetails.latestRound.id]">Aktuelle Runde fortsetzen</a>
   </div>
 
   <mat-accordion>
@@ -25,14 +25,24 @@
         </mat-panel-title>
       </mat-expansion-panel-header>
 
-      <hop-player-select *ngIf="activePlayers$ | async as activePlayers" [playerList]="activePlayers"
-        (playerChange)="onPlayerChanged($event)"></hop-player-select>
+      <hop-player-select
+        *ngIf="activePlayers$ | async as activePlayers"
+        [playerList]="activePlayers"
+        (playerChange)="onPlayerChanged($event)"
+      ></hop-player-select>
 
-      <hop-event-type-list *ngIf="gameEventTypes$ | async as gameEventTypes" [eventTypes]="gameEventTypes"
-        (add)="onAddEvent($event)"></hop-event-type-list>
+      <hop-event-type-list
+        *ngIf="gameEventTypes$ | async as gameEventTypes"
+        [eventTypes]="gameEventTypes"
+        [disableButtons]="isGameCompleted$ | async"
+        (add)="onAddEvent($event)"
+      ></hop-event-type-list>
 
-      <hop-event-list *ngIf="combinedEvents$ | async as combinedEvents" [events]="combinedEvents"
-        (remove)="onRemoveEvent($event)"></hop-event-list>
+      <hop-event-list
+        *ngIf="combinedEvents$ | async as combinedEvents"
+        [events]="combinedEvents"
+        (remove)="onRemoveEvent($event)"
+      ></hop-event-list>
     </mat-expansion-panel>
   </mat-accordion>
 </div>

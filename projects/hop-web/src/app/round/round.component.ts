@@ -5,7 +5,7 @@ import { RoundDataProvider } from './round.data-provider';
 import { PlayerSelectionVo, RoundEventListItemVo, EventTypeItemVo, EventListItemVo } from '@hop-basic-components';
 import { RoundDetailsVo } from './model/round-details.vo';
 import { MatSlideToggleChange } from '@angular/material';
-import { share } from 'rxjs/operators';
+import { share, map } from 'rxjs/operators';
 
 @Component({
   selector: 'hop-round',
@@ -21,6 +21,7 @@ export class RoundComponent implements OnInit {
 
   attendeeList$: Observable<PlayerSelectionVo[]>;
   isInGame$: Observable<boolean>;
+  isRoundCompleted$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,6 +39,9 @@ export class RoundComponent implements OnInit {
 
     this.attendeeList$ = this.dataProvider.getAttendeeList();
     this.isInGame$ = this.dataProvider.getIsInGame();
+    this.isRoundCompleted$ = this.roundDetails$.pipe(
+      map((round: RoundDetailsVo) => round.completed)
+    );
   }
 
   onPlayerChanged(playerId: string): void {

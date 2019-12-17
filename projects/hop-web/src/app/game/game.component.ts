@@ -6,7 +6,7 @@ import { PlayerSelectionVo, GameEventListItemVo, EventTypeItemVo, EventListItemV
 import { GameDetailsVo } from './model/game-details.vo';
 import { MatDialog } from '@angular/material';
 import { ChangeGameDateModalComponent } from '@hop-basic-components';
-import { filter, withLatestFrom, take } from 'rxjs/operators';
+import { filter, withLatestFrom, take, map } from 'rxjs/operators';
 
 @Component({
   selector: 'hop-game',
@@ -20,6 +20,7 @@ export class GameComponent implements OnInit {
   activePlayers$: Observable<PlayerSelectionVo[]>;
   gameEventTypes$: Observable<EventTypeItemVo[]>;
   combinedEvents$: Observable<EventListItemVo[]>;
+  isGameCompleted$: Observable<boolean>;
 
   constructor(
     private route: ActivatedRoute,
@@ -35,6 +36,9 @@ export class GameComponent implements OnInit {
     this.gameEvents$ = this.dataProvider.getGameEventsState();
     this.gameEventTypes$ = this.dataProvider.getGameEventTypesState();
     this.combinedEvents$ = this.dataProvider.getCombinedGameEventListState();
+    this.isGameCompleted$ = this.gameDetails$.pipe(
+      map((game: GameDetailsVo) => game.completed)
+    );
 
     this.activePlayers$ = this.dataProvider.loadActivePlayers();
   }

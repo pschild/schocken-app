@@ -21,7 +21,7 @@
   <hop-event-type-list
     *ngIf="roundEventTypes$ | async as roundEventTypes"
     [eventTypes]="roundEventTypes"
-    [disableButtons]="!(isInGame$ | async)"
+    [disableButtons]="!(isInGame$ | async) || (isRoundCompleted$ | async)"
     (add)="onAddEvent($event)"
   ></hop-event-type-list>
 </div>
