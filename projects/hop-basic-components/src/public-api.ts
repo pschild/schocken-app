@@ -29,10 +29,15 @@ export * from './lib/event-type-list/model';
 export * from './lib/table-wrapper/IColumnDefinition';
 export * from './lib/table-wrapper/ITableConfig';
 
+export * from './lib/dialog/dialog.enum';
+export * from './lib/dialog/dialog-button-config';
+export * from './lib/dialog/dialog-config';
+
 /**
  * Services
  */
 export * from './lib/dialog/snack-bar-notification/snack-bar-notification.service';
+export * from './lib/dialog/dialog.service';
 
 /**
  * Modals

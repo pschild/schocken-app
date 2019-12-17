@@ -14,6 +14,7 @@ import { EventListComponent } from './event-list/event-list.component';
 import { SnackBarNotificationComponent } from './dialog/snack-bar-notification/snack-bar-notification.component';
 import { SnowflakesComponent } from './snowflakes/snowflakes.component';
 import { ChangeGameDateModalComponent } from './dialog/change-game-date-modal/change-game-date-modal.component';
+import { DialogComponent } from './dialog/dialog.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { ChangeGameDateModalComponent } from './dialog/change-game-date-modal/ch
     EventTypeListComponent,
     EventListComponent,
     SnackBarNotificationComponent,
+    DialogComponent,
     SnowflakesComponent,
     ChangeGameDateModalComponent
   ],
@@ -51,6 +53,7 @@ import { ChangeGameDateModalComponent } from './dialog/change-game-date-modal/ch
   ],
   entryComponents: [
     SnackBarNotificationComponent,
+    DialogComponent,
     ChangeGameDateModalComponent
   ]
 })

@@ -1,7 +1,7 @@
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="'dialog'" [mode]="'over'" [opened]="false">
     <div class="sidenav-wrapper">
-      <mat-toolbar>Menu</mat-toolbar>
+      <mat-toolbar></mat-toolbar>
       <mat-nav-list>
         <a mat-list-item routerLink="/home" routerLinkActive="active">
           <mat-icon matListIcon>home</mat-icon>Home
@@ -41,13 +41,6 @@
         <!-- <app-sync-state></app-sync-state>
         <app-network-state></app-network-state> -->
       </mat-toolbar-row>
-      <!-- <mat-toolbar-row class="navigation-links">
-        <button mat-button routerLink="/home" routerLinkActive="active"><mat-icon>home</mat-icon></button>
-        <button mat-button routerLink="/management/users" routerLinkActive="active"><mat-icon>people</mat-icon></button>
-        <button mat-button routerLink="/management/eventtypes" routerLinkActive="active"><mat-icon>euro_symbol</mat-icon></button>
-        <button mat-button routerLink="/about" routerLinkActive="active"><mat-icon>info</mat-icon></button>
-        <button mat-button routerLink="/playground" routerLinkActive="active"><mat-icon>child_care</mat-icon></button>
-      </mat-toolbar-row> -->
     </mat-toolbar>
     <div class="main-content-container">
       <ng-content></ng-content>

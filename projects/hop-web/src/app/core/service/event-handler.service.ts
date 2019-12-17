@@ -12,10 +12,17 @@ import {
   EventTypeDto,
   GameRepository
 } from '@hop-backend-api';
-import { EventTypeItemVo } from '@hop-basic-components';
+import {
+  SnackBarNotificationService,
+  EventTypeItemVo,
+  DialogService,
+  IDialogResult,
+  DialogResult,
+  LOST_EVENT_BUTTON_CONFIG
+} from '@hop-basic-components';
 import { Router } from '@angular/router';
-import { map, concatMap, switchMap, filter } from 'rxjs/operators';
-import { of, forkJoin } from 'rxjs';
+import { map, concatMap, switchMap, filter, tap } from 'rxjs/operators';
+import { of, forkJoin, EMPTY } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +35,9 @@ export class EventHandlerService {
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
     private eventTypeRepository: EventTypeRepository,
-    private roundEventRepository: RoundEventRepository
+    private roundEventRepository: RoundEventRepository,
+    private snackBarNotificationService: SnackBarNotificationService,
+    private dialogService: DialogService
   ) { }
 
   handleRoundEvent(eventType: EventTypeItemVo, currentRound: RoundDto): void {
@@ -58,13 +67,19 @@ export class EventHandlerService {
       // show confirmation, wait for the user to accept or decline
       concatMap((playersToPunish: PlayerDto[]) => {
         const playerNames = playersToPunish.map((player: PlayerDto) => player.name);
-        const confirmed = confirm(`Schock-Aus-Strafe wird an folgende Spieler verteilt: ${playerNames.join(',')}`);
-        return forkJoin(of(playersToPunish), of(confirmed));
+        if (playerNames.length === 0) {
+          return EMPTY;
+        }
+        const confirmation$ = this.dialogService.showYesNoDialog({
+          title: '',
+          message: `Sollen die folgenden Spieler automatisch eine Schock-Aus-Strafe erhalten? ${playerNames.join(', ')}`
+        });
+        return forkJoin(of(playersToPunish), confirmation$);
       }),
       // only go on if the user confirmed
-      filter(([playersToPunish, confirmed]: [PlayerDto[], boolean]) => !!confirmed),
+      filter(([playersToPunish, confirmation]: [PlayerDto[], IDialogResult]) => confirmation.result === DialogResult.YES),
       // find the event type with type "SCHOCK_AUS_PENALTY" dynamically (instead of using a static id)
-      switchMap(([playersToPunish, confirmed]: [PlayerDto[], boolean]) => {
+      switchMap(([playersToPunish, confirmation]: [PlayerDto[], IDialogResult]) => {
         return forkJoin(of(playersToPunish), this.eventTypeRepository.findByTrigger(EventTypeTrigger.SCHOCK_AUS_PENALTY));
       }),
       // create an according round event for the specified players
@@ -80,27 +95,37 @@ export class EventHandlerService {
           }))
         );
       })
-    ).subscribe((createdEventIds: string[]) => alert(`Es wurden ${createdEventIds.length} Schock-Aus-Strafe(n) verteilt.`));
+    ).subscribe((createdEventIds: string[]) => {
+      this.snackBarNotificationService.showMessage(`Es wurden ${createdEventIds.length} Schock-Aus-Strafe(n) verteilt.`);
+    });
   }
 
-  private _handlePlayerLostRoundTrigger(currentRound: RoundDto): void {
-    let confirmationResult = confirm(`Neue Runde starten?`);
-    if (confirmationResult) {
-      this.roundRepository.create({
-        gameId: currentRound.gameId,
-        currentPlayerId: currentRound.currentPlayerId,
-        attendeeList: currentRound.attendeeList.map((participation: ParticipationDto) => {
-          participation.inGameStatus = true;
-          return participation;
-        })
-      }).subscribe((newRoundId: string) => this.router.navigate(['round', newRoundId]));
-    } else {
-      confirmationResult = confirm(`Spiel beenden?`);
-      if (confirmationResult) {
-        this.gameRepository.update(currentRound.gameId, { completed: true }).subscribe(
-          (updatedGameId: string) => this.router.navigate(['home'])
-        );
-      }
-    }
+  private async _handlePlayerLostRoundTrigger(currentRound: RoundDto): Promise<void> {
+    const currentPlayer: PlayerDto = await this.playerRepository.get(currentRound.currentPlayerId).toPromise();
+    this.dialogService.showYesNoDialog({
+      title: '',
+      message: `${currentPlayer.name} hat verloren. Wie soll's weitergehen?`,
+      buttonConfig: LOST_EVENT_BUTTON_CONFIG
+    }).pipe(
+      filter((dialogResult: IDialogResult) => dialogResult.result !== DialogResult.ABORT),
+      switchMap((dialogResult: IDialogResult) => {
+        if (dialogResult.result === DialogResult.NEW_ROUND) {
+          return this.roundRepository.create({
+            gameId: currentRound.gameId,
+            currentPlayerId: currentRound.currentPlayerId,
+            attendeeList: currentRound.attendeeList.map((participation: ParticipationDto) => {
+              participation.inGameStatus = true;
+              return participation;
+            })
+          }).pipe(
+            map((newRoundId: string) => ['round', newRoundId])
+          );
+        } else if (dialogResult.result === DialogResult.FINISH_GAME) {
+          return this.gameRepository.update(currentRound.gameId, { completed: true }).pipe(
+            map((updatedGameId: string) => ['home'])
+          );
+        }
+      })
+    ).subscribe((redirect: string[]) => this.router.navigate(redirect));
   }
 }
