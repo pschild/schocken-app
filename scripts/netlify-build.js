@@ -8,4 +8,4 @@ const configJson = {
   LOCAL_DATABASE: 'schocken-local-prod'
 };
 
-fs.writeFileSync('./src/environments/db-config.prod.json', JSON.stringify(configJson));
+fs.writeFileSync('../projects/hop-web/src/environments/db-config.prod.json', JSON.stringify(configJson));
