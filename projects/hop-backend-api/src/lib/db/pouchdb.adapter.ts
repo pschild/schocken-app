@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import PouchDB from 'pouchdb';
 import * as PouchDBFind from 'pouchdb-find';
 import pouchdbDebug from 'pouchdb-debug';
-// import { AppConfigProvider } from '../config/app-config.provider';
 import { from, Observable, forkJoin, of } from 'rxjs';
 import { EntityDto, EntityType } from '../entity';
 import { PutResponse } from './model/put-response.model';
 import { GetResponse } from './model/get-response.model';
 import { RemoveResponse } from './model/remove-response.model';
+import { DB_CONFIG } from '../hop-backend-api.module';
 
 // @see https://www.npmjs.com/package/pouchdb-find
 PouchDB.plugin((PouchDBFind as any).default || PouchDBFind);
@@ -22,13 +22,13 @@ export class PouchDbAdapter {
 
   private instance;
 
-  constructor(/*private appConfig: AppConfigProvider*/) { }
+  constructor(@Inject(DB_CONFIG) private dbConfig) { }
 
   initialize(): Observable<any> {
     if (this.instance) {
       throw new Error(`PouchDB already initialized`);
     }
-    this.instance = new PouchDB(/*this.appConfig.config.COUCHDB_DATABASE*/'dummy', { auto_compaction: true });
+    this.instance = new PouchDB(this.dbConfig.LOCAL_DATABASE, { auto_compaction: true });
 
     // to find a round or event by its gameId
     /* const findByGameIdIndex = this.instance.createIndex({

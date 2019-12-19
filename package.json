@@ -1,6 +1,6 @@
 {
   "name": "schocken-app",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,11 +8,12 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "prestart": "node version.js",
-    "prebuild": "node version.js",
+    "prestart": "node scripts/version.js",
+    "prebuild": "node scripts/version.js",
     "build:prod": "npm run build -- --prod --aot",
     "build:all": "npm run build:libraries && npm run build",
     "build:all:prod": "npm run build:libraries && npm run build:prod",
+    "build:netlify": "node scripts/netlify-build.js && npm run build:all:prod",
     "build:libraries": "npm run build:hop-backend-api && npm run build:hop-basic-components",
     "build:hop-basic-components": "ng build hop-basic-components",
     "build:hop-backend-api": "ng build hop-backend-api",

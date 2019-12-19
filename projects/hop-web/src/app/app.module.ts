@@ -8,7 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { appInitializerFn } from './initialization/bootstrap';
-import { PouchDbAdapter } from '@hop-backend-api';
+import { DB_CONFIG, PouchDbAdapter } from '@hop-backend-api';
 import { VERSION, COMMIT_SHA, COMMIT_DATE } from '../environments/version';
 
 @NgModule({
@@ -27,7 +27,11 @@ import { VERSION, COMMIT_SHA, COMMIT_DATE } from '../environments/version';
       provide: APP_INITIALIZER,
       useFactory: appInitializerFn,
       multi: true,
-      deps: [/*AppConfigProvider, */PouchDbAdapter, Injector]
+      deps: [PouchDbAdapter, Injector]
+    },
+    {
+      provide: DB_CONFIG,
+      useValue: environment.dbConfig
     },
     {
       provide: 'version',

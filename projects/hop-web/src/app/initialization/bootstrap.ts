@@ -6,19 +6,19 @@ import { switchMap } from 'rxjs/operators';
 import { PouchDbAdapter } from '@hop-backend-api';
 
 export const appInitializerFn = (/*appConfig: AppConfigProvider, */pouchDb: PouchDbAdapter, injector: Injector) => {
-    return () => loadConfig(/*appConfig*/).pipe(
-        switchMap(result => initializeDatabase(pouchDb)),
-        // switchMap(result => checkForAppUpdate(injector))
-    ).toPromise();
+  return () => loadConfig(/*appConfig*/).pipe(
+    switchMap(result => initializeDatabase(pouchDb)),
+    // switchMap(result => checkForAppUpdate(injector))
+  ).toPromise();
 };
 
 const loadConfig = (/*appConfig: AppConfigProvider*/): Observable<any> => {
-    // return appConfig.loadAppConfig();
-    return of({});
+  // return appConfig.loadAppConfig();
+  return of({});
 };
 
 const initializeDatabase = (pouchDb: PouchDbAdapter): Observable<any> => {
-    return pouchDb.initialize();
+  return pouchDb.initialize();
 };
 
 /*const checkForAppUpdate = (injector: Injector): Observable<any> => {
