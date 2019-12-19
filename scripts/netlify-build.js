@@ -1,4 +1,5 @@
-const fs = require('fs');
+const { resolve } = require('path');
+const { writeFileSync } = require('fs-extra');
 
 const configJson = {
   REMOTE_URL: process.env.REMOTE_URL,
@@ -8,4 +9,7 @@ const configJson = {
   LOCAL_DATABASE: 'schocken-local-prod'
 };
 
-fs.writeFileSync('../projects/hop-web/src/environments/db-config.prod.json', JSON.stringify(configJson));
+const file = resolve(__dirname, '..', 'projects', 'hop-web', 'src', 'environments', 'db-config.prod.json');
+writeFileSync(file, JSON.stringify(configJson), { encoding: 'utf-8' });
+
+console.log(`Wrote db config info to ${resolve(__dirname, '..', 'projects', 'hop-web', 'src', 'environments', 'db-config.prod.json')}`);
