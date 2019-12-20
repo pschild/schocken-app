@@ -1,6 +1,12 @@
-<button (click)="onCancelClick()">Abbrechen</button>
-<button *ngIf="roundId$ | async" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">Speichern und Runde fortsetzen</button>
-<button *ngIf="!(roundId$ | async)" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">Spiel starten</button>
+<button mat-button (click)="onCancelClick()">Zurück</button>
+<button *ngIf="roundId$ | async" mat-raised-button color="primary" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">
+        <mat-icon>check</mat-icon>
+        Speichern und Runde fortsetzen
+    </button>
+    <button *ngIf="!(roundId$ | async)" mat-raised-button color="primary" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">
+        <mat-icon>check</mat-icon>
+        Spiel starten
+    </button>
 
 <h2>Teilnehmer</h2>
 <div class="list-container">
@@ -28,6 +34,12 @@
     </div>
 </div>
 
-<button (click)="onCancelClick()">Abbrechen</button>
-<button *ngIf="roundId$ | async" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">Speichern und Runde fortsetzen</button>
-<button *ngIf="!(roundId$ | async)" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">Spiel starten</button>
+<button mat-button (click)="onCancelClick()">Zurück</button>
+<button *ngIf="roundId$ | async" mat-raised-button color="primary" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">
+    <mat-icon>check</mat-icon>
+    Speichern und Runde fortsetzen
+</button>
+<button *ngIf="!(roundId$ | async)" mat-raised-button color="primary" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">
+    <mat-icon>check</mat-icon>
+    Spiel starten
+</button>

@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import PouchDB from 'pouchdb';
 import { Subject } from 'rxjs';
-import { DB_CONFIG } from '@hop-backend-api';
+import { ENV } from '@hop-backend-api';
 
 export enum SyncType {
   ACTIVE = 'active',
@@ -30,11 +30,11 @@ export class SyncService {
   private activeFlag = false;
   private changeFlag = false;
 
-  constructor(@Inject(DB_CONFIG) private dbConfig) { }
+  constructor(@Inject(ENV) private env) { }
 
   startSync(continuous: boolean = false) {
     this.syncProcess = PouchDB.sync(
-      this.dbConfig.LOCAL_DATABASE,
+      this.env.LOCAL_DATABASE,
       this._buildRemoteDbUrl(),
       { live: continuous, retry: continuous }
     )
@@ -79,10 +79,10 @@ export class SyncService {
   }
 
   private _buildRemoteDbUrl() {
-    const user = this.dbConfig.REMOTE_USER;
-    const password = this.dbConfig.REMOTE_PASSWORD;
-    const remoteUrl = this.dbConfig.REMOTE_URL;
-    const remoteDbName = this.dbConfig.REMOTE_DATABASE;
+    const user = this.env.REMOTE_USER;
+    const password = this.env.REMOTE_PASSWORD;
+    const remoteUrl = this.env.REMOTE_URL;
+    const remoteDbName = this.env.REMOTE_DATABASE;
     return `https://${user}:${password}@${remoteUrl}/${remoteDbName}`;
   }
 }

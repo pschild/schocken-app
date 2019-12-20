@@ -1,2 +1,5 @@
-<button (click)="onNewGameClicked()">Neues Spiel starten</button>
+<button mat-raised-button color="primary" (click)="onNewGameClicked()">
+  <mat-icon>add</mat-icon>
+  Neues Spiel starten
+</button>
 <hop-game-list *ngIf="gameListItems$ | async as gameListItems" [gameListItems]="gameListItems"></hop-game-list>

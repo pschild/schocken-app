@@ -7,7 +7,7 @@
 
         <div fxLayout="row">
           <mat-form-field>
-            <input matInput placeholder="Name" formControlName="name">
+            <input matInput placeholder="Name" formControlName="name" required>
           </mat-form-field>
         </div>
 
@@ -21,7 +21,7 @@
     <mat-card-actions>
       <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="10px">
         <button mat-button (click)="navigateBack()">Abbrechen</button>
-        <button type="submit" mat-raised-button color="primary">Speichern</button>
+        <button type="submit" mat-raised-button color="primary" [disabled]="!form.valid">Speichern</button>
       </div>
     </mat-card-actions>
   </mat-card>

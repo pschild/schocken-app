@@ -47,4 +47,4 @@ Thumbs.db
 
 # Project specifics
 version.ts
-db-config.*.json
+env.*.json

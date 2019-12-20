@@ -1,8 +1,8 @@
-import dbConfig from './db-config.dev.json';
+import env from './env.dev.json';
 
 export const environment = {
   production: false,
-  dbConfig
+  env
 };
 
 /*

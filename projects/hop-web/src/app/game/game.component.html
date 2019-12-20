@@ -8,17 +8,7 @@
   </div>
 
   <mat-accordion>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Runden
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <hop-round-list [roundListItems]="gameDetails.rounds"></hop-round-list>
-    </mat-expansion-panel>
-
-    <mat-expansion-panel>
+    <mat-expansion-panel [expanded]="true">
       <mat-expansion-panel-header>
         <mat-panel-title>
           Feststellungen
@@ -43,6 +33,15 @@
         [events]="combinedEvents"
         (remove)="onRemoveEvent($event)"
       ></hop-event-list>
+    </mat-expansion-panel>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Runden
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <hop-round-list [roundListItems]="gameDetails.rounds"></hop-round-list>
     </mat-expansion-panel>
   </mat-accordion>
 </div>

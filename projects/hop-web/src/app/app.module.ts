@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, APP_INITIALIZER, Injector } from '@angular/core';
+import { NgModule, APP_INITIALIZER, Injector, ErrorHandler } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -8,8 +8,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { appInitializerFn } from './initialization/bootstrap';
-import { DB_CONFIG, PouchDbAdapter } from '@hop-backend-api';
+import { ENV, PouchDbAdapter } from '@hop-backend-api';
 import { VERSION, COMMIT_SHA, COMMIT_DATE } from '../environments/version';
+import { GlobalErrorHandler, RollbarService, rollbarFactory } from './core/global-error-handler';
 
 @NgModule({
   declarations: [
@@ -30,8 +31,16 @@ import { VERSION, COMMIT_SHA, COMMIT_DATE } from '../environments/version';
       deps: [PouchDbAdapter, Injector]
     },
     {
-      provide: DB_CONFIG,
-      useValue: environment.dbConfig
+      provide: ENV,
+      useValue: environment.env
+    },
+    {
+      provide: RollbarService,
+      useFactory: rollbarFactory
+    },
+    {
+      provide: ErrorHandler,
+      useClass: GlobalErrorHandler
     },
     {
       provide: 'version',

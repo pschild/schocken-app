@@ -7,7 +7,7 @@ import { EntityDto, EntityType } from '../entity';
 import { PutResponse } from './model/put-response.model';
 import { GetResponse } from './model/get-response.model';
 import { RemoveResponse } from './model/remove-response.model';
-import { DB_CONFIG } from '../hop-backend-api.module';
+import { ENV } from '../hop-backend-api.module';
 
 // @see https://www.npmjs.com/package/pouchdb-find
 PouchDB.plugin((PouchDBFind as any).default || PouchDBFind);
@@ -22,13 +22,13 @@ export class PouchDbAdapter {
 
   private instance;
 
-  constructor(@Inject(DB_CONFIG) private dbConfig) { }
+  constructor(@Inject(ENV) private env) { }
 
   initialize(): Observable<any> {
     if (this.instance) {
       throw new Error(`PouchDB already initialized`);
     }
-    this.instance = new PouchDB(this.dbConfig.LOCAL_DATABASE, { auto_compaction: true });
+    this.instance = new PouchDB(this.env.LOCAL_DATABASE, { auto_compaction: true });
 
     // to find a round or event by its gameId
     /* const findByGameIdIndex = this.instance.createIndex({

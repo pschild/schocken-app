@@ -1,11 +1,17 @@
 <div *ngIf="roundDetails$ | async as roundDetails">
-    <a href="" [routerLink]="['/attendees', roundDetails.id]">Teilnehmer bearbeiten</a>
-    gestartet: {{roundDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
+    <button mat-stroked-button color="primary" [routerLink]="['/attendees', roundDetails.id]">
+      <mat-icon>people</mat-icon>
+      Teilnehmer bearbeiten
+    </button>
 
     <div>
-      <a *ngIf="roundDetails.previousRoundId" href="" [routerLink]="['/round', roundDetails.previousRoundId]"><</a>
-      <span>Runde {{roundDetails.roundIndex}}</span>
-      <a *ngIf="roundDetails.nextRoundId" href="" [routerLink]="['/round', roundDetails.nextRoundId]">></a>
+      <button mat-button [routerLink]="['/round', roundDetails.previousRoundId]" [disabled]="!roundDetails.previousRoundId">
+        <mat-icon>navigate_before</mat-icon>
+      </button>
+      <span>Runde {{roundDetails.roundIndex}}, {{roundDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr</span>
+      <button mat-button [routerLink]="['/round', roundDetails.nextRoundId]" [disabled]="!roundDetails.nextRoundId">
+        <mat-icon>navigate_next</mat-icon>
+      </button>
     </div>
 
     <hop-player-select
@@ -17,7 +23,7 @@
 </div>
 
 <div>
-  <mat-slide-toggle [checked]="isInGame$ | async" (change)="onInGameStatusChanged($event)">im Spiel</mat-slide-toggle>
+  <mat-slide-toggle [checked]="isInGame$ | async" (change)="onInGameStatusChanged($event)" [disabled]="isRoundCompleted$ | async">im Spiel</mat-slide-toggle>
   <hop-event-type-list
     *ngIf="roundEventTypes$ | async as roundEventTypes"
     [eventTypes]="roundEventTypes"

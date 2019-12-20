@@ -34,7 +34,8 @@ import {
   MatRadioModule,
   MatCheckboxModule,
   MatTabsModule,
-  MatProgressSpinnerModule
+  MatProgressSpinnerModule,
+  MAT_SNACK_BAR_DEFAULT_OPTIONS
 } from '@angular/material';
 import { MatDatetimepickerModule, MatNativeDatetimeModule } from '@mat-datetimepicker/core';
 
@@ -89,6 +90,7 @@ const materialModules = [
     ...materialDatetimePickerModules
   ],
   providers: [
+    { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 4000 } },
     { provide: MatPaginatorIntl, useClass: MatPaginatorIntlCustom },
     { provide: MAT_DATE_LOCALE, useValue: 'de-DE' }
   ]

@@ -1,9 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ITableConfig, IColumnInterface } from '@hop-basic-components';
+import {
+  ITableConfig,
+  IColumnInterface,
+  DialogService,
+  DialogResult,
+  IDialogResult,
+  SnackBarNotificationService
+} from '@hop-basic-components';
 import { PlayerManagementDataProvider } from '../player-management.data-provider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlayerTableItemVo } from './model/player-table-item.vo';
+import { switchMap, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'hop-player-list',
@@ -15,15 +23,10 @@ export class PlayerListComponent implements OnInit {
   allPlayers$: Observable<PlayerTableItemVo[]>;
 
   tableConfig: ITableConfig = {
-    enablePaging: true,
+    enablePaging: false,
     enableSorting: true
   };
   columns: IColumnInterface[] = [
-    {
-      columnDef: 'id',
-      header: 'ID',
-      cellContent: (element: PlayerTableItemVo) => `${element.id}`
-    },
     {
       columnDef: 'name',
       header: 'Name',
@@ -49,6 +52,8 @@ export class PlayerListComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private dialogService: DialogService,
+    private snackBarNotificationService: SnackBarNotificationService,
     private playerManagementDataProvider: PlayerManagementDataProvider
   ) { }
 
@@ -61,8 +66,14 @@ export class PlayerListComponent implements OnInit {
   }
 
   remove(player: PlayerTableItemVo) {
-    // TODO: NOTIFICATION + SNACKBAR
-    this.playerManagementDataProvider.removeById(player.id).subscribe((id: string) => {
+    this.dialogService.showYesNoDialog({
+      title: '',
+      message: `Soll der Spieler ${player.name} wirklich gelöscht werden?`
+    }).pipe(
+      filter((dialogResult: IDialogResult) => dialogResult.result === DialogResult.YES),
+      switchMap((dialogResult: IDialogResult) => this.playerManagementDataProvider.removeById(player.id))
+    ).subscribe((id: string) => {
+      this.snackBarNotificationService.showMessage(`Spieler ${player.name} wurde gelöscht.`);
       this.allPlayers$ = this.playerManagementDataProvider.getAll();
     });
   }

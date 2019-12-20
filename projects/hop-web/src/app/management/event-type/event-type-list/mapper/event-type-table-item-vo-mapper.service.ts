@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { EventTypeDto } from '@hop-backend-api';
+import { EventTypeDto, EventTypeContext } from '@hop-backend-api';
 import { EventTypeTableItemVo } from '../model/event-type-table-item.vo';
 
 @Injectable({
@@ -11,7 +11,8 @@ export class EventTypeTableItemVoMapperService {
     const vo = new EventTypeTableItemVo();
     vo.id = input._id;
     vo.description = input.description;
-    vo.context = input.context;
+    vo.contextLabel = input.context === EventTypeContext.GAME ? 'Spiel' : 'Runde';
+    vo.penaltyLabel = input.penalty ? `${input.penalty.value} ${input.penalty.unit}` : '';
     return vo;
   }
 
