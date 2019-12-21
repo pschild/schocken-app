@@ -11,6 +11,19 @@
     <mat-expansion-panel [expanded]="true">
       <mat-expansion-panel-header>
         <mat-panel-title>
+          Runden
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div *ngIf="gameDetails.rounds.length === 0">
+        <div>Noch keine Runden in diesem Spiel</div>
+        <button mat-raised-button color="primary" [routerLink]="['/attendees']" [queryParams]="{ gameId: gameDetails.id }">Erste Runde starten</button>
+      </div>
+      <hop-round-list *ngIf="gameDetails.rounds.length > 0" [roundListItems]="gameDetails.rounds"></hop-round-list>
+    </mat-expansion-panel>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
           Feststellungen
         </mat-panel-title>
       </mat-expansion-panel-header>
@@ -33,15 +46,6 @@
         [events]="combinedEvents"
         (remove)="onRemoveEvent($event)"
       ></hop-event-list>
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Runden
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <hop-round-list [roundListItems]="gameDetails.rounds"></hop-round-list>
     </mat-expansion-panel>
   </mat-accordion>
 </div>

@@ -24,14 +24,24 @@ export class HomeDataProvider {
       map((games: GameDto[]) => games.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC))), // sort games
       mergeAll(), // transform [GameDto, GameDto, ...] to GameDto, GameDto, ...
       mergeMap((game: GameDto) => this.roundRepository.getRoundsByGameId(game._id).pipe(
-        filter((rounds: RoundDto[]) => rounds.length > 0),
+        // filter((rounds: RoundDto[]) => rounds.length > 0),
         map((rounds: RoundDto[]) => rounds.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.DESC))), // sort rounds
-        map((rounds: RoundDto[]) => [game, rounds.length, rounds[0]])
+        map((rounds: RoundDto[]) => [game, rounds.length, rounds[0] || null])
       )),
       map(
-        ([game, roundCount, round]: [GameDto, number, RoundDto]) => this.gameListItemVoMapperService.mapToVo(game, round._id, roundCount)
+        ([game, roundCount, round]: [GameDto, number, RoundDto]) => {
+          let roundId;
+          if (round) {
+            roundId = round._id;
+          }
+          return this.gameListItemVoMapperService.mapToVo(game, roundId, roundCount);
+        }
       ), // create Vos
       toArray() // transform GameListItemVo, GameListItemVo, ... => [GameListItemVo, GameListItemVo, ...]
     );
+  }
+
+  createGame(): Observable<string> {
+    return this.gameRepository.create();
   }
 }

@@ -1,21 +1,20 @@
-<ul>
-  <li *ngFor="let event of events">
-    {{event.description}}
-    <span *ngIf="event.penaltyValue">{{event.penaltyValue | number:'1.2'}} {{event.penaltyUnit}}</span>
-    {{event.datetime | date:'dd.MM.yyyy HH:mm'}}
-    <button mat-icon-button color="warn" (click)="removeEvent(event)">
-        <mat-icon>delete</mat-icon>
-    </button>
-  </li>
-</ul>
+<div *ngFor="let event of events" class="event-container">
+  {{event.description}}
+  <span *ngIf="event.penaltyValue">{{event.penaltyValue | number:'1.2'}} {{event.penaltyUnit}}</span>
+  <button mat-icon-button color="warn" (click)="removeEvent(event)">
+      <mat-icon>delete</mat-icon>
+  </button>
+</div>
+
+<mat-divider></mat-divider>
 
 <div *ngIf="getSumsPerUnit(events) as unitSums">
-  Gesamt:
-  <ul *ngIf="unitSums.length > 0; else noPenalties">
-    <li *ngFor="let unitSum of unitSums">
+  <strong>Gesamt</strong>
+  <div *ngIf="unitSums.length > 0; else noPenalties">
+    <div *ngFor="let unitSum of unitSums">
       {{unitSum.sum | number:'1.2'}} {{unitSum.unit}}
-    </li>
-  </ul>
+    </div>
+  </div>
   <ng-template #noPenalties>
     <div>
       Keine Strafen vorhanden

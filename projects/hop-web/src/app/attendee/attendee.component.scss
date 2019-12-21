@@ -16,6 +16,14 @@
   border-radius: 4px;
   overflow: hidden;
   display: block;
+
+  &:empty:after {
+    content: "Spieler hierher verschieben";
+    color: rgba(0,0,0,.54);
+    display: block;
+    text-align: center;
+    padding-top: 20px;
+  }
 }
 
 .list-item {

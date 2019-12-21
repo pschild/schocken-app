@@ -24,4 +24,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 }
 
+.info-box {
+  display: flex;
+  align-items: center;
+  border: #ccc 1px solid;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 20px 0;
+
+  .info-text {
+    margin-left: 10px;
+  }
+}
+
 @import './styles/schocken-app-theme';

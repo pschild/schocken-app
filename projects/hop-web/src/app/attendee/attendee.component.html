@@ -1,14 +1,19 @@
 <button mat-button (click)="onCancelClick()">Zurück</button>
 <button *ngIf="roundId$ | async" mat-raised-button color="primary" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">
-        <mat-icon>check</mat-icon>
-        Speichern und Runde fortsetzen
-    </button>
-    <button *ngIf="!(roundId$ | async)" mat-raised-button color="primary" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">
-        <mat-icon>check</mat-icon>
-        Spiel starten
-    </button>
+    <mat-icon>check</mat-icon>
+    Speichern und Runde fortsetzen
+</button>
+<button *ngIf="!(roundId$ | async)" mat-raised-button color="primary" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">
+    <mat-icon>check</mat-icon>
+    Spiel starten
+</button>
 
-<h2>Teilnehmer</h2>
+<div class="info-box">
+    <mat-icon>info</mat-icon>
+    <div class="info-text">Bestimme die teilnehmenden Spieler und deren Reihenfolge per Drag & Drop</div>
+</div>
+
+<h2>Teilnehmer der Runde</h2>
 <div class="list-container">
     <div cdkDropList #participatingList="cdkDropList" [cdkDropListData]="participatingPlayers"
         [cdkDropListConnectedTo]="[otherList]" class="list" (cdkDropListDropped)="dropOnParticipating($event)">

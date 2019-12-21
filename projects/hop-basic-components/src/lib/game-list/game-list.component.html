@@ -1,22 +1,19 @@
 <h2>Laufende Spiele</h2>
-<ul>
-  <li *ngFor="let game of activeGames">
-    {{ game.datetime | date:'dd.MM.yyyy HH:mm:ss.SSS' }} Uhr, {{ game.roundCount }} Runde(n)
-    <button mat-stroked-button color="primary" [routerLink]="['/game', game.id]">
-      <mat-icon>remove_red_eye</mat-icon>
-    </button>
-    <button mat-stroked-button color="primary" [routerLink]="['/round', game.currentRoundId]">
-      <mat-icon>play_circle_outline</mat-icon>
-    </button>
-  </li>
-</ul>
+<div *ngFor="let game of activeGames">
+  {{ game.datetime | date:'dd.MM.yyyy HH:mm' }} Uhr, {{ game.roundCount }} Runde(n)
+  <button mat-stroked-button color="primary" [routerLink]="['/game', game.id]">
+    <mat-icon>remove_red_eye</mat-icon>
+  </button>
+  <button *ngIf="game.currentRoundId" mat-stroked-button color="primary" [routerLink]="['/round', game.currentRoundId]">
+    <mat-icon>play_circle_outline</mat-icon>
+    fortsetzen
+  </button>
+</div>
 
 <h2>Historie</h2>
-<ul>
-  <li *ngFor="let game of completedGames">
-    {{ game.datetime | date:'dd.MM.yyyy HH:mm:ss.SSS' }} Uhr, {{ game.roundCount }} Runde(n)
-    <button mat-stroked-button color="primary" [routerLink]="['/game', game.id]">
-      <mat-icon>remove_red_eye</mat-icon>
-    </button>
-  </li>
-</ul>
+<div *ngFor="let game of completedGames">
+  {{ game.datetime | date:'dd.MM.yyyy HH:mm' }} Uhr, {{ game.roundCount }} Runde(n)
+  <button mat-stroked-button color="primary" [routerLink]="['/game', game.id]">
+    <mat-icon>remove_red_eye</mat-icon>
+  </button>
+</div>

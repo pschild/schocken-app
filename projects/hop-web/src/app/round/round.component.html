@@ -8,7 +8,7 @@
       <button mat-button [routerLink]="['/round', roundDetails.previousRoundId]" [disabled]="!roundDetails.previousRoundId">
         <mat-icon>navigate_before</mat-icon>
       </button>
-      <span>Runde {{roundDetails.roundIndex}}, {{roundDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr</span>
+      <span>Runde {{roundDetails.roundIndex}}</span>
       <button mat-button [routerLink]="['/round', roundDetails.nextRoundId]" [disabled]="!roundDetails.nextRoundId">
         <mat-icon>navigate_next</mat-icon>
       </button>

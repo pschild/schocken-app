@@ -1,6 +1,10 @@
-<li *ngFor="let roundItem of roundListItems; let i = index">
-  Runde {{ roundListItems.length - i }}, {{ roundItem.datetime | date:'dd.MM.yyyy HH:mm:ss.SSS' }} Uhr
-  <button mat-stroked-button color="primary" [routerLink]="['/round', roundItem.id]">
+<div *ngFor="let roundItem of roundListItems; let i = index">
+  Runde {{ roundListItems.length - i }}, {{ roundItem.datetime | date:'dd.MM.yyyy HH:mm' }} Uhr
+  <button *ngIf="roundItem.completed" mat-stroked-button color="primary" [routerLink]="['/round', roundItem.id]">
     <mat-icon>remove_red_eye</mat-icon>
   </button>
-</li>
+  <button *ngIf="!roundItem.completed" mat-stroked-button color="primary" [routerLink]="['/round', roundItem.id]">
+    <mat-icon>play_circle_outline</mat-icon>
+    fortsetzen
+  </button>
+</div>

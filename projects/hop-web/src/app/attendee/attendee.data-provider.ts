@@ -24,10 +24,6 @@ export class AttendeeDataProvider {
   ) {
   }
 
-  createGame(): Observable<string> {
-    return this.gameRepository.create();
-  }
-
   createRound(gameId: string, currentPlayerId: string, attendeeList: ParticipationDto[]): Observable<string> {
     return this.roundRepository.create({ gameId, currentPlayerId, attendeeList });
   }

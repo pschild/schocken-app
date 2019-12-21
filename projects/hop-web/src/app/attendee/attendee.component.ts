@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { AttendeeDataProvider } from './attendee.data-provider';
-import { Observable, forkJoin, of, combineLatest } from 'rxjs';
+import { Observable, of, combineLatest } from 'rxjs';
 import { map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { AttendeeItemVo } from './model/attendee-item.vo';
@@ -16,6 +16,7 @@ import { ParticipationDto } from '@hop-backend-api';
 export class AttendeeComponent implements OnInit {
 
   roundId$: Observable<string>;
+  gameId$: Observable<string>;
   allPlayers$: Observable<AttendeeItemVo[]>;
   roundAttendees$: Observable<RoundAttendeesVo>;
 
@@ -29,6 +30,9 @@ export class AttendeeComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.gameId$ = this.route.queryParams.pipe(
+      map((params: Params) => params.gameId)
+    );
     this.roundId$ = this.route.params.pipe(
       map((params: Params) => params.roundId)
     );
@@ -67,14 +71,16 @@ export class AttendeeComponent implements OnInit {
   }
 
   /**
-   * Navigates back, either to home or to round overview, depending on whether a new game should be created or a round should be updated.
+   * Navigates back, either to game or to round overview, depending on where the user came from.
    */
   onCancelClick(): void {
-    this.roundId$.subscribe((roundId: string) => {
+    combineLatest(this.roundId$, this.gameId$).subscribe(([roundId, gameId]: [string, string]) => {
       if (roundId) {
         this.router.navigate(['round', roundId]);
+      } else if (gameId) {
+        this.router.navigate(['game', gameId]);
       } else {
-        this.router.navigate(['home']);
+        throw new Error(`Either roundId or gameId must be available!`);
       }
     });
   }
@@ -83,20 +89,16 @@ export class AttendeeComponent implements OnInit {
    * Creates a game and a round, then navigates to the game overview.
    */
   onStartGameClick(): void {
-    // TODO: move to DP
-    this.dataProvider.createGame().pipe(
-      switchMap((createdGameId: string) => forkJoin(
-        of(createdGameId),
-        this.dataProvider.createRound(
-          createdGameId,
-          this.participatingPlayers[0].id,
-          this.participatingPlayers.map((player: AttendeeItemVo) => ({
-            playerId: player.id,
-            inGameStatus: true
-          }))
-        )
+    this.gameId$.pipe(
+      switchMap((gameId: string) => this.dataProvider.createRound(
+        gameId,
+        this.participatingPlayers[0].id,
+        this.participatingPlayers.map((player: AttendeeItemVo) => ({
+          playerId: player.id,
+          inGameStatus: true
+        }))
       ))
-    ).subscribe(([createdGameId, createdRoundId]: [string, string]) => this.router.navigate(['game', createdGameId]));
+    ).subscribe((createdRoundId: string) => this.router.navigate(['round', createdRoundId]));
   }
 
   dropOnParticipating(event: CdkDragDrop<string[]>): void {
