@@ -1,0 +1,37 @@
+<div class="sync-state-container">
+  <mat-icon class="sync-status-icon" [ngClass]="{'spinning': isSyncing === true}">sync</mat-icon>
+  <div style="font-size: 10px;" *ngIf="!isSyncing">
+    <span *ngIf="lastSynced">Stand: {{lastSynced | date:'HH:mm:ss'}} Uhr</span>
+    <span *ngIf="!lastSynced">noch nicht synchronisiert</span>
+  </div>
+  <button mat-icon-button (click)="openSyncHistoryDialog()">
+    <mat-icon>info</mat-icon>
+  </button>
+</div>
+
+<ng-template #syncHistoryDialog>
+  <h2 matDialogTitle>Synchronisierungsverlauf</h2>
+  <mat-dialog-content>
+    <table style="text-align: center;">
+      <thead>
+        <tr>
+          <td>Uhrzeit</td>
+          <td>Typ</td>
+          <td>Richtung</td>
+          <td>DocCount</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of syncHistory">
+          <td>{{entry.datetime | date:'dd.MM.yyyy HH:mm:ss.SSS'}}</td>
+          <td>{{entry.type}}</td>
+          <td>{{entry.direction}}</td>
+          <td>{{entry.docCount}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button matDialogClose color="primary">Schließen</button>
+  </mat-dialog-actions>
+</ng-template>

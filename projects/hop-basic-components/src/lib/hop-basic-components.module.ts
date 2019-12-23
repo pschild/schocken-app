@@ -15,6 +15,7 @@ import { SnackBarNotificationComponent } from './dialog/snack-bar-notification/s
 import { SnowflakesComponent } from './snowflakes/snowflakes.component';
 import { ChangeGameDateModalComponent } from './dialog/change-game-date-modal/change-game-date-modal.component';
 import { DialogComponent } from './dialog/dialog.component';
+import { SyncStateComponent } from './sync-state/sync-state.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { DialogComponent } from './dialog/dialog.component';
     SnackBarNotificationComponent,
     DialogComponent,
     SnowflakesComponent,
-    ChangeGameDateModalComponent
+    ChangeGameDateModalComponent,
+    SyncStateComponent
   ],
   imports: [
     MaterialModule,

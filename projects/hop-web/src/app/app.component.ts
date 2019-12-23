@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { SyncService } from './core/service/sync.service';
 
 @Component({
   selector: 'hop-root',
@@ -8,11 +7,10 @@ import { SyncService } from './core/service/sync.service';
 })
 export class AppComponent implements OnInit {
 
-  constructor(private syncService: SyncService) {
+  constructor() {
   }
 
   ngOnInit() {
-    this.syncService.startSync(true);
   }
 
 }

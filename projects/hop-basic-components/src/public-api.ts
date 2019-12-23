@@ -38,6 +38,7 @@ export * from './lib/dialog/dialog-config';
  */
 export * from './lib/dialog/snack-bar-notification/snack-bar-notification.service';
 export * from './lib/dialog/dialog.service';
+export * from './lib/sync-state/sync.service';
 
 /**
  * Modals

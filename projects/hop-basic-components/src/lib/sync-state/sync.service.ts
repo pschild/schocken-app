@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import PouchDB from 'pouchdb';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { ENV } from '@hop-backend-api';
 
 export enum SyncType {
@@ -15,7 +15,12 @@ export enum SyncType {
 export interface SyncEvent {
   type: SyncType;
   datetime: Date;
-  docCount: number;
+  data?: any;
+}
+
+interface ChangeData {
+  direction: 'push' | 'pull';
+  change: { ok: boolean; errors: any[]; docs: any[]; };
 }
 
 @Injectable({
@@ -23,7 +28,7 @@ export interface SyncEvent {
 })
 export class SyncService {
 
-  syncEvent$: Subject<any> = new Subject();
+  syncEvent$: Subject<SyncEvent> = new Subject();
 
   private syncProcess: any;
 
@@ -31,6 +36,10 @@ export class SyncService {
   private changeFlag = false;
 
   constructor(@Inject(ENV) private env) { }
+
+  get syncState(): Observable<SyncEvent> {
+    return this.syncEvent$.asObservable();
+  }
 
   startSync(continuous: boolean = false) {
     this.syncProcess = PouchDB.sync(
@@ -41,20 +50,20 @@ export class SyncService {
       .on('active', () => {
         this.activeFlag = true;
         console.log('replicate resumed (e.g. new changes replicating, user went back online)');
-        this.syncEvent$.next({ type: 'ACTIVE' });
+        this.syncEvent$.next({ type: SyncType.ACTIVE, datetime: new Date() });
       })
-      .on('change', info => {
+      .on('change', (info: ChangeData) => {
         this.changeFlag = true;
         console.log('handle change', info);
         console.log(`SYNCED ${info.change.docs.length} doc(s) @ ${new Date()}`);
-        this.syncEvent$.next({ type: 'CHANGE', data: info });
+        this.syncEvent$.next({ type: SyncType.CHANGE, datetime: new Date(), data: info });
       })
       .on('paused', err => {
         // when the state was 'active', but after that it was not 'change', we are offline
         if (this.activeFlag && !this.changeFlag) {
-          this.syncEvent$.next({ type: 'ERROR', data: err });
+          this.syncEvent$.next({ type: SyncType.ERROR, datetime: new Date(), data: err });
         } else {
-          this.syncEvent$.next({ type: 'PAUSED', data: err });
+          this.syncEvent$.next({ type: SyncType.PAUSED, datetime: new Date(), data: err });
         }
         this.activeFlag = false;
         this.changeFlag = false;
@@ -62,15 +71,15 @@ export class SyncService {
       })
       .on('complete', info => {
         console.log('handle complete', info);
-        this.syncEvent$.next({ type: 'COMPLETE', data: info });
+        this.syncEvent$.next({ type: SyncType.COMPLETE, datetime: new Date(), data: info });
       })
       .on('denied', err => {
         console.log('a document failed to replicate (e.g. due to permissions)', err);
-        this.syncEvent$.next({ type: 'DENIED', data: err });
+        this.syncEvent$.next({ type: SyncType.DENIED, datetime: new Date(), data: err });
       })
       .on('error', err => {
         console.log('handle error', err);
-        this.syncEvent$.next({ type: 'ERROR', data: err });
+        this.syncEvent$.next({ type: SyncType.ERROR, datetime: new Date(), data: err });
       });
   }
 
