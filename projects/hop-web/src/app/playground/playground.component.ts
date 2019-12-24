@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { PlaygroundDataProvider } from './playground.data-provider';
-import { Observable } from 'rxjs';
-import { PlayerDto, GameEventDto } from '@hop-backend-api';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
@@ -10,9 +8,6 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   styleUrls: ['./playground.component.scss']
 })
 export class PlaygroundComponent implements OnInit {
-
-  allPlayers$: Observable<PlayerDto[]>;
-  allGameEvents$: Observable<GameEventDto[]>;
 
   gameIdForPerf: string;
 
@@ -41,8 +36,6 @@ export class PlaygroundComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // this.allPlayers$ = this.dataProvider.getAllPlayers();
-    // this.allGameEvents$ = this.dataProvider.getAllGameEvents();
   }
 
   testPerformanceQuery() {
@@ -59,14 +52,6 @@ export class PlaygroundComponent implements OnInit {
 
   createGameWithRandomRounds(): void {
     this.dataProvider.createGameWithRandomRounds();
-  }
-
-  createPlayer(): void {
-    this.dataProvider.createPlayer();
-  }
-
-  createGameEvent(): void {
-    this.dataProvider.createGameEvent();
   }
 
 }

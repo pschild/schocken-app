@@ -6,8 +6,8 @@ import Rollbar from 'rollbar';
 
 const rollbarConfig = {
   accessToken: environment.env.ROLLBAR_ACCESS_TOKEN,
-  captureUncaught: true,
-  captureUnhandledRejections: true,
+  captureUncaught: environment.production,
+  captureUnhandledRejections: true
 };
 
 export const RollbarService = new InjectionToken<Rollbar>('rollbar');

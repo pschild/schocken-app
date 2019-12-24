@@ -63,55 +63,11 @@
   <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title>
-        Game with Rounds
+        Generate Test Data
       </mat-panel-title>
     </mat-expansion-panel-header>
 
-    <button (click)="createGameWithRandomRounds()">create game with 30-50 rounds</button>
-
-  </mat-expansion-panel>
-
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        Player
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-
-    <ul *ngIf="allPlayers$ | async as allPlayers">
-      <li *ngFor="let player of allPlayers">{{player._id}} // {{player.name}}</li>
-    </ul>
-
-    <button (click)="createPlayer()">create player</button>
-
-  </mat-expansion-panel>
-
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        GameEvents
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-
-    <ul *ngIf="allGameEvents$ | async as allGameEvents">
-      <li *ngFor="let event of allGameEvents">{{event._id}} // {{event.playerId}} // {{event.gameId}}</li>
-    </ul>
-
-    <button (click)="createGameEvent()">create game event</button>
-
-  </mat-expansion-panel>
-
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        Performance Test
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-
-    <input [(ngModel)]="gameIdForPerf" />
-    <button (click)="testPerformanceQuery()">QUERY</button>
-    <button (click)="testPerformanceAllDocs()">ALLDOCS</button>
-    <button (click)="testPerformanceFind()">FIND</button>
+    <button (click)="createGameWithRandomRounds()">Generate Test Data</button>
 
   </mat-expansion-panel>
 </mat-accordion>

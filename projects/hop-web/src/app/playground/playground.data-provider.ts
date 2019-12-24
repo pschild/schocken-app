@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable, of } from 'rxjs';
-import { GameRepository, RoundRepository, PlayerRepository, GameEventRepository, GameEventDto, PlayerDto, EventTypeRepository, EventTypeContext, RoundEventRepository, PouchDbAdapter } from '@hop-backend-api';
+import { forkJoin, of } from 'rxjs';
+import { GameRepository, RoundRepository, PlayerRepository, EventTypeRepository, EventTypeContext, RoundEventRepository, PouchDbAdapter } from '@hop-backend-api';
 import { switchMap } from 'rxjs/operators';
 
 declare function emit(val: any);
@@ -17,7 +17,6 @@ export class PlaygroundDataProvider {
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
     private eventTypeRepository: EventTypeRepository,
-    private gameEventRepository: GameEventRepository,
     private roundEventRepository: RoundEventRepository,
     private db: PouchDbAdapter
   ) {
@@ -124,14 +123,6 @@ export class PlaygroundDataProvider {
     return ddoc;
   }
 
-  getAllPlayers(): Observable<PlayerDto[]> {
-    return this.playerRepository.getAll();
-  }
-
-  getAllGameEvents(): Observable<GameEventDto[]> {
-    return this.gameEventRepository.getAll();
-  }
-
   createGameWithRandomRounds(): void {
     const gamesCount = 24;
     const roundsPerGameCount = 30;
@@ -200,18 +191,5 @@ export class PlaygroundDataProvider {
       console.log(_);
       alert('Done.');
     });
-  }
-
-  createPlayer(): void {
-    this.playerRepository.create({ name: `gen-player-${Math.floor(Math.random() * 10000) + 1}` });
-  }
-
-  createGameEvent(): void {
-    this.gameEventRepository.create({ gameId: 'GAME-04a60c68-9e44-4722-a31b-112bc265e132', playerId: 'PLAYER-5fd46454-afe6-4da7-9d9d-857e7a3dd2ca', eventTypeId: 'eti1' });
-    this.gameEventRepository.create({ gameId: 'GAME-04a60c68-9e44-4722-a31b-112bc265e132', playerId: 'PLAYER-5fd46454-afe6-4da7-9d9d-857e7a3dd2ca', eventTypeId: 'eti2' });
-    this.gameEventRepository.create({ gameId: 'GAME-04a60c68-9e44-4722-a31b-112bc265e132', playerId: 'PLAYER-5fd46454-afe6-4da7-9d9d-857e7a3dd2ca', eventTypeId: 'eti3' });
-
-    this.gameEventRepository.create({ gameId: 'GAME-04a60c68-9e44-4722-a31b-112bc265e132', playerId: 'PLAYER-ab9e4675-b33b-4dee-9454-633af4be693d', eventTypeId: 'eti4' });
-    this.gameEventRepository.create({ gameId: 'GAME-04a60c68-9e44-4722-a31b-112bc265e132', playerId: 'PLAYER-ab9e4675-b33b-4dee-9454-633af4be693d', eventTypeId: 'eti5' });
   }
 }
