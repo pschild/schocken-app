@@ -22,4 +22,26 @@ export class PlayerSelectComponent implements OnInit {
     this.playerChange.emit(playerId);
   }
 
+  previousPlayer(): void {
+    const currentIndex = this.getCurrentIndex();
+    const previousPlayer = currentIndex === 0 ? this.playerList[this.playerList.length - 1] : this.playerList[currentIndex - 1];
+    this.selectedId = previousPlayer.id;
+    this.onPlayerChange(previousPlayer.id);
+  }
+
+  nextPlayer(): void {
+    const currentIndex = this.getCurrentIndex();
+    const nextPlayer = currentIndex === this.playerList.length - 1 ? this.playerList[0] : this.playerList[currentIndex + 1];
+    this.selectedId = nextPlayer.id;
+    this.onPlayerChange(nextPlayer.id);
+  }
+
+  getCurrentPlayerName(): string {
+    return this.playerList[this.getCurrentIndex()].name;
+  }
+
+  getCurrentIndex(): number {
+    return this.playerList.findIndex(p => p.id === this.selectedId);
+  }
+
 }

@@ -112,6 +112,7 @@ export class GameDataProvider {
 
   loadActivePlayers(): Observable<PlayerSelectionVo[]> {
     return this.playerRepository.getAllActive().pipe(
+      map((activePlayers: PlayerDto[]) => activePlayers.sort((a, b) => this.sortService.compare(a, b, 'name', SortDirection.ASC))),
       map((activePlayers: PlayerDto[]) => this.playerSelectVoMapperService.mapToVos(activePlayers)),
       tap((playerVos: PlayerSelectionVo[]) => {
         this.selectedPlayerId$.next(playerVos[0].id);
@@ -149,7 +150,9 @@ export class GameDataProvider {
   }
 
   loadGameEventTypes(): void {
-    this.eventTypeRepository.findByContext(EventTypeContext.GAME).subscribe((eventTypes: EventTypeDto[]) => {
+    this.eventTypeRepository.findByContext(EventTypeContext.GAME).pipe(
+      map((eventTypes: EventTypeDto[]) => eventTypes.sort((a, b) => this.sortService.compare(a, b, 'description', SortDirection.ASC)))
+    ).subscribe((eventTypes: EventTypeDto[]) => {
       this.gameEventTypesState$.next(eventTypes);
     });
   }

@@ -1,3 +1,13 @@
-<select [ngModel]="selectedId" (ngModelChange)="onPlayerChange($event)">
+<!-- <select [ngModel]="selectedId" (ngModelChange)="onPlayerChange($event)">
   <option *ngFor="let player of playerList" [ngValue]="player.id">{{player.name}}</option>
-</select>
+</select> -->
+
+<div>
+  <button mat-button (click)="previousPlayer()">
+    <mat-icon>navigate_before</mat-icon>
+  </button>
+  <span>{{getCurrentPlayerName()}}</span>
+  <button mat-button (click)="nextPlayer()">
+    <mat-icon>navigate_next</mat-icon>
+  </button>
+</div>

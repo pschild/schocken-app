@@ -179,7 +179,9 @@ export class RoundDataProvider {
   }
 
   loadRoundEventTypes(): void {
-    this.eventTypeRepository.findByContext(EventTypeContext.ROUND).subscribe((eventTypes: EventTypeDto[]) => {
+    this.eventTypeRepository.findByContext(EventTypeContext.ROUND).pipe(
+      map((eventTypes: EventTypeDto[]) => eventTypes.sort((a, b) => this.sortService.compare(a, b, 'description', SortDirection.ASC)))
+    ).subscribe((eventTypes: EventTypeDto[]) => {
       this.roundEventTypesState$.next(eventTypes);
     });
   }
