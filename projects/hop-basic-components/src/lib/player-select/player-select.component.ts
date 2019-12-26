@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { PlayerSelectionVo } from './model/player-selection.vo';
+import { MatTabChangeEvent } from '@angular/material';
 
 @Component({
   selector: 'hop-player-select',
@@ -42,6 +43,10 @@ export class PlayerSelectComponent implements OnInit {
 
   getCurrentIndex(): number {
     return this.playerList.findIndex(p => p.id === this.selectedId);
+  }
+
+  focusChange(event: MatTabChangeEvent) {
+    this.onPlayerChange(this.playerList[event.index].id);
   }
 
 }

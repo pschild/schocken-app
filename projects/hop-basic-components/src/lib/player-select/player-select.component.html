@@ -2,7 +2,7 @@
   <option *ngFor="let player of playerList" [ngValue]="player.id">{{player.name}}</option>
 </select> -->
 
-<div>
+<!-- <div>
   <button mat-button (click)="previousPlayer()">
     <mat-icon>navigate_before</mat-icon>
   </button>
@@ -10,4 +10,11 @@
   <button mat-button (click)="nextPlayer()">
     <mat-icon>navigate_next</mat-icon>
   </button>
-</div>
+</div> -->
+
+<mat-tab-group
+  animationDuration="0ms"
+  [selectedIndex]="getCurrentIndex()"
+  (focusChange)="focusChange($event)">
+  <mat-tab *ngFor="let player of playerList" [label]="player.name"></mat-tab>
+</mat-tab-group>

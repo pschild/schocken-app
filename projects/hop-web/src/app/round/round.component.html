@@ -1,10 +1,5 @@
 <div *ngIf="roundDetails$ | async as roundDetails">
-    <button mat-stroked-button color="primary" [routerLink]="['/attendees', roundDetails.id]">
-      <mat-icon>people</mat-icon>
-      Teilnehmer bearbeiten
-    </button>
-
-    <div>
+    <div class="round-chooser-container">
       <button mat-button [routerLink]="['/round', roundDetails.previousRoundId]" [disabled]="!roundDetails.previousRoundId">
         <mat-icon>navigate_before</mat-icon>
       </button>
@@ -14,12 +9,17 @@
       </button>
     </div>
 
-    <hop-player-select
-      *ngIf="attendeeList$ | async as attendeeList"
-      [playerList]="attendeeList"
-      [selectedId]="roundDetails.currentPlayerId"
-      (playerChange)="onPlayerChanged($event)"
-    ></hop-player-select>
+    <div class="player-chooser-container">
+      <hop-player-select class="player-tabs-container"
+        *ngIf="attendeeList$ | async as attendeeList"
+        [playerList]="attendeeList"
+        [selectedId]="roundDetails.currentPlayerId"
+        (playerChange)="onPlayerChanged($event)"
+      ></hop-player-select>
+      <button mat-stroked-button color="primary" [routerLink]="['/attendees', roundDetails.id]">
+        <mat-icon>people</mat-icon>
+      </button>
+    </div>
 </div>
 
 <div>
