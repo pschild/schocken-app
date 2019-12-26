@@ -1,19 +1,37 @@
 <h2>Laufende Spiele</h2>
-<div *ngFor="let game of activeGames">
-  {{ game.datetime | date:'dd.MM.yyyy HH:mm' }} Uhr, {{ game.roundCount }} Runde(n)
-  <button mat-stroked-button color="primary" [routerLink]="['/game', game.id]">
-    <mat-icon>remove_red_eye</mat-icon>
-  </button>
-  <button *ngIf="game.currentRoundId" mat-stroked-button color="primary" [routerLink]="['/round', game.currentRoundId]">
-    <mat-icon>play_circle_outline</mat-icon>
-    fortsetzen
-  </button>
+<div *ngFor="let game of activeGames" class="game-item-container">
+  <div>
+    {{ game.datetime | date:'dd.MM.yyyy HH:mm' }} Uhr, {{ game.roundCount }} Runde(n)
+  </div>
+  <div class="game-action-button-container">
+    <button mat-stroked-button color="primary" [routerLink]="['/game', game.id]">
+      <mat-icon>launch</mat-icon>
+      <!-- <mat-icon>create</mat-icon> -->
+      <!-- <mat-icon>casino</mat-icon> -->
+    </button>
+    <button *ngIf="game.currentRoundId" mat-stroked-button color="primary" [routerLink]="['/round', game.currentRoundId]">
+      <mat-icon>play_circle_outline</mat-icon>
+      fortsetzen
+    </button>
+  </div>
 </div>
 
-<h2>Historie</h2>
-<div *ngFor="let game of completedGames">
-  {{ game.datetime | date:'dd.MM.yyyy HH:mm' }} Uhr, {{ game.roundCount }} Runde(n)
-  <button mat-stroked-button color="primary" [routerLink]="['/game', game.id]">
-    <mat-icon>remove_red_eye</mat-icon>
-  </button>
-</div>
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Vergange Spiele
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <div *ngFor="let game of completedGames" class="game-item-container">
+    <div>
+      {{ game.datetime | date:'dd.MM.yyyy HH:mm' }} Uhr, {{ game.roundCount }} Runde(n)
+    </div>
+    <div class="game-action-button-container">
+      <button mat-stroked-button color="primary" [routerLink]="['/game', game.id]">
+        <mat-icon>launch</mat-icon>
+      </button>
+    </div>
+  </div>
+
+</mat-expansion-panel>
