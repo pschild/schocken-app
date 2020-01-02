@@ -19,6 +19,8 @@ export class TableWrapperComponent implements OnInit, OnChanges {
 
   displayedColumns: string[];
   searchableColumns: IColumnInterface[] = [];
+  contentColumns: IColumnInterface[] = [];
+  actionColumns: IColumnInterface[] = [];
   dataSource: MatTableDataSource<any>;
   filterValue: string;
 
@@ -27,6 +29,8 @@ export class TableWrapperComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.createTableRows();
     this.searchableColumns = this.columns.filter((col: IColumnInterface) => col.isSearchable);
+    this.contentColumns = this.columns.filter((col: IColumnInterface) => !col.cellAction);
+    this.actionColumns = this.columns.filter((col: IColumnInterface) => !!col.cellAction);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

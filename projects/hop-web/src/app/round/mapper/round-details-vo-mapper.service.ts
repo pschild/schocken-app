@@ -10,6 +10,7 @@ export class RoundDetailsVoMapperService {
   mapToVo(input: RoundDto, roundIndex: number, nextRoundId: string, previousRoundId: string): RoundDetailsVo {
     const vo = new RoundDetailsVo();
     vo.id = input._id;
+    vo.gameId = input.gameId;
     vo.datetime = input.datetime;
     vo.currentPlayerId = input.currentPlayerId;
     vo.attendeeList = input.attendeeList;

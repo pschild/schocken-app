@@ -2,7 +2,8 @@
 <ng-container *ngIf="activeGames && activeGames.length > 0; else noGames">
   <div *ngFor="let game of activeGames" class="game-item-container">
     <div>
-      {{ game.datetime | date:'dd.MM.yyyy HH:mm' }} Uhr, {{ game.roundCount }} Runde(n)
+      <div>{{ game.datetime | date:'dd.MM.yyyy' }}</div>
+      <div>{{ game.roundCount }} Runde(n)</div>
     </div>
     <div class="game-action-button-container">
       <button mat-stroked-button color="primary" [routerLink]="['/game', game.id]">
@@ -33,7 +34,8 @@
 
   <div *ngFor="let game of completedGames" class="game-item-container">
     <div>
-      {{ game.datetime | date:'dd.MM.yyyy HH:mm' }} Uhr, {{ game.roundCount }} Runde(n)
+      <div>{{ game.datetime | date:'dd.MM.yyyy' }}</div>
+      <div>{{ game.roundCount }} Runde(n)</div>
     </div>
     <div class="game-action-button-container">
       <button mat-stroked-button color="primary" [routerLink]="['/game', game.id]">

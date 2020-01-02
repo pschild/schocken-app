@@ -1,25 +1,32 @@
 <div *ngIf="roundDetails$ | async as roundDetails">
-    <div class="round-chooser-container">
-      <button mat-button [routerLink]="['/round', roundDetails.previousRoundId]" [disabled]="!roundDetails.previousRoundId">
-        <mat-icon>navigate_before</mat-icon>
-      </button>
-      <span>Runde {{roundDetails.roundIndex}}</span>
-      <button mat-button [routerLink]="['/round', roundDetails.nextRoundId]" [disabled]="!roundDetails.nextRoundId">
-        <mat-icon>navigate_next</mat-icon>
-      </button>
-    </div>
+  <div class="round-details-button-container">
+    <button mat-button [routerLink]="['/game', roundDetails.gameId]">
+      <mat-icon>chevron_left</mat-icon>
+      Zurück zum Spiel
+    </button>
+    <button mat-stroked-button color="primary" [routerLink]="['/attendees', roundDetails.id]">
+      <mat-icon>people</mat-icon>
+    </button>
+  </div>
 
-    <div class="player-chooser-container">
-      <hop-player-select class="player-tabs-container"
-        *ngIf="attendeeList$ | async as attendeeList"
-        [playerList]="attendeeList"
-        [selectedId]="roundDetails.currentPlayerId"
-        (playerChange)="onPlayerChanged($event)"
-      ></hop-player-select>
-      <button mat-stroked-button color="primary" [routerLink]="['/attendees', roundDetails.id]">
-        <mat-icon>people</mat-icon>
-      </button>
-    </div>
+  <div class="round-chooser-container">
+    <button mat-button [routerLink]="['/round', roundDetails.previousRoundId]" [disabled]="!roundDetails.previousRoundId">
+      <mat-icon>navigate_before</mat-icon>
+    </button>
+    <span>Runde {{roundDetails.roundIndex}}</span>
+    <button mat-button [routerLink]="['/round', roundDetails.nextRoundId]" [disabled]="!roundDetails.nextRoundId">
+      <mat-icon>navigate_next</mat-icon>
+    </button>
+  </div>
+
+  <div class="player-chooser-container">
+    <hop-player-select class="player-tabs-container"
+      *ngIf="attendeeList$ | async as attendeeList"
+      [playerList]="attendeeList"
+      [selectedId]="roundDetails.currentPlayerId"
+      (playerChange)="onPlayerChanged($event)"
+    ></hop-player-select>
+  </div>
 </div>
 
 <div>

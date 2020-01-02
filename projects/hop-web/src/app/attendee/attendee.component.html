@@ -1,12 +1,17 @@
-<button mat-button (click)="onCancelClick()">Zurück</button>
-<button *ngIf="roundId$ | async" mat-raised-button color="primary" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">
-    <mat-icon>check</mat-icon>
-    Speichern und Runde fortsetzen
-</button>
-<button *ngIf="!(roundId$ | async)" mat-raised-button color="primary" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">
-    <mat-icon>check</mat-icon>
-    Runde starten
-</button>
+<div class="attendee-button-container">
+    <button mat-button (click)="onCancelClick()">
+        <mat-icon>chevron_left</mat-icon>
+        Zurück
+    </button>
+    <button *ngIf="roundId$ | async" mat-raised-button color="primary" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">
+        <mat-icon>check</mat-icon>
+        Speichern
+    </button>
+    <button *ngIf="!(roundId$ | async)" mat-raised-button color="primary" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">
+        <mat-icon>check</mat-icon>
+        Runde starten
+    </button>
+</div>
 
 <div class="info-box">
     <mat-icon>info</mat-icon>
@@ -39,12 +44,17 @@
     </div>
 </div>
 
-<button mat-button (click)="onCancelClick()">Zurück</button>
-<button *ngIf="roundId$ | async" mat-raised-button color="primary" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">
-    <mat-icon>check</mat-icon>
-    Speichern und Runde fortsetzen
-</button>
-<button *ngIf="!(roundId$ | async)" mat-raised-button color="primary" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">
-    <mat-icon>check</mat-icon>
-    Runde starten
-</button>
+<div class="attendee-button-container">
+    <button mat-button (click)="onCancelClick()">
+        <mat-icon>chevron_left</mat-icon>
+        Zurück
+    </button>
+    <button *ngIf="roundId$ | async" mat-raised-button color="primary" (click)="onContinueRoundClick()" [disabled]="!participatingPlayers.length">
+        <mat-icon>check</mat-icon>
+        Speichern
+    </button>
+    <button *ngIf="!(roundId$ | async)" mat-raised-button color="primary" (click)="onStartGameClick()" [disabled]="!participatingPlayers.length">
+        <mat-icon>check</mat-icon>
+        Runde starten
+    </button>
+</div>

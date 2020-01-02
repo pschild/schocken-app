@@ -1,22 +1,27 @@
-<h2>Details zum Spiel</h2>
 <div *ngIf="gameDetails$ | async as gameDetails">
-  Datum: {{gameDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
-  <button mat-button (click)="handleChangeDateClick()">Datum ändern</button>
-  <div>
-    {{gameDetails.rounds.length}} Runde(n)
-    <a *ngIf="gameDetails.rounds.length > 0 && !(isGameCompleted$ | async)" href="" [routerLink]="['/round', gameDetails.latestRound.id]">Aktuelle Runde fortsetzen</a>
+  <div class="game-details-container">
+    <h2>Spiel vom {{gameDetails.datetime | date:'dd.MM.yyyy'}}</h2>
+    <div>
+      {{gameDetails.datetime | date:'dd.MM.yyyy HH:mm:ss'}} Uhr
+      <button mat-button color="primary" (click)="handleChangeDateClick()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+    <div>
+      {{gameDetails.rounds.length}} Runde(n)
+      <!-- <a *ngIf="gameDetails.rounds.length > 0 && !(isGameCompleted$ | async)" href="" [routerLink]="['/round', gameDetails.latestRound.id]">Aktuelle Runde fortsetzen</a> -->
+    </div>
   </div>
 
   <mat-accordion>
     <mat-expansion-panel [expanded]="true">
       <mat-expansion-panel-header>
         <mat-panel-title>
-          Runden
+          Rundenübersicht
         </mat-panel-title>
       </mat-expansion-panel-header>
 
       <div *ngIf="gameDetails.rounds.length === 0">
-        <div>Noch keine Runden in diesem Spiel</div>
         <button mat-raised-button color="primary" [routerLink]="['/attendees']" [queryParams]="{ gameId: gameDetails.id }">Erste Runde starten</button>
       </div>
       <hop-round-list *ngIf="gameDetails.rounds.length > 0" [roundListItems]="gameDetails.rounds"></hop-round-list>

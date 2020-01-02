@@ -2,10 +2,19 @@
   width: 100%;
 }
 
+.table-wrapper-container {
+  width: 100%;
+  overflow: auto;
+}
+
 table {
   width: 100%;
 
   th.action-column {
-      width: 20px;
+      width: 10px;
+  }
+
+  td {
+    white-space: nowrap;
   }
 }
