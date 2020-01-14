@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { PlaygroundDataProvider } from './playground.data-provider';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatBottomSheet } from '@angular/material';
+import { BottomSheetComponent } from './bottom-sheet/bottom-sheet.component';
 
 @Component({
   selector: 'hop-playground',
@@ -32,6 +34,7 @@ export class PlaygroundComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
+    private bottomSheet: MatBottomSheet,
     private dataProvider: PlaygroundDataProvider
   ) { }
 
@@ -56,6 +59,10 @@ export class PlaygroundComponent implements OnInit {
 
   deleteLocalDatabase(): void {
     this.dataProvider.deleteLocalDatabase();
+  }
+
+  expand(): void {
+    this.bottomSheet.open(BottomSheetComponent);
   }
 
 }

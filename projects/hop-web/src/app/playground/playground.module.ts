@@ -4,10 +4,12 @@ import { PlaygroundRoutingModule } from './playground-routing.module';
 import { PlaygroundComponent } from './playground.component';
 import { HopBasicComponentsModule } from '@hop-basic-components';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BottomSheetComponent } from './bottom-sheet/bottom-sheet.component';
 
 @NgModule({
   declarations: [
-    PlaygroundComponent
+    PlaygroundComponent,
+    BottomSheetComponent
   ],
   imports: [
     CommonModule,
@@ -15,6 +17,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule,
     PlaygroundRoutingModule,
     HopBasicComponentsModule
+  ],
+  entryComponents: [
+    BottomSheetComponent
   ]
 })
 export class PlaygroundModule { }
