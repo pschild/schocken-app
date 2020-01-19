@@ -1,0 +1,6 @@
+<ul>
+  <li *ngFor="let x of roundEvents">
+    {{x.eventType.description}} {{x.eventType.penalty?.value | number:'1.2'}} {{x.eventType.penalty?.unit}}
+  </li>
+  <button (click)="dupl()">dupl 1st</button>
+</ul>

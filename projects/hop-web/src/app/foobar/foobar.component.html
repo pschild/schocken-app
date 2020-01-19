@@ -7,11 +7,18 @@
     <tr *ngFor="let row of rows; let i = index">
       <td>Rd. {{i + 1}}</td>
       <td *ngFor="let playerId of playerIds">
-        <ul>
-          <li *ngFor="let x of row.eventsByPlayer[playerId]">
-            {{x.eventType.description}} {{x.eventType.penalty?.value | number:'1.2'}} {{x.eventType.penalty?.unit}}
-          </li>
-        </ul>
+        <hop-foobar-cell
+          [roundEvents]="row.eventsByPlayer[playerId]"
+          [roundId]="row.roundId"
+          [playerId]="playerId"
+          (addEvent)="onAddEvent($event)"
+        ></hop-foobar-cell>
+      </td>
+    </tr>
+    <tr *ngIf="sums$ | async as playerSums">
+      <td>Summe</td>
+      <td *ngFor="let playerId of playerIds">
+        {{playerSums[playerId]}}
       </td>
     </tr>
   </table>

@@ -14,8 +14,8 @@ import {
   EventTypeDto,
   EventDto
 } from '@hop-backend-api';
-import { Observable, forkJoin, of } from 'rxjs';
-import { map, mergeMap, toArray, switchMap } from 'rxjs/operators';
+import { Observable, forkJoin, of, BehaviorSubject } from 'rxjs';
+import { map, mergeMap, toArray, switchMap, take } from 'rxjs/operators';
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { EventListService } from '@hop-basic-components';
 
@@ -26,10 +26,20 @@ export interface GameTableListItem {
   eventType: EventTypeDto;
 }
 
+export interface Row {
+  roundId: string;
+  eventsByPlayer: {
+    [playerId: string]: Array<RoundEventDto & {eventType: any}>;
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class FoobarDataProvider {
+
+  rowState$: BehaviorSubject<Row[]> = new BehaviorSubject([]);
+  sums$: Observable<any>;
 
   constructor(
     private gameRepository: GameRepository,
@@ -41,9 +51,48 @@ export class FoobarDataProvider {
     private sortService: SortService,
     private eventListService: EventListService
   ) {
+    this.sums$ = this.rowState$.pipe(
+      map((rows: Row[]) => {
+        let overallSums = [];
+        rows.forEach(row => {
+          for (let [playerId, roundEventsOfPlayer] of Object.entries(row.eventsByPlayer)) {
+            let playerSum = 0;
+            roundEventsOfPlayer.map(re => {
+              playerSum += re.eventType.penalty ? re.eventType.penalty.value * (re.multiplicatorValue || 1) : 0;
+            });
+            if (overallSums[playerId]) {
+              overallSums[playerId] += playerSum;
+            } else {
+              overallSums[playerId] = playerSum;
+            }
+          }
+        });
+        return overallSums;
+      })
+    );
   }
 
-  loadNew(gameId: string): Observable<any> {
+  getRows(): Observable<Row[]> {
+    return this.rowState$.asObservable();
+  }
+
+  getSums(): Observable<any> {
+    return this.sums$;
+  }
+
+  addEvent(roundId: string, playerId: string, event: any): void {
+    this.rowState$.pipe(
+      take(1), // because in the subscription the source observable will receive a new value
+      map(rows => {
+        const accordingRow = rows.find(row => row.roundId === roundId);
+        const events = accordingRow.eventsByPlayer[playerId] || [];
+        accordingRow.eventsByPlayer[playerId] = [...events, event];
+        return rows;
+      })
+    ).subscribe(rows => this.rowState$.next(rows));
+  }
+
+  loadNew(gameId: string): void {
     const groupBy = key => array =>
       array.reduce((objectsByKeyValue, obj) => {
         const value = obj[key];
@@ -51,7 +100,7 @@ export class FoobarDataProvider {
         return objectsByKeyValue;
       }, {});
 
-    return this.eventTypeRepository.getAll().pipe(
+    this.eventTypeRepository.getAll().pipe(
       switchMap((eventTypes: EventTypeDto[]) => this.loadRoundsByGameId(gameId).pipe(
         mergeMap((rounds: RoundDto[]) => rounds),
         mergeMap((round: RoundDto) => forkJoin(of(round._id), this.roundEventRepository.findByRoundId(round._id))),
@@ -75,7 +124,7 @@ export class FoobarDataProvider {
         }),
         toArray()
       ))
-    );
+    ).subscribe(rows => this.rowState$.next(rows));
   }
 
   loadGameById(id: string): Observable<GameDto> {
