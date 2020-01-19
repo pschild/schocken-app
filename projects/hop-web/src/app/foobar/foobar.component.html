@@ -1,0 +1,18 @@
+<div class="table-container">
+  <table *ngIf="rows$ | async as rows">
+    <tr>
+      <th></th>
+      <th *ngFor="let playerId of playerIds">{{playerId}}</th>
+    </tr>
+    <tr *ngFor="let row of rows; let i = index">
+      <td>Rd. {{i + 1}}</td>
+      <td *ngFor="let playerId of playerIds">
+        <ul>
+          <li *ngFor="let x of row.eventsByPlayer[playerId]">
+            {{x.eventType.description}} {{x.eventType.penalty?.value | number:'1.2'}} {{x.eventType.penalty?.unit}}
+          </li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+</div>
