@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FoobarDataProvider, GameTableListItem } from './foobar.data-provider';
+import { FoobarDataProvider, SumPerPlayer } from './foobar.data-provider';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Observable } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { RoundEventDto } from 'projects/hop-backend-api/src/public-api';
 
 @Component({
@@ -12,9 +12,8 @@ import { RoundEventDto } from 'projects/hop-backend-api/src/public-api';
 })
 export class FoobarComponent implements OnInit {
 
-  gameTableList: GameTableListItem[] = [];
   rows$: Observable<RoundEventDto[]>;
-  sums$: Observable<any>;
+  sums$: Observable<SumPerPlayer[]>;
   playerIds: string[] = [];
   sum: number;
 
@@ -38,7 +37,7 @@ export class FoobarComponent implements OnInit {
       tap(console.log)
     );
     this.sums$ = this.dataProvider.getSums();
-    this.route.params.subscribe((params: Params) => this.dataProvider.loadNew(params.gameId));
+    this.route.params.subscribe((params: Params) => this.dataProvider.loadRowState(params.gameId));
   }
 
   onAddEvent(params): void {

@@ -15,10 +15,15 @@
         ></hop-foobar-cell>
       </td>
     </tr>
+    <tr>
+      <td>
+        <button>Rd. {{rows.length + 1}}</button>
+      </td>
+    </tr>
     <tr *ngIf="sums$ | async as playerSums">
-      <td>Summe</td>
+      <td>&sum;</td>
       <td *ngFor="let playerId of playerIds">
-        {{playerSums[playerId]}}
+        {{playerSums[playerId] | number:'1.2'}}
       </td>
     </tr>
   </table>

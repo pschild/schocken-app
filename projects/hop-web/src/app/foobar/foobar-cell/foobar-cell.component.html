@@ -1,6 +1,10 @@
 <ul>
   <li *ngFor="let x of roundEvents">
-    {{x.eventType.description}} {{x.eventType.penalty?.value | number:'1.2'}} {{x.eventType.penalty?.unit}}
+    {{x.eventType.description}}
+    <span *ngIf="x.eventType.penalty as penalty">
+      {{penalty.value * (x.multiplicatorValue || 1) | number:'1.2'}} {{penalty.unit}}
+      <button>x</button>
+    </span>
   </li>
-  <button (click)="dupl()">dupl 1st</button>
+  <button (click)="dupl()">+</button>
 </ul>
