@@ -8,7 +8,7 @@
       <td>Rd. {{i + 1}}</td>
       <td *ngFor="let playerId of playerIds">
         <hop-foobar-cell
-          [roundEvents]="row.eventsByPlayer[playerId]"
+          [playerEvents]="row.eventsByPlayer[playerId]"
           [roundId]="row.roundId"
           [playerId]="playerId"
           (addEvent)="onAddEvent($event)"

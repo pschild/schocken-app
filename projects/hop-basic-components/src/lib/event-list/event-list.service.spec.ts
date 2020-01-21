@@ -52,7 +52,7 @@ describe('EventListService', () => {
     };
 
     // when
-    const result: Partial<EventTypeDto> = service.getActiveHistoryItemAtDatetime(historyItems, event);
+    const result: Partial<EventTypeDto> = service.getActiveHistoryItemAtDatetime(historyItems, event.datetime);
 
     // then
     expect(result._id).toBe('4');

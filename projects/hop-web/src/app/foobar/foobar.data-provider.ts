@@ -18,25 +18,17 @@ import { Observable, forkJoin, of, BehaviorSubject } from 'rxjs';
 import { map, mergeMap, toArray, switchMap, take } from 'rxjs/operators';
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { EventListService } from '@hop-basic-components';
-
-export interface Row {
-  roundId: string;
-  eventsByPlayer: {
-    [playerId: string]: Array<EventDto & { eventType: Partial<EventTypeDto> }>;
-  }
-}
-
-export interface SumPerPlayer {
-  [playerId: string]: number;
-}
+import { GameTableRowVo, PlayerEventVo } from './game-table-row.vo';
+import { PlayerEventVoMapperService } from './player-event-vo-mapper.service';
+import { PlayerSumVo } from './player-sum.vo';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FoobarDataProvider {
 
-  rowState$: BehaviorSubject<Row[]> = new BehaviorSubject([]);
-  sums$: Observable<SumPerPlayer[]>;
+  rowState$: BehaviorSubject<GameTableRowVo[]> = new BehaviorSubject([]);
+  sums$: Observable<PlayerSumVo[]>;
 
   constructor(
     private gameRepository: GameRepository,
@@ -46,14 +38,15 @@ export class FoobarDataProvider {
     private roundEventRepository: RoundEventRepository,
     private eventTypeRepository: EventTypeRepository,
     private sortService: SortService,
-    private eventListService: EventListService
+    private eventListService: EventListService,
+    private playerEventVoMapperService: PlayerEventVoMapperService
   ) {
     this.sums$ = this.rowState$.pipe(
-      map((rows: Row[]) => this.calculateSumsPerPlayer(rows))
+      map((rows: GameTableRowVo[]) => this.calculateSumsPerPlayer(rows))
     );
   }
 
-  getRows(): Observable<Row[]> {
+  getRows(): Observable<GameTableRowVo[]> {
     return this.rowState$.asObservable();
   }
 
@@ -78,36 +71,30 @@ export class FoobarDataProvider {
       switchMap((eventTypes: EventTypeDto[]) => this.loadRoundsByGameId(gameId).pipe(
         mergeMap((rounds: RoundDto[]) => rounds),
         mergeMap((round: RoundDto) => forkJoin(of(round._id), this.roundEventRepository.findByRoundId(round._id))),
-        map(([roundId, roundEvents]: [string, RoundEventDto[]]) => {
+        map(([roundId, roundEvents]: [string, RoundEventDto[]]): GameTableRowVo => {
           const groupedRoundEvents = this.groupBy<RoundEventDto>(roundEvents, 'playerId');
-          const result = {};
+          const eventsByPlayer = {};
           Object.entries(groupedRoundEvents).map(([playerId, roundEventsByPlayer]: [string, RoundEventDto[]]) => {
-            result[playerId] = roundEventsByPlayer.map((roundEvent: RoundEventDto) => {
-              const typeOfEvent = eventTypes.find(et => et._id === roundEvent.eventTypeId);
-              const eventTypeAtEventTime = this.eventListService.getActiveHistoryItemAtDatetime(typeOfEvent.history, roundEvent);
-              return {
-                ...roundEvent,
-                eventType: {
-                  description: eventTypeAtEventTime.description,
-                  penalty: eventTypeAtEventTime.penalty
-                }
-              };
+            eventsByPlayer[playerId] = roundEventsByPlayer.map((roundEvent: RoundEventDto): PlayerEventVo => {
+              const typeOfEvent: EventTypeDto = eventTypes.find(et => et._id === roundEvent.eventTypeId);
+              const eventTypeAtEventTime: Partial<EventTypeDto> = this.eventListService.getActiveHistoryItemAtDatetime(typeOfEvent.history, roundEvent.datetime);
+              return this.playerEventVoMapperService.mapToVo(roundEvent, eventTypeAtEventTime);
             });
           });
-          return { roundId, eventsByPlayer: result };
+          return { roundId, eventsByPlayer };
         }),
         toArray()
       ))
     ).subscribe(rows => this.rowState$.next(rows));
   }
 
-  private calculateSumsPerPlayer(rows: Row[]): SumPerPlayer[] {
+  private calculateSumsPerPlayer(rows: GameTableRowVo[]): PlayerSumVo[] {
     let overallSums = [];
     rows.forEach(row => {
       for (let [playerId, roundEventsOfPlayer] of Object.entries(row.eventsByPlayer)) {
         let playerSum = 0;
         roundEventsOfPlayer.map(re => {
-          playerSum += re.eventType.penalty ? re.eventType.penalty.value * (re.multiplicatorValue || 1) : 0;
+          playerSum += re.penalty ? re.penalty.value * re.multiplicatorValue : 0;
         });
         if (overallSums[playerId]) {
           overallSums[playerId] += playerSum;

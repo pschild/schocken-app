@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { EventListService } from '@hop-basic-components';
+import { PlayerEventVo } from '../game-table-row.vo';
 
 @Component({
   selector: 'hop-foobar-cell',
@@ -8,7 +9,7 @@ import { EventListService } from '@hop-basic-components';
 })
 export class FoobarCellComponent implements OnInit {
 
-  @Input() roundEvents: any[];
+  @Input() playerEvents: PlayerEventVo[];
   @Input() roundId: string;
   @Input() playerId: string;
   @Output() sum: EventEmitter<number> = new EventEmitter<number>();
@@ -22,8 +23,8 @@ export class FoobarCellComponent implements OnInit {
   }
 
   dupl() {
-    if (this.roundEvents && this.roundEvents.length) {
-      this.addEvent.emit({ roundId: this.roundId, playerId: this.playerId, event: this.roundEvents[0] });
+    if (this.playerEvents && this.playerEvents.length) {
+      this.addEvent.emit({ roundId: this.roundId, playerId: this.playerId, event: this.playerEvents[0] });
     }
   }
 

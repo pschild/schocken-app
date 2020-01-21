@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FoobarDataProvider, SumPerPlayer } from './foobar.data-provider';
+import { FoobarDataProvider } from './foobar.data-provider';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { RoundEventDto } from 'projects/hop-backend-api/src/public-api';
+import { GameTableRowVo } from './game-table-row.vo';
+import { PlayerSumVo } from './player-sum.vo';
 
 @Component({
   selector: 'hop-foobar',
@@ -12,10 +13,9 @@ import { RoundEventDto } from 'projects/hop-backend-api/src/public-api';
 })
 export class FoobarComponent implements OnInit {
 
-  rows$: Observable<RoundEventDto[]>;
-  sums$: Observable<SumPerPlayer[]>;
+  rows$: Observable<GameTableRowVo[]>;
+  sums$: Observable<PlayerSumVo[]>;
   playerIds: string[] = [];
-  sum: number;
 
   constructor(
     private route: ActivatedRoute,
@@ -23,7 +23,6 @@ export class FoobarComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.sum = 0;
     this.playerIds = [
       'PLAYER__PLAYER-3118fe58-03ce-4949-b6ff-353e5019c0e4', // Christoph
       'PLAYER__PLAYER-f9a38606-ac16-4e73-9eb9-c751a68b8f4c', // Philippe

@@ -24,7 +24,7 @@ export class EventListService {
         throw Error('Could not find eventType by events eventTypeId');
       }
 
-      const eventTypeAtEventTime: Partial<EventTypeDto> = this.getActiveHistoryItemAtDatetime(eventType.history, event);
+      const eventTypeAtEventTime: Partial<EventTypeDto> = this.getActiveHistoryItemAtDatetime(eventType.history, event.datetime);
       return this.eventListItemVoMapperService.mapToVo(event, eventTypeAtEventTime);
     });
   }
@@ -53,8 +53,8 @@ export class EventListService {
     return sums;
   }
 
-  getActiveHistoryItemAtDatetime(historyItems: EventTypeHistoryItem[], event: EventDto): Partial<EventTypeDto> {
-    const eventDatetime = new Date(event.datetime).getTime();
+  getActiveHistoryItemAtDatetime(historyItems: EventTypeHistoryItem[], eventDate: Date): Partial<EventTypeDto> {
+    const eventDatetime = new Date(eventDate).getTime();
     let eventTypeAtEventTime: Partial<EventTypeDto> = null;
     let datetimeRef = -1;
     historyItems.forEach((historyItem: EventTypeHistoryItem) => {
