@@ -52,10 +52,11 @@
       position: sticky;
       bottom: 0;
       z-index: 11;
-      background: #fff;
+      background: #ddd;
 
       &:first-child {
         z-index: 12;
+        background: #ddd;
       }
     }
   }

@@ -1,40 +1,45 @@
 <div class="table-container">
-  <table *ngIf="roundEventsByPlayer$ | async as roundEventsByPlayer">
-    <tr>
-      <th></th>
-      <th *ngFor="let playerId of playerIds">{{playerId}}</th>
-    </tr>
-    <tr *ngIf="gameEventsByPlayer$ | async as gameEventsByPlayer">
-      <td>Festst.:</td>
-      <td *ngFor="let playerId of playerIds">
-        <hop-foobar-cell
-          [playerEvents]="gameEventsByPlayer.eventsByPlayer[playerId]"
-          [playerId]="playerId"
-          (addEvent)="onAddEvent($event)"
-        ></hop-foobar-cell>
-      </td>
-    </tr>
-    <tr *ngFor="let item of roundEventsByPlayer; let i = index">
-      <td>Rd. {{i + 1}}</td>
-      <td *ngFor="let playerId of playerIds">
-        <hop-foobar-cell
-          [playerEvents]="item.eventsByPlayer[playerId]"
-          [roundId]="item.roundId"
-          [playerId]="playerId"
-          (addEvent)="onAddEvent($event)"
-        ></hop-foobar-cell>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <button>Rd. {{roundEventsByPlayer.length + 1}}</button>
-      </td>
-    </tr>
-    <tr *ngIf="sums$ | async as playerSums">
-      <td>&sum;</td>
-      <td *ngFor="let playerId of playerIds">
-        {{playerSums[playerId] | number:'1.2'}}
-      </td>
-    </tr>
-  </table>
+  <ng-container *ngIf="activePlayers$ | async as activePlayers; else loadingSpinner">
+    <table *ngIf="roundEventsByPlayer$ | async as roundEventsByPlayer; else loadingSpinner">
+      <tr>
+        <th></th>
+        <th *ngFor="let player of activePlayers">{{player.name}}</th>
+      </tr>
+      <tr *ngIf="gameEventsByPlayer$ | async as gameEventsByPlayer">
+        <td>Festst.:</td>
+        <td *ngFor="let player of activePlayers">
+          <hop-foobar-cell
+            [playerEvents]="gameEventsByPlayer.eventsByPlayer[player._id]"
+            [playerId]="player._id"
+            (addEvent)="onAddEvent($event)"
+          ></hop-foobar-cell>
+        </td>
+      </tr>
+      <tr *ngFor="let item of roundEventsByPlayer; let i = index">
+        <td>Rd. {{i + 1}}</td>
+        <td *ngFor="let player of activePlayers">
+          <hop-foobar-cell
+            [playerEvents]="item.eventsByPlayer[player._id]"
+            [roundId]="item.roundId"
+            [playerId]="player._id"
+            (addEvent)="onAddEvent($event)"
+          ></hop-foobar-cell>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button>Rd. {{roundEventsByPlayer.length + 1}}</button>
+        </td>
+      </tr>
+      <tr *ngIf="sums$ | async as playerSums">
+        <td>&sum;</td>
+        <td *ngFor="let player of activePlayers">
+          {{playerSums[player._id] | number:'1.2'}}
+        </td>
+      </tr>
+    </table>
+  </ng-container>
+  <ng-template #loadingSpinner>
+    <mat-spinner></mat-spinner>
+  </ng-template>
 </div>

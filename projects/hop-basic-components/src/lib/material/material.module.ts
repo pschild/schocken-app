@@ -77,7 +77,8 @@ const materialModules = [
   MatTabsModule,
   DragDropModule,
   MatProgressSpinnerModule,
-  MatBottomSheetModule
+  MatBottomSheetModule,
+  MatProgressSpinnerModule
 ];
 
 @NgModule({

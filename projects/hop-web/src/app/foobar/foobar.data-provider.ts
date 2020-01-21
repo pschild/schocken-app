@@ -10,7 +10,8 @@ import {
   GameEventDto,
   RoundEventDto,
   EventTypeDto,
-  EventDto
+  EventDto,
+  PlayerDto
 } from '@hop-backend-api';
 import { Observable, forkJoin, of, BehaviorSubject, combineLatest } from 'rxjs';
 import { map, mergeMap, toArray, switchMap, take, withLatestFrom, filter } from 'rxjs/operators';
@@ -96,6 +97,10 @@ export class FoobarDataProvider {
         toArray()
       ))
     ).subscribe(rows => this.roundEventsState$.next(rows));
+  }
+
+  loadAllActivePlayers(): Observable<PlayerDto[]> {
+    return this.playerRepository.getAllActive();
   }
 
   private buildTableRow(events: EventDto[], eventTypes: EventTypeDto[], roundId?: string): GameTableRowVo {

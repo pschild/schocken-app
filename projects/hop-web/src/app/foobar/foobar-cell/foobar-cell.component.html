@@ -1,10 +1,8 @@
-<ul>
-  <li *ngFor="let event of playerEvents">
-    {{event.description}}
-    <span *ngIf="event.penalty as penalty">
-      {{penalty.value * event.multiplicatorValue | number:'1.2'}} {{penalty.unit}}
-      <button>x</button>
-    </span>
-  </li>
-  <button (click)="dupl()">+</button>
-</ul>
+<div *ngFor="let event of playerEvents">
+  {{event.description}}
+  <span *ngIf="event.penalty as penalty">
+    {{penalty.value * event.multiplicatorValue | number:'1.2'}} {{penalty.unit}}
+    <button>x</button>
+  </span>
+</div>
+<button (click)="dupl()">+</button>
