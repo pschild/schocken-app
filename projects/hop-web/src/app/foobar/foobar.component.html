@@ -1,15 +1,25 @@
 <div class="table-container">
-  <table *ngIf="rows$ | async as rows">
+  <table *ngIf="roundEventsByPlayer$ | async as roundEventsByPlayer">
     <tr>
       <th></th>
       <th *ngFor="let playerId of playerIds">{{playerId}}</th>
     </tr>
-    <tr *ngFor="let row of rows; let i = index">
+    <tr *ngIf="gameEventsByPlayer$ | async as gameEventsByPlayer">
+      <td>Festst.:</td>
+      <td *ngFor="let playerId of playerIds">
+        <hop-foobar-cell
+          [playerEvents]="gameEventsByPlayer.eventsByPlayer[playerId]"
+          [playerId]="playerId"
+          (addEvent)="onAddEvent($event)"
+        ></hop-foobar-cell>
+      </td>
+    </tr>
+    <tr *ngFor="let item of roundEventsByPlayer; let i = index">
       <td>Rd. {{i + 1}}</td>
       <td *ngFor="let playerId of playerIds">
         <hop-foobar-cell
-          [playerEvents]="row.eventsByPlayer[playerId]"
-          [roundId]="row.roundId"
+          [playerEvents]="item.eventsByPlayer[playerId]"
+          [roundId]="item.roundId"
           [playerId]="playerId"
           (addEvent)="onAddEvent($event)"
         ></hop-foobar-cell>
@@ -17,7 +27,7 @@
     </tr>
     <tr>
       <td>
-        <button>Rd. {{rows.length + 1}}</button>
+        <button>Rd. {{roundEventsByPlayer.length + 1}}</button>
       </td>
     </tr>
     <tr *ngIf="sums$ | async as playerSums">

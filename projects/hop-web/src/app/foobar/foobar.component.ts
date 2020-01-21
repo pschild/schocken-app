@@ -13,7 +13,8 @@ import { PlayerSumVo } from './player-sum.vo';
 })
 export class FoobarComponent implements OnInit {
 
-  rows$: Observable<GameTableRowVo[]>;
+  gameEventsByPlayer$: Observable<GameTableRowVo>;
+  roundEventsByPlayer$: Observable<GameTableRowVo[]>;
   sums$: Observable<PlayerSumVo[]>;
   playerIds: string[] = [];
 
@@ -32,11 +33,18 @@ export class FoobarComponent implements OnInit {
       'PLAYER__PLAYER-b054e069-87bf-47dc-a2cf-d85db6a939eb'  // Christian
     ];
 
-    this.rows$ = this.dataProvider.getRows().pipe(
+    this.gameEventsByPlayer$ = this.dataProvider.getGameEvents().pipe(
+      tap(console.log)
+    );
+    this.roundEventsByPlayer$ = this.dataProvider.getRoundEvents().pipe(
       tap(console.log)
     );
     this.sums$ = this.dataProvider.getSums();
-    this.route.params.subscribe((params: Params) => this.dataProvider.loadRowState(params.gameId));
+    this.route.params.subscribe((params: Params) => {
+      this.dataProvider.loadRoundEventTypes();
+      this.dataProvider.loadGameEventsState(params.gameId);
+      this.dataProvider.loadRoundEventsState(params.gameId);
+    });
   }
 
   onAddEvent(params): void {
