@@ -2,7 +2,8 @@
   {{event.description}}
   <span *ngIf="event.penalty as penalty">
     {{penalty.value * event.multiplicatorValue | number:'1.2'}} {{penalty.unit}}
-    <button>x</button>
+    <button mat-icon-button color="warn" (click)="remove(event.id)">
+      <mat-icon>delete</mat-icon>
+  </button>
   </span>
 </div>
-<button (click)="dupl()">+</button>

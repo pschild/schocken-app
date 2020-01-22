@@ -9,6 +9,7 @@ export class PlayerEventVoMapperService {
 
   mapToVo(roundEvent: EventDto, eventType: Partial<EventTypeDto>): PlayerEventVo {
     const vo = new PlayerEventVo();
+    vo.id = roundEvent._id;
     vo.multiplicatorValue = roundEvent.multiplicatorValue || 1;
     vo.description = eventType.description;
     vo.penalty = eventType.penalty;

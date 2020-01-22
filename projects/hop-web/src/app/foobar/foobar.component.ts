@@ -36,9 +36,19 @@ export class FoobarComponent implements OnInit {
     });
   }
 
-  onAddEvent(params): void {
-    // TODO: really add event
-    const {roundId, playerId, event} = params;
-    this.dataProvider.addEvent(roundId, playerId, event);
+  showGameEventTypeDialog(): void {
+
+  }
+
+  showRoundEventTypeDialog(): void {
+
+  }
+
+  onRemoveGameEvent(eventId: string, playerId: string): void {
+    this.dataProvider.removeGameEvent(eventId, playerId);
+  }
+
+  onRemoveRoundEvent(eventId: string, roundId: string, playerId: string): void {
+    this.dataProvider.removeRoundEvent(eventId, roundId, playerId);
   }
 }

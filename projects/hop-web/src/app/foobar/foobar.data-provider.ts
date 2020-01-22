@@ -73,6 +73,33 @@ export class FoobarDataProvider {
     ).subscribe(rows => this.roundEventsState$.next(rows));
   }
 
+  removeGameEvent(eventId: string, playerId: string): void {
+    this.gameEventRepository.removeById(eventId).pipe(
+      withLatestFrom(this.gameEventsState$),
+      map(([removedId, gameEvents]: [string, GameTableRowVo]) => {
+        if (!gameEvents || !gameEvents.eventsByPlayer[playerId]) {
+          throw new Error(`Cannot remove game event. No game events for player ${playerId}`);
+        }
+        gameEvents.eventsByPlayer[playerId] = gameEvents.eventsByPlayer[playerId].filter((event: PlayerEventVo) => event.id !== removedId);
+        return gameEvents;
+      })
+    ).subscribe((gameEvents: GameTableRowVo) => this.gameEventsState$.next(gameEvents));
+  }
+
+  removeRoundEvent(eventId: string, roundId: string, playerId: string): void {
+    this.roundEventRepository.removeById(eventId).pipe(
+      withLatestFrom(this.roundEventsState$),
+      map(([removedId, roundRows]: [string, GameTableRowVo[]]) => {
+        const roundRow: GameTableRowVo = roundRows.find((row: GameTableRowVo) => row.roundId === roundId);
+        if (!roundRow || !roundRow.eventsByPlayer[playerId]) {
+          throw new Error(`Cannot remove round event. No round events for round ${roundId} and player ${playerId}`);
+        }
+        roundRow.eventsByPlayer[playerId] = roundRow.eventsByPlayer[playerId].filter((event: PlayerEventVo) => event.id !== removedId);
+        return roundRows;
+      })
+    ).subscribe((roundRows: GameTableRowVo[]) => this.roundEventsState$.next(roundRows));
+  }
+
   loadRoundEventTypes(): void {
     this.eventTypeRepository.getAll().pipe(
       map((eventTypes: EventTypeDto[]) => eventTypes.sort((a, b) => this.sortService.compare(a, b, 'description', SortDirection.ASC)))
@@ -109,7 +136,9 @@ export class FoobarDataProvider {
     Object.entries(groupedEvents).map(([playerId, playerEvents]: [string, EventDto[]]) => {
       eventsByPlayer[playerId] = playerEvents.map((event: EventDto): PlayerEventVo => {
         const typeOfEvent: EventTypeDto = eventTypes.find(et => et._id === event.eventTypeId);
-        const eventTypeAtEventTime: Partial<EventTypeDto> = this.eventListService.getActiveHistoryItemAtDatetime(typeOfEvent.history, event.datetime);
+        const eventTypeAtEventTime: Partial<EventTypeDto> = this.eventListService.getActiveHistoryItemAtDatetime(
+          typeOfEvent.history, event.datetime
+        );
         return this.playerEventVoMapperService.mapToVo(event, eventTypeAtEventTime);
       });
     });
@@ -117,9 +146,9 @@ export class FoobarDataProvider {
   }
 
   private calculateSumsPerPlayer(rows: GameTableRowVo[]): PlayerSumVo[] {
-    let overallSums = [];
+    const overallSums = [];
     rows.forEach(row => {
-      for (let [playerId, roundEventsOfPlayer] of Object.entries(row.eventsByPlayer)) {
+      for (const [playerId, roundEventsOfPlayer] of Object.entries(row.eventsByPlayer)) {
         let playerSum = 0;
         roundEventsOfPlayer.map(re => {
           playerSum += re.penalty ? re.penalty.value * re.multiplicatorValue : 0;

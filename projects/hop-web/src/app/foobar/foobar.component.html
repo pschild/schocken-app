@@ -11,8 +11,9 @@
           <hop-foobar-cell
             [playerEvents]="gameEventsByPlayer.eventsByPlayer[player._id]"
             [playerId]="player._id"
-            (addEvent)="onAddEvent($event)"
+            (removeEvent)="onRemoveGameEvent($event, player._id)"
           ></hop-foobar-cell>
+          <button (click)="showGameEventTypeDialog()">+</button>
         </td>
       </tr>
       <tr *ngFor="let item of roundEventsByPlayer; let i = index">
@@ -22,8 +23,9 @@
             [playerEvents]="item.eventsByPlayer[player._id]"
             [roundId]="item.roundId"
             [playerId]="player._id"
-            (addEvent)="onAddEvent($event)"
+            (removeEvent)="onRemoveRoundEvent($event, item.roundId, player._id)"
           ></hop-foobar-cell>
+          <button (click)="showRoundEventTypeDialog()">+</button>
         </td>
       </tr>
       <tr>
@@ -34,7 +36,7 @@
       <tr *ngIf="sums$ | async as playerSums">
         <td>&sum;</td>
         <td *ngFor="let player of activePlayers">
-          {{playerSums[player._id] | number:'1.2'}}
+          {{playerSums[player._id] || 0 | number:'1.2'}}
         </td>
       </tr>
     </table>
