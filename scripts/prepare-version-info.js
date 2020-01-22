@@ -21,8 +21,12 @@ export const COMMIT_DATE = new Date('${buildDateTime}');
 console.log(`Wrote version info to ${resolve(__dirname, '..', 'projects', 'hop-web', 'src', 'environments', 'version.ts')}`);
 
 // ngsw-config.json
-const ngswConfigFilePath = resolve(__dirname, '..', 'projects', 'hop-web', 'ngsw-config.json');
-const ngswConfigFile = editJsonFile(ngswConfigFilePath);
-ngswConfigFile.set('appData', { version, buildDateTime });
-ngswConfigFile.save();
-console.log(`Wrote version info to ${resolve(__dirname, '..', 'projects', 'hop-web', 'ngsw-config.json')}`);
+if (process.argv.indexOf('--no-ngsw') > 0) {
+  console.log(`Skipping ngsw-config.json`);
+} else {
+  const ngswConfigFilePath = resolve(__dirname, '..', 'projects', 'hop-web', 'ngsw-config.json');
+  const ngswConfigFile = editJsonFile(ngswConfigFilePath);
+  ngswConfigFile.set('appData', { version, buildDateTime });
+  ngswConfigFile.save();
+  console.log(`Wrote version info to ${resolve(__dirname, '..', 'projects', 'hop-web', 'ngsw-config.json')}`);
+}

@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "prestart": "node scripts/prepare-version-info.js",
+    "prestart": "node scripts/prepare-version-info.js -- --no-ngsw",
     "prebuild": "node scripts/prepare-version-info.js",
     "build:prod": "npm run build -- --prod --aot",
     "build:all": "npm run build:libraries && npm run build",
