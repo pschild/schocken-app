@@ -12,15 +12,17 @@ import {
   EventTypeDto,
   EventDto,
   PlayerDto,
-  EventTypeContext
+  EventTypeContext,
+  GameDto
 } from '@hop-backend-api';
 import { Observable, forkJoin, of, BehaviorSubject, combineLatest } from 'rxjs';
-import { map, mergeMap, toArray, switchMap, take, withLatestFrom, filter } from 'rxjs/operators';
+import { map, mergeMap, toArray, switchMap, take, withLatestFrom, filter, tap } from 'rxjs/operators';
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { EventListService, EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
 import { GameTableRowVo, PlayerEventVo } from './game-table-row.vo';
 import { PlayerEventVoMapperService } from './player-event-vo-mapper.service';
 import { PlayerSumVo } from './player-sum.vo';
+import { EventHandlerService } from '../core/service/event-handler.service';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +43,7 @@ export class FoobarDataProvider {
     private eventTypeRepository: EventTypeRepository,
     private sortService: SortService,
     private eventListService: EventListService,
+    private eventHandlerService: EventHandlerService,
     private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
     private playerEventVoMapperService: PlayerEventVoMapperService
   ) {
@@ -78,8 +81,12 @@ export class FoobarDataProvider {
   addGameEvent(eventType: EventTypeItemVo, gameId: string, playerId: string): void {
     this.gameEventRepository.create({ eventTypeId: eventType.id, gameId, playerId, multiplicatorValue: eventType.multiplicatorValue }).pipe(
       switchMap((createdId: string) => this.gameEventRepository.get(createdId)),
-      withLatestFrom(this.gameEventsState$),
-      map(([createdEvent, gameEventsState]: [GameEventDto, GameTableRowVo]) => {
+      // TODO: instead of this.gameRepository.get, get from private state?
+      withLatestFrom(this.gameEventsState$, this.gameRepository.get(gameId)),
+      tap(([createdEvent, gameEventsState, game]: [GameEventDto, GameTableRowVo, GameDto]) =>
+        this.eventHandlerService.handleGameEvent(eventType, game)
+      ),
+      map(([createdEvent, gameEventsState, game]: [GameEventDto, GameTableRowVo, GameDto]) => {
         gameEventsState.eventsByPlayer[playerId] = [
           ...gameEventsState.eventsByPlayer[playerId] || [],
           this.playerEventVoMapperService.mapToVo(createdEvent, {
