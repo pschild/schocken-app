@@ -7,10 +7,10 @@ import { PlayerEventVo } from './game-table-row.vo';
 })
 export class PlayerEventVoMapperService {
 
-  mapToVo(roundEvent: EventDto, eventType: Partial<EventTypeDto>): PlayerEventVo {
+  mapToVo(event: EventDto, eventType: Partial<EventTypeDto>): PlayerEventVo {
     const vo = new PlayerEventVo();
-    vo.id = roundEvent._id;
-    vo.multiplicatorValue = roundEvent.multiplicatorValue || 1;
+    vo.id = event._id;
+    vo.multiplicatorValue = event.multiplicatorValue || 1;
     vo.description = eventType.description;
     vo.penalty = eventType.penalty;
     vo.multiplicatorUnit = eventType.multiplicatorUnit;

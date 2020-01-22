@@ -13,7 +13,7 @@
             [playerId]="player._id"
             (removeEvent)="onRemoveGameEvent($event, player._id)"
           ></hop-foobar-cell>
-          <button (click)="showGameEventTypeDialog()">+</button>
+          <button (click)="showGameEventTypeDialog(player)">+</button>
         </td>
       </tr>
       <tr *ngFor="let item of roundEventsByPlayer; let i = index">

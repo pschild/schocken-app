@@ -11,12 +11,13 @@ import {
   RoundEventDto,
   EventTypeDto,
   EventDto,
-  PlayerDto
+  PlayerDto,
+  EventTypeContext
 } from '@hop-backend-api';
 import { Observable, forkJoin, of, BehaviorSubject, combineLatest } from 'rxjs';
 import { map, mergeMap, toArray, switchMap, take, withLatestFrom, filter } from 'rxjs/operators';
 import { SortService, SortDirection } from '../core/service/sort.service';
-import { EventListService } from '@hop-basic-components';
+import { EventListService, EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
 import { GameTableRowVo, PlayerEventVo } from './game-table-row.vo';
 import { PlayerEventVoMapperService } from './player-event-vo-mapper.service';
 import { PlayerSumVo } from './player-sum.vo';
@@ -40,6 +41,7 @@ export class FoobarDataProvider {
     private eventTypeRepository: EventTypeRepository,
     private sortService: SortService,
     private eventListService: EventListService,
+    private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
     private playerEventVoMapperService: PlayerEventVoMapperService
   ) {
     this.sums$ = combineLatest(this.gameEventsState$, this.roundEventsState$).pipe(
@@ -65,16 +67,30 @@ export class FoobarDataProvider {
     return this.sums$;
   }
 
-  addEvent(roundId: string, playerId: string, event: any): void {
-    this.roundEventsState$.pipe(
-      take(1), // because in the subscription the source observable will receive a new value
-      map(rows => {
-        const accordingRow = rows.find(row => row.roundId === roundId);
-        const events = accordingRow.eventsByPlayer[playerId] || [];
-        accordingRow.eventsByPlayer[playerId] = [...events, event];
-        return rows;
+  getGameEventTypesState(): Observable<EventTypeItemVo[]> {
+    return this.eventTypesState$.asObservable().pipe(
+      map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(
+        eventTypes.filter((eventType: EventTypeDto) => eventType.context === EventTypeContext.GAME)
+      ))
+    );
+  }
+
+  addGameEvent(eventType: EventTypeItemVo, gameId: string, playerId: string): void {
+    this.gameEventRepository.create({ eventTypeId: eventType.id, gameId, playerId, multiplicatorValue: eventType.multiplicatorValue }).pipe(
+      switchMap((createdId: string) => this.gameEventRepository.get(createdId)),
+      withLatestFrom(this.gameEventsState$),
+      map(([createdEvent, gameEventsState]: [GameEventDto, GameTableRowVo]) => {
+        gameEventsState.eventsByPlayer[playerId] = [
+          ...gameEventsState.eventsByPlayer[playerId] || [],
+          this.playerEventVoMapperService.mapToVo(createdEvent, {
+            description: eventType.description,
+            penalty: eventType.penalty,
+            multiplicatorUnit: eventType.multiplicatorUnit
+          })
+        ];
+        return gameEventsState;
       })
-    ).subscribe(rows => this.roundEventsState$.next(rows));
+    ).subscribe((gameEventsState: GameTableRowVo) => this.gameEventsState$.next(gameEventsState));
   }
 
   removeGameEvent(eventId: string, playerId: string): void {
@@ -152,6 +168,7 @@ export class FoobarDataProvider {
   }
 
   private calculateSumsPerPlayer(rows: GameTableRowVo[]): PlayerSumVo[] {
+    // TODO: differentiate between units!
     const overallSums = [];
     rows.forEach(row => {
       for (const [playerId, roundEventsOfPlayer] of Object.entries(row.eventsByPlayer)) {
