@@ -43,7 +43,11 @@ export class FoobarDataProvider {
     private playerEventVoMapperService: PlayerEventVoMapperService
   ) {
     this.sums$ = combineLatest(this.gameEventsState$, this.roundEventsState$).pipe(
-      filter(([gameEventsState, roundEventsState]: [GameTableRowVo, GameTableRowVo[]]) => !!gameEventsState && !!roundEventsState),
+      filter(([gameEventsState, roundEventsState]: [GameTableRowVo, GameTableRowVo[]]) =>
+        !!gameEventsState
+        && !!roundEventsState
+        && roundEventsState.length > 0
+      ),
       map(([gameEventsState, roundEventsState]: [GameTableRowVo, GameTableRowVo[]]) => [gameEventsState, ...roundEventsState]),
       map((combinedState: GameTableRowVo[]) => this.calculateSumsPerPlayer(combinedState))
     );
@@ -117,6 +121,8 @@ export class FoobarDataProvider {
 
   loadRoundEventsState(gameId: string): void {
     this.eventTypesState$.pipe(
+      filter((eventTypes: EventTypeDto[]) => !!eventTypes && eventTypes.length > 0),
+      take(1),
       switchMap((eventTypes: EventTypeDto[]) => this.loadRoundsByGameId(gameId).pipe(
         mergeMap((rounds: RoundDto[]) => rounds),
         mergeMap((round: RoundDto) => forkJoin(of(round._id), this.roundEventRepository.findByRoundId(round._id))),
