@@ -49,6 +49,9 @@ export class FoobarComponent implements OnInit {
       take(1),
       withLatestFrom(this.gameId$),
       map(([gameEventTypes, gameId]: [EventTypeItemVo[], string]) => this.dialog.open(EventTypeListModalComponent, {
+        width: '500px',
+        maxWidth: '90%',
+        autoFocus: false,
         data: { eventTypes: gameEventTypes, player, gameId }
       })),
       switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),

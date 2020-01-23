@@ -39,9 +39,4 @@ export class EventTypeListModalComponent implements OnInit {
     };
     this.dialogRef.close(dialogResult);
   }
-
-  onCancel() {
-    this.dialogRef.close();
-  }
-
 }

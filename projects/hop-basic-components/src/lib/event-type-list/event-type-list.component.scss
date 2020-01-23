@@ -1,10 +1,14 @@
-.event-type-container {
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
+.event-type-row {
+  margin: 15px 0;
 
-  & > .mat-form-field {
-    max-width: 100px;
-    margin-right: 20px;
+  .event-type-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .mat-form-field {
+      max-width: 100px;
+      margin-right: 20px;
+    }
   }
 }
