@@ -3,7 +3,10 @@
     <table *ngIf="roundEventsByPlayer$ | async as roundEventsByPlayer; else loadingSpinner">
       <tr>
         <th></th>
-        <th *ngFor="let player of activePlayers">{{player.name}}</th>
+        <th *ngFor="let player of activePlayers">
+          <div>{{player.name}}</div>
+          <mat-slide-toggle [checked]="true">im Spiel</mat-slide-toggle>
+        </th>
       </tr>
       <tr *ngIf="gameEventsByPlayer$ | async as gameEventsByPlayer">
         <td>Festst.:</td>
@@ -13,7 +16,9 @@
             [playerId]="player._id"
             (removeEvent)="onRemoveGameEvent($event, player._id)"
           ></hop-foobar-cell>
-          <button (click)="showGameEventTypeDialog(player)">+</button>
+          <button mat-button color="primary" (click)="showGameEventTypeDialog(player)">
+            <mat-icon>add</mat-icon>
+          </button>
         </td>
       </tr>
       <tr *ngFor="let item of roundEventsByPlayer; let i = index">
@@ -25,12 +30,17 @@
             [playerId]="player._id"
             (removeEvent)="onRemoveRoundEvent($event, item.roundId, player._id)"
           ></hop-foobar-cell>
-          <button (click)="showRoundEventTypeDialog()">+</button>
+          <button mat-button color="primary" (click)="showRoundEventTypeDialog(player)">
+            <mat-icon>add</mat-icon>
+          </button>
         </td>
       </tr>
       <tr>
         <td>
-          <button>Rd. {{roundEventsByPlayer.length + 1}}</button>
+          <button mat-raised-button color="primary">
+            <mat-icon>add</mat-icon>
+            Rd. {{roundEventsByPlayer.length + 1}}
+          </button>
         </td>
       </tr>
       <tr *ngIf="sums$ | async as playerSums">

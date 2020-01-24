@@ -54,7 +54,8 @@ export class FoobarDataProvider {
         && roundEventsState.length > 0
       ),
       map(([gameEventsState, roundEventsState]: [GameTableRowVo, GameTableRowVo[]]) => [gameEventsState, ...roundEventsState]),
-      map((combinedState: GameTableRowVo[]) => this.calculateSumsPerPlayer(combinedState))
+      map((combinedState: GameTableRowVo[]) => this.calculateSumsPerPlayer(combinedState)),
+      tap(_ => console.log('%c🔎CALCULATED SUMS', 'color: #f00'))
     );
   }
 
@@ -66,7 +67,7 @@ export class FoobarDataProvider {
     return this.roundEventsState$.asObservable();
   }
 
-  getSums(): Observable<any> {
+  getSums(): Observable<PlayerSumVo[]> {
     return this.sums$;
   }
 
@@ -96,7 +97,8 @@ export class FoobarDataProvider {
           })
         ];
         return gameEventsState;
-      })
+      }),
+      tap(_ => console.log('%c🔎ADDED GAME EVENT', 'color: #f00'))
     ).subscribe((gameEventsState: GameTableRowVo) => this.gameEventsState$.next(gameEventsState));
   }
 
@@ -109,7 +111,8 @@ export class FoobarDataProvider {
         }
         gameEvents.eventsByPlayer[playerId] = gameEvents.eventsByPlayer[playerId].filter((event: PlayerEventVo) => event.id !== removedId);
         return gameEvents;
-      })
+      }),
+      tap(_ => console.log('%c🔎REMOVED GAME EVENT', 'color: #f00'))
     ).subscribe((gameEvents: GameTableRowVo) => this.gameEventsState$.next(gameEvents));
   }
 
@@ -123,23 +126,24 @@ export class FoobarDataProvider {
         }
         roundRow.eventsByPlayer[playerId] = roundRow.eventsByPlayer[playerId].filter((event: PlayerEventVo) => event.id !== removedId);
         return roundRows;
-      })
+      }),
+      tap(_ => console.log('%c🔎REMOVED ROUND EVENT', 'color: #f00'))
     ).subscribe((roundRows: GameTableRowVo[]) => this.roundEventsState$.next(roundRows));
   }
 
   loadRoundEventTypes(): void {
     this.eventTypeRepository.getAll().pipe(
-      map((eventTypes: EventTypeDto[]) => eventTypes.sort((a, b) => this.sortService.compare(a, b, 'description', SortDirection.ASC)))
-    ).subscribe((eventTypes: EventTypeDto[]) => {
-      this.eventTypesState$.next(eventTypes);
-    });
+      map((eventTypes: EventTypeDto[]) => eventTypes.sort((a, b) => this.sortService.compare(a, b, 'description', SortDirection.ASC))),
+      tap(_ => console.log('%c🔎LOADED EVENT TYPES', 'color: #f00'))
+    ).subscribe((eventTypes: EventTypeDto[]) => this.eventTypesState$.next(eventTypes));
   }
 
   loadGameEventsState(gameId: string): void {
     this.gameEventRepository.findByGameId(gameId).pipe(
       withLatestFrom(this.eventTypesState$),
-      map(([gameEvents, eventTypes]: [GameEventDto[], EventTypeDto[]]) => this.buildTableRow(gameEvents, eventTypes))
-    ).subscribe(row => this.gameEventsState$.next(row));
+      map(([gameEvents, eventTypes]: [GameEventDto[], EventTypeDto[]]) => this.buildTableRow(gameEvents, eventTypes)),
+      tap(_ => console.log('%c🔎LOADED GAME EVENTS BY GAMEID', 'color: #f00'))
+    ).subscribe((row: GameTableRowVo) => this.gameEventsState$.next(row));
   }
 
   loadRoundEventsState(gameId: string): void {
@@ -151,11 +155,13 @@ export class FoobarDataProvider {
         mergeMap((round: RoundDto) => forkJoin(of(round._id), this.roundEventRepository.findByRoundId(round._id))),
         map(([roundId, roundEvents]: [string, RoundEventDto[]]) => this.buildTableRow(roundEvents, eventTypes, roundId)),
         toArray()
-      ))
-    ).subscribe(rows => this.roundEventsState$.next(rows));
+      )),
+      tap(_ => console.log('%c🔎LOADED ROUND EVENTS BY GAMEID', 'color: #f00'))
+    ).subscribe((rows: GameTableRowVo[]) => this.roundEventsState$.next(rows));
   }
 
   loadAllActivePlayers(): Observable<PlayerDto[]> {
+    console.log('%c🔎LOAD ACTIVE PLAYERS', 'color: #f00');
     return this.playerRepository.getAllActive();
   }
 
