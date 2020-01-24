@@ -30,7 +30,7 @@
             [playerId]="player._id"
             (removeEvent)="onRemoveRoundEvent($event, item.roundId, player._id)"
           ></hop-foobar-cell>
-          <button mat-button color="primary" (click)="showRoundEventTypeDialog(player)">
+          <button mat-button color="primary" (click)="showRoundEventTypeDialog()">
             <mat-icon>add</mat-icon>
           </button>
         </td>
