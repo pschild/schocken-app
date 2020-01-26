@@ -16,7 +16,7 @@ import {
   GameDto
 } from '@hop-backend-api';
 import { Observable, forkJoin, of, BehaviorSubject, combineLatest } from 'rxjs';
-import { map, mergeMap, toArray, switchMap, take, withLatestFrom, filter, tap } from 'rxjs/operators';
+import { map, mergeMap, toArray, switchMap, take, withLatestFrom, filter, tap, concatMap } from 'rxjs/operators';
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { EventListService, EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
 import { GameTableRowVo, PlayerEventVo } from './game-table-row.vo';
@@ -123,21 +123,25 @@ export class FoobarDataProvider {
       multiplicatorValue: eventType.multiplicatorValue
     }).pipe(
       switchMap((createdId: string) => this.roundEventRepository.get(createdId)),
-      // TODO: instead of this.gameRepository.get, get from private state?
-      withLatestFrom(this.roundEventsState$, this.roundRepository.get(roundId)),
-      tap(([createdEvent, roundEventsState, round]: [RoundEventDto, GameTableRowVo[], RoundDto]) =>
-        this.eventHandlerService.handleRoundEvent(eventType, round)
-      ),
-      map(([createdEvent, roundEventsState, round]: [RoundEventDto, GameTableRowVo[], RoundDto]) => {
-        const eventsByRoundId = roundEventsState.find((roundEvent: GameTableRowVo) => roundEvent.roundId === roundId);
-        eventsByRoundId.eventsByPlayer[playerId] = [
-          ...eventsByRoundId.eventsByPlayer[playerId] || [],
-          this.playerEventVoMapperService.mapToVo(createdEvent, {
-            description: eventType.description,
-            penalty: eventType.penalty,
-            multiplicatorUnit: eventType.multiplicatorUnit
-          })
-        ];
+      withLatestFrom(this.roundEventsState$, this.eventTypesState$, this.roundRepository.get(roundId)),
+      concatMap(([createdEvent, roundEventsState, eventTypes, round]: [RoundEventDto, GameTableRowVo[], EventTypeDto[], RoundDto]) => {
+        return forkJoin(
+          of(roundEventsState),
+          of(eventTypes),
+          this.eventHandlerService.handleRoundEvent(eventType, round)
+        );
+      }),
+      switchMap(([roundEventsState, eventTypes, eventHandlerResult]: [GameTableRowVo[], EventTypeDto[], any]) => {
+        return this.roundEventRepository.findByRoundId(roundId).pipe(
+          switchMap((roundEvents: RoundEventDto[]) => forkJoin(
+            of(roundEventsState),
+            of(this.buildTableRow(roundEvents, eventTypes, roundId))
+          )
+        ));
+      }),
+      map(([roundEventsState, updatedRoundRow]: [GameTableRowVo[], GameTableRowVo]) => {
+        const roundRow = roundEventsState.find((roundEvent: GameTableRowVo) => roundEvent.roundId === roundId);
+        roundRow.eventsByPlayer = updatedRoundRow.eventsByPlayer;
         return roundEventsState;
       }),
       tap(_ => console.log('%c🔎ADDED ROUND EVENT', 'color: #f00'))

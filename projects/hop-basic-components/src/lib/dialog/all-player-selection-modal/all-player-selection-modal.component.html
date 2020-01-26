@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>Welche Spieler kassieren eine Schock-Aus-Strafe?</h2>
+<mat-dialog-content>
+  <mat-selection-list #selectedPlayers>
+    <mat-list-option *ngFor="let player of data.players" [value]="player._id">
+      {{player.name}}
+    </mat-list-option>
+  </mat-selection-list>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Abbrechen</button>
+  <button mat-raised-button color="primary" (click)="onApply()" [disabled]="!selectedPlayers.selectedOptions.selected.length">OK</button>
+</mat-dialog-actions>

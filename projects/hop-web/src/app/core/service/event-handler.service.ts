@@ -18,11 +18,13 @@ import {
   DialogService,
   IDialogResult,
   DialogResult,
-  LOST_EVENT_BUTTON_CONFIG
+  LOST_EVENT_BUTTON_CONFIG,
+  AllPlayerSelectionModalComponent
 } from '@hop-basic-components';
 import { Router } from '@angular/router';
-import { map, concatMap, switchMap, filter, tap } from 'rxjs/operators';
+import { map, concatMap, switchMap, filter, tap, defaultIfEmpty } from 'rxjs/operators';
 import { of, forkJoin, EMPTY, Observable } from 'rxjs';
+import { MatDialog } from '@angular/material';
 
 @Injectable({
   providedIn: 'root'
@@ -37,25 +39,30 @@ export class EventHandlerService {
     private eventTypeRepository: EventTypeRepository,
     private roundEventRepository: RoundEventRepository,
     private snackBarNotificationService: SnackBarNotificationService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private dialog: MatDialog
   ) { }
 
-  handleRoundEvent(eventType: EventTypeItemVo, currentRound: RoundDto): void {
+  handleRoundEvent(eventType: EventTypeItemVo, currentRound: RoundDto): Observable<any> {
     switch (eventType.trigger) {
       case EventTypeTrigger.SCHOCK_AUS:
-        this._handleSchockAusTrigger(currentRound);
-        break;
+        return this._handleSchockAusTrigger(currentRound).pipe(defaultIfEmpty());
       case EventTypeTrigger.START_NEW_ROUND:
-        this._handlePlayerLostRoundTrigger(currentRound);
-        break;
+        return this._handlePlayerLostRoundTrigger(currentRound).pipe(defaultIfEmpty());
+      default:
+        return of(null);
     }
   }
 
-  handleGameEvent(eventType: EventTypeItemVo, currentGame: GameDto): void {
+  handleGameEvent(eventType: EventTypeItemVo, currentGame: GameDto): Observable<any> {
     // no triggers for game events yet
+    return EMPTY;
   }
 
-  private _handleSchockAusTrigger(currentRound: RoundDto): void {
+  /**
+   * @deprecated
+   */
+  private _handleSchockAusTriggerForOldRoundView(currentRound: RoundDto): void {
     this.playerRepository.getAll().pipe(
       // find all players that are attending in the game and have inGameStatus = true
       map((allPlayers: PlayerDto[]) => allPlayers
@@ -100,28 +107,63 @@ export class EventHandlerService {
     });
   }
 
-  private async _handlePlayerLostRoundTrigger(currentRound: RoundDto): Promise<void> {
-    const currentPlayer: PlayerDto = await this.playerRepository.get(currentRound.currentPlayerId).toPromise();
-    this.dialogService.showYesNoDialog({
-      title: '',
-      message: `${currentPlayer.name} hat verloren. Wie soll's weitergehen?`,
-      buttonConfig: LOST_EVENT_BUTTON_CONFIG
-    }).pipe(
-      filter((dialogResult: IDialogResult) => dialogResult.result !== DialogResult.ABORT),
-      switchMap((dialogResult: IDialogResult) => {
-        if (dialogResult.result === DialogResult.NEW_ROUND) {
-          return this.completeRound(currentRound._id).pipe(
-            switchMap((updatedRoundId: string) => this.createRound(currentRound)),
-            map((newRoundId: string) => ['round', newRoundId])
-          );
-        } else if (dialogResult.result === DialogResult.FINISH_GAME) {
-          return this.completeRound(currentRound._id).pipe(
-            switchMap((updatedRoundId: string) => this.completeGame(currentRound.gameId)),
-            map((updatedGameId: string) => ['home'])
-          );
+  private _handleSchockAusTrigger(currentRound: RoundDto): Observable<any> {
+    return this.playerRepository.getAll().pipe(
+      // show confirmation, wait for the user to accept or decline
+      concatMap((allPlayers: PlayerDto[]) => {
+        return this.dialog.open(AllPlayerSelectionModalComponent, { autoFocus: false, data: { players: allPlayers } }).afterClosed();
+      }),
+      // only go on if the user selected at least one player
+      // TODO: use exposed interface
+      filter(
+        (dialogResult: { selectedPlayerIds: string[] }) => dialogResult.selectedPlayerIds && dialogResult.selectedPlayerIds.length > 0
+      ),
+      // find the event type with type "SCHOCK_AUS_PENALTY" dynamically (instead of using a static id)
+      switchMap((dialogResult: { selectedPlayerIds: string[] }) => {
+        return forkJoin(of(dialogResult.selectedPlayerIds), this.eventTypeRepository.findByTrigger(EventTypeTrigger.SCHOCK_AUS_PENALTY));
+      }),
+      // create an according round event for the specified players
+      switchMap(([selectedPlayerIds, schockAusPenaltyEventTypes]: [string[], EventTypeDto[]]) => {
+        if (schockAusPenaltyEventTypes.length !== 1) {
+          throw Error(`Es gibt kein oder mehrere EventTypes für eine Schock-Aus-Strafe.`);
         }
+        return forkJoin(
+          selectedPlayerIds.map((playerId: string) => this.roundEventRepository.create({
+            eventTypeId: schockAusPenaltyEventTypes[0]._id,
+            playerId,
+            roundId: currentRound._id
+          }))
+        );
+      }),
+      tap((createdEventIds: string[]) => {
+        this.snackBarNotificationService.showMessage(`Es wurden ${createdEventIds.length} Schock-Aus-Strafe(n) verteilt.`);
       })
-    ).subscribe((redirect: string[]) => this.router.navigate(redirect));
+    );
+  }
+
+  private _handlePlayerLostRoundTrigger(currentRound: RoundDto): Observable<any> {
+    // const currentPlayer: PlayerDto = await this.playerRepository.get(currentRound.currentPlayerId).toPromise();
+    // this.dialogService.showYesNoDialog({
+    //   title: '',
+    //   message: `${currentPlayer.name} hat verloren. Wie soll's weitergehen?`,
+    //   buttonConfig: LOST_EVENT_BUTTON_CONFIG
+    // }).pipe(
+    //   filter((dialogResult: IDialogResult) => dialogResult.result !== DialogResult.ABORT),
+    //   switchMap((dialogResult: IDialogResult) => {
+    //     if (dialogResult.result === DialogResult.NEW_ROUND) {
+    //       return this.completeRound(currentRound._id).pipe(
+    //         switchMap((updatedRoundId: string) => this.createRound(currentRound)),
+    //         map((newRoundId: string) => ['round', newRoundId])
+    //       );
+    //     } else if (dialogResult.result === DialogResult.FINISH_GAME) {
+    //       return this.completeRound(currentRound._id).pipe(
+    //         switchMap((updatedRoundId: string) => this.completeGame(currentRound.gameId)),
+    //         map((updatedGameId: string) => ['home'])
+    //       );
+    //     }
+    //   })
+    // ).subscribe((redirect: string[]) => this.router.navigate(redirect));
+    return EMPTY;
   }
 
   private completeRound(roundId: string): Observable<string> {

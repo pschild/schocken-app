@@ -3,7 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { EventTypeItemVo } from '../../event-type-list/model/event-type-item.vo';
 import { PlayerDto } from '@hop-backend-api';
 
-export interface DialogData {
+export interface EventTypeListModalDialogData {
   eventTypes: EventTypeItemVo[];
   player: PlayerDto;
   gameId?: string;
@@ -27,7 +27,7 @@ export class EventTypeListModalComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<EventTypeListModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
+    @Inject(MAT_DIALOG_DATA) public data: EventTypeListModalDialogData
   ) { }
 
   ngOnInit() {
