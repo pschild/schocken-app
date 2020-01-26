@@ -6,7 +6,7 @@ const configJson = {
   REMOTE_USER: process.env.REMOTE_USER,
   REMOTE_PASSWORD: process.env.REMOTE_PASSWORD,
   REMOTE_DATABASE: process.env.REMOTE_DATABASE,
-  LOCAL_DATABASE: 'schocken-local-prod',
+  LOCAL_DATABASE: process.env.LOCAL_DATABASE,
   SENTRY_URL: process.env.SENTRY_URL,
   ROLLBAR_ACCESS_TOKEN: process.env.ROLLBAR_ACCESS_TOKEN
 };
@@ -14,4 +14,5 @@ const configJson = {
 const file = resolve(__dirname, '..', 'projects', 'hop-web', 'src', 'environments', 'env.prod.json');
 writeFileSync(file, JSON.stringify(configJson), { encoding: 'utf-8' });
 
+console.log(`Using the following config for Angular's production environment: ${JSON.stringify(configJson)}`);
 console.log(`Wrote db config info to ${resolve(__dirname, '..', 'projects', 'hop-web', 'src', 'environments', 'env.prod.json')}`);

@@ -1,0 +1,9 @@
+# branch 'master'
+[context.production]
+  command = "npm run build:netlify"
+  environment = { REMOTE_DATABASE = "schocken-remote-prod", LOCAL_DATABASE = "schocken-local-prod" }
+
+# branch 'staging'
+[context.staging]
+  command = "npm run build:netlify"
+  environment = { REMOTE_DATABASE = "schocken-remote-staging", LOCAL_DATABASE = "schocken-local-staging" }
