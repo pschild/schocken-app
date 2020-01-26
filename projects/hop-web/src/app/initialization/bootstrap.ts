@@ -6,7 +6,7 @@ import { SwUpdateService } from '../core/service/sw-update.service';
 
 export const appInitializerFn = (pouchDb: PouchDbAdapter, injector: Injector) => {
   return () => initializeDatabase(pouchDb).pipe(
-    switchMap(result => checkForAppUpdate(injector))
+    // switchMap(result => checkForAppUpdate(injector))
   ).toPromise();
 };
 
