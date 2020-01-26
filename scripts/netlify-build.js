@@ -1,15 +1,12 @@
 const { resolve } = require('path');
 const { writeFileSync } = require('fs-extra');
 
-console.log(`VALUE FOR REMOTE_USER=${process.env.REMOTE_USER}`);
-console.log(`VALUE FOR REMOTE_DATABASE=${process.env.REMOTE_DATABASE}`);
-
 const configJson = {
   REMOTE_URL: process.env.REMOTE_URL,
   REMOTE_USER: process.env.REMOTE_USER,
   REMOTE_PASSWORD: process.env.REMOTE_PASSWORD,
   REMOTE_DATABASE: process.env.REMOTE_DATABASE,
-  LOCAL_DATABASE: 'schocken-local-prod',
+  LOCAL_DATABASE: process.env.LOCAL_DATABASE,
   SENTRY_URL: process.env.SENTRY_URL,
   ROLLBAR_ACCESS_TOKEN: process.env.ROLLBAR_ACCESS_TOKEN
 };
