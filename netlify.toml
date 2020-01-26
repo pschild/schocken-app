@@ -1,9 +1,9 @@
 # branch 'master'
 [context.production]
-  command = "echo 'production/master'"
+  command = "echo 'production/master' && npm run build:netlify"
   environment = { MY_ENV = "production" }
 
 # branch 'staging'
 [context.staging]
-  command = "echo 'staging'"
+  command = "echo 'staging' && npm run build:netlify"
   environment = { MY_ENV = "staging" }
