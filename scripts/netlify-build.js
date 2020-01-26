@@ -1,6 +1,9 @@
 const { resolve } = require('path');
 const { writeFileSync } = require('fs-extra');
 
+console.log(`VALUE FOR REMOTE_USER=${process.env.REMOTE_USER}`);
+console.log(`VALUE FOR REMOTE_DATABASE=${process.env.REMOTE_DATABASE}`);
+
 const configJson = {
   REMOTE_URL: process.env.REMOTE_URL,
   REMOTE_USER: process.env.REMOTE_USER,
