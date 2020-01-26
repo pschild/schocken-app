@@ -17,5 +17,6 @@ const initializeDatabase = (pouchDb: PouchDbAdapter): Observable<any> => {
 const checkForAppUpdate = (injector: Injector): Observable<any> => {
     const updateService: SwUpdateService = injector.get(SwUpdateService);
     updateService.checkForUpdate();
+    // Return an empty observable. Do NOT return sth. like from(updateService.checkForUpdate()) as this blocks the UI in case of an update!
     return of({});
 };

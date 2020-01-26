@@ -87,6 +87,15 @@ export class FoobarDataProvider {
     );
   }
 
+  createNewRound(gameId: string): void {
+    this.roundRepository.create({ gameId, currentPlayerId: '42', attendeeList: [] }).pipe(
+      withLatestFrom(this.roundEventsState$),
+      map(([createdId, roundEventsState]: [string, GameTableRowVo[]]) => {
+        return [...roundEventsState, { roundId: createdId, eventsByPlayer: {} }];
+      })
+    ).subscribe((roundEventsState: GameTableRowVo[]) => this.roundEventsState$.next(roundEventsState));
+  }
+
   addGameEvent(eventType: EventTypeItemVo, gameId: string, playerId: string): void {
     this.gameEventRepository.create({
       eventTypeId: eventType.id,
@@ -198,7 +207,8 @@ export class FoobarDataProvider {
       take(1),
       switchMap((eventTypes: EventTypeDto[]) => this.loadRoundsByGameId(gameId).pipe(
         mergeMap((rounds: RoundDto[]) => rounds),
-        mergeMap((round: RoundDto) => forkJoin(of(round._id), this.roundEventRepository.findByRoundId(round._id))),
+        // use concatMap as order is important
+        concatMap((round: RoundDto) => forkJoin(of(round._id), this.roundEventRepository.findByRoundId(round._id))),
         map(([roundId, roundEvents]: [string, RoundEventDto[]]) => this.buildTableRow(roundEvents, eventTypes, roundId)),
         toArray()
       )),
@@ -212,6 +222,10 @@ export class FoobarDataProvider {
   }
 
   private buildTableRow(events: EventDto[], eventTypes: EventTypeDto[], roundId?: string): GameTableRowVo {
+    if (!events.length) {
+      return { roundId, eventsByPlayer: {} };
+    }
+
     const groupedEvents = this.groupBy<EventDto>(events, 'playerId');
     const eventsByPlayer = {};
     Object.entries(groupedEvents).map(([playerId, playerEvents]: [string, EventDto[]]) => {

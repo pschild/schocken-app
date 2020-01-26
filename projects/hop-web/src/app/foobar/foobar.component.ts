@@ -81,6 +81,12 @@ export class FoobarComponent implements OnInit {
     ));
   }
 
+  createNewRound(): void {
+    this.gameId$.pipe(
+      take(1)
+    ).subscribe((gameId: string) => this.dataProvider.createNewRound(gameId));
+  }
+
   onRemoveGameEvent(eventId: string, playerId: string): void {
     this.dataProvider.removeGameEvent(eventId, playerId);
   }
