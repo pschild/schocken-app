@@ -3,10 +3,7 @@
     <table *ngIf="roundEventsByPlayer$ | async as roundEventsByPlayer; else loadingSpinner">
       <tr>
         <th></th>
-        <th *ngFor="let player of activePlayers">
-          <div>{{player.name}}</div>
-          <mat-slide-toggle [checked]="true">im Spiel</mat-slide-toggle>
-        </th>
+        <th *ngFor="let player of activePlayers">{{player.name}}</th>
       </tr>
       <tr *ngIf="gameEventsByPlayer$ | async as gameEventsByPlayer">
         <td>Festst.:</td>
@@ -30,7 +27,7 @@
             [playerId]="player._id"
             (removeEvent)="onRemoveRoundEvent($event, item.roundId, player._id)"
           ></hop-foobar-cell>
-          <button mat-button color="primary" (click)="showRoundEventTypeDialog()">
+          <button mat-button color="primary" (click)="showRoundEventTypeDialog(player, item.roundId)">
             <mat-icon>add</mat-icon>
           </button>
         </td>

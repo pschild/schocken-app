@@ -19,6 +19,7 @@ export class FoobarComponent implements OnInit {
   gameId$: Observable<string>;
   activePlayers$: Observable<PlayerDto[]>;
   gameEventTypesState$: Observable<EventTypeItemVo[]>;
+  roundEventTypesState$: Observable<EventTypeItemVo[]>;
   gameEventsByPlayer$: Observable<GameTableRowVo>;
   roundEventsByPlayer$: Observable<GameTableRowVo[]>;
   sums$: Observable<PlayerSumVo[]>;
@@ -33,6 +34,7 @@ export class FoobarComponent implements OnInit {
     this.gameId$ = this.route.params.pipe(map((params: Params) => params.gameId));
     this.activePlayers$ = this.dataProvider.loadAllActivePlayers();
     this.gameEventTypesState$ = this.dataProvider.getGameEventTypesState();
+    this.roundEventTypesState$ = this.dataProvider.getRoundEventTypesState();
     this.gameEventsByPlayer$ = this.dataProvider.getGameEvents();
     this.roundEventsByPlayer$ = this.dataProvider.getRoundEvents();
     this.sums$ = this.dataProvider.getSums();
@@ -62,8 +64,21 @@ export class FoobarComponent implements OnInit {
     ));
   }
 
-  showRoundEventTypeDialog(): void {
-
+  showRoundEventTypeDialog(player: PlayerDto, roundId: string): void {
+    this.roundEventTypesState$.pipe(
+      take(1),
+      map((roundEventTypes: EventTypeItemVo[]) => this.dialog.open(EventTypeListModalComponent, {
+        width: '500px',
+        maxWidth: '90%',
+        autoFocus: false,
+        data: { eventTypes: roundEventTypes, player, roundId }
+      })),
+      switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),
+      // TODO: import interface
+      filter((dialogResult: { eventType: EventTypeItemVo; playerId: string; gameId?: string; roundId?: string; }) => !!dialogResult)
+    ).subscribe(dialogResult => this.dataProvider.addRoundEvent(
+      dialogResult.eventType, dialogResult.roundId, dialogResult.playerId
+    ));
   }
 
   onRemoveGameEvent(eventId: string, playerId: string): void {

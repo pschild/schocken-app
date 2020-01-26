@@ -79,8 +79,21 @@ export class FoobarDataProvider {
     );
   }
 
+  getRoundEventTypesState(): Observable<EventTypeItemVo[]> {
+    return this.eventTypesState$.asObservable().pipe(
+      map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(
+        eventTypes.filter((eventType: EventTypeDto) => eventType.context === EventTypeContext.ROUND)
+      ))
+    );
+  }
+
   addGameEvent(eventType: EventTypeItemVo, gameId: string, playerId: string): void {
-    this.gameEventRepository.create({ eventTypeId: eventType.id, gameId, playerId, multiplicatorValue: eventType.multiplicatorValue }).pipe(
+    this.gameEventRepository.create({
+      eventTypeId: eventType.id,
+      gameId,
+      playerId,
+      multiplicatorValue: eventType.multiplicatorValue
+    }).pipe(
       switchMap((createdId: string) => this.gameEventRepository.get(createdId)),
       // TODO: instead of this.gameRepository.get, get from private state?
       withLatestFrom(this.gameEventsState$, this.gameRepository.get(gameId)),
@@ -100,6 +113,35 @@ export class FoobarDataProvider {
       }),
       tap(_ => console.log('%c🔎ADDED GAME EVENT', 'color: #f00'))
     ).subscribe((gameEventsState: GameTableRowVo) => this.gameEventsState$.next(gameEventsState));
+  }
+
+  addRoundEvent(eventType: EventTypeItemVo, roundId: string, playerId: string): void {
+    this.roundEventRepository.create({
+      eventTypeId: eventType.id,
+      roundId,
+      playerId,
+      multiplicatorValue: eventType.multiplicatorValue
+    }).pipe(
+      switchMap((createdId: string) => this.roundEventRepository.get(createdId)),
+      // TODO: instead of this.gameRepository.get, get from private state?
+      withLatestFrom(this.roundEventsState$, this.roundRepository.get(roundId)),
+      tap(([createdEvent, roundEventsState, round]: [RoundEventDto, GameTableRowVo[], RoundDto]) =>
+        this.eventHandlerService.handleRoundEvent(eventType, round)
+      ),
+      map(([createdEvent, roundEventsState, round]: [RoundEventDto, GameTableRowVo[], RoundDto]) => {
+        const eventsByRoundId = roundEventsState.find((roundEvent: GameTableRowVo) => roundEvent.roundId === roundId);
+        eventsByRoundId.eventsByPlayer[playerId] = [
+          ...eventsByRoundId.eventsByPlayer[playerId] || [],
+          this.playerEventVoMapperService.mapToVo(createdEvent, {
+            description: eventType.description,
+            penalty: eventType.penalty,
+            multiplicatorUnit: eventType.multiplicatorUnit
+          })
+        ];
+        return roundEventsState;
+      }),
+      tap(_ => console.log('%c🔎ADDED ROUND EVENT', 'color: #f00'))
+    ).subscribe((roundEventsState: GameTableRowVo[]) => this.roundEventsState$.next(roundEventsState));
   }
 
   removeGameEvent(eventId: string, playerId: string): void {

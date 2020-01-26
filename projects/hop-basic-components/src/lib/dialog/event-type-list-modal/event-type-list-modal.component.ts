@@ -6,14 +6,16 @@ import { PlayerDto } from '@hop-backend-api';
 export interface DialogData {
   eventTypes: EventTypeItemVo[];
   player: PlayerDto;
-  gameId: string;
+  gameId?: string;
+  roundId?: string;
 }
 
 // TODO: expose interface
 export interface EventTypeListModalDialogResult {
   eventType: EventTypeItemVo;
   playerId: string;
-  gameId: string;
+  gameId?: string;
+  roundId?: string;
 }
 
 @Component({
@@ -35,7 +37,8 @@ export class EventTypeListModalComponent implements OnInit {
     const dialogResult: EventTypeListModalDialogResult = {
       eventType,
       playerId: this.data.player._id,
-      gameId: this.data.gameId
+      gameId: this.data.gameId,
+      roundId: this.data.roundId
     };
     this.dialogRef.close(dialogResult);
   }
