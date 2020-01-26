@@ -1,12 +1,12 @@
 import { Injector } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Observable, from, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { PouchDbAdapter } from '@hop-backend-api';
 import { SwUpdateService } from '../core/service/sw-update.service';
 
 export const appInitializerFn = (pouchDb: PouchDbAdapter, injector: Injector) => {
   return () => initializeDatabase(pouchDb).pipe(
-    // switchMap(result => checkForAppUpdate(injector))
+    switchMap(result => checkForAppUpdate(injector))
   ).toPromise();
 };
 
@@ -16,5 +16,6 @@ const initializeDatabase = (pouchDb: PouchDbAdapter): Observable<any> => {
 
 const checkForAppUpdate = (injector: Injector): Observable<any> => {
     const updateService: SwUpdateService = injector.get(SwUpdateService);
-    return from(updateService.checkForUpdate());
+    updateService.checkForUpdate();
+    return of({});
 };
