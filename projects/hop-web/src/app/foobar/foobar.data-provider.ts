@@ -47,13 +47,16 @@ export class FoobarDataProvider {
     private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
     private playerEventVoMapperService: PlayerEventVoMapperService
   ) {
+    // whenever gameEvents or roundEvents change ...
     this.sums$ = combineLatest(this.gameEventsState$, this.roundEventsState$).pipe(
       filter(([gameEventsState, roundEventsState]: [GameTableRowVo, GameTableRowVo[]]) =>
         !!gameEventsState
         && !!roundEventsState
         && roundEventsState.length > 0
       ),
+      // ... combine them into one single array ...
       map(([gameEventsState, roundEventsState]: [GameTableRowVo, GameTableRowVo[]]) => [gameEventsState, ...roundEventsState]),
+      // ... and calculate sums per player
       map((combinedState: GameTableRowVo[]) => this.calculateSumsPerPlayer(combinedState)),
       tap(_ => console.log('%c🔎CALCULATED SUMS', 'color: #f00'))
     );
@@ -88,8 +91,10 @@ export class FoobarDataProvider {
   }
 
   createNewRound(gameId: string): void {
+    // TODO: change params 42 and []
     this.roundRepository.create({ gameId, currentPlayerId: '42', attendeeList: [] }).pipe(
       withLatestFrom(this.roundEventsState$),
+      // push a new array item to roundEvents (with empty eventsByPlayer)
       map(([createdId, roundEventsState]: [string, GameTableRowVo[]]) => {
         return [...roundEventsState, { roundId: createdId, eventsByPlayer: {} }];
       })
@@ -97,18 +102,22 @@ export class FoobarDataProvider {
   }
 
   addGameEvent(eventType: EventTypeItemVo, gameId: string, playerId: string): void {
+    // create the gameEvent
     this.gameEventRepository.create({
       eventTypeId: eventType.id,
       gameId,
       playerId,
       multiplicatorValue: eventType.multiplicatorValue
     }).pipe(
+      // load the created event
       switchMap((createdId: string) => this.gameEventRepository.get(createdId)),
       // TODO: instead of this.gameRepository.get, get from private state?
       withLatestFrom(this.gameEventsState$, this.gameRepository.get(gameId)),
+      // call handler to handle the event
       tap(([createdEvent, gameEventsState, game]: [GameEventDto, GameTableRowVo, GameDto]) =>
         this.eventHandlerService.handleGameEvent(eventType, game)
       ),
+      // get current gameEvents and push the created gameEvent
       map(([createdEvent, gameEventsState, game]: [GameEventDto, GameTableRowVo, GameDto]) => {
         gameEventsState.eventsByPlayer[playerId] = [
           ...gameEventsState.eventsByPlayer[playerId] || [],
@@ -125,14 +134,18 @@ export class FoobarDataProvider {
   }
 
   addRoundEvent(eventType: EventTypeItemVo, roundId: string, playerId: string): void {
+    // create the roundEvent
     this.roundEventRepository.create({
       eventTypeId: eventType.id,
       roundId,
       playerId,
       multiplicatorValue: eventType.multiplicatorValue
     }).pipe(
+      // load the created event
       switchMap((createdId: string) => this.roundEventRepository.get(createdId)),
+      // load round
       withLatestFrom(this.roundEventsState$, this.eventTypesState$, this.roundRepository.get(roundId)),
+      // call handler to handle the event
       concatMap(([createdEvent, roundEventsState, eventTypes, round]: [RoundEventDto, GameTableRowVo[], EventTypeDto[], RoundDto]) => {
         return forkJoin(
           of(roundEventsState),
@@ -140,6 +153,7 @@ export class FoobarDataProvider {
           this.eventHandlerService.handleRoundEvent(eventType, round)
         );
       }),
+      // refresh the roundEvents by given roundId, because there could be round events added for other players by event handler
       switchMap(([roundEventsState, eventTypes, eventHandlerResult]: [GameTableRowVo[], EventTypeDto[], any]) => {
         return this.roundEventRepository.findByRoundId(roundId).pipe(
           switchMap((roundEvents: RoundEventDto[]) => forkJoin(
@@ -148,6 +162,7 @@ export class FoobarDataProvider {
           )
         ));
       }),
+      // find the according row in roundEvents and update it with the refreshed data
       map(([roundEventsState, updatedRoundRow]: [GameTableRowVo[], GameTableRowVo]) => {
         const roundRow = roundEventsState.find((roundEvent: GameTableRowVo) => roundEvent.roundId === roundId);
         roundRow.eventsByPlayer = updatedRoundRow.eventsByPlayer;
@@ -158,8 +173,10 @@ export class FoobarDataProvider {
   }
 
   removeGameEvent(eventId: string, playerId: string): void {
+    // remove the event
     this.gameEventRepository.removeById(eventId).pipe(
       withLatestFrom(this.gameEventsState$),
+      // remove the event from state
       map(([removedId, gameEvents]: [string, GameTableRowVo]) => {
         if (!gameEvents || !gameEvents.eventsByPlayer[playerId]) {
           throw new Error(`Cannot remove game event. No game events for player ${playerId}`);
@@ -172,8 +189,10 @@ export class FoobarDataProvider {
   }
 
   removeRoundEvent(eventId: string, roundId: string, playerId: string): void {
+    // remove the event
     this.roundEventRepository.removeById(eventId).pipe(
       withLatestFrom(this.roundEventsState$),
+      // remove the event from state
       map(([removedId, roundRows]: [string, GameTableRowVo[]]) => {
         const roundRow: GameTableRowVo = roundRows.find((row: GameTableRowVo) => row.roundId === roundId);
         if (!roundRow || !roundRow.eventsByPlayer[playerId]) {
@@ -194,25 +213,34 @@ export class FoobarDataProvider {
   }
 
   loadGameEventsState(gameId: string): void {
+    // load all gameEvents by gameId
     this.gameEventRepository.findByGameId(gameId).pipe(
+      // combine it with loaded eventTypes
       withLatestFrom(this.eventTypesState$),
+      // build a row for the gameEvents
       map(([gameEvents, eventTypes]: [GameEventDto[], EventTypeDto[]]) => this.buildTableRow(gameEvents, eventTypes)),
       tap(_ => console.log('%c🔎LOADED GAME EVENTS BY GAMEID', 'color: #f00'))
     ).subscribe((row: GameTableRowVo) => this.gameEventsState$.next(row));
   }
 
   loadRoundEventsState(gameId: string): void {
+    // get the currently loaded eventTypes
     this.eventTypesState$.pipe(
       filter((eventTypes: EventTypeDto[]) => !!eventTypes && eventTypes.length > 0),
       take(1),
+      // load all rounds by gameId
       switchMap((eventTypes: EventTypeDto[]) => this.loadRoundsByGameId(gameId).pipe(
+        // transform the stream to emit single array items
         mergeMap((rounds: RoundDto[]) => rounds),
-        // use concatMap as order is important
+        // load roundEvents for each round - use concatMap as order is important!
         concatMap((round: RoundDto) => forkJoin(of(round._id), this.roundEventRepository.findByRoundId(round._id))),
+        // build a row for each roundEvent
         map(([roundId, roundEvents]: [string, RoundEventDto[]]) => this.buildTableRow(roundEvents, eventTypes, roundId)),
+        // transform single items into an array again
         toArray()
       )),
-      tap(_ => console.log('%c🔎LOADED ROUND EVENTS BY GAMEID', 'color: #f00'))
+      tap(_ => console.log('%c🔎LOADED ROUND EVENTS BY GAMEID', 'color: #f00')),
+      tap(console.log)
     ).subscribe((rows: GameTableRowVo[]) => this.roundEventsState$.next(rows));
   }
 
@@ -226,10 +254,12 @@ export class FoobarDataProvider {
       return { roundId, eventsByPlayer: {} };
     }
 
+    // group events by playerId
     const groupedEvents = this.groupBy<EventDto>(events, 'playerId');
     const eventsByPlayer = {};
     Object.entries(groupedEvents).map(([playerId, playerEvents]: [string, EventDto[]]) => {
       eventsByPlayer[playerId] = playerEvents.map((event: EventDto): PlayerEventVo => {
+        // for each event, find the according eventType by its it
         const typeOfEvent: EventTypeDto = eventTypes.find(et => et._id === event.eventTypeId);
         const eventTypeAtEventTime: Partial<EventTypeDto> = this.eventListService.getActiveHistoryItemAtDatetime(
           typeOfEvent.history, event.datetime
