@@ -21,6 +21,10 @@
       <tr *ngFor="let item of roundEventsByPlayer; let i = index">
         <td>Rd. {{i + 1}}</td>
         <td *ngFor="let player of activePlayers">
+          <!-- <mat-slide-toggle *ngIf="!item.eventsByPlayer[player._id] || !item.eventsByPlayer[player._id].length" [checked]="false">nimmt teil</mat-slide-toggle> -->
+          <button mat-icon-button>
+            <mat-icon>remove</mat-icon>
+          </button>
           <hop-foobar-cell
             [playerEvents]="item.eventsByPlayer[player._id]"
             [roundId]="item.roundId"

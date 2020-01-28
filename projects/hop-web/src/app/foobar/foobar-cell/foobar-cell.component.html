@@ -1,9 +1,11 @@
-<div *ngFor="let event of playerEvents">
-  {{event.description}}
-  <span *ngIf="event.penalty as penalty">
-    {{penalty.value * event.multiplicatorValue | number:'1.2'}} {{penalty.unit}}
-  </span>
-  <button mat-icon-button color="warn" (click)="remove(event.id)">
-    <mat-icon>delete</mat-icon>
-</button>
+<div *ngFor="let event of playerEvents" class="round-event-container">
+  <div>{{event.description}}</div>
+  <div class="right-column">
+    <span *ngIf="event.penalty as penalty">
+      {{penalty.value * event.multiplicatorValue | number:'1.2'}} {{penalty.unit}}
+    </span>
+    <button mat-icon-button color="warn" (click)="remove(event.id)">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
 </div>
