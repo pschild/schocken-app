@@ -20,23 +20,6 @@ export class SwUpdateService {
     private updates: SwUpdate,
     dialogService: DialogService
   ) {
-    // updates.available.subscribe((event: UpdateAvailableEvent) => {
-    //   console.log('current version is', event.current);
-    //   console.log('available version is', event.available);
-    //   const versionInfo = event.available.appData as VersionInfo;
-
-    //   dialogService.showYesNoDialog({
-    //     title: `Update verfügbar`,
-    //     message: `Ein Update auf Version ${versionInfo.version} ist verfügbar. Update jetzt installieren?`
-    //   }).subscribe((dialogResult: IDialogResult) => {
-    //     if (dialogResult.result === DialogResult.YES) {
-    //       updates.activateUpdate().then(() => {
-    //         document.location.reload();
-    //       });
-    //     }
-    //   });
-    // });
-
     updates.available.pipe(
       take(1),
       tap((event: UpdateAvailableEvent) => {
