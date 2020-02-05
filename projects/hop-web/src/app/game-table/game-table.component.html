@@ -8,7 +8,11 @@
       <tr *ngIf="gameEventsRow$ | async as gameEventsRow">
         <td>Festst.:</td>
         <td *ngFor="let player of activePlayers">
-          <div *ngFor="let e of gameEventsRow | getEventsForPlayer:player._id">{{e.eventTypeDescription}}</div>
+          <hop-event-list-new
+            [events]="gameEventsRow | getEventsForPlayer:player._id"
+            [playerId]="player._id"
+            (removeEvent)="onRemoveGameEvent($event, player._id)"
+          ></hop-event-list-new>
           <button mat-button color="primary" (click)="showGameEventTypeDialog(player)">
             <mat-icon>add</mat-icon>
           </button>

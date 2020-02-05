@@ -101,6 +101,7 @@ export class GameTableDataProvider {
   }
 
   addGameEvent(eventType: EventTypeItemVo, gameId: string, playerId: string): void {
+    // create the event
     this.gameEventRepository.create({
       eventTypeId: eventType.id,
       gameId,
@@ -125,6 +126,24 @@ export class GameTableDataProvider {
         return Object.assign({}, currentState);
       }),
       tap(_ => console.log('%c🔎ADDED GAME EVENT', 'color: #f00'))
+    ).subscribe((row: GameEventsRowVo) => this.gameEventsRow$.next(row));
+  }
+
+  removeGameEvent(eventId: string, playerId: string): void {
+    // remove the event
+    this.gameEventRepository.removeById(eventId).pipe(
+      // merge the latest state
+      withLatestFrom(this.gameEventsRow$),
+      // remove the event from the latest state
+      map(([removedId, currentState]: [string, GameEventsRowVo]) => {
+        const eventsOfPlayer: GameEventsColumnVo = currentState.columns.find((column: GameEventsColumnVo) => column.playerId === playerId);
+        if (eventsOfPlayer && eventsOfPlayer.events) {
+          eventsOfPlayer.events = eventsOfPlayer.events.filter((event: PlayerEventVo) => event.eventId !== removedId);
+        }
+        // IMPORTANT: return a new Object, so that CD in Component gets triggered!
+        return Object.assign({}, currentState);
+      }),
+      tap(_ => console.log('%c🔎REMOVED GAME EVENT', 'color: #f00'))
     ).subscribe((row: GameEventsRowVo) => this.gameEventsRow$.next(row));
   }
 

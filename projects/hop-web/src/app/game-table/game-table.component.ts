@@ -72,6 +72,10 @@ export class GameTableComponent implements OnInit {
     });
   }
 
+  onRemoveGameEvent(eventId: string, playerId: string): void {
+    this.dataProvider.removeGameEvent(eventId, playerId);
+  }
+
   showGameEventTypeDialog(player: PlayerDto): void {
     this.gameEventTypes$.pipe(
       take(1),
