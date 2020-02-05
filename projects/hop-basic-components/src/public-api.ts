@@ -33,6 +33,8 @@ export * from './lib/dialog/dialog.enum';
 export * from './lib/dialog/dialog-button-config';
 export * from './lib/dialog/dialog-config';
 
+export * from './lib/dialog/event-type-list-modal/model';
+
 /**
  * Services
  */

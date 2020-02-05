@@ -1,0 +1,19 @@
+<div class="table-container">
+  <ng-container *ngIf="activePlayers$ | async as activePlayers">
+    <table>
+      <tr>
+        <th></th>
+        <th *ngFor="let player of activePlayers">{{player.name}}</th>
+      </tr>
+      <tr *ngIf="gameEventsRow$ | async as gameEventsRow">
+        <td>Festst.:</td>
+        <td *ngFor="let player of activePlayers">
+          <div *ngFor="let e of gameEventsRow | getEventsForPlayer:player._id">{{e.eventTypeDescription}}</div>
+          <button mat-button color="primary" (click)="showGameEventTypeDialog(player)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </td>
+      </tr>
+    </table>
+  </ng-container>
+</div>

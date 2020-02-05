@@ -1,22 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { EventTypeItemVo } from '../../event-type-list/model/event-type-item.vo';
-import { PlayerDto } from '@hop-backend-api';
-
-export interface EventTypeListModalDialogData {
-  eventTypes: EventTypeItemVo[];
-  player: PlayerDto;
-  gameId?: string;
-  roundId?: string;
-}
-
-// TODO: expose interface
-export interface EventTypeListModalDialogResult {
-  eventType: EventTypeItemVo;
-  playerId: string;
-  gameId?: string;
-  roundId?: string;
-}
+import { EventTypeListModalDialogData, EventTypeListModalDialogResult } from './model';
 
 @Component({
   selector: 'hop-event-type-list-modal',
