@@ -58,22 +58,27 @@ export class GameTableComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.activePlayers$ = this.dataProvider.loadAllActivePlayers();
     this.gameEventTypes$ = this.dataProvider.getGameEventTypes();
     this.roundEventTypes$ = this.dataProvider.getRoundEventTypes();
     this.gameEventsRow$ = this.dataProvider.getGameEventsRow();
     this.roundEventsRows$ = this.dataProvider.getRoundEventsRows();
 
+    this.activePlayers$ = this.dataProvider.loadAllActivePlayers();
     this.dataProvider.loadAllEventTypes();
 
     this.gameId$ = this.route.params.pipe(map((params: Params) => params.gameId));
     this.gameId$.subscribe((gameId: string) => {
       this.dataProvider.loadGameEventsRow(gameId);
+      this.dataProvider.loadRoundEventsRows(gameId);
     });
   }
 
   onRemoveGameEvent(eventId: string, playerId: string): void {
     this.dataProvider.removeGameEvent(eventId, playerId);
+  }
+
+  onRemoveRoundEvent(eventId: string, roundId: string, playerId: string): void {
+    this.dataProvider.removeRoundEvent(eventId, roundId, playerId);
   }
 
   showGameEventTypeDialog(player: PlayerDto): void {

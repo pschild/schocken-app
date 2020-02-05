@@ -7,11 +7,16 @@ import {
   EventTypeRepository,
   EventTypeDto,
   EventDto,
-  EventTypeContext
+  EventTypeContext,
+  RoundRepository,
+  RoundDto,
+  RoundEventRepository,
+  RoundEventDto,
+  ParticipationDto
 } from '@hop-backend-api';
 import { Observable, BehaviorSubject, of, zip, GroupedObservable } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
-import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, filter } from 'rxjs/operators';
+import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap } from 'rxjs/operators';
 import { EventListService, EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
 import { PlayerEventVoMapperService } from './mapper/player-event-vo-mapper.service';
 import { PlayerEventVo } from './model/player-event.vo';
@@ -19,6 +24,8 @@ import { GameEventsColumnVo } from './model/game-events-column.vo';
 import { GameEventsRowVoMapperService } from './mapper/game-events-row-vo-mapper.service';
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { RoundEventsRowVo } from './model/round-events-row.vo';
+import { RoundEventsColumnVo } from './model/round-events-column.vo';
+import { RoundEventsRowVoMapperService } from './mapper/round-events-row-vo-mapper.service';
 
 @Injectable({
   providedIn: 'root'
@@ -31,11 +38,14 @@ export class GameTableDataProvider {
 
   constructor(
     private playerRepository: PlayerRepository,
+    private roundRepository: RoundRepository,
     private gameEventRepository: GameEventRepository,
+    private roundEventRepository: RoundEventRepository,
     private eventTypeRepository: EventTypeRepository,
     private eventListService: EventListService,
     private playerEventVoMapperService: PlayerEventVoMapperService,
     private gameEventsRowVoMapperService: GameEventsRowVoMapperService,
+    private roundEventsRowVoMapperService: RoundEventsRowVoMapperService,
     private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
     private sortService: SortService
   ) {
@@ -95,6 +105,7 @@ export class GameTableDataProvider {
       }),
       // collect all GameEventsColumnVos
       toArray(),
+      // map to GameEventsRowVo
       map((columns: GameEventsColumnVo[]): GameEventsRowVo => this.gameEventsRowVoMapperService.mapToVo(columns)),
       tap(_ => console.log('%c🔎LOADED GAME EVENTS BY GAMEID', 'color: #f00'))
     ).subscribe((row: GameEventsRowVo) => this.gameEventsRow$.next(row));
@@ -147,12 +158,45 @@ export class GameTableDataProvider {
     ).subscribe((row: GameEventsRowVo) => this.gameEventsRow$.next(row));
   }
 
-  loadRoundEventsRows(): void {
-    // TODO
+  loadRoundEventsRows(gameId: string): void {
+    // load all rounds by gameId
+    this.loadRoundsByGameId(gameId).pipe(
+      // emit single array items
+      concatAll(),
+      // find all round events for each round
+      concatMap((round: RoundDto) => this.roundEventRepository.findByRoundId(round._id).pipe(
+        // emit single events
+        concatAll(),
+        // group events by playerId
+        groupBy((event: RoundEventDto): string => event.playerId),
+        // for each group of playerId => round events[]:
+        mergeMap((group$: GroupedObservable<string, RoundEventDto>) => zip(
+          of(group$.key),
+          this.expandWithEventTypes(group$).pipe(toArray())
+        )),
+        // transform emitted array to RoundEventsColumnVo
+        map(([playerId, events]: [string, PlayerEventVo[]]): RoundEventsColumnVo => {
+          return { playerId, events };
+        }),
+        // collect all RoundEventsColumnVos
+        toArray(),
+        // map to RoundEventsRowVo
+        map((columns: RoundEventsColumnVo[]): RoundEventsRowVo => this.roundEventsRowVoMapperService.mapToVo(round, columns)),
+      )),
+      // collect all RoundEventsRowVos
+      toArray(),
+      tap(_ => console.log('%c🔎LOADED GAME EVENTS BY GAMEID', 'color: #f00'))
+    ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
   addRoundEvent(eventType: EventTypeItemVo, roundId: string, playerId: string): void {
     // TODO
+    console.log('addRoundEvent', eventType, roundId, playerId);
+  }
+
+  removeRoundEvent(eventId: string, roundId: string, playerId: string): void {
+    // TODO
+    console.log('removeRoundEvent', eventId, roundId, playerId);
   }
 
   /**
@@ -174,6 +218,12 @@ export class GameTableDataProvider {
         const latestEventType = this.eventListService.getActiveHistoryItemAtDatetime(typeOfEvent.history, event.datetime);
         return this.playerEventVoMapperService.mapToVo(event, latestEventType);
       })
+    );
+  }
+
+  private loadRoundsByGameId(id: string): Observable<RoundDto[]> {
+    return this.roundRepository.getRoundsByGameId(id).pipe(
+      map((rounds: RoundDto[]) => rounds.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.ASC)))
     );
   }
 }

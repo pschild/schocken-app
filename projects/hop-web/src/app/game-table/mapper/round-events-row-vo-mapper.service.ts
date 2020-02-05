@@ -11,6 +11,7 @@ export class RoundEventsRowVoMapperService {
   mapToVo(round: RoundDto, columns: RoundEventsColumnVo[]): RoundEventsRowVo {
     const vo = new RoundEventsRowVo();
     vo.roundId = round._id;
+    vo.attendeeList = round.attendeeList;
     vo.columns = columns;
     return vo;
   }

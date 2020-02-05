@@ -1,6 +1,6 @@
 <div class="table-container">
   <ng-container *ngIf="activePlayers$ | async as activePlayers">
-    <table>
+    <table *ngIf="roundEventsRows$ | async as roundEventsRows">
       <tr>
         <th></th>
         <th *ngFor="let player of activePlayers">{{player.name}}</th>
@@ -16,6 +16,35 @@
           <button mat-button color="primary" (click)="showGameEventTypeDialog(player)">
             <mat-icon>add</mat-icon>
           </button>
+        </td>
+      </tr>
+      <tr *ngFor="let roundEventsRow of roundEventsRows; let i = index">
+        <td>Rd. {{i + 1}}</td>
+        <td *ngFor="let player of activePlayers">
+          <mat-slide-toggle [checked]="roundEventsRow | getParticipationStatusForPlayer: player._id">dabei</mat-slide-toggle>
+          <hop-event-list-new
+            [events]="roundEventsRow | getEventsForPlayer:player._id"
+            [roundId]="roundEventsRow.roundId"
+            [playerId]="player._id"
+            (removeEvent)="onRemoveRoundEvent($event, roundEventsRow.roundId, player._id)"
+          ></hop-event-list-new>
+          <button mat-button color="primary" (click)="showRoundEventTypeDialog(player, roundEventsRow.roundId)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button mat-raised-button color="primary" (click)="createNewRound()">
+            <mat-icon>add</mat-icon>
+            Rd. {{roundEventsRows.length + 1}}
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <td>&sum;</td>
+        <td *ngFor="let player of activePlayers">
+          42 €
         </td>
       </tr>
     </table>
