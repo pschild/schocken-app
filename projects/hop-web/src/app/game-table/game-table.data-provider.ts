@@ -16,7 +16,7 @@ import {
 } from '@hop-backend-api';
 import { Observable, BehaviorSubject, of, zip, GroupedObservable } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
-import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap } from 'rxjs/operators';
+import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take } from 'rxjs/operators';
 import { EventListService, EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
 import { PlayerEventVoMapperService } from './mapper/player-event-vo-mapper.service';
 import { PlayerEventVo } from './model/player-event.vo';
@@ -123,6 +123,7 @@ export class GameTableDataProvider {
       switchMap((createdId: string) => this.gameEventRepository.get(createdId)),
       // expand it with its EventType
       switchMap((createdEvent: GameEventDto) => this.expandWithEventTypes(of(createdEvent))),
+      // TODO: handle event with eventhandler
       // merge the latest state
       withLatestFrom(this.gameEventsRow$),
       // push the created event to the latest state
@@ -185,18 +186,116 @@ export class GameTableDataProvider {
       )),
       // collect all RoundEventsRowVos
       toArray(),
-      tap(_ => console.log('%c🔎LOADED GAME EVENTS BY GAMEID', 'color: #f00'))
+      tap(_ => console.log('%c🔎LOADED ROUND EVENTS BY GAMEID', 'color: #f00'))
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
   addRoundEvent(eventType: EventTypeItemVo, roundId: string, playerId: string): void {
-    // TODO
-    console.log('addRoundEvent', eventType, roundId, playerId);
+    // create the event
+    this.roundEventRepository.create({
+      eventTypeId: eventType.id,
+      roundId,
+      playerId,
+      multiplicatorValue: eventType.multiplicatorValue
+    }).pipe(
+      // load the created event
+      switchMap((createdId: string) => this.roundEventRepository.get(createdId)),
+      // expand it with its EventType
+      switchMap((createdEvent: RoundEventDto) => this.expandWithEventTypes(of(createdEvent))),
+      // TODO: handle event with eventhandler
+      // merge the latest state
+      withLatestFrom(this.roundEventsRows$),
+      // push the created event to the latest state
+      map(([expandedEvent, currentState]: [PlayerEventVo, RoundEventsRowVo[]]) => {
+        const roundRowIndex = currentState.findIndex((roundEventRow: RoundEventsRowVo) => roundEventRow.roundId === roundId);
+        if (roundRowIndex < 0) {
+          throw new Error(`Could not find round with id ${roundId} within all game rounds.`);
+        }
+        const roundInRows = currentState[roundRowIndex];
+
+        let playerInColumn: RoundEventsColumnVo = roundInRows.columns.find((col: RoundEventsColumnVo) => col.playerId === playerId);
+        if (!playerInColumn) {
+          playerInColumn = { playerId, events: [] };
+        }
+        playerInColumn.events = [...playerInColumn.events, expandedEvent];
+
+        // IMPORTANT: return new references, so that CD in Component gets triggered!
+        const updatedRowOfRound = Object.assign({}, roundInRows, { columns: [...roundInRows.columns, playerInColumn] });
+        return [...currentState.slice(0, roundRowIndex), updatedRowOfRound, ...currentState.slice(roundRowIndex + 1)];
+      }),
+      tap(_ => console.log('%c🔎ADDED ROUND EVENT', 'color: #f00'))
+    ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
   removeRoundEvent(eventId: string, roundId: string, playerId: string): void {
-    // TODO
-    console.log('removeRoundEvent', eventId, roundId, playerId);
+    // remove the event
+    this.roundEventRepository.removeById(eventId).pipe(
+      // merge the latest state
+      withLatestFrom(this.roundEventsRows$),
+      // remove the event from the latest state
+      map(([removedId, currentState]: [string, RoundEventsRowVo[]]) => {
+        const roundRowIndex = currentState.findIndex((roundEventRow: RoundEventsRowVo) => roundEventRow.roundId === roundId);
+        if (roundRowIndex < 0) {
+          throw new Error(`Could not find round with id ${roundId} within all game rounds.`);
+        }
+        const roundInRows = currentState[roundRowIndex];
+
+        let playerInColumn: RoundEventsColumnVo = roundInRows.columns.find((col: RoundEventsColumnVo) => col.playerId === playerId);
+        if (playerInColumn && playerInColumn.events) {
+          playerInColumn.events = playerInColumn.events.filter((event: PlayerEventVo) => event.eventId !== removedId);
+        }
+
+        // IMPORTANT: return new references, so that CD in Component gets triggered!
+        const updatedRowOfRound = Object.assign({}, roundInRows, { columns: [...roundInRows.columns, playerInColumn] });
+        return [...currentState.slice(0, roundRowIndex), updatedRowOfRound, ...currentState.slice(roundRowIndex + 1)];
+      }),
+      tap(_ => console.log('%c🔎REMOVED ROUND EVENT', 'color: #f00'))
+    ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
+  }
+
+  createNewRound(gameId: string): void {
+    this.roundEventsRows$.pipe(
+      take(1),
+      switchMap((roundEventRows: RoundEventsRowVo[]) => {
+        const lastRow = roundEventRows[roundEventRows.length - 1];
+        return this.roundRepository.create({
+          gameId,
+          currentPlayerId: 'N/A', // TODO: currentPlayerId not necessary anymore?
+          attendeeList: lastRow ? lastRow.attendeeList : []
+        }).pipe(
+          map((createdId: string) => [...roundEventRows, { roundId: createdId, attendeeList: lastRow ? lastRow.attendeeList : [], columns: [] }])
+        );
+      })
+    ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
+  }
+
+  changeParticipationState(playerId: string, roundId: string, isParticipating: boolean): void {
+    this.roundEventsRows$.pipe(
+      take(1),
+      switchMap((currentState: RoundEventsRowVo[]) => {
+        const roundRowIndex = currentState.findIndex((roundEventRow: RoundEventsRowVo) => roundEventRow.roundId === roundId);
+        if (roundRowIndex < 0) {
+          throw new Error(`Could not find round with id ${roundId} within all game rounds.`);
+        }
+        const roundInRows = currentState[roundRowIndex];
+
+        let updatedAttendeeList;
+        if (isParticipating) {
+          updatedAttendeeList = [...roundInRows.attendeeList, { playerId, inGameStatus: true }]; // TODO: inGameStatus not necessary anymore?
+        } else {
+          updatedAttendeeList = roundInRows.attendeeList.filter((participation: ParticipationDto) => participation.playerId !== playerId)
+        }
+
+        return this.roundRepository.update(roundId, { attendeeList: updatedAttendeeList }).pipe(
+          map(_ => {
+            roundInRows.attendeeList = updatedAttendeeList;
+            // IMPORTANT: return new references, so that CD in Component gets triggered!
+            const updatedRowOfRound = Object.assign({}, roundInRows, { attendeeList: updatedAttendeeList });
+            return [...currentState.slice(0, roundRowIndex), updatedRowOfRound, ...currentState.slice(roundRowIndex + 1)];
+          })
+        );
+      })
+    ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
   /**

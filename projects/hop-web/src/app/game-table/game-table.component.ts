@@ -7,7 +7,7 @@ import { GameTableDataProvider } from './game-table.data-provider';
 import { GameEventsRowVo } from './model/game-events-row.vo';
 import { RoundEventsRowVo } from './model/round-events-row.vo';
 import { EventTypeItemVo, EventTypeListModalComponent, EventTypeListModalDialogResult, EventTypeListModalDialogData } from '@hop-basic-components';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef, MatSlideToggleChange } from '@angular/material';
 
 @Component({
   selector: 'hop-game-table',
@@ -79,6 +79,16 @@ export class GameTableComponent implements OnInit {
 
   onRemoveRoundEvent(eventId: string, roundId: string, playerId: string): void {
     this.dataProvider.removeRoundEvent(eventId, roundId, playerId);
+  }
+
+  onCreateNewRound(): void {
+    this.gameId$.pipe(
+      take(1)
+    ).subscribe((gameId: string) => this.dataProvider.createNewRound(gameId));
+  }
+
+  onParticipationChange(event: MatSlideToggleChange, playerId: string, roundId: string): void {
+    this.dataProvider.changeParticipationState(playerId, roundId, event.checked);
   }
 
   showGameEventTypeDialog(player: PlayerDto): void {
