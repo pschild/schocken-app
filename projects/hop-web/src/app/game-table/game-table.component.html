@@ -51,10 +51,12 @@
           </button>
         </td>
       </tr>
-      <tr>
+      <tr *ngIf="playerSumsRow$ | async as playerSumsRow">
         <td>&sum;</td>
         <td *ngFor="let player of activePlayers">
-          42 €
+          <div *ngFor="let sumPerUnit of playerSumsRow | getSumForPlayer:player._id">
+            {{sumPerUnit.sum | number:'1.2'}} {{sumPerUnit.unit}}
+          </div>
         </td>
       </tr>
     </table>
