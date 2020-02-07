@@ -15,4 +15,4 @@ const file = resolve(__dirname, '..', 'projects', 'hop-web', 'src', 'environment
 writeFileSync(file, JSON.stringify(configJson), { encoding: 'utf-8' });
 
 console.log(`Using the following config for Angular's production environment: ${JSON.stringify(configJson)}`);
-console.log(`Wrote db config info to ${resolve(__dirname, '..', 'projects', 'hop-web', 'src', 'environments', 'env.prod.json')}`);
+console.log(`Wrote config info to ${resolve(__dirname, '..', 'projects', 'hop-web', 'src', 'environments', 'env.prod.json')}`);

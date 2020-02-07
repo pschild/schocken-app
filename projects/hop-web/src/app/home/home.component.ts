@@ -24,7 +24,7 @@ export class HomeComponent implements OnInit {
 
   onNewGameClicked(): void {
     this.dataProvider.createGame().subscribe((createdGameId: string) => {
-      this.router.navigate(['game', createdGameId]);
+      this.router.navigate(['game-table', createdGameId]);
     });
   }
 

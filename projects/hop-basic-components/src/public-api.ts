@@ -33,6 +33,8 @@ export * from './lib/dialog/dialog.enum';
 export * from './lib/dialog/dialog-button-config';
 export * from './lib/dialog/dialog-config';
 
+export * from './lib/dialog/event-type-list-modal/model';
+
 /**
  * Services
  */
@@ -45,3 +47,4 @@ export * from './lib/sync-state/sync.service';
  */
 export * from './lib/dialog/change-game-date-modal/change-game-date-modal.component';
 export * from './lib/dialog/event-type-list-modal/event-type-list-modal.component';
+export * from './lib/dialog/all-player-selection-modal/all-player-selection-modal.component';

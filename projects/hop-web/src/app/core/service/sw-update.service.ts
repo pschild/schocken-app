@@ -1,7 +1,7 @@
 import { Injectable, ApplicationRef } from '@angular/core';
 import { SwUpdate, UpdateAvailableEvent, UpdateActivatedEvent } from '@angular/service-worker';
-import { first } from 'rxjs/operators';
-import { interval, concat } from 'rxjs';
+import { first, take, tap, concatMap, switchMap, filter } from 'rxjs/operators';
+import { interval, concat, from } from 'rxjs';
 import { DialogService, IDialogResult, DialogResult } from '@hop-basic-components';
 import { environment } from '../../../environments/environment';
 
@@ -20,22 +20,23 @@ export class SwUpdateService {
     private updates: SwUpdate,
     dialogService: DialogService
   ) {
-    updates.available.subscribe((event: UpdateAvailableEvent) => {
-      console.log('current version is', event.current);
-      console.log('available version is', event.available);
-      const versionInfo = event.available.appData as VersionInfo;
+    updates.available.pipe(
+      take(1),
+      tap((event: UpdateAvailableEvent) => {
+        console.log('current version is', event.current);
+        console.log('available version is', event.available);
+      }),
+      concatMap((event: UpdateAvailableEvent) => {
+        const versionInfo = event.available.appData as VersionInfo;
+        return dialogService.showYesNoDialog({
+          title: `Update verfügbar`,
+          message: `Ein Update auf Version ${versionInfo.version} ist verfügbar. Update jetzt installieren?`
+        });
+      }),
+      filter((dialogResult: IDialogResult) => dialogResult.result === DialogResult.YES),
+      switchMap((dialogResult: IDialogResult) => from(updates.activateUpdate()))
+    ).subscribe(_ => document.location.reload());
 
-      dialogService.showYesNoDialog({
-        title: `Update verfügbar`,
-        message: `Ein Update auf Version ${versionInfo.version} ist verfügbar. Update jetzt installieren?`
-      }).subscribe((dialogResult: IDialogResult) => {
-        if (dialogResult.result === DialogResult.YES) {
-          updates.activateUpdate().then(() => {
-            document.location.reload();
-          });
-        }
-      });
-    });
     updates.activated.subscribe((event: UpdateActivatedEvent) => {
       console.log('old version was', event.previous);
       console.log('new version is', event.current);

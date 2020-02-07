@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
 
-
 const routes: Routes = [
   {
     path: '',
@@ -19,6 +18,10 @@ const routes: Routes = [
   {
     path: 'foobar',
     loadChildren: () => import('./foobar/foobar.module').then(m => m.FoobarModule)
+  },
+  {
+    path: 'game-table',
+    loadChildren: () => import('./game-table/game-table.module').then(m => m.GameTableModule)
   },
   {
     path: 'round',

@@ -17,6 +17,7 @@ import { ChangeGameDateModalComponent } from './dialog/change-game-date-modal/ch
 import { DialogComponent } from './dialog/dialog.component';
 import { SyncStateComponent } from './sync-state/sync-state.component';
 import { EventTypeListModalComponent } from './dialog/event-type-list-modal/event-type-list-modal.component';
+import { AllPlayerSelectionModalComponent } from './dialog/all-player-selection-modal/all-player-selection-modal.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { EventTypeListModalComponent } from './dialog/event-type-list-modal/even
     SnowflakesComponent,
     ChangeGameDateModalComponent,
     SyncStateComponent,
-    EventTypeListModalComponent
+    EventTypeListModalComponent,
+    AllPlayerSelectionModalComponent
   ],
   imports: [
     MaterialModule,
@@ -59,7 +61,8 @@ import { EventTypeListModalComponent } from './dialog/event-type-list-modal/even
     SnackBarNotificationComponent,
     DialogComponent,
     ChangeGameDateModalComponent,
-    EventTypeListModalComponent
+    EventTypeListModalComponent,
+    AllPlayerSelectionModalComponent
   ]
 })
 export class HopBasicComponentsModule { }

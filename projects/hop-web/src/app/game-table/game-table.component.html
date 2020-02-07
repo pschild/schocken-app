@@ -1,0 +1,62 @@
+<div class="table-container">
+  <ng-container *ngIf="activePlayers$ | async as activePlayers">
+    <table *ngIf="roundEventsRows$ | async as roundEventsRows">
+      <tr>
+        <th></th>
+        <th *ngFor="let player of activePlayers">{{player.name}}</th>
+      </tr>
+      <tr *ngIf="gameEventsRow$ | async as gameEventsRow">
+        <td>Festst.:</td>
+        <td *ngFor="let player of activePlayers">
+          <hop-event-list-new
+            [events]="gameEventsRow | getEventsForPlayer:player._id"
+            [playerId]="player._id"
+            (removeEvent)="onRemoveGameEvent($event, player._id)"
+          ></hop-event-list-new>
+          <button mat-button color="primary" (click)="showGameEventTypeDialog(player)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </td>
+      </tr>
+      <tr *ngFor="let roundEventsRow of roundEventsRows; let i = index">
+        <td>Rd. {{i + 1}}</td>
+        <td *ngFor="let player of activePlayers">
+          <ng-template
+            let-participationStatus="participationStatus"
+            [ngTemplateOutletContext]="{ participationStatus: roundEventsRow | getParticipationStatusForPlayer: player._id }"
+            [ngTemplateOutlet]="t" #t>
+            <hop-event-list-new
+              [events]="roundEventsRow | getEventsForPlayer:player._id"
+              [roundId]="roundEventsRow.roundId"
+              [playerId]="player._id"
+              (removeEvent)="onRemoveRoundEvent($event, roundEventsRow.roundId, player._id)">
+            </hop-event-list-new>
+            <div class="cell-buttons-container">
+              <button mat-button color="primary" *ngIf="participationStatus" (click)="showRoundEventTypeDialog(player, roundEventsRow.roundId)">
+                <mat-icon>add</mat-icon>
+              </button>
+              <mat-slide-toggle
+                [checked]="participationStatus"
+                (change)="onParticipationChange($event, player._id, roundEventsRow.roundId)"></mat-slide-toggle>
+            </div>
+            <div *ngIf="!participationStatus" class="not-participating-mask"></div>
+          </ng-template>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button mat-raised-button color="primary" (click)="onCreateNewRound()">
+            <mat-icon>add</mat-icon>
+            Rd. {{roundEventsRows.length + 1}}
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <td>&sum;</td>
+        <td *ngFor="let player of activePlayers">
+          42 €
+        </td>
+      </tr>
+    </table>
+  </ng-container>
+</div>

@@ -1,5 +1,5 @@
 import { Injector } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Observable, from, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { PouchDbAdapter } from '@hop-backend-api';
 import { SwUpdateService } from '../core/service/sw-update.service';
@@ -16,5 +16,7 @@ const initializeDatabase = (pouchDb: PouchDbAdapter): Observable<any> => {
 
 const checkForAppUpdate = (injector: Injector): Observable<any> => {
     const updateService: SwUpdateService = injector.get(SwUpdateService);
-    return from(updateService.checkForUpdate());
+    updateService.checkForUpdate();
+    // Return an empty observable. Do NOT return sth. like from(updateService.checkForUpdate()) as this blocks the UI in case of an update!
+    return of({});
 };
