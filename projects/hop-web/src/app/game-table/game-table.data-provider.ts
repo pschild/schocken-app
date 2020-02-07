@@ -14,9 +14,9 @@ import {
   RoundEventDto,
   ParticipationDto
 } from '@hop-backend-api';
-import { Observable, BehaviorSubject, of, zip, GroupedObservable } from 'rxjs';
+import { Observable, BehaviorSubject, of, zip, GroupedObservable, combineLatest } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
-import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take } from 'rxjs/operators';
+import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take, filter, finalize } from 'rxjs/operators';
 import { EventListService, EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
 import { PlayerEventVoMapperService } from './mapper/player-event-vo-mapper.service';
 import { PlayerEventVo } from './model/player-event.vo';
@@ -26,6 +26,14 @@ import { SortService, SortDirection } from '../core/service/sort.service';
 import { RoundEventsRowVo } from './model/round-events-row.vo';
 import { RoundEventsColumnVo } from './model/round-events-column.vo';
 import { RoundEventsRowVoMapperService } from './mapper/round-events-row-vo-mapper.service';
+import { SumPerUnitVo } from './model/sum-per-unit.vo';
+import { SumColumnVo } from './model/sum-column.vo';
+import { SumsRowVo } from './model/sums-row.vo';
+
+interface EventsByPlayer {
+  playerId: string;
+  events: PlayerEventVo[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +42,7 @@ export class GameTableDataProvider {
 
   allEventTypes$: BehaviorSubject<EventTypeDto[]> = new BehaviorSubject([]);
   gameEventsRow$: BehaviorSubject<GameEventsRowVo> = new BehaviorSubject<GameEventsRowVo>(null);
-  roundEventsRows$: BehaviorSubject<RoundEventsRowVo[]> = new BehaviorSubject<RoundEventsRowVo[]>([]);
+  roundEventsRows$: BehaviorSubject<RoundEventsRowVo[]> = new BehaviorSubject<RoundEventsRowVo[]>(null);
 
   constructor(
     private playerRepository: PlayerRepository,
@@ -57,6 +65,66 @@ export class GameTableDataProvider {
 
   getRoundEventsRows(): Observable<RoundEventsRowVo[]> {
     return this.roundEventsRows$.asObservable();
+  }
+
+  getSumsRow(): Observable<any> {
+    return combineLatest(
+      this.gameEventsRow$.pipe(
+        filter((gameEventsRow: GameEventsRowVo) => !!gameEventsRow),
+        map((gameEventsRow: GameEventsRowVo) => gameEventsRow.columns)
+      ),
+      this.roundEventsRows$.pipe(
+        filter((roundEventsRows: RoundEventsRowVo[]) => !!roundEventsRows),
+        map((roundEventsRows: RoundEventsRowVo[]) => roundEventsRows.map((roundEventsRow: RoundEventsRowVo) => roundEventsRow.columns))
+      )
+    ).pipe(
+      map(([gameEventsColumns, roundEventsColums]: [GameEventsColumnVo[], RoundEventsColumnVo[][]]) => {
+        return gameEventsColumns.concat([].concat.apply([], roundEventsColums));
+      }),
+      map((columns: Array<GameEventsColumnVo | RoundEventsColumnVo>): any => {
+        const eventsByPlayer: EventsByPlayer[] = [];
+        columns.forEach((column: GameEventsColumnVo | RoundEventsColumnVo) => {
+          const playerId = column.playerId;
+          const existingEntryForPlayer = eventsByPlayer.find((i) => i.playerId === playerId);
+          if (existingEntryForPlayer) {
+            existingEntryForPlayer.events = [...existingEntryForPlayer.events, ...column.events];
+          } else {
+            eventsByPlayer.push({ playerId, events: column.events });
+          }
+        });
+        return eventsByPlayer;
+      }),
+      map((eventsByPlayer: EventsByPlayer[]) => {
+        const cols: SumColumnVo[] = [];
+        eventsByPlayer.forEach((playerEvents: EventsByPlayer) => {
+          const sumsPerUnit: SumPerUnitVo[] = [];
+          playerEvents.events.forEach((event: PlayerEventVo) => {
+            if (event.eventTypePenalty) {
+              const penaltyValue = event.eventTypePenalty.value;
+              const multiplicatorValue = event.eventMultiplicatorValue;
+              const finalValue = penaltyValue * multiplicatorValue;
+
+              const penaltyUnit = event.eventTypePenalty.unit;
+              const existingSumForUnit = sumsPerUnit.find((sum: SumPerUnitVo) => sum.unit === penaltyUnit);
+              if (existingSumForUnit) {
+                existingSumForUnit.sum += finalValue;
+              } else {
+                sumsPerUnit.push({ unit: penaltyUnit, sum: finalValue });
+              }
+            }
+          });
+
+          const playerId = playerEvents.playerId;
+          const existingColumnForPlayer = cols.find((col: SumColumnVo) => col.playerId === playerId);
+          if (existingColumnForPlayer) {
+            existingColumnForPlayer.sums = [...existingColumnForPlayer.sums, ...sumsPerUnit];
+          } else {
+            cols.push({ playerId, sums: sumsPerUnit });
+          }
+        });
+        return { columns: cols };
+      })
+    );
   }
 
   getGameEventTypes(): Observable<EventTypeItemVo[]> {
@@ -216,14 +284,15 @@ export class GameTableDataProvider {
         let playerInColumn: RoundEventsColumnVo = roundInRows.columns.find((col: RoundEventsColumnVo) => col.playerId === playerId);
         if (!playerInColumn) {
           playerInColumn = { playerId, events: [] };
+          roundInRows.columns.push(playerInColumn);
         }
         playerInColumn.events = [...playerInColumn.events, expandedEvent];
 
         // IMPORTANT: return new references, so that CD in Component gets triggered!
-        const updatedRowOfRound = Object.assign({}, roundInRows, { columns: [...roundInRows.columns, playerInColumn] });
+        const updatedRowOfRound = Object.assign({}, roundInRows, { columns: [...roundInRows.columns] });
         return [...currentState.slice(0, roundRowIndex), updatedRowOfRound, ...currentState.slice(roundRowIndex + 1)];
       }),
-      tap(_ => console.log('%c🔎ADDED ROUND EVENT', 'color: #f00'))
+      tap(_ => console.log('%c🔎ADDED ROUND EVENT', 'color: #f00')),
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
@@ -246,7 +315,7 @@ export class GameTableDataProvider {
         }
 
         // IMPORTANT: return new references, so that CD in Component gets triggered!
-        const updatedRowOfRound = Object.assign({}, roundInRows, { columns: [...roundInRows.columns, playerInColumn] });
+        const updatedRowOfRound = Object.assign({}, roundInRows, { columns: [...roundInRows.columns] });
         return [...currentState.slice(0, roundRowIndex), updatedRowOfRound, ...currentState.slice(roundRowIndex + 1)];
       }),
       tap(_ => console.log('%c🔎REMOVED ROUND EVENT', 'color: #f00'))

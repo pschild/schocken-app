@@ -8,6 +8,7 @@ import { GameEventsRowVo } from './model/game-events-row.vo';
 import { RoundEventsRowVo } from './model/round-events-row.vo';
 import { EventTypeItemVo, EventTypeListModalComponent, EventTypeListModalDialogResult, EventTypeListModalDialogData } from '@hop-basic-components';
 import { MatDialog, MatDialogRef, MatSlideToggleChange } from '@angular/material';
+import { SumsRowVo } from './model/sums-row.vo';
 
 @Component({
   selector: 'hop-game-table',
@@ -24,37 +25,13 @@ export class GameTableComponent implements OnInit {
 
   gameEventsRow$: Observable<GameEventsRowVo>;
   roundEventsRows$: Observable<RoundEventsRowVo[]>;
+  playerSumsRow$: Observable<SumsRowVo>;
   
   constructor(
     private route: ActivatedRoute,
     private dataProvider: GameTableDataProvider,
     private dialog: MatDialog
   ) {
-    /* this.gameEventsRow$ = of({
-      columns: [
-        {
-          playerId: 'PLAYER__PLAYER-3118fe58-03ce-4949-b6ff-353e5019c0e4',
-          events: [
-            { eventId: '1', eventTypeDescription: 'A' },
-            { eventId: '2', eventTypeDescription: 'B' },
-            { eventId: '3', eventTypeDescription: 'C' }
-          ]
-        },
-        {
-          playerId: 'PLAYER__PLAYER-b054e069-87bf-47dc-a2cf-d85db6a939eb',
-          events: [
-            { eventId: '1', eventTypeDescription: 'A' },
-            { eventId: '2', eventTypeDescription: 'B' }
-          ]
-        },
-        {
-          playerId: 'PLAYER__PLAYER-f9a38606-ac16-4e73-9eb9-c751a68b8f4c',
-          events: [
-            { eventId: '1', eventTypeDescription: 'A' },
-          ]
-        }
-      ]
-    }); */
   }
 
   ngOnInit() {
@@ -62,6 +39,7 @@ export class GameTableComponent implements OnInit {
     this.roundEventTypes$ = this.dataProvider.getRoundEventTypes();
     this.gameEventsRow$ = this.dataProvider.getGameEventsRow();
     this.roundEventsRows$ = this.dataProvider.getRoundEventsRows();
+    this.playerSumsRow$ = this.dataProvider.getSumsRow();
 
     this.activePlayers$ = this.dataProvider.loadAllActivePlayers();
     this.dataProvider.loadAllEventTypes();

@@ -6,12 +6,14 @@ import { GameTableComponent } from './game-table.component';
 import { GetEventsForPlayerPipe } from './get-events-for-player.pipe';
 import { EventListComponent } from './event-list/event-list.component';
 import { GetParticipationStatusForPlayerPipe } from './get-participation-status-for-player.pipe';
+import { GetSumForPlayerPipe } from './get-sum-for-player.pipe';
 
 @NgModule({
   declarations: [
     GameTableComponent,
     GetEventsForPlayerPipe,
     GetParticipationStatusForPlayerPipe,
+    GetSumForPlayerPipe,
     EventListComponent
   ],
   imports: [
