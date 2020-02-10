@@ -8,7 +8,7 @@ $footer-background: #888;
 $first-column-background: #aaa;
 
 $transparency-value: 0.4;
-$mask-transparency-value: 0.3;
+$mask-transparency-value: 0.6;
 
 .table-container{
   height: calc(100vh - 100px);
@@ -55,6 +55,8 @@ $mask-transparency-value: 0.3;
       bottom: 0;
       z-index: 11;
       background: $footer-background;
+      text-align: center;
+      font-weight: bold;
 
       &:first-child {
         z-index: 12;

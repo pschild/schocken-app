@@ -19,23 +19,31 @@
         </td>
       </tr>
       <tr *ngFor="let roundEventsRow of roundEventsRows; let i = index">
-        <td>Rd. {{i + 1}}</td>
+        <td>
+          <button mat-icon-button (click)="toggleRowState(i)">
+            <mat-icon *ngIf="!visibleRowIndexes[i]">keyboard_arrow_down</mat-icon>
+            <mat-icon *ngIf="visibleRowIndexes[i]">keyboard_arrow_up</mat-icon>
+          </button>
+          Rd. {{i + 1}}
+        </td>
         <td *ngFor="let player of activePlayers">
           <ng-template
             let-participationStatus="participationStatus"
             [ngTemplateOutletContext]="{ participationStatus: roundEventsRow | getParticipationStatusForPlayer: player._id }"
             [ngTemplateOutlet]="t" #t>
             <hop-event-list-new
+              *ngIf="visibleRowIndexes[i]"
               [events]="roundEventsRow | getEventsForPlayer:player._id"
               [roundId]="roundEventsRow.roundId"
               [playerId]="player._id"
               (removeEvent)="onRemoveRoundEvent($event, roundEventsRow.roundId, player._id)">
             </hop-event-list-new>
             <div class="cell-buttons-container">
-              <button mat-button color="primary" *ngIf="participationStatus" (click)="showRoundEventTypeDialog(player, roundEventsRow.roundId)">
+              <button mat-button color="primary" *ngIf="participationStatus && visibleRowIndexes[i]" (click)="showRoundEventTypeDialog(player, roundEventsRow.roundId)">
                 <mat-icon>add</mat-icon>
               </button>
               <mat-slide-toggle
+                *ngIf="visibleRowIndexes[i]"
                 [checked]="participationStatus"
                 (change)="onParticipationChange($event, player._id, roundEventsRow.roundId)"></mat-slide-toggle>
             </div>
@@ -45,14 +53,14 @@
       </tr>
       <tr>
         <td>
-          <button mat-raised-button color="primary" (click)="onCreateNewRound()">
+          <button mat-raised-button color="primary" (click)="onCreateNewRound(roundEventsRows.length)">
             <mat-icon>add</mat-icon>
             Rd. {{roundEventsRows.length + 1}}
           </button>
         </td>
       </tr>
       <tr *ngIf="playerSumsRow$ | async as playerSumsRow">
-        <td>&sum;</td>
+        <td>Summe:</td>
         <td *ngFor="let player of activePlayers">
           <div *ngFor="let sumPerUnit of playerSumsRow | getSumForPlayer:player._id">
             {{sumPerUnit.sum | number:'1.2'}} {{sumPerUnit.unit}}

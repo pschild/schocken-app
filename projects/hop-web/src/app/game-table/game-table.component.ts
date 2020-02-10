@@ -26,6 +26,8 @@ export class GameTableComponent implements OnInit {
   gameEventsRow$: Observable<GameEventsRowVo>;
   roundEventsRows$: Observable<RoundEventsRowVo[]>;
   playerSumsRow$: Observable<SumsRowVo>;
+
+  visibleRowIndexes: boolean[] = [];
   
   constructor(
     private route: ActivatedRoute,
@@ -59,7 +61,10 @@ export class GameTableComponent implements OnInit {
     this.dataProvider.removeRoundEvent(eventId, roundId, playerId);
   }
 
-  onCreateNewRound(): void {
+  onCreateNewRound(newIndex: number): void {
+    this.visibleRowIndexes[newIndex - 1] = false;
+    this.visibleRowIndexes[newIndex] = true;
+
     this.gameId$.pipe(
       take(1)
     ).subscribe((gameId: string) => this.dataProvider.createNewRound(gameId));
@@ -92,6 +97,14 @@ export class GameTableComponent implements OnInit {
       const { eventType, roundId, playerId } = dialogResult;
       this.dataProvider.addRoundEvent(eventType, roundId, playerId);
     });
+  }
+
+  toggleRowState(index: number): void {
+    if (this.visibleRowIndexes[index]) {
+      this.visibleRowIndexes[index] = false;
+    } else {
+      this.visibleRowIndexes[index] = true;
+    }
   }
 
   private showDialog(eventTypes: EventTypeItemVo[], player: PlayerDto, gameId: string, roundId: string): MatDialogRef<EventTypeListModalComponent> {
