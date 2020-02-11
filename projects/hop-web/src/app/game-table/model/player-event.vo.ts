@@ -1,4 +1,4 @@
-import { EventTypePenalty } from '@hop-backend-api';
+import { EventTypePenalty, EventTypeTrigger } from '@hop-backend-api';
 
 export class PlayerEventVo {
   eventId: string;
@@ -7,4 +7,5 @@ export class PlayerEventVo {
   eventMultiplicatorValue?: number;
   eventTypeMultiplicatorUnit?: string;
   eventTypePenalty?: EventTypePenalty;
+  eventTypeTrigger?: EventTypeTrigger;
 }

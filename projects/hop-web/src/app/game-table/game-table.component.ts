@@ -28,7 +28,7 @@ export class GameTableComponent implements OnInit {
   playerSumsRow$: Observable<SumsRowVo>;
 
   visibleRowIndexes: boolean[] = [];
-  
+
   constructor(
     private route: ActivatedRoute,
     private dataProvider: GameTableDataProvider,
@@ -82,8 +82,8 @@ export class GameTableComponent implements OnInit {
       switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),
       filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
     ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
-      const { eventType, gameId, playerId } = dialogResult;
-      this.dataProvider.addGameEvent(eventType, gameId, playerId);
+      const { gameId, playerId, eventType } = dialogResult;
+      this.dataProvider.addGameEvent(gameId, playerId, eventType.id, eventType.multiplicatorValue);
     });
   }
 
@@ -94,8 +94,8 @@ export class GameTableComponent implements OnInit {
       switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),
       filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
     ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
-      const { eventType, roundId, playerId } = dialogResult;
-      this.dataProvider.addRoundEvent(eventType, roundId, playerId);
+      const { roundId, playerId, eventType } = dialogResult;
+      this.dataProvider.addRoundEvent(roundId, playerId, eventType.id, eventType.multiplicatorValue);
     });
   }
 

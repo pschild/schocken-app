@@ -16,7 +16,7 @@ import {
 } from '@hop-backend-api';
 import { Observable, BehaviorSubject, of, zip, GroupedObservable, combineLatest } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
-import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take, filter, finalize } from 'rxjs/operators';
+import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take, filter } from 'rxjs/operators';
 import { EventListService, EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
 import { PlayerEventVoMapperService } from './mapper/player-event-vo-mapper.service';
 import { PlayerEventVo } from './model/player-event.vo';
@@ -28,7 +28,9 @@ import { RoundEventsColumnVo } from './model/round-events-column.vo';
 import { RoundEventsRowVoMapperService } from './mapper/round-events-row-vo-mapper.service';
 import { SumPerUnitVo } from './model/sum-per-unit.vo';
 import { SumColumnVo } from './model/sum-column.vo';
-import { SumsRowVo } from './model/sums-row.vo';
+import { EventHandlerService } from '../core/service/event-handler.service';
+import { RoundEventQueueItem } from '../core/service/round-event-queue-item';
+import { RoundQueueItem } from '../core/service/round-queue-item';
 
 interface EventsByPlayer {
   playerId: string;
@@ -40,9 +42,9 @@ interface EventsByPlayer {
 })
 export class GameTableDataProvider {
 
-  allEventTypes$: BehaviorSubject<EventTypeDto[]> = new BehaviorSubject([]);
-  gameEventsRow$: BehaviorSubject<GameEventsRowVo> = new BehaviorSubject<GameEventsRowVo>(null);
-  roundEventsRows$: BehaviorSubject<RoundEventsRowVo[]> = new BehaviorSubject<RoundEventsRowVo[]>(null);
+  private allEventTypes$: BehaviorSubject<EventTypeDto[]> = new BehaviorSubject([]);
+  private gameEventsRow$: BehaviorSubject<GameEventsRowVo> = new BehaviorSubject<GameEventsRowVo>(null);
+  private roundEventsRows$: BehaviorSubject<RoundEventsRowVo[]> = new BehaviorSubject<RoundEventsRowVo[]>(null);
 
   constructor(
     private playerRepository: PlayerRepository,
@@ -55,8 +57,20 @@ export class GameTableDataProvider {
     private gameEventsRowVoMapperService: GameEventsRowVoMapperService,
     private roundEventsRowVoMapperService: RoundEventsRowVoMapperService,
     private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
+    private eventHandlerService: EventHandlerService,
     private sortService: SortService
   ) {
+    // Listen to events that are pushed by EventHandler. When an Event occurs, call according methods within this DataProvider
+    this.eventHandlerService.getAddedRoundEvents().subscribe((queueItem: RoundEventQueueItem) => {
+      const { roundId, playerId, eventTypeId } = queueItem;
+      this.addRoundEvent(roundId, playerId, eventTypeId);
+    });
+
+    // Listen to events that are pushed by EventHandler. When an Event occurs, call according methods within this DataProvider
+    this.eventHandlerService.getAddedRounds().subscribe((queueItem: RoundQueueItem) => {
+      const { gameId } = queueItem;
+      this.createNewRound(gameId);
+    });
   }
 
   getGameEventsRow(): Observable<GameEventsRowVo> {
@@ -179,13 +193,13 @@ export class GameTableDataProvider {
     ).subscribe((row: GameEventsRowVo) => this.gameEventsRow$.next(row));
   }
 
-  addGameEvent(eventType: EventTypeItemVo, gameId: string, playerId: string): void {
+  addGameEvent(gameId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number): void {
     // create the event
     this.gameEventRepository.create({
-      eventTypeId: eventType.id,
+      eventTypeId,
       gameId,
       playerId,
-      multiplicatorValue: eventType.multiplicatorValue
+      multiplicatorValue
     }).pipe(
       // load the created event
       switchMap((createdId: string) => this.gameEventRepository.get(createdId)),
@@ -258,19 +272,20 @@ export class GameTableDataProvider {
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
-  addRoundEvent(eventType: EventTypeItemVo, roundId: string, playerId: string): void {
+  addRoundEvent(roundId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number): void {
     // create the event
     this.roundEventRepository.create({
-      eventTypeId: eventType.id,
+      eventTypeId,
       roundId,
       playerId,
-      multiplicatorValue: eventType.multiplicatorValue
+      multiplicatorValue
     }).pipe(
       // load the created event
       switchMap((createdId: string) => this.roundEventRepository.get(createdId)),
       // expand it with its EventType
       switchMap((createdEvent: RoundEventDto) => this.expandWithEventTypes(of(createdEvent))),
-      // TODO: handle event with eventhandler
+      // handle event with eventhandler
+      tap((event: PlayerEventVo) => this.eventHandlerService.handle(event, roundId)),
       // merge the latest state
       withLatestFrom(this.roundEventsRows$),
       // push the created event to the latest state
