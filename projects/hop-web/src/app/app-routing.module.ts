@@ -40,6 +40,10 @@ const routes: Routes = [
     loadChildren: () => import('./about/about.module').then(m => m.AboutModule)
   },
   {
+    path: 'constitution',
+    loadChildren: () => import('./constitution/constitution.module').then(m => m.ConstitutionModule)
+  },
+  {
     path: 'playground',
     loadChildren: () => import('./playground/playground.module').then(m => m.PlaygroundModule)
   }
