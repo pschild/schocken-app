@@ -65,8 +65,7 @@ export class GameTableComponent implements OnInit {
   }
 
   onCreateNewRound(newIndex: number): void {
-    this.visibleRowIndexes[newIndex - 1] = false;
-    this.visibleRowIndexes[newIndex] = true;
+    this.toggleRowState(newIndex);
 
     this.gameId$.pipe(
       take(1)
@@ -102,11 +101,11 @@ export class GameTableComponent implements OnInit {
     });
   }
 
-  toggleRowState(index: number): void {
-    if (this.visibleRowIndexes[index]) {
-      this.visibleRowIndexes[index] = false;
+  toggleRowState(key: string | number): void {
+    if (this.visibleRowIndexes[key]) {
+      this.visibleRowIndexes[key] = false;
     } else {
-      this.visibleRowIndexes[index] = true;
+      this.visibleRowIndexes[key] = true;
     }
   }
 
