@@ -285,7 +285,7 @@ export class GameTableDataProvider {
       // expand it with its EventType
       switchMap((createdEvent: RoundEventDto) => this.expandWithEventTypes(of(createdEvent))),
       // handle event with eventhandler
-      tap((event: PlayerEventVo) => this.eventHandlerService.handle(event, roundId)),
+      tap((event: PlayerEventVo) => this.eventHandlerService.handle(event, playerId, roundId)),
       // merge the latest state
       withLatestFrom(this.roundEventsRows$),
       // push the created event to the latest state

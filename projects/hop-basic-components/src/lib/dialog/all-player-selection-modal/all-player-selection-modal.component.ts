@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatListOption } from '@angular/material'
 
 export interface AllPlayerSelectionModalDialogData {
   players: PlayerDto[];
+  activatedPlayerIds: string[];
 }
 
 // TODO: expose interface

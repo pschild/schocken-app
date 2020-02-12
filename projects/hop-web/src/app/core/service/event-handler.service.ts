@@ -9,7 +9,8 @@ import {
   PlayerRepository,
   PlayerDto,
   EventTypeRepository,
-  EventTypeDto
+  EventTypeDto,
+  GameRepository
 } from '@hop-backend-api';
 import {
   SnackBarNotificationService,
@@ -17,14 +18,16 @@ import {
   DialogService,
   IDialogResult,
   DialogResult,
-  AllPlayerSelectionModalComponent
+  AllPlayerSelectionModalComponent,
+  LOST_EVENT_BUTTON_CONFIG
 } from '@hop-basic-components';
-import { map, concatMap, switchMap, filter, tap, mergeAll, toArray } from 'rxjs/operators';
+import { map, concatMap, switchMap, filter, tap, mergeAll, toArray, withLatestFrom } from 'rxjs/operators';
 import { of, forkJoin, EMPTY, Observable, Subject } from 'rxjs';
 import { MatDialog } from '@angular/material';
 import { PlayerEventVo } from '../../game-table/model/player-event.vo';
 import { RoundEventQueueItem } from './round-event-queue-item';
 import { RoundQueueItem } from './round-queue-item';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +38,8 @@ export class EventHandlerService {
   private roundsQueue$: Subject<RoundQueueItem> = new Subject<RoundQueueItem>();
 
   constructor(
+    private router: Router,
+    private gameRepository: GameRepository,
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
     private eventTypeRepository: EventTypeRepository,
@@ -44,13 +49,13 @@ export class EventHandlerService {
     private dialog: MatDialog
   ) { }
 
-  handle(event: PlayerEventVo, roundId: string): void {
+  handle(event: PlayerEventVo, playerId: string, roundId: string): void {
     switch (event.eventTypeTrigger) {
       case EventTypeTrigger.SCHOCK_AUS:
-        this._handleSchockAusTrigger(roundId);
+        this._handleSchockAusTrigger(playerId, roundId);
         break;
       case EventTypeTrigger.START_NEW_ROUND:
-        this._handlePlayerLostRoundTrigger(roundId);
+        this._handlePlayerLostRoundTrigger(playerId, roundId);
         break;
     }
   }
@@ -126,11 +131,20 @@ export class EventHandlerService {
     });
   }
 
-  private _handleSchockAusTrigger(roundId: string): void {
-    this.playerRepository.getAll().pipe(
+  private _handleSchockAusTrigger(playerId: string, roundId: string): void {
+    forkJoin(this.roundRepository.get(roundId), this.playerRepository.getAll()).pipe(
       // show confirmation, wait for the user to accept or decline
-      concatMap((allPlayers: PlayerDto[]) => {
-        return this.dialog.open(AllPlayerSelectionModalComponent, { autoFocus: false, data: { players: allPlayers } }).afterClosed();
+      concatMap(([currentRound, allPlayers]: [RoundDto, PlayerDto[]]) => {
+        const activatedPlayerIds = currentRound.attendeeList
+          .map((participation: ParticipationDto) => participation.playerId)
+          .filter((attendingPlayerId: string) => attendingPlayerId !== playerId);
+        return this.dialog.open(AllPlayerSelectionModalComponent, {
+          autoFocus: false,
+          data: {
+            players: allPlayers,
+            activatedPlayerIds
+          }
+        }).afterClosed();
       }),
       // only go on if the user selected at least one player
       // TODO: use exposed interface
@@ -157,11 +171,21 @@ export class EventHandlerService {
     });
   }
 
-  private _handlePlayerLostRoundTrigger(roundId: string): void {
-    this.roundRepository.get(roundId).pipe(
-      tap((round: RoundDto) => this.roundsQueue$.next({ gameId: round.gameId }))
-    ).subscribe(() => {
-      this.snackBarNotificationService.showMessage(`Eine neue Runde wurde angelegt.`);
+  private _handlePlayerLostRoundTrigger(playerId: string, roundId: string): void {
+    this.playerRepository.get(playerId).pipe(
+      concatMap((player: PlayerDto) => this.dialogService.showYesNoDialog({
+        title: '',
+        message: `${player.name} hat verloren. Wie soll's weitergehen?`,
+        buttonConfig: LOST_EVENT_BUTTON_CONFIG
+      })),
+      filter((dialogResult: IDialogResult) => dialogResult.result !== DialogResult.ABORT),
+      withLatestFrom(this.roundRepository.get(roundId))
+    ).subscribe(([dialogResult, currentRound]: [IDialogResult, RoundDto]) => {
+      if (dialogResult.result === DialogResult.NEW_ROUND) {
+        this.roundsQueue$.next({ gameId: currentRound.gameId });
+      } else if (dialogResult.result === DialogResult.FINISH_GAME) {
+        this.gameRepository.update(currentRound.gameId, { completed: true }).subscribe(_ => this.router.navigate(['home']));
+      }
     });
   }
 }
