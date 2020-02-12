@@ -31,8 +31,8 @@ import { RoundQueueItem } from './round-queue-item';
 })
 export class EventHandlerService {
 
-  private addedRoundEvents$: Subject<RoundEventQueueItem> = new Subject<RoundEventQueueItem>();
-  private addedRounds$: Subject<RoundQueueItem> = new Subject<RoundQueueItem>();
+  private roundEventsQueue$: Subject<RoundEventQueueItem> = new Subject<RoundEventQueueItem>();
+  private roundsQueue$: Subject<RoundQueueItem> = new Subject<RoundQueueItem>();
 
   constructor(
     private roundRepository: RoundRepository,
@@ -55,12 +55,12 @@ export class EventHandlerService {
     }
   }
 
-  getAddedRoundEvents(): Observable<RoundEventQueueItem> {
-    return this.addedRoundEvents$.asObservable();
+  getRoundEventsQueue(): Observable<RoundEventQueueItem> {
+    return this.roundEventsQueue$.asObservable();
   }
 
-  getAddedRounds(): Observable<RoundQueueItem> {
-    return this.addedRounds$.asObservable();
+  getRoundsQueue(): Observable<RoundQueueItem> {
+    return this.roundsQueue$.asObservable();
   }
 
   /**
@@ -148,7 +148,7 @@ export class EventHandlerService {
         return selectedPlayerIds.map((playerId: string) => ({ eventTypeId: schockAusPenaltyEventTypes[0]._id, roundId, playerId }));
       }),
       mergeAll(),
-      tap((queueItem: RoundEventQueueItem) => this.addedRoundEvents$.next(queueItem)),
+      tap((queueItem: RoundEventQueueItem) => this.roundEventsQueue$.next(queueItem)),
       toArray()
     ).subscribe((queueItems: RoundEventQueueItem[]) => {
       if (queueItems.length > 0) {
@@ -159,7 +159,7 @@ export class EventHandlerService {
 
   private _handlePlayerLostRoundTrigger(roundId: string): void {
     this.roundRepository.get(roundId).pipe(
-      tap((round: RoundDto) => this.addedRounds$.next({ gameId: round.gameId }))
+      tap((round: RoundDto) => this.roundsQueue$.next({ gameId: round.gameId }))
     ).subscribe(() => {
       this.snackBarNotificationService.showMessage(`Eine neue Runde wurde angelegt.`);
     });

@@ -61,13 +61,13 @@ export class GameTableDataProvider {
     private sortService: SortService
   ) {
     // Listen to events that are pushed by EventHandler. When an Event occurs, call according methods within this DataProvider
-    this.eventHandlerService.getAddedRoundEvents().subscribe((queueItem: RoundEventQueueItem) => {
+    this.eventHandlerService.getRoundEventsQueue().subscribe((queueItem: RoundEventQueueItem) => {
       const { roundId, playerId, eventTypeId } = queueItem;
       this.addRoundEvent(roundId, playerId, eventTypeId);
     });
 
     // Listen to events that are pushed by EventHandler. When an Event occurs, call according methods within this DataProvider
-    this.eventHandlerService.getAddedRounds().subscribe((queueItem: RoundQueueItem) => {
+    this.eventHandlerService.getRoundsQueue().subscribe((queueItem: RoundQueueItem) => {
       const { gameId } = queueItem;
       this.createNewRound(gameId);
     });
