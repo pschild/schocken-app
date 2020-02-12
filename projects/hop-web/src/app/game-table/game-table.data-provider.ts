@@ -30,11 +30,13 @@ import { RoundEventsColumnVo } from './model/round-events-column.vo';
 import { RoundEventsRowVoMapperService } from './mapper/round-events-row-vo-mapper.service';
 import { SumPerUnitVo } from './model/sum-per-unit.vo';
 import { SumColumnVo } from './model/sum-column.vo';
+import { SumsRowVo } from './model/sums-row.vo';
 import { EventHandlerService } from '../core/service/event-handler.service';
 import { RoundEventQueueItem } from '../core/service/round-event-queue-item';
 import { RoundQueueItem } from '../core/service/round-queue-item';
 import { GameDetailsVo } from './model/game-details.vo';
 import { GameDetailsVoMapperService } from './mapper/game-details-vo-mapper.service';
+import { PenaltyService } from '../core/service/penalty.service';
 
 interface EventsByPlayer {
   playerId: string;
@@ -64,6 +66,7 @@ export class GameTableDataProvider {
     private roundEventsRowVoMapperService: RoundEventsRowVoMapperService,
     private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
     private eventHandlerService: EventHandlerService,
+    private penaltyService: PenaltyService,
     private sortService: SortService
   ) {
     // Listen to events that are pushed by EventHandler. When an Event occurs, call according methods within this DataProvider
@@ -87,7 +90,7 @@ export class GameTableDataProvider {
     return this.roundEventsRows$.asObservable();
   }
 
-  getSumsRow(): Observable<any> {
+  getSumsRow(): Observable<SumsRowVo> {
     return combineLatest(
       this.gameEventsRow$.pipe(
         filter((gameEventsRow: GameEventsRowVo) => !!gameEventsRow),
@@ -117,22 +120,7 @@ export class GameTableDataProvider {
       map((eventsByPlayer: EventsByPlayer[]) => {
         const cols: SumColumnVo[] = [];
         eventsByPlayer.forEach((playerEvents: EventsByPlayer) => {
-          const sumsPerUnit: SumPerUnitVo[] = [];
-          playerEvents.events.forEach((event: PlayerEventVo) => {
-            if (event.eventTypePenalty) {
-              const penaltyValue = event.eventTypePenalty.value;
-              const multiplicatorValue = event.eventMultiplicatorValue;
-              const finalValue = penaltyValue * multiplicatorValue;
-
-              const penaltyUnit = event.eventTypePenalty.unit;
-              const existingSumForUnit = sumsPerUnit.find((sum: SumPerUnitVo) => sum.unit === penaltyUnit);
-              if (existingSumForUnit) {
-                existingSumForUnit.sum += finalValue;
-              } else {
-                sumsPerUnit.push({ unit: penaltyUnit, sum: finalValue });
-              }
-            }
-          });
+          const sumsPerUnit: SumPerUnitVo[] = this.penaltyService.calculateSumsPerUnit(playerEvents.events);
 
           const playerId = playerEvents.playerId;
           const existingColumnForPlayer = cols.find((col: SumColumnVo) => col.playerId === playerId);

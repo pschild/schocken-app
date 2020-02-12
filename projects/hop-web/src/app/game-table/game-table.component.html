@@ -1,5 +1,5 @@
 <div *ngIf="gameDetails$ | async as gameDetails">
-  {{gameDetails.datetime | date:'dd.MM.yyyy HH:mm'}}
+  <h3>Spiel vom {{gameDetails.datetime | date:'dd.MM.yyyy HH:mm'}} Uhr</h3>
 
   <div class="table-container">
     <ng-container *ngIf="activePlayers$ | async as activePlayers">
@@ -9,14 +9,21 @@
           <th *ngFor="let player of activePlayers">{{player.name}}</th>
         </tr>
         <tr *ngIf="gameEventsRow$ | async as gameEventsRow">
-          <td>Festst.:</td>
+          <td>
+            <button mat-icon-button (click)="toggleRowState('gameEvents')">
+              <mat-icon *ngIf="!visibleRowIndexes['gameEvents']">keyboard_arrow_down</mat-icon>
+              <mat-icon *ngIf="visibleRowIndexes['gameEvents']">keyboard_arrow_up</mat-icon>
+            </button>
+            Festst.:
+          </td>
           <td *ngFor="let player of activePlayers">
             <hop-event-list-new
               [events]="gameEventsRow | getEventsForPlayer:player._id"
               [playerId]="player._id"
+              [showSumsOnly]="!visibleRowIndexes['gameEvents']"
               (removeEvent)="onRemoveGameEvent($event, player._id)"
             ></hop-event-list-new>
-            <button mat-button color="primary" (click)="showGameEventTypeDialog(player)">
+            <button mat-button color="primary" *ngIf="visibleRowIndexes['gameEvents'] && !gameDetails.completed" (click)="showGameEventTypeDialog(player)">
               <mat-icon>add</mat-icon>
             </button>
           </td>
@@ -35,10 +42,10 @@
               [ngTemplateOutletContext]="{ participationStatus: roundEventsRow | getParticipationStatusForPlayer: player._id }"
               [ngTemplateOutlet]="t" #t>
               <hop-event-list-new
-                *ngIf="visibleRowIndexes[i]"
                 [events]="roundEventsRow | getEventsForPlayer:player._id"
                 [roundId]="roundEventsRow.roundId"
                 [playerId]="player._id"
+                [showSumsOnly]="!visibleRowIndexes[i]"
                 (removeEvent)="onRemoveRoundEvent($event, roundEventsRow.roundId, player._id)">
               </hop-event-list-new>
               <div class="cell-buttons-container">
