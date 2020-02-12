@@ -39,9 +39,9 @@ export class RoundComponent implements OnInit {
 
     this.attendeeList$ = this.dataProvider.getAttendeeList();
     this.isInGame$ = this.dataProvider.getIsInGame();
-    this.isRoundCompleted$ = this.roundDetails$.pipe(
-      map((round: RoundDetailsVo) => round.completed)
-    );
+    // this.isRoundCompleted$ = this.roundDetails$.pipe(
+    //   map((round: RoundDetailsVo) => round.completed)
+    // );
   }
 
   onPlayerChanged(playerId: string): void {

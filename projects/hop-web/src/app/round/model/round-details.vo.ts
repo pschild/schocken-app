@@ -9,5 +9,4 @@ export class RoundDetailsVo {
   roundIndex: number;
   nextRoundId: string | undefined;
   previousRoundId: string | undefined;
-  completed: boolean;
 }

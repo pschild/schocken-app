@@ -11,7 +11,6 @@ export class RoundListItemVoMapperService {
     const vo = new RoundListItemVo();
     vo.id = input._id;
     vo.datetime = input.datetime;
-    vo.completed = input.completed;
     return vo;
   }
 

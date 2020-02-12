@@ -17,7 +17,6 @@ export class RoundDetailsVoMapperService {
     vo.roundIndex = roundIndex;
     vo.nextRoundId = nextRoundId;
     vo.previousRoundId = previousRoundId;
-    vo.completed = input.completed;
     return vo;
   }
 }

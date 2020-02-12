@@ -148,8 +148,7 @@ export class PlaygroundDataProvider {
     const createRound$ = (gameId: string, currentPlayerId: string, attendeeList: {playerId: string, inGameStatus: boolean}[]) => this.roundRepository.create({
       currentPlayerId,
       gameId,
-      attendeeList,
-      completed: false
+      attendeeList
     });
 
     // tslint:disable-next-line:max-line-length
