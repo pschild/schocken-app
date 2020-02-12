@@ -9,6 +9,7 @@ import { RoundEventsRowVo } from './model/round-events-row.vo';
 import { EventTypeItemVo, EventTypeListModalComponent, EventTypeListModalDialogResult, EventTypeListModalDialogData } from '@hop-basic-components';
 import { MatDialog, MatDialogRef, MatSlideToggleChange } from '@angular/material';
 import { SumsRowVo } from './model/sums-row.vo';
+import { GameDetailsVo } from './model/game-details.vo';
 
 @Component({
   selector: 'hop-game-table',
@@ -18,6 +19,7 @@ import { SumsRowVo } from './model/sums-row.vo';
 export class GameTableComponent implements OnInit {
 
   gameId$: Observable<string>;
+  gameDetails$: Observable<GameDetailsVo>;
   activePlayers$: Observable<PlayerDto[]>;
 
   gameEventTypes$: Observable<EventTypeItemVo[]>;
@@ -48,6 +50,7 @@ export class GameTableComponent implements OnInit {
 
     this.gameId$ = this.route.params.pipe(map((params: Params) => params.gameId));
     this.gameId$.subscribe((gameId: string) => {
+      this.gameDetails$ = this.dataProvider.loadGameDetails(gameId);
       this.dataProvider.loadGameEventsRow(gameId);
       this.dataProvider.loadRoundEventsRows(gameId);
     });

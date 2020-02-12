@@ -12,7 +12,9 @@ import {
   RoundDto,
   RoundEventRepository,
   RoundEventDto,
-  ParticipationDto
+  ParticipationDto,
+  GameRepository,
+  GameDto
 } from '@hop-backend-api';
 import { Observable, BehaviorSubject, of, zip, GroupedObservable, combineLatest } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
@@ -31,6 +33,8 @@ import { SumColumnVo } from './model/sum-column.vo';
 import { EventHandlerService } from '../core/service/event-handler.service';
 import { RoundEventQueueItem } from '../core/service/round-event-queue-item';
 import { RoundQueueItem } from '../core/service/round-queue-item';
+import { GameDetailsVo } from './model/game-details.vo';
+import { GameDetailsVoMapperService } from './mapper/game-details-vo-mapper.service';
 
 interface EventsByPlayer {
   playerId: string;
@@ -47,12 +51,14 @@ export class GameTableDataProvider {
   private roundEventsRows$: BehaviorSubject<RoundEventsRowVo[]> = new BehaviorSubject<RoundEventsRowVo[]>(null);
 
   constructor(
+    private gameRepository: GameRepository,
     private playerRepository: PlayerRepository,
     private roundRepository: RoundRepository,
     private gameEventRepository: GameEventRepository,
     private roundEventRepository: RoundEventRepository,
     private eventTypeRepository: EventTypeRepository,
     private eventListService: EventListService,
+    private gameDetailsVoMapperService: GameDetailsVoMapperService,
     private playerEventVoMapperService: PlayerEventVoMapperService,
     private gameEventsRowVoMapperService: GameEventsRowVoMapperService,
     private roundEventsRowVoMapperService: RoundEventsRowVoMapperService,
@@ -154,6 +160,13 @@ export class GameTableDataProvider {
       map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(
         eventTypes.filter((eventType: EventTypeDto) => eventType.context === EventTypeContext.ROUND)
       ))
+    );
+  }
+
+  loadGameDetails(gameId: string): Observable<GameDetailsVo> {
+    console.log('%c🔎LOAD GAME DETAILS', 'color: #f00');
+    return this.gameRepository.get(gameId).pipe(
+      map((game: GameDto) => this.gameDetailsVoMapperService.mapToVo(game))
     );
   }
 
