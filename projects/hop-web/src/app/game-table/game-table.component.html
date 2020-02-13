@@ -17,12 +17,12 @@
             Festst.:
           </td>
           <td *ngFor="let player of activePlayers">
-            <hop-event-list-new
+            <hop-event-list
               [events]="gameEventsRow | getEventsForPlayer:player._id"
               [playerId]="player._id"
               [showSumsOnly]="!visibleRowIndexes['gameEvents']"
               (removeEvent)="onRemoveGameEvent($event, player._id)"
-            ></hop-event-list-new>
+            ></hop-event-list>
             <button mat-button color="primary" *ngIf="visibleRowIndexes['gameEvents'] && !gameDetails.completed" (click)="showGameEventTypeDialog(player)">
               <mat-icon>add</mat-icon>
             </button>
@@ -41,13 +41,13 @@
               let-participationStatus="participationStatus"
               [ngTemplateOutletContext]="{ participationStatus: roundEventsRow | getParticipationStatusForPlayer: player._id }"
               [ngTemplateOutlet]="t" #t>
-              <hop-event-list-new
+              <hop-event-list
                 [events]="roundEventsRow | getEventsForPlayer:player._id"
                 [roundId]="roundEventsRow.roundId"
                 [playerId]="player._id"
                 [showSumsOnly]="!visibleRowIndexes[i]"
                 (removeEvent)="onRemoveRoundEvent($event, roundEventsRow.roundId, player._id)">
-              </hop-event-list-new>
+              </hop-event-list>
               <div class="cell-buttons-container">
                 <button mat-button color="primary"
                   *ngIf="participationStatus && visibleRowIndexes[i] && !gameDetails.completed"

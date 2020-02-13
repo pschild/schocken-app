@@ -4,7 +4,7 @@ import { PlayerEventVo } from '../model/player-event.vo';
 import { SumPerUnitVo } from '../model/sum-per-unit.vo';
 
 @Component({
-  selector: 'hop-event-list-new',
+  selector: 'hop-event-list',
   templateUrl: './event-list.component.html',
   styleUrls: ['./event-list.component.scss']
 })

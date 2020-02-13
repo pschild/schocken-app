@@ -14,12 +14,13 @@ import {
   RoundEventDto,
   ParticipationDto,
   GameRepository,
-  GameDto
+  GameDto,
+  EventTypeHistoryItem
 } from '@hop-backend-api';
 import { Observable, BehaviorSubject, of, zip, GroupedObservable, combineLatest } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
 import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take, filter } from 'rxjs/operators';
-import { EventListService, EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
+import { EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
 import { PlayerEventVoMapperService } from './mapper/player-event-vo-mapper.service';
 import { PlayerEventVo } from './model/player-event.vo';
 import { GameEventsColumnVo } from './model/game-events-column.vo';
@@ -59,7 +60,6 @@ export class GameTableDataProvider {
     private gameEventRepository: GameEventRepository,
     private roundEventRepository: RoundEventRepository,
     private eventTypeRepository: EventTypeRepository,
-    private eventListService: EventListService,
     private gameDetailsVoMapperService: GameDetailsVoMapperService,
     private playerEventVoMapperService: PlayerEventVoMapperService,
     private gameEventsRowVoMapperService: GameEventsRowVoMapperService,
@@ -405,10 +405,27 @@ export class GameTableDataProvider {
         if (!typeOfEvent) {
           throw new Error(`Could not find EventType with id ${event.eventTypeId}!`);
         }
-        const latestEventType = this.eventListService.getActiveHistoryItemAtDatetime(typeOfEvent.history, event.datetime);
+        const latestEventType = this.getActiveHistoryItemAtDatetime(typeOfEvent.history, event.datetime);
         return this.playerEventVoMapperService.mapToVo(event, latestEventType);
       })
     );
+  }
+
+  private getActiveHistoryItemAtDatetime(historyItems: EventTypeHistoryItem[], eventDate: Date): Partial<EventTypeDto> {
+    const eventDatetime = new Date(eventDate).getTime();
+    let eventTypeAtEventTime: Partial<EventTypeDto> = null;
+    let datetimeRef = -1;
+    historyItems.forEach((historyItem: EventTypeHistoryItem) => {
+      const validFrom = new Date(historyItem.validFrom).getTime();
+      if (
+        validFrom < eventDatetime
+        && validFrom > datetimeRef
+      ) {
+        datetimeRef = validFrom;
+        eventTypeAtEventTime = historyItem.eventType;
+      }
+    });
+    return eventTypeAtEventTime;
   }
 
   private loadRoundsByGameId(id: string): Observable<RoundDto[]> {

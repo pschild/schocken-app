@@ -12,20 +12,8 @@ const routes: Routes = [
     loadChildren: () => import('./home/home.module').then(m => m.HomeModule)
   },
   {
-    path: 'game',
-    loadChildren: () => import('./game/game.module').then(m => m.GameModule)
-  },
-  {
-    path: 'foobar',
-    loadChildren: () => import('./foobar/foobar.module').then(m => m.FoobarModule)
-  },
-  {
     path: 'game-table',
     loadChildren: () => import('./game-table/game-table.module').then(m => m.GameTableModule)
-  },
-  {
-    path: 'round',
-    loadChildren: () => import('./round/round.module').then(m => m.RoundModule)
   },
   {
     path: 'attendees',

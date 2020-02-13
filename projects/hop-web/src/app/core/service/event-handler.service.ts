@@ -3,7 +3,6 @@ import {
   RoundEventRepository,
   RoundRepository,
   RoundDto,
-  GameDto,
   EventTypeTrigger,
   ParticipationDto,
   PlayerRepository,
@@ -14,7 +13,6 @@ import {
 } from '@hop-backend-api';
 import {
   SnackBarNotificationService,
-  EventTypeItemVo,
   DialogService,
   IDialogResult,
   DialogResult,
@@ -23,7 +21,7 @@ import {
   AllPlayerSelectionModalDialogResult
 } from '@hop-basic-components';
 import { map, concatMap, switchMap, filter, tap, mergeAll, toArray, withLatestFrom } from 'rxjs/operators';
-import { of, forkJoin, EMPTY, Observable, Subject } from 'rxjs';
+import { of, forkJoin, Observable, Subject } from 'rxjs';
 import { MatDialog } from '@angular/material';
 import { PlayerEventVo } from '../../game-table/model/player-event.vo';
 import { RoundEventQueueItem } from './round-event-queue-item';
@@ -67,69 +65,6 @@ export class EventHandlerService {
 
   getRoundsQueue(): Observable<RoundQueueItem> {
     return this.roundsQueue$.asObservable();
-  }
-
-  /**
-   * @deprecated
-   */
-  handleRoundEvent(eventType: EventTypeItemVo, currentRound: RoundDto): Observable<any> {
-    return EMPTY;
-  }
-
-  /**
-   * @deprecated
-   */
-  handleGameEvent(eventType: EventTypeItemVo, currentGame: GameDto): Observable<any> {
-    // no triggers for game events yet
-    return EMPTY;
-  }
-
-  /**
-   * @deprecated
-   */
-  private _handleSchockAusTriggerForOldRoundView(currentRound: RoundDto): void {
-    this.playerRepository.getAll().pipe(
-      // find all players that are attending in the game and have inGameStatus = true
-      map((allPlayers: PlayerDto[]) => allPlayers
-          .filter((player: PlayerDto) => currentRound.attendeeList.find(
-            (participation: ParticipationDto) => participation.playerId === player._id && participation.inGameStatus === true)
-          )
-          .filter((player: PlayerDto) => player._id !== currentRound.currentPlayerId)
-      ),
-      // show confirmation, wait for the user to accept or decline
-      concatMap((playersToPunish: PlayerDto[]) => {
-        const playerNames = playersToPunish.map((player: PlayerDto) => player.name);
-        if (playerNames.length === 0) {
-          return EMPTY;
-        }
-        const confirmation$ = this.dialogService.showYesNoDialog({
-          title: '',
-          message: `Sollen die folgenden Spieler automatisch eine Schock-Aus-Strafe erhalten? ${playerNames.join(', ')}`
-        });
-        return forkJoin(of(playersToPunish), confirmation$);
-      }),
-      // only go on if the user confirmed
-      filter(([playersToPunish, confirmation]: [PlayerDto[], IDialogResult]) => confirmation.result === DialogResult.YES),
-      // find the event type with type "SCHOCK_AUS_PENALTY" dynamically (instead of using a static id)
-      switchMap(([playersToPunish, confirmation]: [PlayerDto[], IDialogResult]) => {
-        return forkJoin(of(playersToPunish), this.eventTypeRepository.findByTrigger(EventTypeTrigger.SCHOCK_AUS_PENALTY));
-      }),
-      // create an according round event for the specified players
-      switchMap(([playersToPunish, schockAusPenaltyEventTypes]: [PlayerDto[], EventTypeDto[]]) => {
-        if (schockAusPenaltyEventTypes.length !== 1) {
-          throw Error(`Es gibt kein oder mehrere EventTypes für eine Schock-Aus-Strafe.`);
-        }
-        return forkJoin(
-          playersToPunish.map((player: PlayerDto) => this.roundEventRepository.create({
-            eventTypeId: schockAusPenaltyEventTypes[0]._id,
-            playerId: player._id,
-            roundId: currentRound._id
-          }))
-        );
-      })
-    ).subscribe((createdEventIds: string[]) => {
-      this.snackBarNotificationService.showMessage(`Es wurden ${createdEventIds.length} Schock-Aus-Strafe(n) verteilt.`);
-    });
   }
 
   private _handleSchockAusTrigger(playerId: string, roundId: string): void {
