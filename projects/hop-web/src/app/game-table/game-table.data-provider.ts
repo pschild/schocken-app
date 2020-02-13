@@ -32,9 +32,9 @@ import { RoundEventsRowVoMapperService } from './mapper/round-events-row-vo-mapp
 import { SumPerUnitVo } from './model/sum-per-unit.vo';
 import { SumColumnVo } from './model/sum-column.vo';
 import { SumsRowVo } from './model/sums-row.vo';
-import { EventHandlerService } from '../core/service/event-handler.service';
-import { RoundEventQueueItem } from '../core/service/round-event-queue-item';
-import { RoundQueueItem } from '../core/service/round-queue-item';
+import { EventHandlerService } from '../core/service/event-handler/event-handler.service';
+import { RoundEventQueueItem } from '../core/service/event-handler/round-event-queue-item';
+import { RoundQueueItem } from '../core/service/event-handler/round-queue-item';
 import { GameDetailsVo } from './model/game-details.vo';
 import { GameDetailsVoMapperService } from './mapper/game-details-vo-mapper.service';
 import { PenaltyService } from '../core/service/penalty.service';
