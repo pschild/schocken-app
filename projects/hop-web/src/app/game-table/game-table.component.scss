@@ -1,7 +1,8 @@
-$firstColor: #A5D6A7;
+$firstColor: #E57373;
 $secondColor: #BBDEFB;
-$thirdColor: #E57373;
-$fourthColor: #CE93D8;
+$thirdColor: #A5D6A7;
+$fourthColor: #FFCDA9;
+$fifthColor: #FFE879;
 
 $header-background: #ddd;
 $footer-background: #888;
@@ -64,20 +65,24 @@ $mask-transparency-value: 0.6;
       }
     }
 
-    th:nth-child(4n + 2), td:nth-child(4n + 2) {
+    th:nth-child(5n + 2), td:nth-child(5n + 2) {
       background-color: $firstColor;
     }
 
-    th:nth-child(4n + 3), td:nth-child(4n + 3) {
+    th:nth-child(5n + 3), td:nth-child(5n + 3) {
       background-color: $secondColor;
     }
 
-    th:nth-child(4n + 4), td:nth-child(4n + 4) {
+    th:nth-child(5n + 4), td:nth-child(5n + 4) {
       background-color: $thirdColor;
     }
 
-    th:nth-child(4n + 5), td:nth-child(4n + 5) {
+    th:nth-child(5n + 5), td:nth-child(5n + 5) {
       background-color: $fourthColor;
+    }
+
+    th:nth-child(5n + 6), td:nth-child(5n + 6) {
+      background-color: $fifthColor;
     }
 
     tr:nth-child(even) td {

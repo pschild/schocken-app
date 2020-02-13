@@ -27,7 +27,7 @@ export class EventListComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes && changes.events && changes.events.currentValue) {
+    if (changes && changes.events && changes.events.currentValue && changes.events.currentValue.length > 0) {
       this.sumsPerUnit = this.penaltyService.calculateSumsPerUnit(this.events);
     }
   }
