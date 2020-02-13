@@ -6,7 +6,12 @@ import { PlayerDto } from '@hop-backend-api';
 import { GameTableDataProvider } from './game-table.data-provider';
 import { GameEventsRowVo } from './model/game-events-row.vo';
 import { RoundEventsRowVo } from './model/round-events-row.vo';
-import { EventTypeItemVo, EventTypeListModalComponent, EventTypeListModalDialogResult, EventTypeListModalDialogData } from '@hop-basic-components';
+import {
+  EventTypeItemVo,
+  EventTypeListModalComponent,
+  EventTypeListModalDialogResult,
+  EventTypeListModalDialogData
+} from '@hop-basic-components';
 import { MatDialog, MatDialogRef, MatSlideToggleChange } from '@angular/material';
 import { SumsRowVo } from './model/sums-row.vo';
 import { GameDetailsVo } from './model/game-details.vo';
@@ -96,7 +101,7 @@ export class GameTableComponent implements OnInit {
       switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),
       filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
     ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
-      const { roundId, playerId, eventType } = dialogResult;
+      const { playerId, eventType } = dialogResult;
       this.dataProvider.addRoundEvent(roundId, playerId, eventType.id, eventType.multiplicatorValue);
     });
   }
@@ -109,7 +114,9 @@ export class GameTableComponent implements OnInit {
     }
   }
 
-  private showDialog(eventTypes: EventTypeItemVo[], player: PlayerDto, gameId: string, roundId: string): MatDialogRef<EventTypeListModalComponent> {
+  private showDialog(
+    eventTypes: EventTypeItemVo[], player: PlayerDto, gameId: string, roundId: string
+  ): MatDialogRef<EventTypeListModalComponent> {
     const dialogData: EventTypeListModalDialogData = { eventTypes, player, gameId, roundId };
     return this.dialog.open(EventTypeListModalComponent, {
       width: '500px',

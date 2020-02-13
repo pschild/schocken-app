@@ -1,16 +1,6 @@
-import { Component, OnInit, Inject, ViewChild } from '@angular/core';
-import { PlayerDto } from '@hop-backend-api';
-import { MatDialogRef, MAT_DIALOG_DATA, MatListOption } from '@angular/material';
-
-export interface AllPlayerSelectionModalDialogData {
-  players: PlayerDto[];
-  activatedPlayerIds: string[];
-}
-
-// TODO: expose interface
-export interface AllPlayerSelectionModalDialogResult {
-  selectedPlayerIds: string[];
-}
+import { Component, OnInit, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { AllPlayerSelectionModalDialogData, AllPlayerSelectionModalDialogResult } from './model';
 
 @Component({
   selector: 'hop-all-player-selection-modal',
@@ -19,7 +9,7 @@ export interface AllPlayerSelectionModalDialogResult {
 })
 export class AllPlayerSelectionModalComponent implements OnInit {
 
-  @ViewChild('selectedPlayers', { static: true }) selectedPlayers;
+  selectedOptions: string[] = [];
 
   constructor(
     private dialogRef: MatDialogRef<AllPlayerSelectionModalComponent>,
@@ -27,11 +17,12 @@ export class AllPlayerSelectionModalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.selectedOptions = this.data.activatedPlayerIds;
   }
 
   onApply() {
     const dialogResult: AllPlayerSelectionModalDialogResult = {
-      selectedPlayerIds: this.selectedPlayers.selectedOptions.selected.map((option: MatListOption) => option.value)
+      selectedPlayerIds: this.selectedOptions
     };
     this.dialogRef.close(dialogResult);
   }

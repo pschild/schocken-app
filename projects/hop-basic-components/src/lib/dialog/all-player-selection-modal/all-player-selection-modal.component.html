@@ -1,7 +1,11 @@
 <h2 mat-dialog-title>Welche Spieler kassieren eine Schock-Aus-Strafe?</h2>
 <mat-dialog-content>
-  <mat-selection-list #selectedPlayers>
-    <mat-list-option *ngFor="let player of data.players" [value]="player._id" [disabled]="!data.activatedPlayerIds.includes(player._id)">
+  <mat-selection-list #selectedPlayers [(ngModel)]="selectedOptions">
+    <mat-list-option
+      *ngFor="let player of data.players"
+      [value]="player._id"
+      [disabled]="!data.activatedPlayerIds.includes(player._id)"
+      [checkboxPosition]="'before'">
       {{player.name}}
     </mat-list-option>
   </mat-selection-list>

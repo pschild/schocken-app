@@ -19,7 +19,8 @@ import {
   IDialogResult,
   DialogResult,
   AllPlayerSelectionModalComponent,
-  LOST_EVENT_BUTTON_CONFIG
+  LOST_EVENT_BUTTON_CONFIG,
+  AllPlayerSelectionModalDialogResult
 } from '@hop-basic-components';
 import { map, concatMap, switchMap, filter, tap, mergeAll, toArray, withLatestFrom } from 'rxjs/operators';
 import { of, forkJoin, EMPTY, Observable, Subject } from 'rxjs';
@@ -147,10 +148,9 @@ export class EventHandlerService {
         }).afterClosed();
       }),
       // only go on if the user selected at least one player
-      // TODO: use exposed interface
-      filter(
-        (dialogResult: { selectedPlayerIds: string[] }) => dialogResult && dialogResult.selectedPlayerIds && dialogResult.selectedPlayerIds.length > 0
-      ),
+      filter((dialogResult: AllPlayerSelectionModalDialogResult) => {
+        return dialogResult && dialogResult.selectedPlayerIds && dialogResult.selectedPlayerIds.length > 0;
+      }),
       // find the event type with type "SCHOCK_AUS_PENALTY" dynamically (instead of using a static id)
       switchMap((dialogResult: { selectedPlayerIds: string[] }) => {
         return forkJoin(of(dialogResult.selectedPlayerIds), this.eventTypeRepository.findByTrigger(EventTypeTrigger.SCHOCK_AUS_PENALTY));
@@ -159,7 +159,7 @@ export class EventHandlerService {
         if (schockAusPenaltyEventTypes.length !== 1) {
           throw Error(`Es gibt kein oder mehrere EventTypes für eine Schock-Aus-Strafe.`);
         }
-        return selectedPlayerIds.map((playerId: string) => ({ eventTypeId: schockAusPenaltyEventTypes[0]._id, roundId, playerId }));
+        return selectedPlayerIds.map((selectedPlayerId: string) => ({ eventTypeId: schockAusPenaltyEventTypes[0]._id, roundId, playerId: selectedPlayerId }));
       }),
       mergeAll(),
       tap((queueItem: RoundEventQueueItem) => this.roundEventsQueue$.next(queueItem)),

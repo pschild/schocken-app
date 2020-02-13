@@ -325,7 +325,7 @@ export class GameTableDataProvider {
         }
         const roundInRows = currentState[roundRowIndex];
 
-        let playerInColumn: RoundEventsColumnVo = roundInRows.columns.find((col: RoundEventsColumnVo) => col.playerId === playerId);
+        const playerInColumn: RoundEventsColumnVo = roundInRows.columns.find((col: RoundEventsColumnVo) => col.playerId === playerId);
         if (playerInColumn && playerInColumn.events) {
           playerInColumn.events = playerInColumn.events.filter((event: PlayerEventVo) => event.eventId !== removedId);
         }
@@ -348,7 +348,10 @@ export class GameTableDataProvider {
           currentPlayerId: 'N/A', // TODO: currentPlayerId not necessary anymore?
           attendeeList: lastRow ? lastRow.attendeeList : []
         }).pipe(
-          map((createdId: string) => [...roundEventRows, { roundId: createdId, attendeeList: lastRow ? lastRow.attendeeList : [], columns: [] }])
+          map((createdId: string) => [
+            ...roundEventRows,
+            { roundId: createdId, attendeeList: lastRow ? lastRow.attendeeList : [], columns: [] }
+          ])
         );
       })
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
@@ -366,9 +369,12 @@ export class GameTableDataProvider {
 
         let updatedAttendeeList;
         if (isParticipating) {
-          updatedAttendeeList = [...roundInRows.attendeeList, { playerId, inGameStatus: true }]; // TODO: inGameStatus not necessary anymore?
+          updatedAttendeeList = [
+            ...roundInRows.attendeeList,
+            { playerId, inGameStatus: true } // TODO: inGameStatus not necessary anymore?
+          ];
         } else {
-          updatedAttendeeList = roundInRows.attendeeList.filter((participation: ParticipationDto) => participation.playerId !== playerId)
+          updatedAttendeeList = roundInRows.attendeeList.filter((participation: ParticipationDto) => participation.playerId !== playerId);
         }
 
         return this.roundRepository.update(roundId, { attendeeList: updatedAttendeeList }).pipe(

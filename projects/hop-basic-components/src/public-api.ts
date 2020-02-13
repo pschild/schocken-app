@@ -35,6 +35,8 @@ export * from './lib/dialog/dialog-config';
 
 export * from './lib/dialog/event-type-list-modal/model';
 
+export * from './lib/dialog/all-player-selection-modal/model';
+
 /**
  * Services
  */
