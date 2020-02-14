@@ -1,4 +1,4 @@
-import { SumPerUnitVo } from './sum-per-unit.vo';
+import { SumPerUnitVo } from '@hop-basic-components';
 
 export class SumColumnVo {
   playerId: string;

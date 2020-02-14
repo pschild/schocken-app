@@ -1,0 +1,12 @@
+<div *ngFor="let event of events" class="round-event-container">
+  <div>{{event.eventTypeDescription}}</div>
+  <div class="spacer"></div>
+  <div class="right-column">
+    <span *ngIf="event.eventTypePenalty as penalty">
+      {{penalty.value * event.eventMultiplicatorValue | number:'1.2'}} {{penalty.unit}}
+    </span>
+    <button mat-icon-button color="warn" (click)="remove(event.eventId)">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+</div>

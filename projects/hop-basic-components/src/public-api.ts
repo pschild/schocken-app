@@ -7,8 +7,13 @@ export * from './lib/hop-basic-components.module';
 export * from './lib/game-list/mapper';
 export * from './lib/game-list/model';
 
+export * from './lib/event-list/mapper';
+export * from './lib/event-list/model';
+
 export * from './lib/event-type-list/mapper';
 export * from './lib/event-type-list/model';
+
+export * from './lib/penalty-sum/model';
 
 export * from './lib/table-wrapper/IColumnDefinition';
 export * from './lib/table-wrapper/ITableConfig';

@@ -18,7 +18,8 @@ import {
   DialogResult,
   AllPlayerSelectionModalComponent,
   LOST_EVENT_BUTTON_CONFIG,
-  AllPlayerSelectionModalDialogResult
+  AllPlayerSelectionModalDialogResult,
+  PlayerEventVo
 } from '@hop-basic-components';
 import { map, concatMap, switchMap, filter, tap, mergeAll, toArray, withLatestFrom } from 'rxjs/operators';
 import { of, forkJoin, Observable, Subject } from 'rxjs';
@@ -26,7 +27,6 @@ import { MatDialog } from '@angular/material';
 import { RoundEventQueueItem } from './round-event-queue-item';
 import { RoundQueueItem } from './round-queue-item';
 import { Router } from '@angular/router';
-import { PlayerEventVo } from '../../../game-table/model/player-event.vo';
 
 @Injectable({
   providedIn: 'root'

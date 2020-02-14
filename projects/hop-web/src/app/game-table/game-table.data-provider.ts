@@ -17,27 +17,21 @@ import {
   GameDto,
   EventTypeHistoryItem
 } from '@hop-backend-api';
-import { Observable, BehaviorSubject, of, zip, GroupedObservable, combineLatest } from 'rxjs';
+import { Observable, BehaviorSubject, of, zip, GroupedObservable } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
-import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take, filter } from 'rxjs/operators';
-import { EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
-import { PlayerEventVoMapperService } from './mapper/player-event-vo-mapper.service';
-import { PlayerEventVo } from './model/player-event.vo';
+import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take } from 'rxjs/operators';
+import { EventTypeItemVo, EventTypeItemVoMapperService, PlayerEventVo, PlayerEventVoMapperService } from '@hop-basic-components';
 import { GameEventsColumnVo } from './model/game-events-column.vo';
 import { GameEventsRowVoMapperService } from './mapper/game-events-row-vo-mapper.service';
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { RoundEventsRowVo } from './model/round-events-row.vo';
 import { RoundEventsColumnVo } from './model/round-events-column.vo';
 import { RoundEventsRowVoMapperService } from './mapper/round-events-row-vo-mapper.service';
-import { SumPerUnitVo } from './model/sum-per-unit.vo';
-import { SumColumnVo } from './model/sum-column.vo';
-import { SumsRowVo } from './model/sums-row.vo';
 import { EventHandlerService } from '../core/service/event-handler/event-handler.service';
 import { RoundEventQueueItem } from '../core/service/event-handler/round-event-queue-item';
 import { RoundQueueItem } from '../core/service/event-handler/round-queue-item';
 import { GameDetailsVo } from './model/game-details.vo';
 import { GameDetailsVoMapperService } from './mapper/game-details-vo-mapper.service';
-import { PenaltyService } from '../core/service/penalty.service';
 
 interface EventsByPlayer {
   playerId: string;
@@ -66,7 +60,6 @@ export class GameTableDataProvider {
     private roundEventsRowVoMapperService: RoundEventsRowVoMapperService,
     private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
     private eventHandlerService: EventHandlerService,
-    private penaltyService: PenaltyService,
     private sortService: SortService
   ) {
     // Listen to events that are pushed by EventHandler. When an Event occurs, call according methods within this DataProvider
@@ -82,57 +75,17 @@ export class GameTableDataProvider {
     });
   }
 
+  resetRows(): void {
+    this.gameEventsRow$.next(null);
+    this.roundEventsRows$.next([]);
+  }
+
   getGameEventsRow(): Observable<GameEventsRowVo> {
     return this.gameEventsRow$.asObservable();
   }
 
   getRoundEventsRows(): Observable<RoundEventsRowVo[]> {
     return this.roundEventsRows$.asObservable();
-  }
-
-  getSumsRow(): Observable<SumsRowVo> {
-    return combineLatest(
-      this.gameEventsRow$.pipe(
-        filter((gameEventsRow: GameEventsRowVo) => !!gameEventsRow),
-        map((gameEventsRow: GameEventsRowVo) => gameEventsRow.columns)
-      ),
-      this.roundEventsRows$.pipe(
-        filter((roundEventsRows: RoundEventsRowVo[]) => !!roundEventsRows),
-        map((roundEventsRows: RoundEventsRowVo[]) => roundEventsRows.map((roundEventsRow: RoundEventsRowVo) => roundEventsRow.columns))
-      )
-    ).pipe(
-      map(([gameEventsColumns, roundEventsColums]: [GameEventsColumnVo[], RoundEventsColumnVo[][]]) => {
-        return gameEventsColumns.concat([].concat.apply([], roundEventsColums));
-      }),
-      map((columns: Array<GameEventsColumnVo | RoundEventsColumnVo>): any => {
-        const eventsByPlayer: EventsByPlayer[] = [];
-        columns.forEach((column: GameEventsColumnVo | RoundEventsColumnVo) => {
-          const playerId = column.playerId;
-          const existingEntryForPlayer = eventsByPlayer.find((i) => i.playerId === playerId);
-          if (existingEntryForPlayer) {
-            existingEntryForPlayer.events = [...existingEntryForPlayer.events, ...column.events];
-          } else {
-            eventsByPlayer.push({ playerId, events: column.events });
-          }
-        });
-        return eventsByPlayer;
-      }),
-      map((eventsByPlayer: EventsByPlayer[]) => {
-        const cols: SumColumnVo[] = [];
-        eventsByPlayer.forEach((playerEvents: EventsByPlayer) => {
-          const sumsPerUnit: SumPerUnitVo[] = this.penaltyService.calculateSumsPerUnit(playerEvents.events);
-
-          const playerId = playerEvents.playerId;
-          const existingColumnForPlayer = cols.find((col: SumColumnVo) => col.playerId === playerId);
-          if (existingColumnForPlayer) {
-            existingColumnForPlayer.sums = [...existingColumnForPlayer.sums, ...sumsPerUnit];
-          } else {
-            cols.push({ playerId, sums: sumsPerUnit });
-          }
-        });
-        return { columns: cols };
-      })
-    );
   }
 
   getGameEventTypes(): Observable<EventTypeItemVo[]> {

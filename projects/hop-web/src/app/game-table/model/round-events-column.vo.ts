@@ -1,4 +1,4 @@
-import { PlayerEventVo } from './player-event.vo';
+import { PlayerEventVo } from '@hop-basic-components';
 
 export class RoundEventsColumnVo {
   playerId: string;

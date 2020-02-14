@@ -13,7 +13,6 @@ import {
   EventTypeListModalDialogData
 } from '@hop-basic-components';
 import { MatDialog, MatDialogRef, MatSlideToggleChange } from '@angular/material';
-import { SumsRowVo } from './model/sums-row.vo';
 import { GameDetailsVo } from './model/game-details.vo';
 
 @Component({
@@ -32,7 +31,6 @@ export class GameTableComponent implements OnInit {
 
   gameEventsRow$: Observable<GameEventsRowVo>;
   roundEventsRows$: Observable<RoundEventsRowVo[]>;
-  playerSumsRow$: Observable<SumsRowVo>;
 
   visibleRowIndexes: boolean[] = [];
 
@@ -44,11 +42,12 @@ export class GameTableComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.dataProvider.resetRows();
+
     this.gameEventTypes$ = this.dataProvider.getGameEventTypes();
     this.roundEventTypes$ = this.dataProvider.getRoundEventTypes();
     this.gameEventsRow$ = this.dataProvider.getGameEventsRow();
     this.roundEventsRows$ = this.dataProvider.getRoundEventsRows();
-    this.playerSumsRow$ = this.dataProvider.getSumsRow();
 
     this.activePlayers$ = this.dataProvider.loadAllActivePlayers();
     this.dataProvider.loadAllEventTypes();

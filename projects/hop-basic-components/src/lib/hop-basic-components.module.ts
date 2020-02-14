@@ -13,6 +13,8 @@ import { DialogComponent } from './dialog/dialog.component';
 import { SyncStateComponent } from './sync-state/sync-state.component';
 import { EventTypeListModalComponent } from './dialog/event-type-list-modal/event-type-list-modal.component';
 import { AllPlayerSelectionModalComponent } from './dialog/all-player-selection-modal/all-player-selection-modal.component';
+import { EventListComponent } from './event-list/event-list.component';
+import { PenaltySumComponent } from './penalty-sum/penalty-sum.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +28,9 @@ import { AllPlayerSelectionModalComponent } from './dialog/all-player-selection-
     ChangeGameDateModalComponent,
     SyncStateComponent,
     EventTypeListModalComponent,
-    AllPlayerSelectionModalComponent
+    AllPlayerSelectionModalComponent,
+    EventListComponent,
+    PenaltySumComponent
   ],
   imports: [
     MaterialModule,
@@ -40,7 +44,9 @@ import { AllPlayerSelectionModalComponent } from './dialog/all-player-selection-
     GameListComponent,
     TableWrapperComponent,
     EventTypeListComponent,
-    SnowflakesComponent
+    SnowflakesComponent,
+    EventListComponent,
+    PenaltySumComponent
   ],
   entryComponents: [
     SnackBarNotificationComponent,

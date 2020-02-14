@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { RoundEventsRowVo } from './model/round-events-row.vo';
+import { RoundEventsRowVo } from '../model/round-events-row.vo';
 import { ParticipationDto } from '@hop-backend-api/lib/round';
 
 @Pipe({

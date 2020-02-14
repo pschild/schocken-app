@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { SumPerUnitVo } from '../../game-table/model/sum-per-unit.vo';
-import { PlayerEventVo } from '../../game-table/model/player-event.vo';
+import { SumPerUnitVo } from './model';
+import { PlayerEventVo } from '../event-list/model';
 
 @Injectable({
   providedIn: 'root'

@@ -1,0 +1,5 @@
+<div class="sums-container">
+  <div *ngFor="let sumPerUnit of sumsPerUnit">
+    {{sumPerUnit.sum | number:'1.2'}} {{sumPerUnit.unit}}
+  </div>
+</div>
