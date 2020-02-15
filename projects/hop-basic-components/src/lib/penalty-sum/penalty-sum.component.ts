@@ -22,7 +22,7 @@ export class PenaltySumComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes && changes.events && changes.events.currentValue && changes.events.currentValue.length > 0) {
+    if (changes && changes.events && changes.events.currentValue) {
       this.sumsPerUnit = this.penaltyService.calculateSumsPerUnit(this.events);
     }
   }
