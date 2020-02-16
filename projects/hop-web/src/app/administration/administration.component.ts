@@ -12,6 +12,8 @@ import { IDialogResult, DialogResult, SnackBarNotificationService, DialogService
 })
 export class AdministrationComponent implements OnInit {
 
+  selectedGameId: string;
+
   gameItems$: Observable<GameSelectItemVo[]>;
 
   constructor(
