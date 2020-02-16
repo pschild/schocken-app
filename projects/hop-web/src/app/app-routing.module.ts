@@ -32,6 +32,10 @@ const routes: Routes = [
     loadChildren: () => import('./constitution/constitution.module').then(m => m.ConstitutionModule)
   },
   {
+    path: 'administration',
+    loadChildren: () => import('./administration/administration.module').then(m => m.AdministrationModule)
+  },
+  {
     path: 'playground',
     loadChildren: () => import('./playground/playground.module').then(m => m.PlaygroundModule)
   }

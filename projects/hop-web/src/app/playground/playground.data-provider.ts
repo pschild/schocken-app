@@ -1,6 +1,6 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { forkJoin, of } from 'rxjs';
-import { GameRepository, RoundRepository, PlayerRepository, EventTypeRepository, EventTypeContext, RoundEventRepository, PouchDbAdapter, ENV } from '@hop-backend-api';
+import { GameRepository, RoundRepository, PlayerRepository, EventTypeRepository, EventTypeContext, RoundEventRepository, PouchDbAdapter } from '@hop-backend-api';
 import { switchMap } from 'rxjs/operators';
 
 declare function emit(val: any);
@@ -18,8 +18,7 @@ export class PlaygroundDataProvider {
     private playerRepository: PlayerRepository,
     private eventTypeRepository: EventTypeRepository,
     private roundEventRepository: RoundEventRepository,
-    private db: PouchDbAdapter,
-    @Inject(ENV) private env
+    private db: PouchDbAdapter
   ) {
   }
 
@@ -191,18 +190,5 @@ export class PlaygroundDataProvider {
       console.log(_);
       alert('Done.');
     });
-  }
-
-  deleteLocalDatabase(): void {
-    const req: IDBOpenDBRequest = window.indexedDB.deleteDatabase(`_pouch_${this.env.LOCAL_DATABASE}`);
-    req.onsuccess = () => alert('Deleted database successfully');
-    req.onerror = (event) => {
-      alert('Could not delete database');
-      console.log(event);
-    };
-    req.onblocked = (event) => {
-      alert('Could not delete database due to the operation being blocked');
-      console.log(event);
-    }
   }
 }

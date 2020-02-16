@@ -1,0 +1,34 @@
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Spiele löschen
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <mat-form-field *ngIf="gameItems$ | async as gameItems">
+      <mat-label>Spiele</mat-label>
+      <mat-select [(value)]="selectedGameId">
+        <mat-option *ngFor="let gameItem of gameItems" [value]="gameItem.id">
+          {{gameItem.datetime | date:'dd.MM.yyyy HH:mm:ss'}} ({{gameItem.roundCount}} Runde(n))
+          <mat-icon *ngIf="gameItem.completed">check</mat-icon>
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-icon-button color="warn" (click)="removeGame(selectedGameId)">
+      <mat-icon>delete</mat-icon>
+    </button>
+
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Lokale Datenbank
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <button mat-raised-button color="primary" (click)="deleteLocalDatabase()">Lokale Datenbank löschen</button>
+
+  </mat-expansion-panel>
+</mat-accordion>
