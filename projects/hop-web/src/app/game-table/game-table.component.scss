@@ -42,12 +42,12 @@ $mask-transparency-value: 0.6;
 
       &:first-child{
         z-index: 11;
-        background-color: #fff;
+        background-color: transparent;
       }
     }
 
     tr:nth-last-child(2) td {
-      background: #fff;
+      background: transparent;
     }
 
     // fixed footer
