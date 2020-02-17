@@ -42,7 +42,7 @@ $mask-transparency-value: 0.6;
 
       &:first-child{
         z-index: 11;
-        background-color: transparent;
+        background-color: $first-column-background;
       }
     }
 
