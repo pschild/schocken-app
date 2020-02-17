@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
 import { map, filter, take, withLatestFrom, switchMap } from 'rxjs/operators';
@@ -10,15 +10,19 @@ import {
   EventTypeItemVo,
   EventTypeListModalComponent,
   EventTypeListModalDialogResult,
-  EventTypeListModalDialogData
+  EventTypeListModalDialogData,
+  PlayerEventVo
 } from '@hop-basic-components';
 import { MatDialog, MatDialogRef, MatSlideToggleChange } from '@angular/material';
 import { GameDetailsVo } from './model/game-details.vo';
+import { GameEventsColumnVo } from './model/game-events-column.vo';
+import { RoundEventsColumnVo } from './model/round-events-column.vo';
 
 @Component({
   selector: 'hop-game-table',
   templateUrl: './game-table.component.html',
-  styleUrls: ['./game-table.component.scss']
+  styleUrls: ['./game-table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GameTableComponent implements OnInit {
 
@@ -123,6 +127,33 @@ export class GameTableComponent implements OnInit {
       autoFocus: false,
       data: dialogData
     });
+  }
+
+  calcInComp([rows, playerId]: [Array<GameEventsRowVo | RoundEventsRowVo>, string]): PlayerEventVo[] {
+    // console.count('GetEventsForPlayerPipe');
+    const columns = rows.map(row => row.columns.find(
+      (col: GameEventsColumnVo | RoundEventsColumnVo) => col.playerId === playerId
+    ));
+    return [].concat.apply(
+      [],
+      columns
+        .filter((column: GameEventsColumnVo | RoundEventsColumnVo) => !!column)
+        .map((column: GameEventsColumnVo | RoundEventsColumnVo) => [...column.events])
+    );
+  }
+
+  calcInComp1([row, rows, playerId]: [GameEventsRowVo, Array<RoundEventsRowVo>, string]): PlayerEventVo[] {
+    // console.count('GetEventsForPlayerPipe1');
+    const combined = [row, ...rows];
+    const columns = combined.map(row1 => row1.columns.find(
+      (col: GameEventsColumnVo | RoundEventsColumnVo) => col.playerId === playerId
+    ));
+    return [].concat.apply(
+      [],
+      columns
+        .filter((column: GameEventsColumnVo | RoundEventsColumnVo) => !!column)
+        .map((column: GameEventsColumnVo | RoundEventsColumnVo) => [...column.events])
+    );
   }
 
 }

@@ -20,13 +20,13 @@
             <td *ngFor="let player of activePlayers">
               <hop-event-list
                 *ngIf="visibleRowIndexes['gameEvents']"
-                [events]="[gameEventsRow] | getEventsForPlayer:player._id"
+                [events]="[[gameEventsRow], player._id] | handler : calcInComp"
                 [playerId]="player._id"
                 (removeEvent)="onRemoveGameEvent($event, player._id)"
               ></hop-event-list>
               <hop-penalty-sum
                   *ngIf="!visibleRowIndexes['gameEvents']"
-                  [events]="[gameEventsRow] | getEventsForPlayer:player._id">
+                  [events]="[[gameEventsRow], player._id] | handler : calcInComp">
                 </hop-penalty-sum>
               <button mat-button color="primary" *ngIf="visibleRowIndexes['gameEvents'] && !gameDetails.completed" (click)="showGameEventTypeDialog(player)">
                 <mat-icon>add</mat-icon>
@@ -48,14 +48,14 @@
                 [ngTemplateOutlet]="t" #t>
                 <hop-event-list
                   *ngIf="visibleRowIndexes[i]"
-                  [events]="[roundEventsRow] | getEventsForPlayer:player._id"
+                  [events]="[[roundEventsRow], player._id] | handler : calcInComp"
                   [roundId]="roundEventsRow.roundId"
                   [playerId]="player._id"
                   (removeEvent)="onRemoveRoundEvent($event, roundEventsRow.roundId, player._id)">
                 </hop-event-list>
                 <hop-penalty-sum
                   *ngIf="!visibleRowIndexes[i]"
-                  [events]="[roundEventsRow] | getEventsForPlayer:player._id">
+                  [events]="[[roundEventsRow], player._id] | handler : calcInComp">
                 </hop-penalty-sum>
                 <div class="cell-buttons-container">
                   <button mat-button color="primary"
@@ -84,7 +84,7 @@
           <tr>
             <td>Summe:</td>
             <td *ngFor="let player of activePlayers">
-              <hop-penalty-sum [events]="[gameEventsRow].concat(roundEventsRows) | getEventsForPlayer:player._id"></hop-penalty-sum>
+              <hop-penalty-sum [events]="[gameEventsRow, roundEventsRows, player._id] | handler : calcInComp1"></hop-penalty-sum>
             </td>
           </tr>
         </table>
