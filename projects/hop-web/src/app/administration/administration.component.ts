@@ -35,7 +35,7 @@ export class AdministrationComponent implements OnInit {
       switchMap((dialogResult: IDialogResult) => this.dataProvider.removeGame(gameId))
     ).subscribe(([removedRounds, removedGameEvents, removedRoundEvents]: [number, number, number]) => {
       this.gameItems$ = this.dataProvider.getGameList();
-      this.snackBarNotificationService.showMessage(`Gelöscht! (Runden: ${removedRounds}, Feststellungen: ${removedGameEvents}, Ereignisse: ${removedRoundEvents}`);
+      this.snackBarNotificationService.showMessage(`Gelöscht! (Runden: ${removedRounds}, Feststellungen: ${removedGameEvents}, Ereignisse: ${removedRoundEvents})`);
     });
   }
 

@@ -15,6 +15,7 @@ import { EventTypeListModalComponent } from './dialog/event-type-list-modal/even
 import { AllPlayerSelectionModalComponent } from './dialog/all-player-selection-modal/all-player-selection-modal.component';
 import { EventListComponent } from './event-list/event-list.component';
 import { PenaltySumComponent } from './penalty-sum/penalty-sum.component';
+import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { PenaltySumComponent } from './penalty-sum/penalty-sum.component';
     EventTypeListModalComponent,
     AllPlayerSelectionModalComponent,
     EventListComponent,
-    PenaltySumComponent
+    PenaltySumComponent,
+    LoadingIndicatorComponent
   ],
   imports: [
     MaterialModule,
@@ -46,7 +48,8 @@ import { PenaltySumComponent } from './penalty-sum/penalty-sum.component';
     EventTypeListComponent,
     SnowflakesComponent,
     EventListComponent,
-    PenaltySumComponent
+    PenaltySumComponent,
+    LoadingIndicatorComponent
   ],
   entryComponents: [
     SnackBarNotificationComponent,
