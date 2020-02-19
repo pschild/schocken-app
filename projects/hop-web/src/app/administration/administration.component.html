@@ -31,4 +31,46 @@
     <button mat-raised-button color="primary" (click)="deleteLocalDatabase()">Lokale Datenbank löschen</button>
 
   </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Export & Import
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <h3>Export</h3>
+    <mat-form-field *ngIf="gameItems$ | async as gameItems">
+      <mat-label>Spiele exportieren</mat-label>
+      <mat-select [(value)]="selectedGameIds" multiple>
+        <mat-option *ngFor="let gameItem of gameItems" [value]="gameItem.id">
+          {{gameItem.datetime | date:'dd.MM.yyyy HH:mm:ss'}} ({{gameItem.roundCount}} Runde(n))
+          <mat-icon *ngIf="gameItem.completed">check</mat-icon>
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-button (click)="selectAllForExport()">alle</button>
+    <button mat-raised-button color="primary" (click)="export()" [disabled]="!selectedGameIds || !selectedGameIds.length">
+      <mat-icon>cloud_download</mat-icon>
+      Export
+    </button>
+
+    <h3>Import</h3>
+    <div>
+      <button *ngIf="!uploadedFileContent" mat-raised-button (click)="fileInput.click()">Datei auswählen ...</button>
+      <div *ngIf="uploadedFileContent">
+        {{uploadedFileContent.length}} Spiel(e) ausgewählt
+        <button *ngIf="uploadedFileContent" mat-icon-button color="warn" (click)="uploadedFileContent = undefined">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+      <input hidden type="file" accept=".json" (change)="onFileSelected()" #fileInput>
+      <button *ngIf="uploadedFileContent" mat-raised-button color="primary" (click)="import()">
+        <mat-icon>cloud_upload</mat-icon>
+        Import
+      </button>
+    </div>
+
+  </mat-expansion-panel>
 </mat-accordion>
+<hop-loading-indicator *ngIf="showLoadingIndicator"></hop-loading-indicator>

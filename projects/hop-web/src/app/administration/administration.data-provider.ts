@@ -1,6 +1,16 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, from } from 'rxjs';
-import { GameDto, GameRepository, RoundRepository, RoundDto, ENV, RoundEventRepository, GameEventRepository, RoundEventDto, GameEventDto } from '@hop-backend-api';
+import { Observable } from 'rxjs';
+import {
+  GameDto,
+  GameRepository,
+  RoundRepository,
+  RoundDto,
+  RoundEventRepository,
+  GameEventRepository,
+  RoundEventDto,
+  GameEventDto,
+  ENV
+} from '@hop-backend-api';
 import { map, mergeMap, mergeAll, toArray, switchMap } from 'rxjs/operators';
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { GameSelectItemVoMapperService } from './mapper';
@@ -9,7 +19,6 @@ import { GameSelectItemVo } from './model';
 @Injectable({
   providedIn: 'root'
 })
-
 export class AdministrationDataProvider {
 
   constructor(
@@ -81,6 +90,7 @@ export class AdministrationDataProvider {
     req.onblocked = (event) => {
       alert('Could not delete database due to the operation being blocked');
       console.log(event);
-    }
+    };
   }
+
 }
