@@ -1,27 +1,25 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { EventListItemVo } from './model';
-import { EventListService, PenaltyPerUnit } from './event-list.service';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { PlayerEventVo } from './model';
 
 @Component({
   selector: 'hop-event-list',
   templateUrl: './event-list.component.html',
   styleUrls: ['./event-list.component.scss']
 })
-export class EventListComponent {
+export class EventListComponent implements OnInit {
 
-  @Input() events: EventListItemVo[];
-  @Output() remove: EventEmitter<string> = new EventEmitter<string>();
+  @Input() events: PlayerEventVo[];
+  @Input() roundId: string;
+  @Input() playerId: string;
+  @Output() removeEvent: EventEmitter<string> = new EventEmitter();
 
-  constructor(
-    private eventListService: EventListService
-  ) { }
+  constructor() { }
 
-  removeEvent(event: EventListItemVo): void {
-    this.remove.emit(event.eventId);
+  ngOnInit() {
   }
 
-  getSumsPerUnit(events: EventListItemVo[]): PenaltyPerUnit[] {
-    return this.eventListService.getPenaltyPerUnit(events);
+  remove(eventId: string): void {
+    this.removeEvent.emit(eventId);
   }
 
 }

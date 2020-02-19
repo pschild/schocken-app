@@ -6,5 +6,4 @@ export interface RoundDto extends EntityDto {
   gameId: string;
   currentPlayerId: string;
   attendeeList: ParticipationDto[];
-  completed: boolean;
 }

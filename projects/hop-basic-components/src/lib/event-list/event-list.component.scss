@@ -1,5 +1,15 @@
-.event-container {
+.round-event-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+
+  .spacer {
+    flex-grow: 1;
+  }
+
+  .right-column {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+  }
 }

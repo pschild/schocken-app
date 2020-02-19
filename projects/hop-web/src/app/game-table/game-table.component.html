@@ -1,64 +1,94 @@
-<div class="table-container">
-  <ng-container *ngIf="activePlayers$ | async as activePlayers">
-    <table *ngIf="roundEventsRows$ | async as roundEventsRows">
-      <tr>
-        <th></th>
-        <th *ngFor="let player of activePlayers">{{player.name}}</th>
-      </tr>
-      <tr *ngIf="gameEventsRow$ | async as gameEventsRow">
-        <td>Festst.:</td>
-        <td *ngFor="let player of activePlayers">
-          <hop-event-list-new
-            [events]="gameEventsRow | getEventsForPlayer:player._id"
-            [playerId]="player._id"
-            (removeEvent)="onRemoveGameEvent($event, player._id)"
-          ></hop-event-list-new>
-          <button mat-button color="primary" (click)="showGameEventTypeDialog(player)">
-            <mat-icon>add</mat-icon>
-          </button>
-        </td>
-      </tr>
-      <tr *ngFor="let roundEventsRow of roundEventsRows; let i = index">
-        <td>Rd. {{i + 1}}</td>
-        <td *ngFor="let player of activePlayers">
-          <ng-template
-            let-participationStatus="participationStatus"
-            [ngTemplateOutletContext]="{ participationStatus: roundEventsRow | getParticipationStatusForPlayer: player._id }"
-            [ngTemplateOutlet]="t" #t>
-            <hop-event-list-new
-              [events]="roundEventsRow | getEventsForPlayer:player._id"
-              [roundId]="roundEventsRow.roundId"
-              [playerId]="player._id"
-              (removeEvent)="onRemoveRoundEvent($event, roundEventsRow.roundId, player._id)">
-            </hop-event-list-new>
-            <div class="cell-buttons-container">
-              <button mat-button color="primary" *ngIf="participationStatus" (click)="showRoundEventTypeDialog(player, roundEventsRow.roundId)">
+<div *ngIf="gameDetails$ | async as gameDetails">
+  <h3>Spiel vom {{gameDetails.datetime | date:'dd.MM.yyyy HH:mm'}} Uhr</h3>
+
+  <div class="table-container">
+    <ng-container *ngIf="activePlayers$ | async as activePlayers">
+      <ng-container *ngIf="gameEventsRow$ | async as gameEventsRow">
+        <table *ngIf="roundEventsRows$ | async as roundEventsRows">
+          <tr>
+            <th></th>
+            <th *ngFor="let player of activePlayers">{{player.name}}</th>
+          </tr>
+          <tr>
+            <td>
+              <button mat-icon-button (click)="toggleRowState('gameEvents')">
+                <mat-icon *ngIf="!visibleRowIndexes['gameEvents']">keyboard_arrow_down</mat-icon>
+                <mat-icon *ngIf="visibleRowIndexes['gameEvents']">keyboard_arrow_up</mat-icon>
+              </button>
+              Festst.:
+            </td>
+            <td *ngFor="let player of activePlayers">
+              <hop-event-list
+                *ngIf="visibleRowIndexes['gameEvents']"
+                [events]="[gameEventsRow] | getEventsForPlayer:player._id"
+                [playerId]="player._id"
+                (removeEvent)="onRemoveGameEvent($event, player._id)"
+              ></hop-event-list>
+              <hop-penalty-sum
+                  *ngIf="!visibleRowIndexes['gameEvents']"
+                  [events]="[gameEventsRow] | getEventsForPlayer:player._id">
+                </hop-penalty-sum>
+              <button mat-button color="primary" *ngIf="visibleRowIndexes['gameEvents'] && !gameDetails.completed" (click)="showGameEventTypeDialog(player)">
                 <mat-icon>add</mat-icon>
               </button>
-              <mat-slide-toggle
-                [checked]="participationStatus"
-                (change)="onParticipationChange($event, player._id, roundEventsRow.roundId)"></mat-slide-toggle>
-            </div>
-            <div *ngIf="!participationStatus" class="not-participating-mask"></div>
-          </ng-template>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <button mat-raised-button color="primary" (click)="onCreateNewRound()">
-            <mat-icon>add</mat-icon>
-            Rd. {{roundEventsRows.length + 1}}
-          </button>
-        </td>
-      </tr>
-      <tr *ngIf="playerSumsRow$ | async as playerSumsRow">
-        <td>&sum;</td>
-        <td *ngFor="let player of activePlayers">
-          <div *ngFor="let sumPerUnit of playerSumsRow | getSumForPlayer:player._id">
-            {{sumPerUnit.sum | number:'1.2'}} {{sumPerUnit.unit}}
-          </div>
-        </td>
-      </tr>
-    </table>
-  </ng-container>
+            </td>
+          </tr>
+          <tr *ngFor="let roundEventsRow of roundEventsRows; let i = index">
+            <td>
+              <button mat-icon-button (click)="toggleRowState(i)">
+                <mat-icon *ngIf="!visibleRowIndexes[i]">keyboard_arrow_down</mat-icon>
+                <mat-icon *ngIf="visibleRowIndexes[i]">keyboard_arrow_up</mat-icon>
+              </button>
+              Rd. {{i + 1}}
+            </td>
+            <td *ngFor="let player of activePlayers">
+              <ng-template
+                let-participationStatus="participationStatus"
+                [ngTemplateOutletContext]="{ participationStatus: roundEventsRow | getParticipationStatusForPlayer: player._id }"
+                [ngTemplateOutlet]="t" #t>
+                <hop-event-list
+                  *ngIf="visibleRowIndexes[i]"
+                  [events]="[roundEventsRow] | getEventsForPlayer:player._id"
+                  [roundId]="roundEventsRow.roundId"
+                  [playerId]="player._id"
+                  (removeEvent)="onRemoveRoundEvent($event, roundEventsRow.roundId, player._id)">
+                </hop-event-list>
+                <hop-penalty-sum
+                  *ngIf="!visibleRowIndexes[i]"
+                  [events]="[roundEventsRow] | getEventsForPlayer:player._id">
+                </hop-penalty-sum>
+                <div class="cell-buttons-container">
+                  <button mat-button color="primary"
+                    *ngIf="participationStatus && visibleRowIndexes[i] && !gameDetails.completed"
+                    (click)="showRoundEventTypeDialog(player, roundEventsRow.roundId)"
+                  >
+                    <mat-icon>add</mat-icon>
+                  </button>
+                  <mat-slide-toggle
+                    *ngIf="visibleRowIndexes[i] && !gameDetails.completed"
+                    [checked]="participationStatus"
+                    (change)="onParticipationChange($event, player._id, roundEventsRow.roundId)"></mat-slide-toggle>
+                </div>
+                <div *ngIf="!participationStatus" class="not-participating-mask"></div>
+              </ng-template>
+            </td>
+          </tr>
+          <tr>
+            <td *ngIf="!gameDetails.completed">
+              <button mat-raised-button color="primary" (click)="onCreateNewRound(roundEventsRows.length)">
+                <mat-icon>add</mat-icon>
+                Rd. {{roundEventsRows.length + 1}}
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>Summe:</td>
+            <td *ngFor="let player of activePlayers">
+              <hop-penalty-sum [events]="[gameEventsRow].concat(roundEventsRows) | getEventsForPlayer:player._id"></hop-penalty-sum>
+            </td>
+          </tr>
+        </table>
+      </ng-container>
+    </ng-container>
+  </div>
 </div>

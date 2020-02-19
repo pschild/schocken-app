@@ -39,8 +39,4 @@ export class PlaygroundComponent implements OnInit {
     this.dataProvider.createGameWithRandomRounds();
   }
 
-  deleteLocalDatabase(): void {
-    this.dataProvider.deleteLocalDatabase();
-  }
-
 }

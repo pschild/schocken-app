@@ -12,23 +12,26 @@ import {
   RoundDto,
   RoundEventRepository,
   RoundEventDto,
-  ParticipationDto
+  ParticipationDto,
+  GameRepository,
+  GameDto,
+  EventTypeHistoryItem
 } from '@hop-backend-api';
-import { Observable, BehaviorSubject, of, zip, GroupedObservable, combineLatest } from 'rxjs';
+import { Observable, BehaviorSubject, of, zip, GroupedObservable } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
-import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take, filter, finalize } from 'rxjs/operators';
-import { EventListService, EventTypeItemVo, EventTypeItemVoMapperService } from '@hop-basic-components';
-import { PlayerEventVoMapperService } from './mapper/player-event-vo-mapper.service';
-import { PlayerEventVo } from './model/player-event.vo';
+import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take } from 'rxjs/operators';
+import { EventTypeItemVo, EventTypeItemVoMapperService, PlayerEventVo, PlayerEventVoMapperService } from '@hop-basic-components';
 import { GameEventsColumnVo } from './model/game-events-column.vo';
 import { GameEventsRowVoMapperService } from './mapper/game-events-row-vo-mapper.service';
 import { SortService, SortDirection } from '../core/service/sort.service';
 import { RoundEventsRowVo } from './model/round-events-row.vo';
 import { RoundEventsColumnVo } from './model/round-events-column.vo';
 import { RoundEventsRowVoMapperService } from './mapper/round-events-row-vo-mapper.service';
-import { SumPerUnitVo } from './model/sum-per-unit.vo';
-import { SumColumnVo } from './model/sum-column.vo';
-import { SumsRowVo } from './model/sums-row.vo';
+import { EventHandlerService } from '../core/service/event-handler/event-handler.service';
+import { RoundEventQueueItem } from '../core/service/event-handler/round-event-queue-item';
+import { RoundQueueItem } from '../core/service/event-handler/round-queue-item';
+import { GameDetailsVo } from './model/game-details.vo';
+import { GameDetailsVoMapperService } from './mapper/game-details-vo-mapper.service';
 
 interface EventsByPlayer {
   playerId: string;
@@ -40,23 +43,41 @@ interface EventsByPlayer {
 })
 export class GameTableDataProvider {
 
-  allEventTypes$: BehaviorSubject<EventTypeDto[]> = new BehaviorSubject([]);
-  gameEventsRow$: BehaviorSubject<GameEventsRowVo> = new BehaviorSubject<GameEventsRowVo>(null);
-  roundEventsRows$: BehaviorSubject<RoundEventsRowVo[]> = new BehaviorSubject<RoundEventsRowVo[]>(null);
+  private allEventTypes$: BehaviorSubject<EventTypeDto[]> = new BehaviorSubject([]);
+  private gameEventsRow$: BehaviorSubject<GameEventsRowVo> = new BehaviorSubject<GameEventsRowVo>(null);
+  private roundEventsRows$: BehaviorSubject<RoundEventsRowVo[]> = new BehaviorSubject<RoundEventsRowVo[]>(null);
 
   constructor(
+    private gameRepository: GameRepository,
     private playerRepository: PlayerRepository,
     private roundRepository: RoundRepository,
     private gameEventRepository: GameEventRepository,
     private roundEventRepository: RoundEventRepository,
     private eventTypeRepository: EventTypeRepository,
-    private eventListService: EventListService,
+    private gameDetailsVoMapperService: GameDetailsVoMapperService,
     private playerEventVoMapperService: PlayerEventVoMapperService,
     private gameEventsRowVoMapperService: GameEventsRowVoMapperService,
     private roundEventsRowVoMapperService: RoundEventsRowVoMapperService,
     private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
+    private eventHandlerService: EventHandlerService,
     private sortService: SortService
   ) {
+    // Listen to events that are pushed by EventHandler. When an Event occurs, call according methods within this DataProvider
+    this.eventHandlerService.getRoundEventsQueue().subscribe((queueItem: RoundEventQueueItem) => {
+      const { roundId, playerId, eventTypeId } = queueItem;
+      this.addRoundEvent(roundId, playerId, eventTypeId);
+    });
+
+    // Listen to events that are pushed by EventHandler. When an Event occurs, call according methods within this DataProvider
+    this.eventHandlerService.getRoundsQueue().subscribe((queueItem: RoundQueueItem) => {
+      const { gameId } = queueItem;
+      this.createNewRound(gameId);
+    });
+  }
+
+  resetRows(): void {
+    this.gameEventsRow$.next(null);
+    this.roundEventsRows$.next([]);
   }
 
   getGameEventsRow(): Observable<GameEventsRowVo> {
@@ -65,66 +86,6 @@ export class GameTableDataProvider {
 
   getRoundEventsRows(): Observable<RoundEventsRowVo[]> {
     return this.roundEventsRows$.asObservable();
-  }
-
-  getSumsRow(): Observable<any> {
-    return combineLatest(
-      this.gameEventsRow$.pipe(
-        filter((gameEventsRow: GameEventsRowVo) => !!gameEventsRow),
-        map((gameEventsRow: GameEventsRowVo) => gameEventsRow.columns)
-      ),
-      this.roundEventsRows$.pipe(
-        filter((roundEventsRows: RoundEventsRowVo[]) => !!roundEventsRows),
-        map((roundEventsRows: RoundEventsRowVo[]) => roundEventsRows.map((roundEventsRow: RoundEventsRowVo) => roundEventsRow.columns))
-      )
-    ).pipe(
-      map(([gameEventsColumns, roundEventsColums]: [GameEventsColumnVo[], RoundEventsColumnVo[][]]) => {
-        return gameEventsColumns.concat([].concat.apply([], roundEventsColums));
-      }),
-      map((columns: Array<GameEventsColumnVo | RoundEventsColumnVo>): any => {
-        const eventsByPlayer: EventsByPlayer[] = [];
-        columns.forEach((column: GameEventsColumnVo | RoundEventsColumnVo) => {
-          const playerId = column.playerId;
-          const existingEntryForPlayer = eventsByPlayer.find((i) => i.playerId === playerId);
-          if (existingEntryForPlayer) {
-            existingEntryForPlayer.events = [...existingEntryForPlayer.events, ...column.events];
-          } else {
-            eventsByPlayer.push({ playerId, events: column.events });
-          }
-        });
-        return eventsByPlayer;
-      }),
-      map((eventsByPlayer: EventsByPlayer[]) => {
-        const cols: SumColumnVo[] = [];
-        eventsByPlayer.forEach((playerEvents: EventsByPlayer) => {
-          const sumsPerUnit: SumPerUnitVo[] = [];
-          playerEvents.events.forEach((event: PlayerEventVo) => {
-            if (event.eventTypePenalty) {
-              const penaltyValue = event.eventTypePenalty.value;
-              const multiplicatorValue = event.eventMultiplicatorValue;
-              const finalValue = penaltyValue * multiplicatorValue;
-
-              const penaltyUnit = event.eventTypePenalty.unit;
-              const existingSumForUnit = sumsPerUnit.find((sum: SumPerUnitVo) => sum.unit === penaltyUnit);
-              if (existingSumForUnit) {
-                existingSumForUnit.sum += finalValue;
-              } else {
-                sumsPerUnit.push({ unit: penaltyUnit, sum: finalValue });
-              }
-            }
-          });
-
-          const playerId = playerEvents.playerId;
-          const existingColumnForPlayer = cols.find((col: SumColumnVo) => col.playerId === playerId);
-          if (existingColumnForPlayer) {
-            existingColumnForPlayer.sums = [...existingColumnForPlayer.sums, ...sumsPerUnit];
-          } else {
-            cols.push({ playerId, sums: sumsPerUnit });
-          }
-        });
-        return { columns: cols };
-      })
-    );
   }
 
   getGameEventTypes(): Observable<EventTypeItemVo[]> {
@@ -140,6 +101,13 @@ export class GameTableDataProvider {
       map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(
         eventTypes.filter((eventType: EventTypeDto) => eventType.context === EventTypeContext.ROUND)
       ))
+    );
+  }
+
+  loadGameDetails(gameId: string): Observable<GameDetailsVo> {
+    console.log('%c🔎LOAD GAME DETAILS', 'color: #f00');
+    return this.gameRepository.get(gameId).pipe(
+      map((game: GameDto) => this.gameDetailsVoMapperService.mapToVo(game))
     );
   }
 
@@ -179,13 +147,13 @@ export class GameTableDataProvider {
     ).subscribe((row: GameEventsRowVo) => this.gameEventsRow$.next(row));
   }
 
-  addGameEvent(eventType: EventTypeItemVo, gameId: string, playerId: string): void {
+  addGameEvent(gameId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number): void {
     // create the event
     this.gameEventRepository.create({
-      eventTypeId: eventType.id,
+      eventTypeId,
       gameId,
       playerId,
-      multiplicatorValue: eventType.multiplicatorValue
+      multiplicatorValue
     }).pipe(
       // load the created event
       switchMap((createdId: string) => this.gameEventRepository.get(createdId)),
@@ -258,19 +226,20 @@ export class GameTableDataProvider {
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
-  addRoundEvent(eventType: EventTypeItemVo, roundId: string, playerId: string): void {
+  addRoundEvent(roundId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number): void {
     // create the event
     this.roundEventRepository.create({
-      eventTypeId: eventType.id,
+      eventTypeId,
       roundId,
       playerId,
-      multiplicatorValue: eventType.multiplicatorValue
+      multiplicatorValue
     }).pipe(
       // load the created event
       switchMap((createdId: string) => this.roundEventRepository.get(createdId)),
       // expand it with its EventType
       switchMap((createdEvent: RoundEventDto) => this.expandWithEventTypes(of(createdEvent))),
-      // TODO: handle event with eventhandler
+      // handle event with eventhandler
+      tap((event: PlayerEventVo) => this.eventHandlerService.handle(event, playerId, roundId)),
       // merge the latest state
       withLatestFrom(this.roundEventsRows$),
       // push the created event to the latest state
@@ -309,7 +278,7 @@ export class GameTableDataProvider {
         }
         const roundInRows = currentState[roundRowIndex];
 
-        let playerInColumn: RoundEventsColumnVo = roundInRows.columns.find((col: RoundEventsColumnVo) => col.playerId === playerId);
+        const playerInColumn: RoundEventsColumnVo = roundInRows.columns.find((col: RoundEventsColumnVo) => col.playerId === playerId);
         if (playerInColumn && playerInColumn.events) {
           playerInColumn.events = playerInColumn.events.filter((event: PlayerEventVo) => event.eventId !== removedId);
         }
@@ -332,7 +301,10 @@ export class GameTableDataProvider {
           currentPlayerId: 'N/A', // TODO: currentPlayerId not necessary anymore?
           attendeeList: lastRow ? lastRow.attendeeList : []
         }).pipe(
-          map((createdId: string) => [...roundEventRows, { roundId: createdId, attendeeList: lastRow ? lastRow.attendeeList : [], columns: [] }])
+          map((createdId: string) => [
+            ...roundEventRows,
+            { roundId: createdId, attendeeList: lastRow ? lastRow.attendeeList : [], columns: [] }
+          ])
         );
       })
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
@@ -350,9 +322,12 @@ export class GameTableDataProvider {
 
         let updatedAttendeeList;
         if (isParticipating) {
-          updatedAttendeeList = [...roundInRows.attendeeList, { playerId, inGameStatus: true }]; // TODO: inGameStatus not necessary anymore?
+          updatedAttendeeList = [
+            ...roundInRows.attendeeList,
+            { playerId, inGameStatus: true } // TODO: inGameStatus not necessary anymore?
+          ];
         } else {
-          updatedAttendeeList = roundInRows.attendeeList.filter((participation: ParticipationDto) => participation.playerId !== playerId)
+          updatedAttendeeList = roundInRows.attendeeList.filter((participation: ParticipationDto) => participation.playerId !== playerId);
         }
 
         return this.roundRepository.update(roundId, { attendeeList: updatedAttendeeList }).pipe(
@@ -383,10 +358,27 @@ export class GameTableDataProvider {
         if (!typeOfEvent) {
           throw new Error(`Could not find EventType with id ${event.eventTypeId}!`);
         }
-        const latestEventType = this.eventListService.getActiveHistoryItemAtDatetime(typeOfEvent.history, event.datetime);
+        const latestEventType = this.getActiveHistoryItemAtDatetime(typeOfEvent.history, event.datetime);
         return this.playerEventVoMapperService.mapToVo(event, latestEventType);
       })
     );
+  }
+
+  private getActiveHistoryItemAtDatetime(historyItems: EventTypeHistoryItem[], eventDate: Date): Partial<EventTypeDto> {
+    const eventDatetime = new Date(eventDate).getTime();
+    let eventTypeAtEventTime: Partial<EventTypeDto> = null;
+    let datetimeRef = -1;
+    historyItems.forEach((historyItem: EventTypeHistoryItem) => {
+      const validFrom = new Date(historyItem.validFrom).getTime();
+      if (
+        validFrom < eventDatetime
+        && validFrom > datetimeRef
+      ) {
+        datetimeRef = validFrom;
+        eventTypeAtEventTime = historyItem.eventType;
+      }
+    });
+    return eventTypeAtEventTime;
   }
 
   private loadRoundsByGameId(id: string): Observable<RoundDto[]> {

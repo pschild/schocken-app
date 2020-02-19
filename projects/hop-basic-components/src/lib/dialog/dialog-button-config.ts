@@ -71,7 +71,7 @@ export const OK_BUTTON_CONFIG = [DIALOG_OK_BUTTON];
 export const ABORT_SAVE_BUTTON_CONFIG = [DIALOG_ABORT_BUTTON, DIALOG_SAVE_BUTTON];
 export const LOST_EVENT_BUTTON_CONFIG = [
   {
-    label: 'Runde fortsetzen',
+    label: 'Abbrechen',
     color: DialogButtonColor.NONE,
     style: DialogButtonStyle.NONE,
     onClickListener: (ref: MatDialogRef<DialogComponent>) => {

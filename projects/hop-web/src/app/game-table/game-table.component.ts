@@ -6,9 +6,14 @@ import { PlayerDto } from '@hop-backend-api';
 import { GameTableDataProvider } from './game-table.data-provider';
 import { GameEventsRowVo } from './model/game-events-row.vo';
 import { RoundEventsRowVo } from './model/round-events-row.vo';
-import { EventTypeItemVo, EventTypeListModalComponent, EventTypeListModalDialogResult, EventTypeListModalDialogData } from '@hop-basic-components';
+import {
+  EventTypeItemVo,
+  EventTypeListModalComponent,
+  EventTypeListModalDialogResult,
+  EventTypeListModalDialogData
+} from '@hop-basic-components';
 import { MatDialog, MatDialogRef, MatSlideToggleChange } from '@angular/material';
-import { SumsRowVo } from './model/sums-row.vo';
+import { GameDetailsVo } from './model/game-details.vo';
 
 @Component({
   selector: 'hop-game-table',
@@ -18,6 +23,7 @@ import { SumsRowVo } from './model/sums-row.vo';
 export class GameTableComponent implements OnInit {
 
   gameId$: Observable<string>;
+  gameDetails$: Observable<GameDetailsVo>;
   activePlayers$: Observable<PlayerDto[]>;
 
   gameEventTypes$: Observable<EventTypeItemVo[]>;
@@ -25,8 +31,9 @@ export class GameTableComponent implements OnInit {
 
   gameEventsRow$: Observable<GameEventsRowVo>;
   roundEventsRows$: Observable<RoundEventsRowVo[]>;
-  playerSumsRow$: Observable<SumsRowVo>;
-  
+
+  visibleRowIndexes: boolean[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private dataProvider: GameTableDataProvider,
@@ -35,17 +42,19 @@ export class GameTableComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.dataProvider.resetRows();
+
     this.gameEventTypes$ = this.dataProvider.getGameEventTypes();
     this.roundEventTypes$ = this.dataProvider.getRoundEventTypes();
     this.gameEventsRow$ = this.dataProvider.getGameEventsRow();
     this.roundEventsRows$ = this.dataProvider.getRoundEventsRows();
-    this.playerSumsRow$ = this.dataProvider.getSumsRow();
 
     this.activePlayers$ = this.dataProvider.loadAllActivePlayers();
     this.dataProvider.loadAllEventTypes();
 
     this.gameId$ = this.route.params.pipe(map((params: Params) => params.gameId));
     this.gameId$.subscribe((gameId: string) => {
+      this.gameDetails$ = this.dataProvider.loadGameDetails(gameId);
       this.dataProvider.loadGameEventsRow(gameId);
       this.dataProvider.loadRoundEventsRows(gameId);
     });
@@ -59,7 +68,9 @@ export class GameTableComponent implements OnInit {
     this.dataProvider.removeRoundEvent(eventId, roundId, playerId);
   }
 
-  onCreateNewRound(): void {
+  onCreateNewRound(newIndex: number): void {
+    this.toggleRowState(newIndex);
+
     this.gameId$.pipe(
       take(1)
     ).subscribe((gameId: string) => this.dataProvider.createNewRound(gameId));
@@ -77,8 +88,8 @@ export class GameTableComponent implements OnInit {
       switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),
       filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
     ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
-      const { eventType, gameId, playerId } = dialogResult;
-      this.dataProvider.addGameEvent(eventType, gameId, playerId);
+      const { gameId, playerId, eventType } = dialogResult;
+      this.dataProvider.addGameEvent(gameId, playerId, eventType.id, eventType.multiplicatorValue);
     });
   }
 
@@ -89,12 +100,22 @@ export class GameTableComponent implements OnInit {
       switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),
       filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
     ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
-      const { eventType, roundId, playerId } = dialogResult;
-      this.dataProvider.addRoundEvent(eventType, roundId, playerId);
+      const { playerId, eventType } = dialogResult;
+      this.dataProvider.addRoundEvent(roundId, playerId, eventType.id, eventType.multiplicatorValue);
     });
   }
 
-  private showDialog(eventTypes: EventTypeItemVo[], player: PlayerDto, gameId: string, roundId: string): MatDialogRef<EventTypeListModalComponent> {
+  toggleRowState(key: string | number): void {
+    if (this.visibleRowIndexes[key]) {
+      this.visibleRowIndexes[key] = false;
+    } else {
+      this.visibleRowIndexes[key] = true;
+    }
+  }
+
+  private showDialog(
+    eventTypes: EventTypeItemVo[], player: PlayerDto, gameId: string, roundId: string
+  ): MatDialogRef<EventTypeListModalComponent> {
     const dialogData: EventTypeListModalDialogData = { eventTypes, player, gameId, roundId };
     return this.dialog.open(EventTypeListModalComponent, {
       width: '500px',

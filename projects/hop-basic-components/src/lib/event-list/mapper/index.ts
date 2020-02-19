@@ -1,1 +1,1 @@
-export { EventListItemVoMapperService } from './event-list-item-vo-mapper.service';
+export { PlayerEventVoMapperService } from './player-event-vo-mapper.service';
