@@ -298,7 +298,6 @@ export class GameTableDataProvider {
         const lastRow = roundEventRows[roundEventRows.length - 1];
         return this.roundRepository.create({
           gameId,
-          currentPlayerId: 'N/A', // TODO: currentPlayerId not necessary anymore?
           attendeeList: lastRow ? lastRow.attendeeList : []
         }).pipe(
           map((createdId: string) => [

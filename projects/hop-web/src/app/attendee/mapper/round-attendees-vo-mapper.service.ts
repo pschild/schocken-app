@@ -10,7 +10,6 @@ export class RoundAttendeesVoMapperService {
   mapToVo(input: RoundDto): RoundAttendeesVo {
     const vo = new RoundAttendeesVo();
     vo.id = input._id;
-    vo.currentPlayerId = input.currentPlayerId;
     vo.attendees = input.attendeeList;
     return vo;
   }

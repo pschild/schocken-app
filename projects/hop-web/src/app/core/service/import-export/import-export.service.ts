@@ -82,7 +82,6 @@ export class ImportExportService {
         const createdRoundId = await this.roundRepository.create({
           datetime: dateTimeOfGame,
           attendeeList: round.attendeeList,
-          currentPlayerId: round.currentPlayerId,
           gameId: createdGameId
         }).toPromise();
 

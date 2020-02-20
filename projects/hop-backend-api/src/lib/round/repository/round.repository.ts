@@ -22,7 +22,6 @@ export class RoundRepository {
       type: EntityType.ROUND,
       datetime: data.datetime || new Date(),
       gameId: data.gameId,
-      currentPlayerId: data.currentPlayerId,
       attendeeList: data.attendeeList
     };
     return from(this.pouchDb.create(round)).pipe(

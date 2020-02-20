@@ -24,12 +24,12 @@ export class AttendeeDataProvider {
   ) {
   }
 
-  createRound(gameId: string, currentPlayerId: string, attendeeList: ParticipationDto[]): Observable<string> {
-    return this.roundRepository.create({ gameId, currentPlayerId, attendeeList });
+  createRound(gameId: string, attendeeList: ParticipationDto[]): Observable<string> {
+    return this.roundRepository.create({ gameId, attendeeList });
   }
 
-  setAttendeesForRound(roundId: string, currentPlayerId: string, attendeeList: ParticipationDto[]): Observable<string> {
-    return this.roundRepository.update(roundId, { currentPlayerId, attendeeList });
+  setAttendeesForRound(roundId: string, attendeeList: ParticipationDto[]): Observable<string> {
+    return this.roundRepository.update(roundId, { attendeeList });
   }
 
   getAllPlayers(): Observable<AttendeeItemVo[]> {
