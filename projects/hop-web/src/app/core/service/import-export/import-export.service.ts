@@ -58,16 +58,18 @@ export class ImportExportService {
 
   async importJson(uploadedJson: ImportData[]): Promise<any> {
     for (const item of uploadedJson) {
+      const dateTimeOfGame = item.datetime;
+
       // create game
       const createdGameId = await this.gameRepository.create({
-        datetime: item.datetime,
+        datetime: dateTimeOfGame,
         completed: item.completed
       }).toPromise();
 
       // create game events
       item.gameEvents.map(async (event: GameEventDto) => {
         await this.gameEventRepository.create({
-          datetime: event.datetime,
+          datetime: dateTimeOfGame,
           eventTypeId: event.eventTypeId,
           multiplicatorValue: event.multiplicatorValue,
           playerId: event.playerId,
@@ -78,7 +80,7 @@ export class ImportExportService {
       // create rounds
       item.rounds.map(async (round: RoundDto & { events: RoundEventDto[] }) => {
         const createdRoundId = await this.roundRepository.create({
-          datetime: round.datetime,
+          datetime: dateTimeOfGame,
           attendeeList: round.attendeeList,
           currentPlayerId: round.currentPlayerId,
           gameId: createdGameId
@@ -87,7 +89,7 @@ export class ImportExportService {
         // create round events
         round.events.map(async (event: RoundEventDto) => {
           this.roundEventRepository.create({
-            datetime: event.datetime,
+            datetime: dateTimeOfGame,
             eventTypeId: event.eventTypeId,
             multiplicatorValue: event.multiplicatorValue,
             playerId: event.playerId,
