@@ -53,6 +53,7 @@ export class ImportExportService {
     };
 
     const result = await Promise.all(selectedGameIds.map(id => getWholeGameData(id)));
+    this.removeKeys(result, ['_id', '_rev', 'gameId', 'roundId']);
     return result;
   }
 
@@ -96,6 +97,30 @@ export class ImportExportService {
           }).toPromise();
         });
       });
+    }
+  }
+
+  private removeKeys(obj: any, keys: string[]): any {
+    let index;
+    for (const prop in obj) {
+      if (obj.hasOwnProperty(prop)) {
+        switch (typeof (obj[prop])) {
+          case 'string':
+            index = keys.indexOf(prop);
+            if (index > -1) {
+              delete obj[prop];
+            }
+            break;
+          case 'object':
+            index = keys.indexOf(prop);
+            if (index > -1) {
+              delete obj[prop];
+            } else {
+              this.removeKeys(obj[prop], keys);
+            }
+            break;
+        }
+      }
     }
   }
 
