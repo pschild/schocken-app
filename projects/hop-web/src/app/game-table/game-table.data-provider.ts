@@ -324,7 +324,7 @@ export class GameTableDataProvider {
         if (isParticipating) {
           updatedAttendeeList = [
             ...roundInRows.attendeeList,
-            { playerId, inGameStatus: true } // TODO: inGameStatus not necessary anymore?
+            { playerId }
           ];
         } else {
           updatedAttendeeList = roundInRows.attendeeList.filter((participation: ParticipationDto) => participation.playerId !== playerId);
