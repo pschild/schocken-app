@@ -1,7 +1,15 @@
 <h2>Spieler verwalten</h2>
 
-<button mat-raised-button color="primary" (click)="showForm()">
-  <mat-icon>add</mat-icon>
-  Neuer Spieler
-</button>
+<div class="button-row">
+  <button mat-raised-button color="primary" (click)="showForm()">
+    <mat-icon>add</mat-icon>
+    Neuer Spieler
+  </button>
+</div>
 <hop-table-wrapper [config]="tableConfig" [columns]="columns" [elements]="allPlayers$ | async"></hop-table-wrapper>
+<div class="button-row">
+  <button mat-raised-button color="primary" (click)="showForm()">
+    <mat-icon>add</mat-icon>
+    Neuer Spieler
+  </button>
+</div>

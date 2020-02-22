@@ -1,7 +1,15 @@
 <h2>Ereignisse verwalten</h2>
 
-<button mat-raised-button color="primary" (click)="showForm()">
-  <mat-icon>add</mat-icon>
-  Neues Ereignis
-</button>
+<div class="button-row">
+  <button mat-raised-button color="primary" (click)="showForm()">
+    <mat-icon>add</mat-icon>
+    Neues Ereignis
+  </button>
+</div>
 <hop-table-wrapper [config]="tableConfig" [columns]="columns" [elements]="allEventTypes$ | async"></hop-table-wrapper>
+<div class="button-row">
+  <button mat-raised-button color="primary" (click)="showForm()">
+    <mat-icon>add</mat-icon>
+    Neues Ereignis
+  </button>
+</div>
