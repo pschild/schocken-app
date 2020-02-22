@@ -8,14 +8,6 @@
     </mat-expansion-panel-header>
 
     <form [formGroup]="myForm">
-      <mat-form-field class="datepicker">
-        <mat-label>Datum und Uhrzeit</mat-label>
-        <mat-datetimepicker-toggle [for]="from" matSuffix></mat-datetimepicker-toggle>
-        <mat-datetimepicker #from type="datetime" openOnFocus="true" timeInterval="1" touchUi="true">
-        </mat-datetimepicker>
-        <input matInput formControlName="from" [matDatetimepicker]="from">
-      </mat-form-field>
-
       <input type="datetime-local" placeholder="Datum & Uhrzeit" />
       <input type="date" placeholder="Datum" />
       <input type="time" placeholder="Uhrzeit" />
