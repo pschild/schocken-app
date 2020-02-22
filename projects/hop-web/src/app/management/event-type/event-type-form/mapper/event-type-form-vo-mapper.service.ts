@@ -16,6 +16,7 @@ export class EventTypeFormVoMapperService {
     vo.penalty = input.penalty;
     vo.history = input.history;
     vo.multiplicatorUnit = input.multiplicatorUnit;
+    vo.hasComment = input.hasComment;
     return vo;
   }
 }

@@ -16,6 +16,8 @@ export class EventTypeItemVoMapperService {
     vo.penalty = input.penalty;
     vo.multiplicatorUnit = input.multiplicatorUnit;
     vo.multiplicatorValue = 1;
+    vo.hasComment = input.hasComment;
+    vo.comment = '';
     return vo;
   }
 

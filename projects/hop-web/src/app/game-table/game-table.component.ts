@@ -89,7 +89,7 @@ export class GameTableComponent implements OnInit {
       filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
     ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
       const { gameId, playerId, eventType } = dialogResult;
-      this.dataProvider.addGameEvent(gameId, playerId, eventType.id, eventType.multiplicatorValue);
+      this.dataProvider.addGameEvent(gameId, playerId, eventType.id, eventType.multiplicatorValue, eventType.comment);
     });
   }
 
@@ -101,7 +101,7 @@ export class GameTableComponent implements OnInit {
       filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
     ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
       const { playerId, eventType } = dialogResult;
-      this.dataProvider.addRoundEvent(roundId, playerId, eventType.id, eventType.multiplicatorValue);
+      this.dataProvider.addRoundEvent(roundId, playerId, eventType.id, eventType.multiplicatorValue, eventType.comment);
     });
   }
 

@@ -1,14 +1,20 @@
 .event-type-row {
-  margin: 15px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
 
-  .event-type-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .spacer {
+    flex-grow: 1;
+  }
 
-    .mat-form-field {
-      max-width: 100px;
-      margin-right: 20px;
+  .details-column {
+    .penalty-details {
+      .mat-form-field {
+        max-width: 100px;
+        margin-right: 20px;
+        margin-top: 10px;
+      }
     }
   }
 }

@@ -19,6 +19,8 @@
           </mat-radio-group>
         </div>
 
+        <mat-checkbox formControlName="hasComment">Kommentarfeld aktivieren</mat-checkbox>
+
         <mat-checkbox formControlName="hasPenalty">Ereignis ist eine Strafe</mat-checkbox>
         <div *ngIf="form.get('hasPenalty').value">
           <div fxLayout="row" fxLayoutGap="10px">

@@ -147,13 +147,14 @@ export class GameTableDataProvider {
     ).subscribe((row: GameEventsRowVo) => this.gameEventsRow$.next(row));
   }
 
-  addGameEvent(gameId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number): void {
+  addGameEvent(gameId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number, comment?: string): void {
     // create the event
     this.gameEventRepository.create({
       eventTypeId,
       gameId,
       playerId,
-      multiplicatorValue
+      multiplicatorValue,
+      comment
     }).pipe(
       // load the created event
       switchMap((createdId: string) => this.gameEventRepository.get(createdId)),
@@ -226,13 +227,14 @@ export class GameTableDataProvider {
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
-  addRoundEvent(roundId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number): void {
+  addRoundEvent(roundId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number, comment?: string): void {
     // create the event
     this.roundEventRepository.create({
       eventTypeId,
       roundId,
       playerId,
-      multiplicatorValue
+      multiplicatorValue,
+      comment
     }).pipe(
       // load the created event
       switchMap((createdId: string) => this.roundEventRepository.get(createdId)),

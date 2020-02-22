@@ -8,4 +8,5 @@ export class EventTypeFormVo {
   penalty?: EventTypePenalty;
   history?: EventTypeHistoryItem[];
   multiplicatorUnit?: string;
+  hasComment?: boolean;
 }

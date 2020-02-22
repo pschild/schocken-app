@@ -1,23 +1,38 @@
-<div *ngFor="let eventType of eventTypes" class="event-type-row">
-  <div><strong>{{eventType.description}}</strong></div>
-  <div class="event-type-container">
-    <div>
-      <span *ngIf="eventType.penalty && eventType.multiplicatorUnit">
+<div *ngFor="let eventType of eventTypes">
+  <div class="event-type-row">
+    <div class="details-column">
+      <div>
+        <strong>{{eventType.description}}</strong>
+      </div>
+      <div *ngIf="eventType.penalty && eventType.multiplicatorUnit" class="penalty-details">
         <mat-form-field>
           <input matInput [disabled]="disableButtons" [placeholder]="eventType.multiplicatorUnit" [(ngModel)]="eventType.multiplicatorValue" type="number" min="0">
           <span matSuffix>á {{eventType.penalty.value | number:'1.2'}} {{eventType.penalty.unit}}</span>
         </mat-form-field>
-        <span>=</span>
-      </span>
-      <span *ngIf="eventType.penalty">
-        {{eventType.penalty.value * eventType.multiplicatorValue | number:'1.2'}} {{eventType.penalty.unit}}
-      </span>
+      </div>
+      <div *ngIf="eventType.hasComment">
+        <mat-form-field>
+          <mat-label>Kommentar</mat-label>
+          <input matInput type="text" [(ngModel)]="eventType.comment">
+          <button mat-button *ngIf="eventType.comment" matSuffix mat-icon-button (click)="eventType.comment=''">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
     </div>
-    <button
-      mat-stroked-button
-      (click)="addEventType(eventType)"
-      [disabled]="disableButtons || (eventType.multiplicatorUnit && !eventType.multiplicatorValue)">
-      <mat-icon>add</mat-icon>
-    </button>
+    <div class="spacer"></div>
+    <div class="button-column">
+      <button
+        mat-stroked-button
+        color="primary"
+        (click)="addEventType(eventType)"
+        [disabled]="disableButtons || (eventType.multiplicatorUnit && !eventType.multiplicatorValue)">
+        <mat-icon>add</mat-icon>
+        <span *ngIf="eventType.penalty">
+          {{eventType.penalty.value * eventType.multiplicatorValue | number:'1.2'}} {{eventType.penalty.unit}}
+        </span>
+      </button>
+    </div>
   </div>
+  <mat-divider></mat-divider>
 </div>

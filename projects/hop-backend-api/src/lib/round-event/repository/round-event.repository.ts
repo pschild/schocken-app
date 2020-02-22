@@ -24,7 +24,8 @@ export class RoundEventRepository {
       roundId: data.roundId,
       playerId: data.playerId,
       eventTypeId: data.eventTypeId,
-      multiplicatorValue: data.multiplicatorValue
+      multiplicatorValue: data.multiplicatorValue,
+      comment: data.comment
     };
     return from(this.pouchDb.create(event)).pipe(
       map((response: PutResponse) => response.id)

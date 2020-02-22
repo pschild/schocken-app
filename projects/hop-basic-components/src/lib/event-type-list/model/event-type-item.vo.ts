@@ -8,4 +8,6 @@ export class EventTypeItemVo {
   penalty?: EventTypePenalty;
   multiplicatorUnit?: string;
   multiplicatorValue?: number;
+  hasComment?: boolean;
+  comment?: string;
 }
