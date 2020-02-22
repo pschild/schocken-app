@@ -20,11 +20,12 @@ export class RoundEventRepository {
     const event: RoundEventDto = {
       _id: `${EntityType.ROUND_EVENT}__${this.pouchDb.toRawId(data.roundId, EntityType.ROUND)}__${rawId}`,
       type: EntityType.ROUND_EVENT,
-      datetime: new Date(),
+      datetime: data.datetime || new Date(),
       roundId: data.roundId,
       playerId: data.playerId,
       eventTypeId: data.eventTypeId,
-      multiplicatorValue: data.multiplicatorValue
+      multiplicatorValue: data.multiplicatorValue,
+      comment: data.comment
     };
     return from(this.pouchDb.create(event)).pipe(
       map((response: PutResponse) => response.id)

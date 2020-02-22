@@ -20,8 +20,8 @@ export class GameRepository {
     const game: GameDto = {
       _id: `${EntityType.GAME}__${rawId}`,
       type: EntityType.GAME,
-      datetime: data.datetime || new Date(),
-      completed: data.completed !== undefined ? data.completed : false
+      datetime: data && data.datetime || new Date(),
+      completed: data && data.completed !== undefined ? data.completed : false
     };
     return from(this.pouchDb.create(game)).pipe(
       map((response: PutResponse) => response.id)

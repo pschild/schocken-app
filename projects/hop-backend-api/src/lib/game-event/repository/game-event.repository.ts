@@ -20,11 +20,12 @@ export class GameEventRepository {
     const event: GameEventDto = {
       _id: `${EntityType.GAME_EVENT}__${this.pouchDb.toRawId(data.gameId, EntityType.GAME)}__${rawId}`,
       type: EntityType.GAME_EVENT,
-      datetime: new Date(),
+      datetime: data.datetime || new Date(),
       gameId: data.gameId,
       playerId: data.playerId,
       eventTypeId: data.eventTypeId,
-      multiplicatorValue: data.multiplicatorValue
+      multiplicatorValue: data.multiplicatorValue,
+      comment: data.comment
     };
     return from(this.pouchDb.create(event)).pipe(
       map((response: PutResponse) => response.id)

@@ -8,4 +8,5 @@ export class PlayerEventVo {
   eventTypeMultiplicatorUnit?: string;
   eventTypePenalty?: EventTypePenalty;
   eventTypeTrigger?: EventTypeTrigger;
+  eventComment?: string;
 }

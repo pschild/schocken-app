@@ -1,5 +1,8 @@
 <div *ngFor="let event of events" class="round-event-container">
-  <div>{{event.eventTypeDescription}}</div>
+  <div class="mat-small">{{event.eventTypeDescription}}</div>
+  <div *ngIf="event.eventComment" class="comment-icon">
+    <mat-icon [matTooltip]="event.eventComment">comment</mat-icon>
+  </div>
   <div class="spacer"></div>
   <div class="right-column">
     <span *ngIf="event.eventTypePenalty as penalty">

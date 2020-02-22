@@ -53,21 +53,24 @@ export class ImportExportService {
     };
 
     const result = await Promise.all(selectedGameIds.map(id => getWholeGameData(id)));
+    this.removeKeys(result, ['_id', '_rev', 'gameId', 'roundId']);
     return result;
   }
 
   async importJson(uploadedJson: ImportData[]): Promise<any> {
     for (const item of uploadedJson) {
+      const dateTimeOfGame = item.datetime;
+
       // create game
       const createdGameId = await this.gameRepository.create({
-        datetime: item.datetime,
+        datetime: dateTimeOfGame,
         completed: item.completed
       }).toPromise();
 
       // create game events
       item.gameEvents.map(async (event: GameEventDto) => {
         await this.gameEventRepository.create({
-          datetime: event.datetime,
+          datetime: dateTimeOfGame,
           eventTypeId: event.eventTypeId,
           multiplicatorValue: event.multiplicatorValue,
           playerId: event.playerId,
@@ -78,16 +81,15 @@ export class ImportExportService {
       // create rounds
       item.rounds.map(async (round: RoundDto & { events: RoundEventDto[] }) => {
         const createdRoundId = await this.roundRepository.create({
-          datetime: round.datetime,
+          datetime: dateTimeOfGame,
           attendeeList: round.attendeeList,
-          currentPlayerId: round.currentPlayerId,
           gameId: createdGameId
         }).toPromise();
 
         // create round events
         round.events.map(async (event: RoundEventDto) => {
           this.roundEventRepository.create({
-            datetime: event.datetime,
+            datetime: dateTimeOfGame,
             eventTypeId: event.eventTypeId,
             multiplicatorValue: event.multiplicatorValue,
             playerId: event.playerId,
@@ -95,6 +97,30 @@ export class ImportExportService {
           }).toPromise();
         });
       });
+    }
+  }
+
+  private removeKeys(obj: any, keys: string[]): any {
+    let index;
+    for (const prop in obj) {
+      if (obj.hasOwnProperty(prop)) {
+        switch (typeof (obj[prop])) {
+          case 'string':
+            index = keys.indexOf(prop);
+            if (index > -1) {
+              delete obj[prop];
+            }
+            break;
+          case 'object':
+            index = keys.indexOf(prop);
+            if (index > -1) {
+              delete obj[prop];
+            } else {
+              this.removeKeys(obj[prop], keys);
+            }
+            break;
+        }
+      }
     }
   }
 

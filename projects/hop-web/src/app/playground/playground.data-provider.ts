@@ -144,8 +144,7 @@ export class PlaygroundDataProvider {
     );
 
     // tslint:disable-next-line:max-line-length
-    const createRound$ = (gameId: string, currentPlayerId: string, attendeeList: {playerId: string, inGameStatus: boolean}[]) => this.roundRepository.create({
-      currentPlayerId,
+    const createRound$ = (gameId: string, attendeeList: {playerId: string}[]) => this.roundRepository.create({
       gameId,
       attendeeList
     });
@@ -170,7 +169,7 @@ export class PlaygroundDataProvider {
         const rounds = [];
         for (const gameId of gameIds) {
           for (let i = 0; i < roundsPerGameCount; i++) {
-            rounds.push(createRound$(gameId, playerIds[0], playerIds.map(id => ({playerId: id, inGameStatus: true}))));
+            rounds.push(createRound$(gameId, playerIds.map(id => ({playerId: id}))));
           }
         }
         return forkJoin(of(playerIds), of(eventTypeIds), of(gameIds), forkJoin(rounds));

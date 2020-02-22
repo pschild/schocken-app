@@ -60,12 +60,10 @@ export class AttendeeComponent implements OnInit {
    */
   onContinueRoundClick(): void {
     this.roundAttendees$.pipe(
-      map((roundAttendees: RoundAttendeesVo) => this._getCurrentPlayerId(roundAttendees, this.participatingPlayers)),
       withLatestFrom(this.roundId$),
-      switchMap(([currentPlayerId, roundId]: [string, string]) => this.dataProvider.setAttendeesForRound(
+      switchMap(([roundAttendees, roundId]: [RoundAttendeesVo, string]) => this.dataProvider.setAttendeesForRound(
         roundId,
-        currentPlayerId,
-        this.participatingPlayers.map((player: AttendeeItemVo) => ({ playerId: player.id, inGameStatus: player.inGameStatus }))
+        this.participatingPlayers.map((player: AttendeeItemVo) => ({ playerId: player.id }))
       ))
     ).subscribe((updatedRoundId: string) => this.router.navigate(['round', updatedRoundId]));
   }
@@ -92,22 +90,16 @@ export class AttendeeComponent implements OnInit {
     this.gameId$.pipe(
       switchMap((gameId: string) => this.dataProvider.createRound(
         gameId,
-        this.participatingPlayers[0].id,
-        this.participatingPlayers.map((player: AttendeeItemVo) => ({
-          playerId: player.id,
-          inGameStatus: true
-        }))
+        this.participatingPlayers.map((player: AttendeeItemVo) => ({ playerId: player.id }))
       ))
     ).subscribe((createdRoundId: string) => this.router.navigate(['round', createdRoundId]));
   }
 
   dropOnParticipating(event: CdkDragDrop<string[]>): void {
-    (event.item.data as AttendeeItemVo).inGameStatus = true;
     this._handleDrop(event);
   }
 
   dropOnOther(event: CdkDragDrop<string[]>): void {
-    (event.item.data as AttendeeItemVo).inGameStatus = false;
     this._handleDrop(event);
   }
 
@@ -125,20 +117,6 @@ export class AttendeeComponent implements OnInit {
   }
 
   /**
-   * Calculates the id of the current player. If the current player of the round is also contained in the participation list (UI),
-   * its id will be returned. Otherwise the id of the first player in the participation list (UI) will be returned.
-   * @param roundAttendees Players that are participating in a round
-   * @param participatingPlayers Players that are marked for participation in the UI
-   * @returns The id of the current player
-   */
-  private _getCurrentPlayerId(roundAttendees: RoundAttendeesVo, participatingPlayers: AttendeeItemVo[]): string {
-    if (participatingPlayers.find((player: AttendeeItemVo) => player.id === roundAttendees.currentPlayerId)) {
-      return roundAttendees.currentPlayerId;
-    }
-    return participatingPlayers[0].id;
-  }
-
-  /**
    * Returns a list of players that are attending in the round.
    * @param allPlayers All players from the database
    * @param attendees Players that are participating in a round
@@ -149,7 +127,7 @@ export class AttendeeComponent implements OnInit {
     let accordingPlayer: AttendeeItemVo;
     for (const attendee of attendees) {
       accordingPlayer = allPlayers.find((player: AttendeeItemVo) => player.id === attendee.playerId);
-      returnValue.push({ id: accordingPlayer.id, name: accordingPlayer.name, inGameStatus: attendee.inGameStatus });
+      returnValue.push({ id: accordingPlayer.id, name: accordingPlayer.name });
     }
     return returnValue;
   }
@@ -165,8 +143,7 @@ export class AttendeeComponent implements OnInit {
       .filter((player: AttendeeItemVo) => !attendees.find((attendee: ParticipationDto) => attendee.playerId === player.id))
       .map((player: AttendeeItemVo) => ({
         id: player.id,
-        name: player.name,
-        inGameStatus: false
+        name: player.name
       }));
   }
 

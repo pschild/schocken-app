@@ -25,7 +25,8 @@ export class EventTypeFormComponent implements OnInit {
     penaltyValue: [''],
     penaltyUnit: [''],
     multiplicatorUnit: [''],
-    hasPenalty: [false]
+    hasPenalty: [false],
+    hasComment: [false]
   });
 
   eventTypeTriggers: string[] = Object.keys(EventTypeTrigger);
@@ -56,7 +57,7 @@ export class EventTypeFormComponent implements OnInit {
   onSubmit() {
     if (this.form.valid) {
       // TODO: MAPPING + SNACKBAR
-      const { description, context, trigger } = this.form.value;
+      const { description, context, trigger, hasComment } = this.form.value;
       let penalty;
       let multiplicatorUnit;
       if (this.form.value.hasPenalty) {
@@ -70,11 +71,11 @@ export class EventTypeFormComponent implements OnInit {
       if (this.form.value.id) {
         this.eventTypeManagementDataProvider.update(
           this.form.value.id,
-          { description, context, trigger, penalty, multiplicatorUnit }
+          { description, context, trigger, penalty, multiplicatorUnit, hasComment }
         ).subscribe((id: string) => this.router.navigate(['management', 'eventTypes']));
       } else {
         this.eventTypeManagementDataProvider.create(
-          { description, context, trigger, penalty, multiplicatorUnit }
+          { description, context, trigger, penalty, multiplicatorUnit, hasComment }
         ).subscribe((id: string) => this.router.navigate(['management', 'eventTypes']));
       }
     }

@@ -36,7 +36,8 @@ import {
   MatTabsModule,
   MatProgressSpinnerModule,
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
-  MatBottomSheetModule
+  MatBottomSheetModule,
+  MatTooltipModule
 } from '@angular/material';
 import { MatDatetimepickerModule, MatNativeDatetimeModule } from '@mat-datetimepicker/core';
 
@@ -78,7 +79,8 @@ const materialModules = [
   DragDropModule,
   MatProgressSpinnerModule,
   MatBottomSheetModule,
-  MatProgressSpinnerModule
+  MatProgressSpinnerModule,
+  MatTooltipModule
 ];
 
 @NgModule({

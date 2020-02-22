@@ -147,13 +147,14 @@ export class GameTableDataProvider {
     ).subscribe((row: GameEventsRowVo) => this.gameEventsRow$.next(row));
   }
 
-  addGameEvent(gameId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number): void {
+  addGameEvent(gameId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number, comment?: string): void {
     // create the event
     this.gameEventRepository.create({
       eventTypeId,
       gameId,
       playerId,
-      multiplicatorValue
+      multiplicatorValue,
+      comment
     }).pipe(
       // load the created event
       switchMap((createdId: string) => this.gameEventRepository.get(createdId)),
@@ -226,13 +227,14 @@ export class GameTableDataProvider {
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
-  addRoundEvent(roundId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number): void {
+  addRoundEvent(roundId: string, playerId: string, eventTypeId: string, multiplicatorValue?: number, comment?: string): void {
     // create the event
     this.roundEventRepository.create({
       eventTypeId,
       roundId,
       playerId,
-      multiplicatorValue
+      multiplicatorValue,
+      comment
     }).pipe(
       // load the created event
       switchMap((createdId: string) => this.roundEventRepository.get(createdId)),
@@ -298,7 +300,6 @@ export class GameTableDataProvider {
         const lastRow = roundEventRows[roundEventRows.length - 1];
         return this.roundRepository.create({
           gameId,
-          currentPlayerId: 'N/A', // TODO: currentPlayerId not necessary anymore?
           attendeeList: lastRow ? lastRow.attendeeList : []
         }).pipe(
           map((createdId: string) => [
@@ -324,7 +325,7 @@ export class GameTableDataProvider {
         if (isParticipating) {
           updatedAttendeeList = [
             ...roundInRows.attendeeList,
-            { playerId, inGameStatus: true } // TODO: inGameStatus not necessary anymore?
+            { playerId }
           ];
         } else {
           updatedAttendeeList = roundInRows.attendeeList.filter((participation: ParticipationDto) => participation.playerId !== playerId);

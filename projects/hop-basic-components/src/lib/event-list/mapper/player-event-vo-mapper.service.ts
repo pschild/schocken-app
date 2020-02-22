@@ -15,6 +15,7 @@ export class PlayerEventVoMapperService {
     vo.eventMultiplicatorValue = event.multiplicatorValue || 1;
     vo.eventTypeMultiplicatorUnit = eventType.multiplicatorUnit;
     vo.eventTypeTrigger = eventType.trigger;
+    vo.eventComment = event.comment;
     return vo;
   }
 }
