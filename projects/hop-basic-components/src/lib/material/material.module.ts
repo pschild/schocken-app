@@ -39,11 +39,6 @@ import {
   MatBottomSheetModule,
   MatTooltipModule
 } from '@angular/material';
-import { MatDatetimepickerModule, MatNativeDatetimeModule } from '@mat-datetimepicker/core';
-
-const materialDatetimePickerModules = [
-  MatDatetimepickerModule, MatNativeDatetimeModule
-];
 
 const materialModules = [
   MatButtonModule,
@@ -86,13 +81,11 @@ const materialModules = [
 @NgModule({
   imports: [
     CommonModule,
-    ...materialModules,
-    ...materialDatetimePickerModules
+    ...materialModules
   ],
   exports: [
     CommonModule,
-    ...materialModules,
-    ...materialDatetimePickerModules
+    ...materialModules
   ],
   providers: [
     { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 4000 } },
