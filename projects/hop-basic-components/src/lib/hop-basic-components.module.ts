@@ -48,12 +48,6 @@ import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator
     EventListComponent,
     PenaltySumComponent,
     LoadingIndicatorComponent
-  ],
-  entryComponents: [
-    SnackBarNotificationComponent,
-    DialogComponent,
-    EventTypeListModalComponent,
-    AllPlayerSelectionModalComponent
   ]
 })
 export class HopBasicComponentsModule { }
