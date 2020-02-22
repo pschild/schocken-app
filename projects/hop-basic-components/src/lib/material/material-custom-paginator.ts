@@ -1,5 +1,7 @@
-import { MatPaginatorIntl } from '@angular/material';
+import { MatPaginatorIntl } from '@angular/material/paginator';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export class MatPaginatorIntlCustom extends MatPaginatorIntl {
     itemsPerPageLabel = 'Elemente pro Seite';
     nextPageLabel = 'Nächste Seite';

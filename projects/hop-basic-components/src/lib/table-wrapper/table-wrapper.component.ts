@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
-import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { IColumnInterface } from './IColumnDefinition';
 import { ITableConfig } from './ITableConfig';
 

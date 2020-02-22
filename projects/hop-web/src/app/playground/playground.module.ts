@@ -17,9 +17,6 @@ import { BottomSheetComponent } from './bottom-sheet/bottom-sheet.component';
     ReactiveFormsModule,
     PlaygroundRoutingModule,
     HopBasicComponentsModule
-  ],
-  entryComponents: [
-    BottomSheetComponent
   ]
 })
 export class PlaygroundModule { }

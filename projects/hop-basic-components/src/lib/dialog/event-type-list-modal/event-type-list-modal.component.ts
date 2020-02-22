@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { EventTypeItemVo } from '../../event-type-list/model/event-type-item.vo';
 import { EventTypeListModalDialogData, EventTypeListModalDialogResult } from './model';
 

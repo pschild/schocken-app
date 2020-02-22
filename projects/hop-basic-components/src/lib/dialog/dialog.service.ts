@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { IDialogConfig, IDialogResult } from './dialog-config';
 import { OK_BUTTON_CONFIG, YES_NO_DIALOG_BUTTON_CONFIG, ABORT_SAVE_BUTTON_CONFIG } from './dialog-button-config';
 import { DialogComponent } from './dialog.component';
