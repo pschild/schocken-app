@@ -12,8 +12,10 @@ import {
   EventTypeListModalDialogResult,
   EventTypeListModalDialogData
 } from '@hop-basic-components';
-import { MatDialog, MatDialogRef, MatSlideToggleChange } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { GameDetailsVo } from './model/game-details.vo';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'hop-game-table',
@@ -33,6 +35,8 @@ export class GameTableComponent implements OnInit {
   roundEventsRows$: Observable<RoundEventsRowVo[]>;
 
   visibleRowIndexes: boolean[] = [];
+
+  placeFormControl = new FormControl('');
 
   constructor(
     private route: ActivatedRoute,

@@ -22,7 +22,7 @@
             "main": "projects/hop-web/src/main.ts",
             "polyfills": "projects/hop-web/src/polyfills.ts",
             "tsConfig": "projects/hop-web/tsconfig.app.json",
-            "aot": false,
+            "aot": true,
             "assets": [
               "projects/hop-web/src/favicon.ico",
               "projects/hop-web/src/assets",
@@ -47,7 +47,6 @@
               "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
@@ -56,6 +55,10 @@
                   "type": "initial",
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
                 }
               ],
               "serviceWorker": true,
@@ -142,7 +145,12 @@
             "tsConfig": "projects/hop-basic-components/tsconfig.lib.json",
             "project": "projects/hop-basic-components/ng-package.json"
           }
-        },
+        ,          "configurations": {
+            "production": {
+              "tsConfig": "projects/hop-basic-components/tsconfig.lib.prod.json"
+            }
+          }
+},
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
@@ -177,7 +185,12 @@
             "tsConfig": "projects/hop-backend-api/tsconfig.lib.json",
             "project": "projects/hop-backend-api/ng-package.json"
           }
-        },
+        ,          "configurations": {
+            "production": {
+              "tsConfig": "projects/hop-backend-api/tsconfig.lib.prod.json"
+            }
+          }
+},
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {

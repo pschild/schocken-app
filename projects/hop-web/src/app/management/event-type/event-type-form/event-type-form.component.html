@@ -1,56 +1,59 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
   <mat-card>
-    <mat-card-title>Ereignis</mat-card-title>
+    <mat-card-title>
+      <span *ngIf="form.get('id').value">Ereignis bearbeiten</span>
+      <span *ngIf="!form.get('id').value">Neues Ereignis</span>
+    </mat-card-title>
     <mat-card-content>
 
-      <div fxLayout="column" fxLayoutAlign="center start" fxLayoutGap="30px">
+      <div>
         <input type="hidden" formControlName="id" readonly>
 
-        <div fxLayout="row">
+        <div class="form-row">
           <mat-form-field>
             <input matInput placeholder="Name" formControlName="description" required>
           </mat-form-field>
         </div>
-        <div fxLayout="row" fxLayoutGap="10px">
+
+        <div class="form-row">
           <label>Typ:</label>
-          <mat-radio-group formControlName="context" fxLayoutGap="10px">
+          <mat-radio-group formControlName="context">
             <mat-radio-button [value]="eventTypeContexts.ROUND">Runde</mat-radio-button>
             <mat-radio-button [value]="eventTypeContexts.GAME">Spiel</mat-radio-button>
           </mat-radio-group>
         </div>
 
-        <mat-checkbox formControlName="hasComment">Kommentarfeld aktivieren</mat-checkbox>
+        <div class="form-row">
+          <mat-checkbox formControlName="hasComment">Kommentarfeld aktivieren</mat-checkbox>
+        </div>
 
-        <mat-checkbox formControlName="hasPenalty">Ereignis ist eine Strafe</mat-checkbox>
-        <div *ngIf="form.get('hasPenalty').value">
-          <div fxLayout="row" fxLayoutGap="10px">
-            <div fxFlexAlign="center">
-              <mat-form-field>
-                <input matInput placeholder="Strafe" type="number" formControlName="penaltyValue">
+        <div class="form-row">
+          <mat-checkbox formControlName="hasPenalty">Ereignis ist eine Strafe</mat-checkbox>
+          <mat-card *ngIf="form.get('hasPenalty').value">
+            <div>
+              <mat-form-field class="short-form-field">
+                <input matInput placeholder="Betrag" type="number" formControlName="penaltyValue">
               </mat-form-field>
-            </div>
-            <div fxFlexAlign="center">
-              <mat-form-field>
+              <mat-form-field class="short-form-field">
                 <mat-select formControlName="penaltyUnit">
                   <mat-option value="€">€</mat-option>
                   <mat-option value="Kiste(n)">Kiste(n)</mat-option>
                 </mat-select>
               </mat-form-field>
             </div>
-          </div>
-          <div fxLayout="row">
-            <div fxFlexAlign="center" fxLayoutGap="10px">
+            <div>
               <mat-form-field hintLabel="Bsp.: Woche, Monat, Augenzahl, ...">
                 <input matInput placeholder="Multiplikator" formControlName="multiplicatorUnit">
               </mat-form-field>
-              <span
-                *ngIf="form.value.penaltyValue && form.value.penaltyUnit && form.value.multiplicatorUnit">{{form.value.penaltyValue | number:'1.2'}}
-                {{form.value.penaltyUnit}} pro {{form.value.multiplicatorUnit}}</span>
             </div>
-          </div>
+            <div *ngIf="form.value.penaltyValue && form.value.penaltyUnit && form.value.multiplicatorUnit" class="penalty-info-container">
+              <mat-icon>info</mat-icon>
+              <span>Zusammenfassung: {{form.value.penaltyValue | number:'1.2'}} {{form.value.penaltyUnit}} pro {{form.value.multiplicatorUnit}}</span>
+            </div>
+          </mat-card>
         </div>
 
-        <div fxFill>
+        <div class="form-row">
           <mat-form-field>
             <mat-label>Auslöser wählen</mat-label>
             <mat-select formControlName="trigger">
@@ -62,7 +65,7 @@
           </mat-form-field>
         </div>
 
-        <div fxFill *ngIf="history && history.length">
+        <div *ngIf="history && history.length">
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -85,7 +88,7 @@
                   </div>
                 </h3>
                 <p matLine>
-                  <span>ab {{entry.validFrom | date:'dd.MM.yyyy HH:mm:ss'}} Uhr</span>
+                  <span>gültig ab {{entry.validFrom | date:'dd.MM.yyyy HH:mm:ss'}} Uhr</span>
                 </p>
               </mat-list-item>
             </mat-list>
@@ -95,7 +98,7 @@
 
     </mat-card-content>
     <mat-card-actions>
-      <div fxLayout="row" fxLayoutAlign="end" fxLayoutGap="10px">
+      <div>
         <button mat-button (click)="navigateBack()">Abbrechen</button>
         <button type="submit" mat-raised-button color="primary" [disabled]="!form.valid">Speichern</button>
       </div>

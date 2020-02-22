@@ -1,4 +1,4 @@
-import { MatDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material/dialog';
 import { DialogComponent } from './dialog.component';
 import { DialogButtonColor, DialogButtonStyle, DialogResult } from './dialog.enum';
 

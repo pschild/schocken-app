@@ -11,6 +11,18 @@ $first-column-background: #aaa;
 $transparency-value: 0.4;
 $mask-transparency-value: 0.6;
 
+.details-container {
+  margin-bottom: 20px;
+
+  .details-row {
+    display: flex;
+    align-items: center;
+    & > div:first-child {
+      width: 130px;
+    }
+  }
+}
+
 .table-container{
   height: calc(100vh - 160px);
   max-width: 100%;

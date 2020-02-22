@@ -23,7 +23,7 @@ import {
 } from '@hop-basic-components';
 import { map, concatMap, switchMap, filter, tap, mergeAll, toArray, withLatestFrom } from 'rxjs/operators';
 import { of, forkJoin, Observable, Subject } from 'rxjs';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { RoundEventQueueItem } from './round-event-queue-item';
 import { RoundQueueItem } from './round-queue-item';
 import { Router } from '@angular/router';
