@@ -169,7 +169,7 @@ export class PlaygroundDataProvider {
         const rounds = [];
         for (const gameId of gameIds) {
           for (let i = 0; i < roundsPerGameCount; i++) {
-            rounds.push(createRound$(gameId, playerIds.map(id => ({playerId: id}))));
+            rounds.push(createRound$(gameId as string, playerIds.map(id => ({playerId: id}))));
           }
         }
         return forkJoin(of(playerIds), of(eventTypeIds), of(gameIds), forkJoin(rounds));
@@ -179,7 +179,7 @@ export class PlaygroundDataProvider {
         for (const roundId of roundIds) {
           for (const playerId of playerIds) {
             for (let i = 0; i < roundEventsPerPlayerPerRoundCount; i++) {
-              roundEvents.push(createRoundEvent$(roundId, playerId, eventTypeIds[0]));
+              roundEvents.push(createRoundEvent$(roundId as string, playerId, eventTypeIds[0]));
             }
           }
         }
