@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DialogButtonStyle, DialogResult } from './dialog.enum';
 import { IDialogConfig, IDialogResult } from './dialog-config';
 
@@ -18,7 +18,7 @@ export class DialogComponent {
     public dialogRef: MatDialogRef<DialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IDialogConfig
   ) {
-    dialogRef.beforeClose().subscribe((dialogResult: IDialogResult) => {
+    dialogRef.beforeClosed().subscribe((dialogResult: IDialogResult) => {
       // when dialog is closed by pressing escape key or by clicking backdrop, return ABORT as result
       if (!dialogResult) {
         this.dialogRef.close({

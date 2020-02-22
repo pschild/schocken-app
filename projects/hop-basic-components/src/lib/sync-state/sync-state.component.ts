@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild, TemplateRef } from '@angular/core';
 import { SyncService, SyncEvent, SyncType } from './sync.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'hop-sync-state',

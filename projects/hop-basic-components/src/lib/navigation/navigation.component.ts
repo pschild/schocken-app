@@ -3,7 +3,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 import { Router, NavigationEnd } from '@angular/router';
-import { MatSidenav } from '@angular/material';
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'hop-navigation',
