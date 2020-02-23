@@ -10,7 +10,7 @@
           </mat-expansion-panel-header>
 
           <div class="details-row">
-            <div><strong>Datum:</strong></div>
+            <div><strong>Beginn:</strong></div>
             <div>{{gameDetails.datetime | date:'dd.MM.yyyy HH:mm'}} Uhr</div>
           </div>
           <div class="details-row">
@@ -18,12 +18,9 @@
             <div>
               <mat-form-field>
                 <input matInput placeholder="Ort" [formControl]="placeFormControl">
-                <button mat-button *ngIf="placeFormControl.value" matSuffix mat-icon-button (click)="placeFormControl.setValue('')">
-                  <mat-icon>close</mat-icon>
-                </button>
               </mat-form-field>
-              <button mat-icon-button color="primary" *ngIf="placeFormControl.value">
-                <mat-icon>save</mat-icon>
+              <button mat-icon-button color="primary" *ngIf="!placeFormControl.pristine" (click)="onUpdatePlace()">
+                <mat-icon>check</mat-icon>
               </button>
             </div>
           </div>
@@ -54,6 +51,7 @@
                   *ngIf="visibleRowIndexes['gameEvents']"
                   [events]="[gameEventsRow] | getAllEvents:player._id"
                   [playerId]="player._id"
+                  [hideRemoveButton]="gameDetails.completed"
                   (removeEvent)="onRemoveGameEvent($event, player._id)"
                 ></hop-event-list>
                 <hop-penalty-sum
@@ -83,6 +81,7 @@
                     [events]="[roundEventsRow] | getAllEvents:player._id"
                     [roundId]="roundEventsRow.roundId"
                     [playerId]="player._id"
+                    [hideRemoveButton]="gameDetails.completed"
                     (removeEvent)="onRemoveRoundEvent($event, roundEventsRow.roundId, player._id)">
                   </hop-event-list>
                   <hop-penalty-sum

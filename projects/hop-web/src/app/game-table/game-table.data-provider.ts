@@ -343,6 +343,10 @@ export class GameTableDataProvider {
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
+  updatePlace(gameId: string, placeValue: string): Observable<string> {
+    return this.gameRepository.update(gameId, { place: placeValue });
+  }
+
   /**
    * Expands a given EventDto by its according EventType.
    * The EventType is merged and found by searching for its _id in all available EventTypes.
