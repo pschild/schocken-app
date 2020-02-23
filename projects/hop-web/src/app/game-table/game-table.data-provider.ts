@@ -118,7 +118,7 @@ export class GameTableDataProvider {
 
   loadAllEventTypes(): void {
     this.eventTypeRepository.getAll().pipe(
-      map((eventTypes: EventTypeDto[]) => eventTypes.sort((a, b) => this.sortService.compare(a, b, 'description', SortDirection.ASC))),
+      map((eventTypes: EventTypeDto[]) => eventTypes.sort((a, b) => this.sortService.compare(a, b, 'order', SortDirection.ASC))),
       tap(_ => console.log('%c🔎LOADED ALL EVENT TYPES', 'color: #f00'))
     ).subscribe((eventTypes: EventTypeDto[]) => this.allEventTypes$.next(eventTypes));
   }

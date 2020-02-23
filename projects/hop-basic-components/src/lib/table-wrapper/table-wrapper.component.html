@@ -5,7 +5,15 @@
   </button>
 </mat-form-field>
 <div class="mat-elevation-z2 table-wrapper-container">
-  <table mat-table [dataSource]="dataSource" matSort>
+  <table mat-table [dataSource]="dataSource" matSort cdkDropList (cdkDropListDropped)="handleDropEvent($event)">
+
+    <!-- drag handle column -->
+    <ng-container matColumnDef="dragDrop">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="true" [hidden]="!config.enableDragDrop"></th>
+      <td mat-cell *matCellDef="let row" [hidden]="!config.enableDragDrop" class="drag-handle">
+        <mat-icon>drag_indicator</mat-icon>
+      </td>
+    </ng-container>
 
     <!-- content columns -->
     <ng-container *ngFor="let column of contentColumns" matColumnDef="{{column.columnDef}}">
@@ -31,7 +39,14 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+    <ng-container *ngIf="!config.enableDragDrop">
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </ng-container>
+
+    <ng-container *ngIf="config.enableDragDrop">
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" cdkDrag [cdkDragData]="row"></tr>
+    </ng-container>
   </table>
   <mat-paginator *ngIf="config.enablePaging" [pageSize]="20" [pageSizeOptions]="[10,20,50]"></mat-paginator>
 </div>

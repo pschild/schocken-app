@@ -12,4 +12,5 @@ export interface EventTypeDto extends EntityDto {
   history?: EventTypeHistoryItem[];
   multiplicatorUnit?: string;
   hasComment?: boolean;
+  order?: number;
 }

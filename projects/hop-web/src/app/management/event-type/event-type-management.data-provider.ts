@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { EventTypeRepository, EventTypeDto } from '@hop-backend-api';
+import { EventTypeRepository, EventTypeDto, EventTypeContext } from '@hop-backend-api';
 import { map } from 'rxjs/operators';
 import { SortService, SortDirection } from '../../core/service/sort.service';
 import { EventTypeFormVoMapperService } from './event-type-form/mapper/event-type-form-vo-mapper.service';
@@ -21,10 +21,10 @@ export class EventTypeManagementDataProvider {
   ) {
   }
 
-  getAll(): Observable<EventTypeTableItemVo[]> {
-    return this.eventTypeRepository.getAll().pipe(
+  getAllByContext(context: EventTypeContext): Observable<EventTypeTableItemVo[]> {
+    return this.eventTypeRepository.findByContext(context).pipe(
       // tslint:disable-next-line:max-line-length
-      map((eventTypeDtos: EventTypeDto[]) => eventTypeDtos.sort((a, b) => this.sortService.compare(a, b, 'description', SortDirection.ASC))),
+      map((eventTypeDtos: EventTypeDto[]) => eventTypeDtos.sort((a, b) => this.sortService.compare(a, b, 'order', SortDirection.ASC))),
       map((eventTypeDtos: EventTypeDto[]) => this.eventTypeTableItemVoMapperService.mapToVos(eventTypeDtos))
     );
   }
@@ -39,8 +39,8 @@ export class EventTypeManagementDataProvider {
     return this.eventTypeRepository.create(data);
   }
 
-  update(id: string, data: Partial<EventTypeDto>): Observable<string> {
-    return this.eventTypeRepository.update(id, data);
+  update(id: string, data: Partial<EventTypeDto>, skipHistory = false): Observable<string> {
+    return this.eventTypeRepository.update(id, data, skipHistory);
   }
 
   removeById(id: string): Observable<string> {

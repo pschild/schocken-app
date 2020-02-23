@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EventTypeManagementDataProvider } from '../event-type-management.data-provider';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { EventTypeTableItemVo } from './model/event-type-table-item.vo';
 import {
   ITableConfig,
@@ -12,6 +12,8 @@ import {
   IDialogResult
 } from '@hop-basic-components';
 import { filter, switchMap } from 'rxjs/operators';
+import { EventTypeContext } from '@hop-backend-api';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'hop-event-type-list',
@@ -20,11 +22,13 @@ import { filter, switchMap } from 'rxjs/operators';
 })
 export class EventTypeListComponent implements OnInit {
 
-  allEventTypes$: Observable<EventTypeTableItemVo[]>;
+  roundEventTypes$: Observable<EventTypeTableItemVo[]>;
+  gameEventTypes$: Observable<EventTypeTableItemVo[]>;
 
   tableConfig: ITableConfig = {
     enablePaging: false,
-    enableSorting: true
+    enableSorting: false,
+    enableDragDrop: false
   };
   columns: IColumnInterface[] = [
     {
@@ -32,11 +36,6 @@ export class EventTypeListComponent implements OnInit {
       header: 'Name',
       isSearchable: true,
       cellContent: (element: EventTypeTableItemVo) => `${element.description}`
-    },
-    {
-      columnDef: 'contextLabel',
-      header: 'Typ',
-      cellContent: (element: EventTypeTableItemVo) => `${element.contextLabel}`
     },
     {
       columnDef: 'penaltyLabel',
@@ -68,11 +67,24 @@ export class EventTypeListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.allEventTypes$ = this.eventTypeManagementDataProvider.getAll();
+    this.roundEventTypes$ = this.eventTypeManagementDataProvider.getAllByContext(EventTypeContext.ROUND);
+    this.gameEventTypes$ = this.eventTypeManagementDataProvider.getAllByContext(EventTypeContext.GAME);
   }
 
   showForm(): void {
     this.router.navigate(['form'], { relativeTo: this.route });
+  }
+
+  toggleDragDrop(event: MatSlideToggleChange): void {
+    this.tableConfig = { ...this.tableConfig, enableDragDrop: event.checked };
+  }
+
+  handleDropEvent(dragDropEvent: any): void {
+    forkJoin(
+      dragDropEvent.elements.map((element: EventTypeTableItemVo, index: number) => {
+        return this.eventTypeManagementDataProvider.update(element.id, { order: index }, true);
+      })
+    ).subscribe(_ => this.snackBarNotificationService.showMessage(`Reihenfolge aktualisiert`));
   }
 
   remove(eventType: EventTypeTableItemVo) {
@@ -84,7 +96,8 @@ export class EventTypeListComponent implements OnInit {
       switchMap((dialogResult: IDialogResult) => this.eventTypeManagementDataProvider.removeById(eventType.id))
     ).subscribe((id: string) => {
       this.snackBarNotificationService.showMessage(`Ereignis ${eventType.description} wurde gelöscht.`);
-      this.allEventTypes$ = this.eventTypeManagementDataProvider.getAll();
+      this.roundEventTypes$ = this.eventTypeManagementDataProvider.getAllByContext(EventTypeContext.ROUND);
+      this.gameEventTypes$ = this.eventTypeManagementDataProvider.getAllByContext(EventTypeContext.GAME);
     });
   }
 

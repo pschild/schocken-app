@@ -64,7 +64,7 @@ export class EventTypeRepository {
     );
   }
 
-  update(id: string, data: Partial<EventTypeDto>): Observable<string> {
+  update(id: string, data: Partial<EventTypeDto>, skipHistory = false): Observable<string> {
     return this.get(id).pipe(
       // retrieve the old history...
       pluck('history'),
@@ -74,7 +74,9 @@ export class EventTypeRepository {
       ]),
       // ...update the whole entity
       switchMap((history: EventTypeHistoryItem[]) => {
-        data.history = history;
+        if (!skipHistory) {
+          data.history = history;
+        }
         return from(this.pouchDb.update(id, data));
       }),
       map((response: PutResponse) => response.id)
