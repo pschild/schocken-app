@@ -10,11 +10,18 @@ import { PlayerEventVo } from '@hop-basic-components';
 })
 export class GetAllEventsPipe implements PipeTransform {
 
-  transform(rows: Array<GameEventsRowVo | RoundEventsRowVo>): PlayerEventVo[] {
-    const columns: Array<GameEventsColumnVo | RoundEventsRowVo> = [].concat.apply([], rows.map(row => row.columns));
+  transform(rows: Array<GameEventsRowVo | RoundEventsRowVo>, playerId?: string): PlayerEventVo[] {
+    let columns: Array<GameEventsColumnVo | RoundEventsRowVo> ;
+    if (playerId) {
+      columns = rows.map(row => row.columns.find((col: GameEventsColumnVo | RoundEventsColumnVo) => col.playerId === playerId));
+    } else {
+      columns = [].concat.apply([], rows.map(row => row.columns));
+    }
+
     return [].concat.apply(
       [],
       columns
+        .filter((column: GameEventsColumnVo | RoundEventsColumnVo) => !!column)
         .map((column: GameEventsColumnVo | RoundEventsColumnVo) => [...column.events])
     );
   }
