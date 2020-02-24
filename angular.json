@@ -32,7 +32,8 @@
             "styles": [
               "projects/hop-web/src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "webWorkerTsConfig": "projects/hop-web/tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -107,7 +108,8 @@
             "tsConfig": [
               "projects/hop-web/tsconfig.app.json",
               "projects/hop-web/tsconfig.spec.json",
-              "projects/hop-web/e2e/tsconfig.json"
+              "projects/hop-web/e2e/tsconfig.json",
+              "projects/hop-web/tsconfig.worker.json"
             ],
             "exclude": [
               "**/node_modules/**"
