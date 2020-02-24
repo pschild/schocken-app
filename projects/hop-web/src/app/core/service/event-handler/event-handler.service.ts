@@ -50,7 +50,7 @@ export class EventHandlerService {
     private dialog: MatDialog
   ) {
     this.workerService.workerMessages$.subscribe((response: WorkerReponse) => {
-      // if ([100, 333, 500, 1000, 3333, 5000, 10000].includes(response.payload.count)) {
+      if ([1, 100, 333, 500, 1000, 3333, 5000, 10000].includes(response.payload.count)) {
         this.eventTypeRepository.get(response.payload.eventTypeId).subscribe((eventType: EventTypeDto) => {
           this.dialog.open(CelebrationModalComponent, {
             height: '80%',
@@ -62,12 +62,12 @@ export class EventHandlerService {
             }
           });
         });
-      // }
+      }
     });
   }
 
-  handle(event: PlayerEventVo, playerId: string, roundId: string): void {
-    const workerMessage: WorkerMessage = { action: 'countRoundEventTypeById', payload: { eventTypeId: event.eventTypeId } };
+  handle(event: PlayerEventVo, playerId: string, roundId?: string): void {
+    const workerMessage: WorkerMessage = { action: 'countEventTypeById', payload: { eventTypeId: event.eventTypeId } };
     this.workerService.postMessage(workerMessage);
 
     switch (event.eventTypeTrigger) {

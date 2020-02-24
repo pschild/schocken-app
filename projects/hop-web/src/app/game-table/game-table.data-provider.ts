@@ -160,7 +160,8 @@ export class GameTableDataProvider {
       switchMap((createdId: string) => this.gameEventRepository.get(createdId)),
       // expand it with its EventType
       switchMap((createdEvent: GameEventDto) => this.expandWithEventTypes(of(createdEvent))),
-      // TODO: handle event with eventhandler
+      // handle event with eventhandler
+      tap((event: PlayerEventVo) => this.eventHandlerService.handle(event, playerId)),
       // merge the latest state
       withLatestFrom(this.gameEventsRow$),
       // push the created event to the latest state

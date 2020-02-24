@@ -1,5 +1,6 @@
 mat-dialog-content {
   height: 100%;
+  max-height: calc(100% - 100px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -9,8 +10,12 @@ mat-dialog-content {
   .event-info-container {
     width: 100%;
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
+
+    .event-name-container {
+      padding: 0 10px;
+    }
   }
 }
 
