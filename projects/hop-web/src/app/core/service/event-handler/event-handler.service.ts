@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {
-  RoundEventRepository,
   RoundRepository,
   RoundDto,
   EventTypeTrigger,
@@ -27,6 +26,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { RoundEventQueueItem } from './round-event-queue-item';
 import { RoundQueueItem } from './round-queue-item';
 import { Router } from '@angular/router';
+import { WorkerService } from '../worker/worker.service';
+import { WorkerMessage, WorkerReponse } from '../../worker/model';
 
 @Injectable({
   providedIn: 'root'
@@ -42,13 +43,24 @@ export class EventHandlerService {
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
     private eventTypeRepository: EventTypeRepository,
-    private roundEventRepository: RoundEventRepository,
     private snackBarNotificationService: SnackBarNotificationService,
     private dialogService: DialogService,
+    private workerService: WorkerService,
     private dialog: MatDialog
-  ) { }
+  ) {
+    this.workerService.workerMessages$.subscribe((response: WorkerReponse) => {
+      // if ([100, 333, 500, 1000, 3333, 5000, 10000].includes(response.payload.count)) {
+        this.eventTypeRepository.get(response.payload.eventTypeId).subscribe((eventType: EventTypeDto) => {
+          this.snackBarNotificationService.showMessage(`${eventType.description} zum ${response.payload.count}. Mal!`);
+        });
+      // }
+    });
+  }
 
   handle(event: PlayerEventVo, playerId: string, roundId: string): void {
+    const workerMessage: WorkerMessage = { action: 'countRoundEventTypeById', payload: { eventTypeId: event.eventTypeId } };
+    this.workerService.postMessage(workerMessage);
+
     switch (event.eventTypeTrigger) {
       case EventTypeTrigger.SCHOCK_AUS:
         this._handleSchockAusTrigger(playerId, roundId);
