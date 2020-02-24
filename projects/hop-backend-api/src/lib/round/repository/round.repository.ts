@@ -34,7 +34,7 @@ export class RoundRepository {
   }
 
   getAll(): Observable<RoundDto[]> {
-    return from(this.pouchDb.getAll<RoundDto>(`${EntityType.ROUND}__${EntityType.ROUND}`)).pipe(
+    return from(this.pouchDb.getAll<RoundDto>(`${EntityType.ROUND}__${EntityType.GAME}`)).pipe(
       map((res: GetResponse<RoundDto>) => res.rows.map(row => row.doc as RoundDto))
     );
   }

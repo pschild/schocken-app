@@ -37,7 +37,7 @@ export class GameEventRepository {
   }
 
   getAll(): Observable<GameEventDto[]> {
-    return from(this.pouchDb.getAll<GameEventDto>(`${EntityType.GAME_EVENT}__${EntityType.GAME_EVENT}`)).pipe(
+    return from(this.pouchDb.getAll<GameEventDto>(`${EntityType.GAME_EVENT}__${EntityType.GAME}`)).pipe(
       map((res: GetResponse<GameEventDto>) => res.rows.map(row => row.doc as GameEventDto))
     );
   }
