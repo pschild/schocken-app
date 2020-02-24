@@ -15,6 +15,7 @@ import { AllPlayerSelectionModalComponent } from './dialog/all-player-selection-
 import { EventListComponent } from './event-list/event-list.component';
 import { PenaltySumComponent } from './penalty-sum/penalty-sum.component';
 import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator.component';
+import { CelebrationModalComponent } from './dialog/celebration-modal/celebration-modal.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator
     AllPlayerSelectionModalComponent,
     EventListComponent,
     PenaltySumComponent,
-    LoadingIndicatorComponent
+    LoadingIndicatorComponent,
+    CelebrationModalComponent
   ],
   imports: [
     MaterialModule,
@@ -47,7 +49,8 @@ import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator
     SnowflakesComponent,
     EventListComponent,
     PenaltySumComponent,
-    LoadingIndicatorComponent
+    LoadingIndicatorComponent,
+    CelebrationModalComponent
   ]
 })
 export class HopBasicComponentsModule { }

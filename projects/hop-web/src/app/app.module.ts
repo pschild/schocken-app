@@ -12,6 +12,11 @@ import { ENV, PouchDbAdapter } from '@hop-backend-api';
 import { VERSION, COMMIT_SHA, COMMIT_DATE } from '../environments/version';
 import { GlobalErrorHandler, RollbarService, rollbarFactory } from './core/global-error-handler';
 
+import { registerLocaleData } from '@angular/common';
+import localeDe from '@angular/common/locales/de';
+
+registerLocaleData(localeDe, 'de');
+
 @NgModule({
   declarations: [
     AppComponent

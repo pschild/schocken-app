@@ -18,7 +18,8 @@ import {
   AllPlayerSelectionModalComponent,
   LOST_EVENT_BUTTON_CONFIG,
   AllPlayerSelectionModalDialogResult,
-  PlayerEventVo
+  PlayerEventVo,
+  CelebrationModalComponent
 } from '@hop-basic-components';
 import { map, concatMap, switchMap, filter, tap, mergeAll, toArray, withLatestFrom } from 'rxjs/operators';
 import { of, forkJoin, Observable, Subject } from 'rxjs';
@@ -51,7 +52,15 @@ export class EventHandlerService {
     this.workerService.workerMessages$.subscribe((response: WorkerReponse) => {
       // if ([100, 333, 500, 1000, 3333, 5000, 10000].includes(response.payload.count)) {
         this.eventTypeRepository.get(response.payload.eventTypeId).subscribe((eventType: EventTypeDto) => {
-          this.snackBarNotificationService.showMessage(`${eventType.description} zum ${response.payload.count}. Mal!`);
+          this.dialog.open(CelebrationModalComponent, {
+            height: '80%',
+            width: '90%',
+            autoFocus: false,
+            data: {
+              countValue: response.payload.count,
+              eventName: eventType.description
+            }
+          });
         });
       // }
     });
