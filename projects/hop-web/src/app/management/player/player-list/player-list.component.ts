@@ -34,18 +34,12 @@ export class PlayerListComponent implements OnInit {
       cellContent: (element: PlayerTableItemVo) => `${element.name}`
     },
     {
-      columnDef: 'editAction',
+      columnDef: 'actions',
       header: '',
-      cellContent: () => '',
-      cellAction: (element: PlayerTableItemVo) => this.edit(element),
-      icon: 'edit'
-    },
-    {
-      columnDef: 'deleteAction',
-      header: '',
-      cellContent: () => '',
-      cellAction: (element: PlayerTableItemVo) => this.remove(element),
-      icon: 'delete'
+      cellActions: [
+        { icon: 'edit', fn: (element: PlayerTableItemVo) => this.edit(element) },
+        { icon: 'delete', fn: (element: PlayerTableItemVo) => this.remove(element) }
+      ]
     }
   ];
 

@@ -33,8 +33,8 @@ export class TableWrapperComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.updateTableRows();
     this.searchableColumns = this.columns.filter((col: IColumnInterface) => col.isSearchable);
-    this.contentColumns = this.columns.filter((col: IColumnInterface) => !col.cellAction);
-    this.actionColumns = this.columns.filter((col: IColumnInterface) => !!col.cellAction);
+    this.contentColumns = this.columns.filter((col: IColumnInterface) => !col.cellActions);
+    this.actionColumns = this.columns.filter((col: IColumnInterface) => !!col.cellActions && col.cellActions.length);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

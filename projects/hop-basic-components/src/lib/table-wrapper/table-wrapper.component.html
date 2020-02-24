@@ -25,15 +25,15 @@
       </td>
     </ng-container>
 
-    <!-- action columns -->
+    <!-- action column -->
     <ng-container *ngFor="let column of actionColumns" matColumnDef="{{column.columnDef}}" stickyEnd>
-      <th mat-header-cell *matHeaderCellDef mat-sort-header class="action-column" [disabled]="column.cellAction || !config.enableSorting" [hidden]="column.isHidden">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="action-column" [disabled]="column.cellActions || !config.enableSorting" [hidden]="column.isHidden">
         {{column.header}}
       </th>
       <td mat-cell *matCellDef="let row" [hidden]="column.isHidden">
-        <button mat-button (click)="column.cellAction(row)">
-          <mat-icon *ngIf="column.icon">{{column.icon}}</mat-icon>
-          {{column.cellContent(row)}}
+        <button mat-button *ngFor="let action of column.cellActions" (click)="action.fn(row)">
+          <mat-icon *ngIf="action.icon">{{action.icon}}</mat-icon>
+          <span *ngIf="action.label">{{action.label}}</span>
         </button>
       </td>
     </ng-container>

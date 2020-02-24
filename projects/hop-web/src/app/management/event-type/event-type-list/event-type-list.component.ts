@@ -43,18 +43,12 @@ export class EventTypeListComponent implements OnInit {
       cellContent: (element: EventTypeTableItemVo) => `${element.penaltyLabel}`
     },
     {
-      columnDef: 'editAction',
+      columnDef: 'actions',
       header: '',
-      cellContent: () => '',
-      cellAction: (element: EventTypeTableItemVo) => this.edit(element),
-      icon: 'edit'
-    },
-    {
-      columnDef: 'deleteAction',
-      header: '',
-      cellContent: () => '',
-      cellAction: (element: EventTypeTableItemVo) => this.remove(element),
-      icon: 'delete'
+      cellActions: [
+        { icon: 'edit', fn: (element: EventTypeTableItemVo) => this.edit(element) },
+        { icon: 'delete', fn: (element: EventTypeTableItemVo) => this.remove(element) }
+      ]
     }
   ];
 
