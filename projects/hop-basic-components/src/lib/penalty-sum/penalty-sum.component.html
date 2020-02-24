@@ -1,5 +1,8 @@
 <div class="sums-container">
-  <div *ngFor="let sumPerUnit of sumsPerUnit">
-    {{sumPerUnit.sum | number:'1.2'}} {{sumPerUnit.unit}}
-  </div>
+  <ng-container *ngIf="sumsPerUnit && sumsPerUnit.length; else noPenalties">
+    <div *ngFor="let sumPerUnit of sumsPerUnit">
+      {{sumPerUnit.sum | number:'1.2'}} {{sumPerUnit.unit}}
+    </div>
+  </ng-container>
+  <ng-template #noPenalties>-</ng-template>
 </div>
