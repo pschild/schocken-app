@@ -28,7 +28,7 @@ import { RoundEventQueueItem } from './round-event-queue-item';
 import { RoundQueueItem } from './round-queue-item';
 import { Router } from '@angular/router';
 import { WorkerService } from '../worker/worker.service';
-import { WorkerMessage, WorkerReponse } from '../../worker/model';
+import { WorkerMessage, WorkerReponse, WorkerActions } from '../../worker/model';
 
 @Injectable({
   providedIn: 'root'
@@ -67,7 +67,7 @@ export class EventHandlerService {
   }
 
   handle(event: PlayerEventVo, playerId: string, roundId?: string): void {
-    const workerMessage: WorkerMessage = { action: 'countEventTypeById', payload: { eventTypeId: event.eventTypeId } };
+    const workerMessage: WorkerMessage = { action: WorkerActions.COUNT_EVENT_TYPE_BY_ID, payload: { eventTypeId: event.eventTypeId } };
     this.workerService.postMessage(workerMessage);
 
     switch (event.eventTypeTrigger) {
