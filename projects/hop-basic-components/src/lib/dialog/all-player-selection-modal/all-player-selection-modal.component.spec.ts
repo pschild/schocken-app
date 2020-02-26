@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AllPlayerSelectionModalComponent } from './all-player-selection-modal.component';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 describe('AllPlayerSelectionModalComponent', () => {
   let component: AllPlayerSelectionModalComponent;
@@ -8,7 +9,11 @@ describe('AllPlayerSelectionModalComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AllPlayerSelectionModalComponent ]
+      declarations: [ AllPlayerSelectionModalComponent ],
+      providers: [
+        { provide: MatDialogRef, useValue: {} },
+        { provide: MAT_DIALOG_DATA, useValue: [] }
+      ]
     })
     .compileComponents();
   }));

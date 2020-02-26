@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CelebrationModalComponent } from './celebration-modal.component';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 describe('CelebrationModalComponent', () => {
   let component: CelebrationModalComponent;
@@ -8,7 +9,10 @@ describe('CelebrationModalComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CelebrationModalComponent ]
+      declarations: [ CelebrationModalComponent ],
+      providers: [
+        { provide: MAT_DIALOG_DATA, useValue: [] }
+      ]
     })
     .compileComponents();
   }));
