@@ -3,7 +3,7 @@ import { CelebrationModalComponent } from '@hop-basic-components';
 import { MatDialog } from '@angular/material/dialog';
 import { EventTypeDto, EventTypeRepository } from '@hop-backend-api';
 import { WorkerService } from './worker/worker.service';
-import { WorkerReponse, WorkerMessage, WorkerActions } from '../worker/model';
+import { WorkerResponse, WorkerMessage, WorkerActions } from '../worker/model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,7 @@ export class StatisticService {
     private workerService: WorkerService,
     private dialog: MatDialog
   ) {
-    this.workerService.workerMessages$.subscribe((response: WorkerReponse) => {
+    this.workerService.workerMessages$.subscribe((response: WorkerResponse) => {
       if (response.action === WorkerActions.COUNT_EVENT_TYPE_BY_ID) {
         if (this.NUMBERS_TO_CELEBRATE.includes(response.payload.count)) {
           this.eventTypeRepository.get(response.payload.eventTypeId).subscribe((eventType: EventTypeDto) => {

@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 import { environment } from '../../../environments/environment';
-import { WorkerMessage, WorkerReponse, WorkerActions } from './model';
+import { WorkerMessage, WorkerResponse, WorkerActions } from './model';
 
 const POUCH_DB_DB_PREFIX = '_pouch_';
 const POUCH_DB_STORE = 'by-sequence';
@@ -10,13 +10,13 @@ addEventListener('message', async (event: MessageEvent) => {
   if (workerMessage.action === WorkerActions.COUNT_EVENT_TYPE_BY_ID && workerMessage.payload.eventTypeId) {
     try {
       const eventsCount = await countEventTypeById(workerMessage.payload.eventTypeId);
-      const response: WorkerReponse = {
+      const response: WorkerResponse = {
         action: workerMessage.action,
         payload: { eventTypeId: workerMessage.payload.eventTypeId, count: eventsCount }
       };
       postMessage(response);
     } catch (error) {
-      const response: WorkerReponse = { action: workerMessage.action, error, payload: null };
+      const response: WorkerResponse = { action: workerMessage.action, error, payload: null };
       postMessage(response);
     }
   } else if (workerMessage.action === WorkerActions.COUNT_ROUNDS) {

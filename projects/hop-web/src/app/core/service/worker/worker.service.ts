@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { WorkerMessage, WorkerReponse } from '../../worker/model';
+import { WorkerMessage, WorkerResponse } from '../../worker/model';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +9,7 @@ export class WorkerService {
 
   private worker: Worker;
 
-  workerMessages$: Subject<WorkerReponse> = new Subject();
+  workerMessages$: Subject<WorkerResponse> = new Subject();
 
   constructor() {
     this.initializeWorker();
@@ -19,7 +19,7 @@ export class WorkerService {
     if (typeof Worker !== 'undefined') {
       this.worker = new Worker('../../worker/indexedDb.worker', { type: 'module' });
       this.worker.onmessage = (event: MessageEvent) => {
-        const response: WorkerReponse = event.data as WorkerReponse;
+        const response: WorkerResponse = event.data as WorkerResponse;
         if (response.error) {
           throw response.error;
         }
