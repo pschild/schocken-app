@@ -10,12 +10,18 @@ addEventListener('message', async (event: MessageEvent) => {
   if (workerMessage.action === WorkerActions.COUNT_EVENT_TYPE_BY_ID && workerMessage.payload.eventTypeId) {
     try {
       const eventsCount = await countEventTypeById(workerMessage.payload.eventTypeId);
-      const response: WorkerReponse = { payload: { eventTypeId: workerMessage.payload.eventTypeId, count: eventsCount } };
+      const response: WorkerReponse = {
+        action: workerMessage.action,
+        payload: { eventTypeId: workerMessage.payload.eventTypeId, count: eventsCount }
+      };
       postMessage(response);
     } catch (error) {
-      const response: WorkerReponse = { error, payload: null };
+      const response: WorkerReponse = { action: workerMessage.action, error, payload: null };
       postMessage(response);
     }
+  } else if (workerMessage.action === WorkerActions.COUNT_ROUNDS) {
+    const roundsCount = await countRounds();
+    postMessage({ action: workerMessage.action, payload: { count: roundsCount } });
   }
 });
 
@@ -29,6 +35,13 @@ const countEventTypeById = async (eventTypeId: string): Promise<number> => {
       && row.eventTypeId === eventTypeId
     )
     .length;
+};
+
+const countRounds = async (): Promise<number> => {
+  const db: IDBDatabase = await openDb(`${POUCH_DB_DB_PREFIX}${environment.env.LOCAL_DATABASE}`);
+  const rows: any[] = await getAll(db, POUCH_DB_STORE);
+  const rounds = rows.filter(row => row.type && row.type === 'ROUND');
+  return rounds.length;
 };
 
 const openDb = (dbName: string): Promise<IDBDatabase> => {
@@ -49,4 +62,14 @@ const getAll = (db: IDBDatabase, storeName: string): Promise<any[]> => {
     request.onsuccess = (event) => resolve(event.target['result']);
     request.onerror = (event) => reject(event);
   });
+};
+
+const compare = (a: any, b: any, propName: string, direction: number) => {
+  if (a[propName] > b[propName]) {
+    return direction === 1 ? 1 : -1;
+  }
+  if (a[propName] < b[propName]) {
+    return direction === 1 ? -1 : 1;
+  }
+  return 0;
 };

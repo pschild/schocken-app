@@ -26,7 +26,7 @@ export class WorkerService {
         this.workerMessages$.next(response);
       };
     } else {
-      console.error('no web worker supported');
+      throw new Error('Dieser Browser unterstützt keine Webworker.');
     }
   }
 

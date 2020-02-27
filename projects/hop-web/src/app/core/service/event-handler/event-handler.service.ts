@@ -18,8 +18,7 @@ import {
   AllPlayerSelectionModalComponent,
   LOST_EVENT_BUTTON_CONFIG,
   AllPlayerSelectionModalDialogResult,
-  PlayerEventVo,
-  CelebrationModalComponent
+  PlayerEventVo
 } from '@hop-basic-components';
 import { map, concatMap, switchMap, filter, tap, mergeAll, toArray, withLatestFrom } from 'rxjs/operators';
 import { of, forkJoin, Observable, Subject } from 'rxjs';
@@ -27,8 +26,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { RoundEventQueueItem } from './round-event-queue-item';
 import { RoundQueueItem } from './round-queue-item';
 import { Router } from '@angular/router';
-import { WorkerService } from '../worker/worker.service';
-import { WorkerMessage, WorkerReponse, WorkerActions } from '../../worker/model';
 
 @Injectable({
   providedIn: 'root'
@@ -46,30 +43,10 @@ export class EventHandlerService {
     private eventTypeRepository: EventTypeRepository,
     private snackBarNotificationService: SnackBarNotificationService,
     private dialogService: DialogService,
-    private workerService: WorkerService,
     private dialog: MatDialog
-  ) {
-    this.workerService.workerMessages$.subscribe((response: WorkerReponse) => {
-      if ([1, 100, 333, 500, 1000, 3333, 5000, 10000].includes(response.payload.count)) {
-        this.eventTypeRepository.get(response.payload.eventTypeId).subscribe((eventType: EventTypeDto) => {
-          this.dialog.open(CelebrationModalComponent, {
-            height: '80%',
-            width: '90%',
-            autoFocus: false,
-            data: {
-              countValue: response.payload.count,
-              eventName: eventType.description
-            }
-          });
-        });
-      }
-    });
-  }
+  ) { }
 
   handle(event: PlayerEventVo, playerId: string, roundId?: string): void {
-    const workerMessage: WorkerMessage = { action: WorkerActions.COUNT_EVENT_TYPE_BY_ID, payload: { eventTypeId: event.eventTypeId } };
-    this.workerService.postMessage(workerMessage);
-
     switch (event.eventTypeTrigger) {
       case EventTypeTrigger.SCHOCK_AUS:
         this._handleSchockAusTrigger(playerId, roundId);
@@ -115,7 +92,11 @@ export class EventHandlerService {
         if (schockAusPenaltyEventTypes.length !== 1) {
           throw Error(`Es gibt kein oder mehrere EventTypes für eine Schock-Aus-Strafe.`);
         }
-        return selectedPlayerIds.map((selectedPlayerId: string) => ({ eventTypeId: schockAusPenaltyEventTypes[0]._id, roundId, playerId: selectedPlayerId }));
+        return selectedPlayerIds.map((selectedPlayerId: string) => ({
+          eventTypeId: schockAusPenaltyEventTypes[0]._id,
+          roundId,
+          playerId: selectedPlayerId
+        }));
       }),
       mergeAll(),
       tap((queueItem: RoundEventQueueItem) => this.roundEventsQueue$.next(queueItem)),

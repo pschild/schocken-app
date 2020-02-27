@@ -1,4 +1,6 @@
+import { WorkerActions } from './worker-actions';
+
 export interface WorkerMessage {
-  action: string;
-  payload: any;
+  action: WorkerActions;
+  payload?: any;
 }
