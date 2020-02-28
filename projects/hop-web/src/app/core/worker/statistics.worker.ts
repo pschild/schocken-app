@@ -1,9 +1,9 @@
 /// <reference lib="webworker" />
 import { environment } from '../../../environments/environment';
 import { WorkerMessage, WorkerResponse, WorkerActions } from './model';
+import { IdbAdapter } from './idb-adapter';
 
-const POUCH_DB_DB_PREFIX = '_pouch_';
-const POUCH_DB_STORE = 'by-sequence';
+const idbAdapter = new IdbAdapter(environment.env.LOCAL_DATABASE);
 
 addEventListener('message', async (event: MessageEvent) => {
   const workerMessage = event.data as WorkerMessage;
@@ -26,42 +26,12 @@ addEventListener('message', async (event: MessageEvent) => {
 });
 
 const countEventTypeById = async (eventTypeId: string): Promise<number> => {
-  const db: IDBDatabase = await openDb(`${POUCH_DB_DB_PREFIX}${environment.env.LOCAL_DATABASE}`);
-  const rows: any[] = await getAll(db, POUCH_DB_STORE);
-  return rows
-    .filter(row =>
-      row.type
-      && (row.type === 'ROUND_EVENT' || row.type === 'GAME_EVENT')
-      && row.eventTypeId === eventTypeId
-    )
-    .length;
+  const events = await idbAdapter.getAllByCriteria({ eventTypeId });
+  return events.length;
 };
 
 const countRounds = async (): Promise<number> => {
-  const db: IDBDatabase = await openDb(`${POUCH_DB_DB_PREFIX}${environment.env.LOCAL_DATABASE}`);
-  const rows: any[] = await getAll(db, POUCH_DB_STORE);
-  const rounds = rows.filter(row => row.type && row.type === 'ROUND');
-  return rounds.length;
-};
-
-const openDb = (dbName: string): Promise<IDBDatabase> => {
-  return new Promise((resolve, reject) => {
-    const request: IDBOpenDBRequest = indexedDB.open(dbName);
-    // tslint:disable-next-line:no-string-literal
-    request.onsuccess = (event) => resolve(event.target['result']);
-    request.onerror = (event) => reject(event);
-  });
-};
-
-const getAll = (db: IDBDatabase, storeName: string): Promise<any[]> => {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readonly');
-    const store = tx.objectStore(storeName);
-    const request = store.getAll();
-    // tslint:disable-next-line:no-string-literal
-    request.onsuccess = (event) => resolve(event.target['result']);
-    request.onerror = (event) => reject(event);
-  });
+  return (await idbAdapter.getAllByCriteria({ type: 'ROUND' })).length;
 };
 
 const compare = (a: any, b: any, propName: string, direction: number) => {

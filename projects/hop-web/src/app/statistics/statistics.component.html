@@ -1,1 +1,11 @@
-<p>statistics works!</p>
+<div>
+  Runden:
+  <hop-odometer *ngIf="roundsCountValue$ | async as roundsCountValue; else loading" [countTo]="roundsCountValue"></hop-odometer>
+</div>
+<div>
+  Schock-Aus:
+  <hop-odometer *ngIf="schockAusCountValue$ | async as schockAusCountValue; else loading" [countTo]="schockAusCountValue"></hop-odometer>
+</div>
+<ng-template #loading>
+  <mat-spinner [diameter]="20"></mat-spinner>
+</ng-template>

@@ -17,13 +17,16 @@ export class WorkerService {
 
   private initializeWorker(): void {
     if (typeof Worker !== 'undefined') {
-      this.worker = new Worker('../../worker/indexedDb.worker', { type: 'module' });
+      this.worker = new Worker('../../worker/statistics.worker', { type: 'module' });
       this.worker.onmessage = (event: MessageEvent) => {
         const response: WorkerResponse = event.data as WorkerResponse;
         if (response.error) {
           throw response.error;
         }
         this.workerMessages$.next(response);
+      };
+      this.worker.onerror = (event: ErrorEvent) => {
+        throw new Error(event.message);
       };
     } else {
       throw new Error('Dieser Browser unterstützt keine Webworker.');
