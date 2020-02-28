@@ -9,21 +9,25 @@ addEventListener('message', async (event: MessageEvent) => {
   const workerMessage = event.data as WorkerMessage;
   if (workerMessage.action === WorkerActions.COUNT_EVENT_TYPE_BY_ID && workerMessage.payload.eventTypeId) {
     try {
-      const eventsCount = await countEventTypeById(workerMessage.payload.eventTypeId);
-      const response: WorkerResponse = {
-        action: workerMessage.action,
-        payload: { eventTypeId: workerMessage.payload.eventTypeId, count: eventsCount }
-      };
-      postMessage(response);
+      postMessage(buildSuccessResponse(workerMessage, {
+        eventTypeId: workerMessage.payload.eventTypeId,
+        count: await countEventTypeById(workerMessage.payload.eventTypeId)
+      }));
     } catch (error) {
-      const response: WorkerResponse = { action: workerMessage.action, error, payload: null };
-      postMessage(response);
+      postMessage(buildErrorResponse(workerMessage, error));
     }
   } else if (workerMessage.action === WorkerActions.COUNT_ROUNDS) {
-    const roundsCount = await countRounds();
-    postMessage({ action: workerMessage.action, payload: { count: roundsCount } });
+    postMessage(buildSuccessResponse(workerMessage, { count: await countRounds() }));
   }
 });
+
+const buildSuccessResponse = (message: WorkerMessage, payload: any): WorkerResponse => {
+  return { uuid: message.uuid, payload };
+};
+
+const buildErrorResponse = (message: WorkerMessage, error: any): WorkerResponse => {
+  return { uuid: message.uuid, error };
+};
 
 const countEventTypeById = async (eventTypeId: string): Promise<number> => {
   const events = await idbAdapter.getAllByCriteria({ eventTypeId });

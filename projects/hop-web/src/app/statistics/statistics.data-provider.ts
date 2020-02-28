@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { WorkerService } from '../core/service/worker/worker.service';
-import { WorkerResponse, WorkerActions, WorkerMessage } from '../core/worker/model';
-import { filter, map } from 'rxjs/operators';
+import { WorkerResponse, WorkerActions } from '../core/worker/model';
+import { map, mergeMap, mergeAll, toArray } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { EventTypeRepository, EventTypeDto } from '@hop-backend-api';
 
 @Injectable({
   providedIn: 'root'
@@ -11,28 +12,25 @@ import { Observable } from 'rxjs';
 export class StatisticsDataProvider {
 
   constructor(
+    private eventTypeRepository: EventTypeRepository,
     private workerService: WorkerService
   ) { }
 
-  getSchockAusCount(): Observable<number> {
-    const workerMessage: WorkerMessage = {
-      action: WorkerActions.COUNT_EVENT_TYPE_BY_ID,
-      payload: { eventTypeId: 'EVENT_TYPE__EVENT_TYPE-5101a0e9-3495-4fce-84c5-510f1a131059' }
-    };
-    this.workerService.postMessage(workerMessage);
-
-    return this.workerService.workerMessages$.pipe(
-      filter((response: WorkerResponse) => response.action === WorkerActions.COUNT_EVENT_TYPE_BY_ID),
-      map((response: WorkerResponse) => response.payload.count)
+  getCountsByEventType$(): Observable<Array<{ description: string; count: number; }>> {
+    return this.eventTypeRepository.getAll().pipe(
+      mergeAll(),
+      mergeMap((eventType: EventTypeDto) => this.workerService.sendMessage({
+        action: WorkerActions.COUNT_EVENT_TYPE_BY_ID,
+        payload: { eventTypeId: eventType._id }
+      }).pipe(
+        map((response: WorkerResponse) => ({ description: eventType.description, count: response.payload.count }))
+      )),
+      toArray()
     );
   }
 
-  getRoundsCount(): Observable<number> {
-    const workerMessage: WorkerMessage = { action: WorkerActions.COUNT_ROUNDS };
-    this.workerService.postMessage(workerMessage);
-
-    return this.workerService.workerMessages$.pipe(
-      filter((response: WorkerResponse) => response.action === WorkerActions.COUNT_ROUNDS),
+  getRoundsCount$(): Observable<number> {
+    return this.workerService.sendMessage({ action: WorkerActions.COUNT_ROUNDS }).pipe(
       map((response: WorkerResponse) => response.payload.count)
     );
   }

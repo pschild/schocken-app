@@ -16,46 +16,42 @@ export class StatisticService {
     private eventTypeRepository: EventTypeRepository,
     private workerService: WorkerService,
     private dialog: MatDialog
-  ) {
-    this.workerService.workerMessages$.subscribe((response: WorkerResponse) => {
-      if (response.action === WorkerActions.COUNT_EVENT_TYPE_BY_ID) {
-        if (this.NUMBERS_TO_CELEBRATE.includes(response.payload.count)) {
-          this.eventTypeRepository.get(response.payload.eventTypeId).subscribe((eventType: EventTypeDto) => {
-            this.dialog.open(CelebrationModalComponent, {
-              height: '80%',
-              width: '90%',
-              autoFocus: false,
-              data: {
-                countValue: response.payload.count,
-                eventName: eventType.description
-              }
-            });
-          });
-        }
-      } else if (response.action === WorkerActions.COUNT_ROUNDS) {
-        if (this.NUMBERS_TO_CELEBRATE.includes(response.payload.count)) {
+  ) { }
+
+  checkEventType(eventTypeId: string): void {
+    const workerMessage: WorkerMessage = { action: WorkerActions.COUNT_EVENT_TYPE_BY_ID, payload: { eventTypeId } };
+    this.workerService.sendMessage(workerMessage).subscribe((response: WorkerResponse) => {
+      if (this.NUMBERS_TO_CELEBRATE.includes(response.payload.count)) {
+        this.eventTypeRepository.get(response.payload.eventTypeId).subscribe((eventType: EventTypeDto) => {
           this.dialog.open(CelebrationModalComponent, {
             height: '80%',
             width: '90%',
             autoFocus: false,
             data: {
               countValue: response.payload.count,
-              eventName: 'Runden'
+              eventName: eventType.description
             }
           });
-        }
+        });
       }
     });
   }
 
-  checkEventType(eventTypeId: string): void {
-    const workerMessage: WorkerMessage = { action: WorkerActions.COUNT_EVENT_TYPE_BY_ID, payload: { eventTypeId } };
-    this.workerService.postMessage(workerMessage);
-  }
-
   checkRounds(): void {
     const workerMessage: WorkerMessage = { action: WorkerActions.COUNT_ROUNDS };
-    this.workerService.postMessage(workerMessage);
+    this.workerService.sendMessage(workerMessage).subscribe((response: WorkerResponse) => {
+      if (this.NUMBERS_TO_CELEBRATE.includes(response.payload.count)) {
+        this.dialog.open(CelebrationModalComponent, {
+          height: '80%',
+          width: '90%',
+          autoFocus: false,
+          data: {
+            countValue: response.payload.count,
+            eventName: 'Runden'
+          }
+        });
+      }
+    });
   }
 
 }

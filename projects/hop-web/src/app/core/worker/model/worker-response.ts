@@ -1,7 +1,5 @@
-import { WorkerActions } from './worker-actions';
-
 export interface WorkerResponse {
-  action: WorkerActions;
-  payload: any;
+  uuid: string;
+  payload?: any;
   error?: Error;
 }
