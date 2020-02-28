@@ -13,6 +13,8 @@ export * from './lib/loading-indicator/loading-indicator.component';
 
 export * from './lib/dialog/celebration-modal/celebration-modal.component';
 
+export * from './lib/odometer/odometer.component';
+
 export * from './lib/game-list/game-list.component';
 export * from './lib/game-list/mapper';
 export * from './lib/game-list/model';

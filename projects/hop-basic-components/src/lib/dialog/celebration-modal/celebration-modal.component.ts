@@ -1,6 +1,4 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { timer, Observable } from 'rxjs';
-import { takeWhile, map } from 'rxjs/operators';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
@@ -9,8 +7,6 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
   styleUrls: ['./celebration-modal.component.scss']
 })
 export class CelebrationModalComponent implements OnInit {
-
-  value$: Observable<number>;
 
   countValue: number;
   eventName: string;
@@ -23,10 +19,6 @@ export class CelebrationModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.value$ = timer(0, 10).pipe(
-      map((currentValue: number) => currentValue * (this.countValue / 100)),
-      takeWhile((currentValue: number) => currentValue <= this.countValue)
-    );
   }
 
 }

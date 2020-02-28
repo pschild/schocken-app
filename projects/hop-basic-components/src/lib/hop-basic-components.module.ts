@@ -16,6 +16,7 @@ import { EventListComponent } from './event-list/event-list.component';
 import { PenaltySumComponent } from './penalty-sum/penalty-sum.component';
 import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator.component';
 import { CelebrationModalComponent } from './dialog/celebration-modal/celebration-modal.component';
+import { OdometerComponent } from './odometer/odometer.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { CelebrationModalComponent } from './dialog/celebration-modal/celebratio
     EventListComponent,
     PenaltySumComponent,
     LoadingIndicatorComponent,
-    CelebrationModalComponent
+    CelebrationModalComponent,
+    OdometerComponent
   ],
   imports: [
     MaterialModule,
@@ -50,7 +52,8 @@ import { CelebrationModalComponent } from './dialog/celebration-modal/celebratio
     EventListComponent,
     PenaltySumComponent,
     LoadingIndicatorComponent,
-    CelebrationModalComponent
+    CelebrationModalComponent,
+    OdometerComponent
   ]
 })
 export class HopBasicComponentsModule { }

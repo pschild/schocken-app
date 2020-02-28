@@ -9,7 +9,9 @@
       <div>{{eventName}}</div>
     </div>
   </div>
-  <div class="mat-display-4">{{(value$ | async) | number:'1.0-0':'de-DE'}}</div>
+  <div class="mat-display-4">
+    <hop-odometer [countTo]="countValue"></hop-odometer>
+  </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Prost!</button>
