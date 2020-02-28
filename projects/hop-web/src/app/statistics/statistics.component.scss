@@ -1,0 +1,13 @@
+.statistics-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .count-row {
+    display: flex;
+
+    hop-odometer {
+      width: 50px;
+    }
+  }
+}

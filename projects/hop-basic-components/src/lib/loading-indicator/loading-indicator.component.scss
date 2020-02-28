@@ -1,4 +1,4 @@
-.mask-container {
+/* .mask-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -90,6 +90,184 @@
   }
   100%{
     -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+} */
+
+$col-1: #E79F13;
+$col-2: #245911;
+$col-3: #E79F13;
+$col-4: #245911;
+$col-5: #E79F13;
+$col-6: #245911;
+
+$dice-width: 20px;
+
+.mask-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  background: rgba(255, 255, 255, 0.5);
+  z-index: 100;
+
+  mat-progress-bar {
+    margin-top: 20px;
+  }
+
+  .dice {
+    display: flex;
+    justify-content: center;
+  }
+
+  .face {
+    display: flex;
+    width: $dice-width;
+    height: $dice-width;
+    margin: 0 5px;
+    padding: 8px;
+    border-radius: 5px;
+    background: #fff;
+  }
+
+  .face {
+    .dot {
+      width: $dice-width / 4;
+      height: $dice-width / 4;
+      background: $col-1;
+      border-radius: 50%;
+    }
+
+    &:nth-child(1) {
+      .dot {
+        background: $col-1;
+      }
+
+      border: 2px solid $col-1;
+      animation: waves 2s linear infinite;
+    }
+
+    &:nth-child(2) {
+      .dot {
+        background: $col-2;
+      }
+
+      border: 2px solid $col-2;
+      animation: waves 2s 0.2s linear infinite;
+    }
+
+    &:nth-child(3) {
+      .dot {
+        background: $col-3;
+      }
+
+      border: 2px solid $col-3;
+      animation: waves 2s 0.4s linear infinite;
+    }
+
+    &:nth-child(4) {
+      .dot {
+        background: $col-4;
+      }
+
+      border: 2px solid $col-4;
+      animation: waves 2s 0.6s linear infinite;
+    }
+
+    &:nth-child(5) {
+      .dot {
+        background: $col-5;
+      }
+
+      border: 2px solid $col-5;
+      animation: waves 2s 0.8s linear infinite;
+    }
+
+    &:nth-child(6) {
+      .dot {
+        background: $col-6;
+      }
+
+      border: 2px solid $col-6;
+      animation: waves 2s 1s linear infinite;
+    }
+  }
+
+  .first-face {
+    justify-content: center;
+    align-items: center;
+  }
+
+  .second-face {
+    justify-content: space-between;
+
+    .dot:last-of-type {
+      align-self: flex-end;
+    }
+  }
+
+  .third-face {
+    justify-content: space-between;
+
+    .dot:nth-child(2) {
+      align-self: center;
+    }
+
+    .dot:last-of-type {
+      align-self: flex-end;
+    }
+  }
+
+  .fourth-face {
+    justify-content: space-between;
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+  }
+
+  .fifth-face {
+    justify-content: space-between;
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      &:nth-child(2) {
+        justify-content: center;
+      }
+    }
+  }
+
+  .sixth-face {
+    justify-content: space-between;
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+  }
+}
+
+@keyframes waves {
+  0% {
+    transform: translateY(0);
+  }
+  10% {
+    transform: translateY(-25px);
+  }
+  20% {
     transform: translateY(0);
   }
 }

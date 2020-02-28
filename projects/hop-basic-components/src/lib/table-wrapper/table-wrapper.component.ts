@@ -1,9 +1,10 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, ViewChild, Output, EventEmitter } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { IColumnInterface } from './IColumnDefinition';
 import { ITableConfig } from './ITableConfig';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'hop-table-wrapper',
@@ -15,9 +16,10 @@ export class TableWrapperComponent implements OnInit, OnChanges {
   @Input() config: ITableConfig;
   @Input() columns: IColumnInterface[] = [];
   @Input() elements = [];
+  @Output() dropEvent: EventEmitter<any> = new EventEmitter<any>();
 
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   displayedColumns: string[];
   searchableColumns: IColumnInterface[] = [];
@@ -29,18 +31,21 @@ export class TableWrapperComponent implements OnInit, OnChanges {
   constructor() { }
 
   ngOnInit() {
-    this.createTableRows();
+    this.updateTableRows();
     this.searchableColumns = this.columns.filter((col: IColumnInterface) => col.isSearchable);
-    this.contentColumns = this.columns.filter((col: IColumnInterface) => !col.cellAction);
-    this.actionColumns = this.columns.filter((col: IColumnInterface) => !!col.cellAction);
+    this.contentColumns = this.columns.filter((col: IColumnInterface) => !col.cellActions);
+    this.actionColumns = this.columns.filter((col: IColumnInterface) => !!col.cellActions && col.cellActions.length);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.createTableRows();
+    this.updateTableRows();
   }
 
-  createTableRows() {
+  updateTableRows() {
     this.displayedColumns = this.columns.map((col: IColumnInterface) => col.columnDef);
+    if (this.config.enableDragDrop) {
+      this.displayedColumns = ['dragDrop', ...this.displayedColumns];
+    }
 
     this.dataSource = new MatTableDataSource(this.elements);
     this.dataSource.filterPredicate = (data: any, filter: string) => {
@@ -59,6 +64,18 @@ export class TableWrapperComponent implements OnInit, OnChanges {
   applyFilter(filterValue: string) {
     this.filterValue = filterValue;
     this.dataSource.filter = this.filterValue.trim();
+  }
+
+  handleDropEvent(event: CdkDragDrop<string[]>) {
+    const prevIndex = this.elements.findIndex(element => element === event.item.data);
+    moveItemInArray(this.elements, prevIndex, event.currentIndex);
+    this.updateTableRows();
+    this.dropEvent.emit({
+      elements: this.elements,
+      item: event.item.data,
+      prevIndex,
+      currentIndex: event.currentIndex
+    });
   }
 
 }

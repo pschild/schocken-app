@@ -10,6 +10,7 @@ export class PlayerEventVoMapperService {
   mapToVo(event: EventDto, eventType: Partial<EventTypeDto>): PlayerEventVo {
     const vo = new PlayerEventVo();
     vo.eventId = event._id;
+    vo.eventTypeId = event.eventTypeId;
     vo.eventTypeDescription = eventType.description;
     vo.eventTypePenalty = eventType.penalty;
     vo.eventMultiplicatorValue = event.multiplicatorValue || 1;

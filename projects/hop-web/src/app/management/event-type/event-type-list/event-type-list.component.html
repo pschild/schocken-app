@@ -6,10 +6,33 @@
     Neues Ereignis
   </button>
 </div>
-<hop-table-wrapper [config]="tableConfig" [columns]="columns" [elements]="allEventTypes$ | async"></hop-table-wrapper>
-<div class="button-row">
-  <button mat-raised-button color="primary" (click)="showForm()">
-    <mat-icon>add</mat-icon>
-    Neues Ereignis
-  </button>
-</div>
+<mat-tab-group>
+  <mat-tab label="Rundenereignisse">
+    <hop-table-wrapper
+      [config]="tableConfig"
+      [columns]="columns"
+      [elements]="roundEventTypes$ | async"
+      (dropEvent)="handleDropEvent($event)"
+    ></hop-table-wrapper>
+    <div class="toggle-row">
+      <mat-slide-toggle [checked]="tableConfig.enableDragDrop" (change)="toggleDragDrop($event)">
+        <mat-icon>swap_vert</mat-icon>
+        Reihenfolge anpassen
+      </mat-slide-toggle>
+    </div>
+  </mat-tab>
+  <mat-tab label="Spielereignisse">
+    <hop-table-wrapper
+      [config]="tableConfig"
+      [columns]="columns"
+      [elements]="gameEventTypes$ | async"
+      (dropEvent)="handleDropEvent($event)"
+    ></hop-table-wrapper>
+    <div class="toggle-row">
+      <mat-slide-toggle [checked]="tableConfig.enableDragDrop" (change)="toggleDragDrop($event)">
+        <mat-icon>swap_vert</mat-icon>
+        Reihenfolge anpassen
+      </mat-slide-toggle>
+    </div>
+  </mat-tab>
+</mat-tab-group>

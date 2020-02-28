@@ -10,7 +10,8 @@ import {
   EventTypeItemVo,
   EventTypeListModalComponent,
   EventTypeListModalDialogResult,
-  EventTypeListModalDialogData
+  EventTypeListModalDialogData,
+  SnackBarNotificationService
 } from '@hop-basic-components';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -41,7 +42,8 @@ export class GameTableComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private dataProvider: GameTableDataProvider,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBarNotificationService: SnackBarNotificationService
   ) {
   }
 
@@ -62,6 +64,8 @@ export class GameTableComponent implements OnInit {
       this.dataProvider.loadGameEventsRow(gameId);
       this.dataProvider.loadRoundEventsRows(gameId);
     });
+
+    this.gameDetails$.subscribe((gameDetails: GameDetailsVo) => this.placeFormControl.setValue(gameDetails.place));
   }
 
   onRemoveGameEvent(eventId: string, playerId: string): void {
@@ -115,6 +119,16 @@ export class GameTableComponent implements OnInit {
     } else {
       this.visibleRowIndexes[key] = true;
     }
+  }
+
+  onUpdatePlace(): void {
+    this.gameId$.pipe(
+      take(1),
+      switchMap((gameId: string) => this.dataProvider.updatePlace(gameId, this.placeFormControl.value))
+    ).subscribe((updatedGameId: string) => {
+      this.snackBarNotificationService.showMessage(`Das Spiel wurde aktualisiert`);
+      this.placeFormControl.markAsPristine();
+    });
   }
 
   private showDialog(

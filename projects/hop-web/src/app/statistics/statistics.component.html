@@ -1,0 +1,15 @@
+<div class="statistics-container">
+  <div class="count-row">
+    <hop-odometer *ngIf="roundsCountValue$ | async as roundsCountValue; else loading" [countTo]="roundsCountValue"></hop-odometer>
+    Runden
+  </div>
+  <ng-container *ngIf="eventTypeCountValues$ | async as eventTypeCountValues; else loading">
+    <div *ngFor="let value of eventTypeCountValues" class="count-row">
+      <hop-odometer [countTo]="value.count"></hop-odometer>
+      <div>{{value.description}}</div>
+    </div>
+  </ng-container>
+</div>
+<ng-template #loading>
+  <mat-spinner [diameter]="20"></mat-spinner>
+</ng-template>

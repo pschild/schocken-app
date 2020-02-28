@@ -11,6 +11,7 @@ export class EventListComponent implements OnInit {
   @Input() events: PlayerEventVo[];
   @Input() roundId: string;
   @Input() playerId: string;
+  @Input() hideRemoveButton: boolean;
   @Output() removeEvent: EventEmitter<string> = new EventEmitter();
 
   constructor() { }

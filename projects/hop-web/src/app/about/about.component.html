@@ -1,7 +1,11 @@
-<img src="assets/icons/icon-192x192.png" (click)="handleSecretClick()">
-<h2>Versionsinformationen</h2>
-<div class="mat-small">
-  <div>Version: {{version}}</div>
-  <div>Commit: {{commitHash}}</div>
-  <div>Datum: {{commitDate | date:'dd.MM.yyyy HH:mm:ss'}}</div>
+<div class="about-container">
+  <img src="assets/icons/icon-192x192.png" (click)="handleSecretClick()">
+  <h2>Versionsinformationen</h2>
+  <div class="version-info-container mat-small">
+    <div>Version: {{version}}</div>
+    <div>Commit: {{commitHash}}</div>
+    <div>built and deployed: {{commitDate | date:'dd.MM.yyyy HH:mm:ss'}}</div>
+  </div>
+  <h2>Entwicklung</h2>
+  <div>von Philippe, für die Hoptimisten</div>
 </div>

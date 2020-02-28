@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {
-  RoundEventRepository,
   RoundRepository,
   RoundDto,
   EventTypeTrigger,
@@ -42,13 +41,12 @@ export class EventHandlerService {
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
     private eventTypeRepository: EventTypeRepository,
-    private roundEventRepository: RoundEventRepository,
     private snackBarNotificationService: SnackBarNotificationService,
     private dialogService: DialogService,
     private dialog: MatDialog
   ) { }
 
-  handle(event: PlayerEventVo, playerId: string, roundId: string): void {
+  handle(event: PlayerEventVo, playerId: string, roundId?: string): void {
     switch (event.eventTypeTrigger) {
       case EventTypeTrigger.SCHOCK_AUS:
         this._handleSchockAusTrigger(playerId, roundId);
@@ -94,7 +92,11 @@ export class EventHandlerService {
         if (schockAusPenaltyEventTypes.length !== 1) {
           throw Error(`Es gibt kein oder mehrere EventTypes für eine Schock-Aus-Strafe.`);
         }
-        return selectedPlayerIds.map((selectedPlayerId: string) => ({ eventTypeId: schockAusPenaltyEventTypes[0]._id, roundId, playerId: selectedPlayerId }));
+        return selectedPlayerIds.map((selectedPlayerId: string) => ({
+          eventTypeId: schockAusPenaltyEventTypes[0]._id,
+          roundId,
+          playerId: selectedPlayerId
+        }));
       }),
       mergeAll(),
       tap((queueItem: RoundEventQueueItem) => this.roundEventsQueue$.next(queueItem)),

@@ -11,6 +11,7 @@ export class GameDetailsVoMapperService {
     const vo = new GameDetailsVo();
     vo.id = input._id;
     vo.datetime = input.datetime;
+    vo.place = input.place;
     vo.completed = input.completed;
     return vo;
   }

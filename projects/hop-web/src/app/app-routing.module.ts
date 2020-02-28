@@ -24,6 +24,10 @@ const routes: Routes = [
     loadChildren: () => import('./management/management.module').then(m => m.ManagementModule)
   },
   {
+    path: 'statistics',
+    loadChildren: () => import('./statistics/statistics.module').then(m => m.StatisticsModule)
+  },
+  {
     path: 'about',
     loadChildren: () => import('./about/about.module').then(m => m.AboutModule)
   },
