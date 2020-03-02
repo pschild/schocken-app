@@ -41,10 +41,12 @@ export class IdbAdapter {
     await this.initialize();
     const allRows = await this.getAll();
     return allRows.filter(row => {
+      let fullfillsAllCriteria = false;
       // tslint:disable-next-line:forin
       for (const key in criteria) {
-        return row[key] && row[key] === criteria[key];
+        fullfillsAllCriteria = row[key] && row[key] === criteria[key];
       }
+      return fullfillsAllCriteria;
     });
   }
 

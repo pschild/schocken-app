@@ -1,14 +1,69 @@
 <div class="statistics-container">
-  <div class="count-row">
-    <hop-odometer *ngIf="roundsCountValue$ | async as roundsCountValue; else loading" [countTo]="roundsCountValue"></hop-odometer>
-    Runden
-  </div>
-  <ng-container *ngIf="eventTypeCountValues$ | async as eventTypeCountValues; else loading">
+  <mat-card class="count-row">
+    <ng-container *ngIf="gamesCountValue$ | async as gamesCountValue; else loading">
+      <hop-odometer [countTo]="gamesCountValue"></hop-odometer>
+      <div>Spiele</div>
+    </ng-container>
+  </mat-card>
+  <mat-card class="count-row">
+    <ng-container *ngIf="roundsCountValue$ | async as roundsCountValue; else loading">
+      <hop-odometer [countTo]="roundsCountValue"></hop-odometer>
+      <div>Runden</div>
+    </ng-container>
+  </mat-card>
+  <mat-card class="count-row">
+    <ng-container *ngIf="maxRoundsPerGameValue$ | async as maxRoundsPerGameValue; else loading">
+      <hop-odometer [countTo]="maxRoundsPerGameValue"></hop-odometer>
+      <div>Runden-Rekord pro Spiel</div>
+    </ng-container>
+  </mat-card>
+  <mat-card class="count-row">
+    <ng-container *ngIf="(attendanceCountValue$ | async)?.max as attendanceMaxCountValue; else loading">
+      <div>{{attendanceMaxCountValue.playerName}}</div>
+      <div class="mat-small"><hop-odometer [countTo]="attendanceMaxCountValue.count"></hop-odometer> Runden</div>
+      <div>Schockaholic</div>
+    </ng-container>
+  </mat-card>
+  <mat-card class="count-row">
+    <ng-container *ngIf="(attendanceCountValue$ | async)?.min as attendanceMinCountValue; else loading">
+      <div>{{attendanceMinCountValue.playerName}}</div>
+      <div class="mat-small"><hop-odometer [countTo]="attendanceMinCountValue.count"></hop-odometer> Runden</div>
+      <div>Drückeberger</div>
+    </ng-container>
+  </mat-card>
+  <mat-card class="count-row">
+    <ng-container *ngIf="schockAusStreak$ | async as schockAusStreak; else loading">
+      <hop-odometer [countTo]="schockAusStreak.schockAusCount"></hop-odometer>
+      <div>Schock-Aus-Streak</div>
+    </ng-container>
+  </mat-card>
+  <mat-card class="count-row">
+    <ng-container *ngIf="maxSchockAusByPlayer$ | async as maxSchockAusByPlayer; else loading">
+      <div>{{maxSchockAusByPlayer.playerName}}</div>
+      <div class="mat-small"><hop-odometer [countTo]="maxSchockAusByPlayer.schockAusCount"></hop-odometer> Schock-Aus</div>
+      <div>K111ng</div>
+    </ng-container>
+  </mat-card>
+  <mat-card class="count-row">
+    <ng-container *ngIf="(loseRates$ | async)?.max as maxLoseRate; else loading">
+      <div>{{maxLoseRate.playerName}}</div>
+      <div class="mat-small"><hop-odometer [countTo]="maxLoseRate.rate * 100"></hop-odometer>% der gespielten Runden verloren</div>
+      <div>L0ser</div>
+    </ng-container>
+  </mat-card>
+  <mat-card class="count-row">
+    <ng-container *ngIf="(loseRates$ | async)?.min as minLoseRate; else loading">
+      <div>{{minLoseRate.playerName}}</div>
+      <div class="mat-small"><hop-odometer [countTo]="minLoseRate.rate * 100"></hop-odometer>% der gespielten Runden verloren</div>
+      <div>Champignon</div>
+    </ng-container>
+  </mat-card>
+  <!-- <ng-container *ngIf="eventTypeCountValues$ | async as eventTypeCountValues; else loading">
     <div *ngFor="let value of eventTypeCountValues" class="count-row">
       <hop-odometer [countTo]="value.count"></hop-odometer>
       <div>{{value.description}}</div>
     </div>
-  </ng-container>
+  </ng-container> -->
 </div>
 <ng-template #loading>
   <mat-spinner [diameter]="20"></mat-spinner>

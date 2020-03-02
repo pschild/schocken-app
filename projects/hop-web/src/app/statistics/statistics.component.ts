@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { StatisticsDataProvider } from './statistics.data-provider';
 import { Observable } from 'rxjs';
+import { share } from 'rxjs/operators';
 
 @Component({
   selector: 'hop-statistics',
@@ -9,7 +10,13 @@ import { Observable } from 'rxjs';
 })
 export class StatisticsComponent implements OnInit {
 
+  gamesCountValue$: Observable<number>;
   roundsCountValue$: Observable<number>;
+  maxRoundsPerGameValue$: Observable<number>;
+  attendanceCountValue$: Observable<{ max: any; min: any }>;
+  schockAusStreak$: Observable<{ gameId: string; schockAusCount: number }>;
+  maxSchockAusByPlayer$: Observable<{ playerName: string; schockAusCount: number }>;
+  loseRates$: Observable<{ max: any; min: any }>;
   eventTypeCountValues$: Observable<Array<{ description: string; count: number; }>>;
 
   constructor(
@@ -17,8 +24,14 @@ export class StatisticsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.eventTypeCountValues$ = this.dataProvider.getCountsByEventType$();
+    this.gamesCountValue$ = this.dataProvider.getGamesCount$();
     this.roundsCountValue$ = this.dataProvider.getRoundsCount$();
+    this.maxRoundsPerGameValue$ = this.dataProvider.getMaxRoundsPerGameCount$();
+    this.attendanceCountValue$ = this.dataProvider.getAttendanceCount$().pipe(share());
+    this.schockAusStreak$ = this.dataProvider.getSchockAusStreak$();
+    this.maxSchockAusByPlayer$ = this.dataProvider.getMaxSchockAusByPlayer$();
+    this.loseRates$ = this.dataProvider.getLoseRates$().pipe(share());
+    this.eventTypeCountValues$ = this.dataProvider.getCountsByEventType$();
   }
 
 }
