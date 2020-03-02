@@ -9,6 +9,8 @@ import {
   RoundEventDto,
   GameEventDto
 } from '@hop-backend-api';
+import { SortService, SortDirection } from '../sort.service';
+import { map } from 'rxjs/operators';
 
 export interface ImportData extends Partial<GameDto> {
   gameEvents: Partial<GameEventDto>[];
@@ -20,18 +22,27 @@ export interface ImportData extends Partial<GameDto> {
 })
 export class ImportExportService {
 
+  private datetimeCache: Date;
+
   constructor(
     private gameRepository: GameRepository,
     private roundRepository: RoundRepository,
     private gameEventRepository: GameEventRepository,
-    private roundEventRepository: RoundEventRepository
+    private roundEventRepository: RoundEventRepository,
+    private sortService: SortService
   ) { }
 
   async exportSelectedGames(selectedGameIds: string[]): Promise<any> {
     const gameById = (gameId: string) => this.gameRepository.get(gameId).toPromise();
-    const roundsByGameId = (gameId: string) => this.roundRepository.getRoundsByGameId(gameId).toPromise();
-    const roundEventsByRoundId = (roundId: string) => this.roundEventRepository.findByRoundId(roundId).toPromise();
-    const gameEventsByGameId = (gameId: string) => this.gameEventRepository.findByGameId(gameId).toPromise();
+    const roundsByGameId = (gameId: string) => this.roundRepository.getRoundsByGameId(gameId).pipe(
+      map((rounds: RoundDto[]) => rounds.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.ASC)))
+    ).toPromise();
+    const roundEventsByRoundId = (roundId: string) => this.roundEventRepository.findByRoundId(roundId).pipe(
+      map((events: RoundEventDto[]) => events.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.ASC)))
+    ).toPromise();
+    const gameEventsByGameId = (gameId: string) => this.gameEventRepository.findByGameId(gameId).pipe(
+      map((events: GameEventDto[]) => events.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.ASC)))
+    ).toPromise();
 
     const roundsWithEvents = async (gameId: string) => {
       const gameRounds = await roundsByGameId(gameId);
@@ -59,18 +70,18 @@ export class ImportExportService {
 
   async importJson(uploadedJson: ImportData[]): Promise<any> {
     for (const item of uploadedJson) {
-      const dateTimeOfGame = item.datetime;
+      this.datetimeCache = new Date(item.datetime);
 
       // create game
       const createdGameId = await this.gameRepository.create({
-        datetime: dateTimeOfGame,
+        datetime: this.increaseAndGetDatetimeCache(),
         completed: item.completed
       }).toPromise();
 
       // create game events
       item.gameEvents.map(async (event: GameEventDto) => {
         await this.gameEventRepository.create({
-          datetime: dateTimeOfGame,
+          datetime: this.increaseAndGetDatetimeCache(),
           eventTypeId: event.eventTypeId,
           multiplicatorValue: event.multiplicatorValue,
           playerId: event.playerId,
@@ -81,7 +92,7 @@ export class ImportExportService {
       // create rounds
       item.rounds.map(async (round: RoundDto & { events: RoundEventDto[] }) => {
         const createdRoundId = await this.roundRepository.create({
-          datetime: dateTimeOfGame,
+          datetime: this.increaseAndGetDatetimeCache(),
           attendeeList: round.attendeeList,
           gameId: createdGameId
         }).toPromise();
@@ -89,7 +100,7 @@ export class ImportExportService {
         // create round events
         round.events.map(async (event: RoundEventDto) => {
           this.roundEventRepository.create({
-            datetime: dateTimeOfGame,
+            datetime: this.increaseAndGetDatetimeCache(),
             eventTypeId: event.eventTypeId,
             multiplicatorValue: event.multiplicatorValue,
             playerId: event.playerId,
@@ -122,6 +133,11 @@ export class ImportExportService {
         }
       }
     }
+  }
+
+  private increaseAndGetDatetimeCache(): Date {
+    this.datetimeCache = new Date(this.datetimeCache.getTime() + 1 * 1000);
+    return this.datetimeCache;
   }
 
 }
