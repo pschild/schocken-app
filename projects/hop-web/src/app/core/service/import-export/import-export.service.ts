@@ -75,6 +75,7 @@ export class ImportExportService {
       // create game
       const createdGameId = await this.gameRepository.create({
         datetime: this.increaseAndGetDatetimeCache(),
+        place: item.place,
         completed: item.completed
       }).toPromise();
 
