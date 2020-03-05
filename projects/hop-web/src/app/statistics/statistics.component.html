@@ -41,29 +41,38 @@
     <ng-container *ngIf="maxSchockAusByPlayer$ | async as maxSchockAusByPlayer; else loading">
       <div>{{maxSchockAusByPlayer.playerName}}</div>
       <div class="mat-small"><hop-odometer [countTo]="maxSchockAusByPlayer.schockAusCount"></hop-odometer> Schock-Aus</div>
-      <div>K111ng</div>
+      <div>Schock-Aus-Profi</div>
     </ng-container>
   </mat-card>
   <mat-card class="count-row">
     <ng-container *ngIf="(loseRates$ | async)?.max as maxLoseRate; else loading">
       <div>{{maxLoseRate.playerName}}</div>
-      <div class="mat-small"><hop-odometer [countTo]="maxLoseRate.rate * 100"></hop-odometer>% der gespielten Runden verloren</div>
-      <div>L0ser</div>
+      <div class="mat-small"><hop-odometer [countTo]="maxLoseRate.rate * 100"></hop-odometer>% seiner Runden verloren</div>
+      <div>Flasche</div>
     </ng-container>
   </mat-card>
   <mat-card class="count-row">
     <ng-container *ngIf="(loseRates$ | async)?.min as minLoseRate; else loading">
       <div>{{minLoseRate.playerName}}</div>
-      <div class="mat-small"><hop-odometer [countTo]="minLoseRate.rate * 100"></hop-odometer>% der gespielten Runden verloren</div>
+      <div class="mat-small"><hop-odometer [countTo]="minLoseRate.rate * 100"></hop-odometer>% seiner Runden verloren</div>
       <div>Champignon</div>
     </ng-container>
   </mat-card>
-  <!-- <ng-container *ngIf="eventTypeCountValues$ | async as eventTypeCountValues; else loading">
-    <div *ngFor="let value of eventTypeCountValues" class="count-row">
-      <hop-odometer [countTo]="value.count"></hop-odometer>
-      <div>{{value.description}}</div>
-    </div>
-  </ng-container> -->
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Ereignisse
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <ng-container *ngIf="eventTypeCountValues$ | async as eventTypeCountValues; else loading">
+      <div *ngFor="let value of eventTypeCountValues">
+        <hop-odometer [countTo]="value.count"></hop-odometer>
+        <span>x {{value.description}}</span>
+      </div>
+    </ng-container>
+
+  </mat-expansion-panel>
 </div>
 <ng-template #loading>
   <mat-spinner [diameter]="20"></mat-spinner>

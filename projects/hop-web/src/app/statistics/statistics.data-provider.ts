@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { WorkerService } from '../core/service/worker/worker.service';
 import { WorkerResponse, WorkerActions } from '../core/worker/model';
-import { map, mergeMap, mergeAll, toArray, switchMap } from 'rxjs/operators';
+import { map, mergeMap, mergeAll, toArray, switchMap, filter } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { EventTypeRepository, EventTypeDto, PlayerRepository, PlayerDto } from '@hop-backend-api';
 
@@ -28,6 +28,7 @@ export class StatisticsDataProvider {
         action: WorkerActions.COUNT_EVENT_TYPE_BY_ID,
         payload: { eventTypeId: eventType._id }
       }).pipe(
+        filter((response: WorkerResponse) => response.payload.count > 0),
         map((response: WorkerResponse) => ({ description: eventType.description, count: response.payload.count }))
       )),
       toArray()
