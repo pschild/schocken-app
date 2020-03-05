@@ -2,12 +2,7 @@
   display: flex;
   align-items: center;
 
-  mat-icon.sync-status-icon {
-    display: none;
-  }
-
   mat-icon.sync-status-icon.spinning {
-    display: inline-block;
     animation: spin 4s linear infinite;
   }
 }

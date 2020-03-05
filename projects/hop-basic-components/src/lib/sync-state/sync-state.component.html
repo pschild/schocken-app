@@ -1,9 +1,17 @@
 <div class="sync-state-container">
-  <mat-icon class="sync-status-icon" [ngClass]="{'spinning': isSyncing === true}">sync</mat-icon>
-  <div style="font-size: 10px;" *ngIf="!isSyncing">
+  <button mat-icon-button (click)="startSync()" [disabled]="isSyncing">
+    <mat-icon class="sync-status-icon" [ngClass]="{'spinning': isSyncing === true}">sync</mat-icon>
+  </button>
+  <!-- <button mat-icon-button (click)="pull()">
+    <mat-icon>cloud_download</mat-icon>
+  </button>
+  <button mat-icon-button (click)="push()">
+    <mat-icon>cloud_upload</mat-icon>
+  </button> -->
+  <!-- <div style="font-size: 10px;" *ngIf="!isSyncing">
     <span *ngIf="lastSynced">Stand: {{lastSynced | date:'HH:mm:ss'}} Uhr</span>
     <span *ngIf="!lastSynced">noch nicht synchronisiert</span>
-  </div>
+  </div> -->
   <button mat-icon-button (click)="openSyncHistoryDialog()">
     <mat-icon>info</mat-icon>
   </button>

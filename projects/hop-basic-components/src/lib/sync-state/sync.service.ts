@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import PouchDB from 'pouchdb';
 import { Subject, Observable } from 'rxjs';
 import { ENV } from '@hop-backend-api';
+import { EventEmitter } from 'events';
 
 export enum SyncType {
   ACTIVE = 'active',
@@ -41,12 +42,8 @@ export class SyncService {
     return this.syncEvent$.asObservable();
   }
 
-  startSync(continuous: boolean = false) {
-    this.syncProcess = PouchDB.sync(
-      this.env.LOCAL_DATABASE,
-      this._buildRemoteDbUrl(),
-      { live: continuous, retry: continuous }
-    )
+  attachEventListeners(emitter: EventEmitter): EventEmitter {
+    emitter
       .on('active', () => {
         this.activeFlag = true;
         console.log('replicate resumed (e.g. new changes replicating, user went back online)');
@@ -81,10 +78,27 @@ export class SyncService {
         console.log('handle error', err);
         this.syncEvent$.next({ type: SyncType.ERROR, datetime: new Date(), data: err });
       });
+    return emitter;
+  }
+
+  startSync(continuous: boolean = false) {
+    this.syncProcess = this.attachEventListeners(PouchDB.sync(
+      this.env.LOCAL_DATABASE,
+      this._buildRemoteDbUrl(),
+      { live: continuous, retry: continuous }
+    ));
   }
 
   stopSync() {
     this.syncProcess.cancel();
+  }
+
+  pull(): void {
+    this.attachEventListeners(PouchDB.replicate(this._buildRemoteDbUrl(), this.env.LOCAL_DATABASE));
+  }
+
+  push(): void {
+    this.attachEventListeners(PouchDB.replicate(this.env.LOCAL_DATABASE, this._buildRemoteDbUrl()));
   }
 
   private _buildRemoteDbUrl() {
