@@ -19,7 +19,10 @@ export class OdometerComponent implements OnInit {
 
   ngOnInit(): void {
     this.value$ = timer(0, this.COUNT_INTERVAL_MS).pipe(
-      map((currentValue: number) => currentValue * (this.countTo / 100)),
+      map((currentValue: number) => {
+        const newValue = currentValue * (this.countTo / 100);
+        return newValue > this.countTo ? this.countTo : newValue;
+      }),
       takeWhile((currentValue: number) => currentValue <= this.countTo)
     );
   }
