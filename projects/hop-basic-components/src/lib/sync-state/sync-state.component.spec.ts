@@ -1,13 +1,17 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SyncStateComponent } from './sync-state.component';
-import { SyncService } from './sync.service';
+import { SyncService, SyncType } from './sync.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable, of } from 'rxjs';
 
 class SyncServiceMock {
   get syncState(): Observable<any> {
-    return of(null);
+    return of({
+      type: SyncType.COMPLETE,
+      datetime: new Date(),
+      data: null
+    });
   }
 
   startSync() {}

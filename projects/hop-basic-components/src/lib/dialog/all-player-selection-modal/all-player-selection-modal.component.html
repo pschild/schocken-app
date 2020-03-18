@@ -15,6 +15,6 @@
   <button mat-button mat-dialog-close>Abbrechen</button>
   <button mat-raised-button color="primary"
     (click)="onApply()"
-    [disabled]="!selectedPlayers.selectedOptions || !selectedPlayers.selectedOptions.selected.length"
+    [disabled]="!selectedPlayers.selectedOptions || !selectedPlayers.selectedOptions.selected || !selectedPlayers.selectedOptions.selected.length"
   >OK</button>
 </mat-dialog-actions>

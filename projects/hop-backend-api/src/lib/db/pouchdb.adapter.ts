@@ -1,8 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import PouchDB from 'pouchdb';
-import * as PouchDBFind from 'pouchdb-find';
 import pouchdbDebug from 'pouchdb-debug';
-import { from, Observable, forkJoin, of } from 'rxjs';
 import { EntityDto, EntityType } from '../entity';
 import { PutResponse } from './model/put-response.model';
 import { GetResponse } from './model/get-response.model';
@@ -10,44 +8,24 @@ import { RemoveResponse } from './model/remove-response.model';
 import { ENV } from '../hop-backend-api.module';
 
 // @see https://www.npmjs.com/package/pouchdb-find
-PouchDB.plugin((PouchDBFind as any).default || PouchDBFind);
 PouchDB.plugin(pouchdbDebug);
-// PouchDB.debug.enable('pouchdb:find');
-// PouchDB.debug.enable('*');
 
 @Injectable({
   providedIn: 'root'
 })
 export class PouchDbAdapter {
 
-  private instance;
+  protected instance;
 
   constructor(@Inject(ENV) private env) { }
 
-  initialize(): Observable<any> {
+  initialize(): void {
     if (this.instance) {
       throw new Error(`PouchDB already initialized`);
     }
     this.instance = new PouchDB(this.env.LOCAL_DATABASE, { auto_compaction: true });
-
-    // to find a round or event by its gameId
-    /* const findByGameIdIndex = this.instance.createIndex({
-      index: {
-        fields: ['type', 'gameId']
-      }
-    }); */
-
-    // to find active players
-    /* const findActivePlayersIndex = this.instance.createIndex({
-      index: {
-        fields: ['type', 'active']
-      }
-    }); */
-    // return forkJoin(from(findByGameIdIndex), from(findActivePlayersIndex));
-    return of(42);
   }
 
-  // TODO: Remove!
   getInstance() {
     return this.instance;
   }
@@ -84,22 +62,6 @@ export class PouchDbAdapter {
     return this.instance.get(id);
   }
 
-  /**
-   * @deprecated
-   */
-  find(selector, orderBy?: any[]): Promise<any> {
-    console.log(`%cFIND ${JSON.stringify(selector)}`, 'color: #00f');
-    const rand = Math.random();
-    console.time(`FIND-${JSON.stringify(selector)}-${rand}`);
-    return this.instance.find({
-      selector,
-      sort: orderBy
-    }).then(r => {
-      console.timeEnd(`FIND-${JSON.stringify(selector)}-${rand}`);
-      return r;
-    });
-  }
-
   update(id: string, data: Partial<EntityDto>): Promise<PutResponse> {
     console.log(`%cUPDATE ${id}`, 'color: #00f');
     return this.instance.get(id)
@@ -121,12 +83,12 @@ export class PouchDbAdapter {
     return matches[0];
   }
 
-  toPrimaryKey(rawId: string, entityType: EntityType): string {
-    return `${entityType}__${rawId}`;
-  }
-
   generateId(prefix: string): string {
     return `${prefix}-${this._generateUuid()}`;
+  }
+
+  destroy(): Promise<any> {
+    return this.instance.destroy();
   }
 
   private _generateUuid(): string {

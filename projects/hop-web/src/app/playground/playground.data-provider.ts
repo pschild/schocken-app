@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, of } from 'rxjs';
-import { GameRepository, RoundRepository, PlayerRepository, EventTypeRepository, EventTypeContext, RoundEventRepository, PouchDbAdapter } from '@hop-backend-api';
+import {
+  GameRepository,
+  RoundRepository,
+  PlayerRepository,
+  EventTypeRepository,
+  EventTypeContext,
+  RoundEventRepository
+} from '@hop-backend-api';
 import { switchMap } from 'rxjs/operators';
-
-declare function emit(val: any);
-declare function emit(key: any, value: any);
 
 @Injectable({
   providedIn: 'root'
@@ -17,110 +21,8 @@ export class PlaygroundDataProvider {
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
     private eventTypeRepository: EventTypeRepository,
-    private roundEventRepository: RoundEventRepository,
-    private db: PouchDbAdapter
+    private roundEventRepository: RoundEventRepository
   ) {
-  }
-
-  testPerformanceQuery(gameId) {
-    const dbi = this.db.getInstance();
-    const ddoc = {
-      _id: '_design/by_gameId',
-      views: {
-        by_gameId: {
-          map: ((doc) => {
-            if (doc.type === 'ROUND') {
-              emit(doc.gameId);
-            }
-          }).toString()
-        }
-      }
-    };
-
-    const putPromise = new Promise((res, rej) => {
-      return dbi.put(ddoc)
-        .then(r => {
-          console.log(r);
-          res(r);
-        })
-        .catch(e => {
-          console.log(e);
-          res(null);
-        });
-    });
-
-    const queryProm = new Promise((res, rej) => {
-      console.time('QUERY');
-      return dbi.query('by_gameId', {
-        include_docs: true,
-        key: gameId
-      }).then(r => {
-        console.log(r);
-        console.timeEnd('QUERY');
-        res(r);
-      });
-    });
-
-    Promise.all([putPromise, queryProm]).then(r => {
-      console.log(r);
-    });
-  }
-
-  testPerformanceAllDocs(gameId) {
-    const dbi = this.db.getInstance();
-    console.log(`ROUND__${gameId}__ROUND-`);
-    console.time('ALLDOCS');
-    dbi.allDocs({
-      include_docs: true,
-      // startkey: `ROUND__${gameId}__ROUND-\ufff0`,
-      startkey: `ROUND_EVENT__ROUND-\ufff0`,
-      // endkey: `ROUND__${gameId}__ROUND-`,
-      endkey: `ROUND_EVENT__ROUND-`,
-      descending: true
-    }).then(r => {
-      console.timeEnd('ALLDOCS');
-      console.log(r);
-    });
-  }
-
-  testPerformanceFind(gameId) {
-    const dbi = this.db.getInstance();
-    console.time('FIND-WITHOUT-INDEX');
-    dbi.find({
-      selector: {
-        type: {$eq: 'ROUND'},
-        gameId: {$eq: gameId}
-      }
-    }).then(r => {
-      console.log(r);
-      console.timeEnd(`FIND-WITHOUT-INDEX`);
-    });
-
-    console.time(`FIND-WITH-INDEX`);
-    dbi.createIndex({
-      index: {
-        fields: ['type', 'gameId']
-      }
-    }).then(r => {
-      return dbi.find({
-        selector: {
-          type: {$eq: 'ROUND'},
-          gameId: {$eq: gameId}
-        }
-      });
-    }).then(r => {
-      console.log(r);
-      console.timeEnd(`FIND-WITH-INDEX`);
-    });
-  }
-
-  createDesignDoc(name, mapFunction) {
-    const ddoc = {
-      _id: '_design/' + name,
-      views: { }
-    };
-    ddoc.views[name] = { map: mapFunction.toString() };
-    return ddoc;
   }
 
   createGameWithRandomRounds(): void {
