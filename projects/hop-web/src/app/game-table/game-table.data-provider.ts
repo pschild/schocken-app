@@ -44,6 +44,7 @@ interface EventsByPlayer {
 })
 export class GameTableDataProvider {
 
+  private gameDetails$: BehaviorSubject<GameDetailsVo> = new BehaviorSubject(null);
   private allEventTypes$: BehaviorSubject<EventTypeDto[]> = new BehaviorSubject([]);
   private gameEventsRow$: BehaviorSubject<GameEventsRowVo> = new BehaviorSubject<GameEventsRowVo>(null);
   private roundEventsRows$: BehaviorSubject<RoundEventsRowVo[]> = new BehaviorSubject<RoundEventsRowVo[]>(null);
@@ -82,6 +83,10 @@ export class GameTableDataProvider {
     this.roundEventsRows$.next([]);
   }
 
+  getGameDetails(): Observable<GameDetailsVo> {
+    return this.gameDetails$.asObservable();
+  }
+
   getGameEventsRow(): Observable<GameEventsRowVo> {
     return this.gameEventsRow$.asObservable();
   }
@@ -106,11 +111,11 @@ export class GameTableDataProvider {
     );
   }
 
-  loadGameDetails(gameId: string): Observable<GameDetailsVo> {
+  loadGameDetails(gameId: string): void {
     console.log('%c🔎LOAD GAME DETAILS', 'color: #f00');
-    return this.gameRepository.get(gameId).pipe(
+    this.gameRepository.get(gameId).pipe(
       map((game: GameDto) => this.gameDetailsVoMapperService.mapToVo(game))
-    );
+    ).subscribe((gameDetails: GameDetailsVo) => this.gameDetails$.next(gameDetails));
   }
 
   loadAllActivePlayers(): Observable<PlayerDto[]> {
@@ -354,6 +359,10 @@ export class GameTableDataProvider {
 
   updatePlace(gameId: string, placeValue: string): Observable<string> {
     return this.gameRepository.update(gameId, { place: placeValue });
+  }
+
+  updateCompletedStatus(gameId: string, completedStatus: boolean): Observable<string> {
+    return this.gameRepository.update(gameId, { completed: completedStatus });
   }
 
   /**

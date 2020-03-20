@@ -30,6 +30,25 @@
               <hop-penalty-sum [events]="[gameEventsRow].concat(roundEventsRows) | getAllEvents"></hop-penalty-sum>
             </div>
           </div>
+          <div class="details-row">
+            <div><strong>Status:</strong></div>
+            <div>
+              <div *ngIf="gameDetails.completed">
+                <span>abgeschlossen</span>
+                <button mat-raised-button color="primary" (click)="updateCompletedStatus(false)">
+                  <mat-icon>edit</mat-icon>
+                  Spiel bearbeiten
+                </button>
+              </div>
+              <div *ngIf="!gameDetails.completed">
+                <span>laufend</span>
+                <button mat-raised-button color="primary" (click)="updateCompletedStatus(true)">
+                  <mat-icon>check</mat-icon>
+                  Spiel abschließen
+                </button>
+              </div>
+            </div>
+          </div>
         </mat-expansion-panel>
 
         <div class="table-container">
