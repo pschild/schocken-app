@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 import { filter, switchMap, tap } from 'rxjs/operators';
 import { IDialogResult, DialogResult, SnackBarNotificationService, DialogService } from '@hop-basic-components';
 import { ImportExportService, ImportData } from '../core/service/import-export/import-export.service';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { SyncService } from '@hop-basic-components';
 
 @Component({
   selector: 'hop-administration',
@@ -22,17 +24,21 @@ export class AdministrationComponent implements OnInit {
 
   gameItems$: Observable<GameSelectItemVo[]>;
 
+  autoSyncEnabled$: Observable<boolean>;
+
   @ViewChild('fileInput', { static: true }) fileInput: ElementRef;
 
   constructor(
     private dataProvider: AdministrationDataProvider,
     private dialogService: DialogService,
     private importExportService: ImportExportService,
+    private syncService: SyncService,
     private snackBarNotificationService: SnackBarNotificationService
   ) { }
 
   ngOnInit() {
     this.gameItems$ = this.dataProvider.getGameList();
+    this.autoSyncEnabled$ = this.syncService.autoSyncEnabled;
   }
 
   removeGame(gameId: string): void {
@@ -103,6 +109,22 @@ export class AdministrationComponent implements OnInit {
       };
       reader.readAsText(this.fileInput.nativeElement.files[0]);
     }
+  }
+
+  toggleAutoSyncState(event: MatSlideToggleChange): void {
+    this.syncService.toggleAutoSync(event.checked);
+  }
+
+  startSync(): void {
+    this.syncService.startSync(false);
+  }
+
+  pull(): void {
+    this.syncService.pull();
+  }
+
+  push(): void {
+    this.syncService.push();
   }
 
 }

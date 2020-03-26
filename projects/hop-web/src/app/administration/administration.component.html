@@ -72,5 +72,33 @@
     </div>
 
   </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Synchronisation
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <mat-slide-toggle
+      [checked]="autoSyncEnabled$ | async"
+      (change)="toggleAutoSyncState($event)">automatische Synchronisation</mat-slide-toggle>
+
+    <div>
+      <button mat-raised-button color="primary" (click)="startSync()" [disabled]="autoSyncEnabled$ | async">
+        <mat-icon>sync</mat-icon>
+        Synchronisieren
+      </button>
+      <button mat-raised-button color="primary" (click)="pull()" [disabled]="autoSyncEnabled$ | async">
+        <mat-icon>cloud_download</mat-icon>
+        pull
+      </button>
+      <button mat-raised-button color="primary" (click)="push()" [disabled]="autoSyncEnabled$ | async">
+        <mat-icon>cloud_upload</mat-icon>
+        push
+      </button>
+    </div>
+
+  </mat-expansion-panel>
 </mat-accordion>
 <hop-loading-indicator *ngIf="showLoadingIndicator"></hop-loading-indicator>
