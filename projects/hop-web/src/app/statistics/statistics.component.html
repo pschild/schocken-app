@@ -47,14 +47,14 @@
   <mat-card class="count-row">
     <ng-container *ngIf="(loseRates$ | async)?.max as maxLoseRate; else loading">
       <div>{{maxLoseRate.playerName}}</div>
-      <div class="mat-small"><hop-odometer [countTo]="maxLoseRate.rate * 100"></hop-odometer>% seiner Runden verloren</div>
+      <div class="mat-small"><hop-odometer [countTo]="maxLoseRate.rate * 100" [precision]="1"></hop-odometer>% seiner Runden verloren</div>
       <div>Flasche</div>
     </ng-container>
   </mat-card>
   <mat-card class="count-row">
     <ng-container *ngIf="(loseRates$ | async)?.min as minLoseRate; else loading">
       <div>{{minLoseRate.playerName}}</div>
-      <div class="mat-small"><hop-odometer [countTo]="minLoseRate.rate * 100"></hop-odometer>% seiner Runden verloren</div>
+      <div class="mat-small"><hop-odometer [countTo]="minLoseRate.rate * 100" [precision]="1"></hop-odometer>% seiner Runden verloren</div>
       <div>Champignon</div>
     </ng-container>
   </mat-card>

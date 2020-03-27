@@ -9,11 +9,12 @@
       {{player.name}}
     </mat-list-option>
   </mat-selection-list>
+  <div class="chosen-players-count">{{selectedOptions.length}} Spieler ausgewählt</div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Abbrechen</button>
   <button mat-raised-button color="primary"
     (click)="onApply()"
-    [disabled]="!selectedPlayers.selectedOptions || !selectedPlayers.selectedOptions.selected.length"
+    [disabled]="!selectedPlayers.selectedOptions || !selectedPlayers.selectedOptions.selected || !selectedPlayers.selectedOptions.selected.length"
   >OK</button>
 </mat-dialog-actions>

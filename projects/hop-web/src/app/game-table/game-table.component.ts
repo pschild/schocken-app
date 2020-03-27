@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
-import { map, filter, take, withLatestFrom, switchMap } from 'rxjs/operators';
+import { map, filter, take, withLatestFrom, switchMap, tap } from 'rxjs/operators';
 import { PlayerDto } from '@hop-backend-api';
 import { GameTableDataProvider } from './game-table.data-provider';
 import { GameEventsRowVo } from './model/game-events-row.vo';
@@ -50,6 +50,10 @@ export class GameTableComponent implements OnInit {
   ngOnInit() {
     this.dataProvider.resetRows();
 
+    this.gameDetails$ = this.dataProvider.getGameDetails().pipe(
+      filter((gameDetails: GameDetailsVo) => !!gameDetails),
+      tap((gameDetails: GameDetailsVo) => this.placeFormControl.setValue(gameDetails.place))
+    );
     this.gameEventTypes$ = this.dataProvider.getGameEventTypes();
     this.roundEventTypes$ = this.dataProvider.getRoundEventTypes();
     this.gameEventsRow$ = this.dataProvider.getGameEventsRow();
@@ -60,12 +64,10 @@ export class GameTableComponent implements OnInit {
 
     this.gameId$ = this.route.params.pipe(map((params: Params) => params.gameId));
     this.gameId$.subscribe((gameId: string) => {
-      this.gameDetails$ = this.dataProvider.loadGameDetails(gameId);
+      this.dataProvider.loadGameDetails(gameId);
       this.dataProvider.loadGameEventsRow(gameId);
       this.dataProvider.loadRoundEventsRows(gameId);
     });
-
-    this.gameDetails$.subscribe((gameDetails: GameDetailsVo) => this.placeFormControl.setValue(gameDetails.place));
   }
 
   onRemoveGameEvent(eventId: string, playerId: string): void {
@@ -128,6 +130,15 @@ export class GameTableComponent implements OnInit {
     ).subscribe((updatedGameId: string) => {
       this.snackBarNotificationService.showMessage(`Das Spiel wurde aktualisiert`);
       this.placeFormControl.markAsPristine();
+    });
+  }
+
+  updateCompletedStatus(completedStatus: boolean): void {
+    this.gameId$.pipe(
+      take(1),
+      switchMap((gameId: string) => this.dataProvider.updateCompletedStatus(gameId, completedStatus))
+    ).subscribe((updatedGameId: string) => {
+      this.dataProvider.loadGameDetails(updatedGameId);
     });
   }
 

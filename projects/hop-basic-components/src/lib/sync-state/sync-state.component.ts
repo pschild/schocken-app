@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild, TemplateRef } from '@angular/core';
 import { SyncService, SyncEvent, SyncType } from './sync.service';
 import { MatDialog } from '@angular/material/dialog';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'hop-sync-state',
@@ -24,12 +25,20 @@ export class SyncStateComponent implements OnInit {
 
   ngOnInit() {
     this.syncService.syncState.subscribe((event: SyncEvent) => {
-      this.syncHistory.push({
-        type: event.type,
-        datetime: event.datetime,
-        direction: event.data ? event.data.direction : null,
-        docCount: (event.data && event.data.change) ? event.data.change.docs.length : 0
-      });
+      if (event.changeInfo) {
+        if ('direction' in event.changeInfo) { // sync
+          this.pushHistory(event, event.changeInfo.direction, event.changeInfo.change.docs.length);
+        } else if ('ok' in event.changeInfo) { // replication
+          this.pushHistory(event, '', event.changeInfo.docs.length);
+        }
+      } else if (event.completeInfo) {
+        if ('push' in event.completeInfo) { // sync
+          this.pushHistory(event, 'push', `${event.completeInfo.push.docs_read}r / ${event.completeInfo.push.docs_written}w`);
+          this.pushHistory(event, 'pull', `${event.completeInfo.pull.docs_read}r / ${event.completeInfo.pull.docs_written}w`);
+        } else if ('ok' in event.completeInfo) { // replication
+          this.pushHistory(event, '', `${event.completeInfo.docs_read}r / ${event.completeInfo.docs_written}w`);
+        }
+      }
 
       if (event.type === SyncType.CHANGE) {
         this.lastSynced = event.datetime;
@@ -39,23 +48,26 @@ export class SyncStateComponent implements OnInit {
       this.cdr.detectChanges();
     });
 
+    // start live auto sync when app is started
     // this.syncService.startSync(true);
+
+    // start single sync in intervals when app is started
+    // interval(10 * 1000).subscribe(_ => {
+    //   this.syncService.startSync(false);
+    // });
+  }
+
+  private pushHistory(event: SyncEvent, direction: string, docCount: any): void {
+    this.syncHistory.push({
+      type: event.type,
+      datetime: event.datetime,
+      direction,
+      docCount
+    });
   }
 
   openSyncHistoryDialog(): void {
     this.dialog.open(this.syncHistoryDialog);
-  }
-
-  startSync(): void {
-    this.syncService.startSync(false);
-  }
-
-  pull(): void {
-    this.syncService.pull();
-  }
-
-  push(): void {
-    this.syncService.push();
   }
 
 }

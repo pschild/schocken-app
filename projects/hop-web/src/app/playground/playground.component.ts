@@ -23,18 +23,6 @@ export class PlaygroundComponent implements OnInit {
   ngOnInit() {
   }
 
-  testPerformanceQuery() {
-    this.dataProvider.testPerformanceQuery(this.gameIdForPerf);
-  }
-
-  testPerformanceAllDocs() {
-    this.dataProvider.testPerformanceAllDocs(this.gameIdForPerf);
-  }
-
-  testPerformanceFind() {
-    this.dataProvider.testPerformanceFind(this.gameIdForPerf);
-  }
-
   createGameWithRandomRounds(): void {
     this.dataProvider.createGameWithRandomRounds();
   }
