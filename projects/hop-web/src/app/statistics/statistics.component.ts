@@ -16,7 +16,7 @@ export class StatisticsComponent implements OnInit {
   attendanceCountValue$: Observable<{ max: any; min: any }>;
   schockAusStreak$: Observable<{ gameId: string; schockAusCount: number }>;
   maxSchockAusByPlayer$: Observable<{ playerName: string; schockAusCount: number }>;
-  loseRates$: Observable<{ max: any; min: any }>;
+  loseRates$: Observable<{ name: string, rate: number }[]>;
   eventTypeCountValues$: Observable<Array<{ description: string; count: number; }>>;
 
   constructor(
@@ -30,7 +30,7 @@ export class StatisticsComponent implements OnInit {
     this.attendanceCountValue$ = this.dataProvider.getAttendanceCount$().pipe(share());
     this.schockAusStreak$ = this.dataProvider.getSchockAusStreak$();
     this.maxSchockAusByPlayer$ = this.dataProvider.getMaxSchockAusByPlayer$();
-    this.loseRates$ = this.dataProvider.getLoseRates$().pipe(share());
+    this.loseRates$ = this.dataProvider.getLoseRates$();
     this.eventTypeCountValues$ = this.dataProvider.getCountsByEventType$();
   }
 

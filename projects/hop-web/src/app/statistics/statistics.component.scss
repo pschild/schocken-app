@@ -1,14 +1,17 @@
 $cards-margin: 10px;
 
 .statistics-container {
-  .count-row {
-    display: inline-flex;
+  mat-card {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    height: 150px;
     margin: $cards-margin;
     box-sizing: border-box;
+  }
+
+  .count-row {
+    display: inline-flex;
+    height: 150px;
 
     @media (max-width: 600px) {
       width: calc(100% - #{2 * $cards-margin});

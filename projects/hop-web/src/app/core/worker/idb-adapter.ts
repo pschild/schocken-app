@@ -3,6 +3,8 @@ export class IdbAdapter {
   private static POUCH_DB_DB_PREFIX = '_pouch_';
   private static POUCH_DB_STORE = 'by-sequence';
 
+  private cache;
+
   private dbName: string;
   private dbInstance: IDBDatabase;
 
@@ -28,11 +30,18 @@ export class IdbAdapter {
   async getAll(): Promise<any[]> {
     await this.initialize();
     return new Promise((resolve, reject) => {
+      if (this.cache) {
+        return resolve(this.cache);
+      }
       const tx = this.dbInstance.transaction(IdbAdapter.POUCH_DB_STORE, 'readonly');
       const store = tx.objectStore(IdbAdapter.POUCH_DB_STORE);
       const request = store.getAll();
-      // tslint:disable-next-line:no-string-literal
-      request.onsuccess = (event) => resolve(event.target['result']);
+      request.onsuccess = (event) => {
+        // tslint:disable-next-line:no-string-literal
+        this.cache = event.target['result'];
+        // tslint:disable-next-line:no-string-literal
+        resolve(event.target['result']);
+      };
       request.onerror = (event) => reject(event);
     });
   }

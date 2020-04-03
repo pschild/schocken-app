@@ -136,32 +136,35 @@ const getMaxSchockAusByPlayer = async (players: PlayerDto[]): Promise<{ playerNa
   return { playerName, schockAusCount: max };
 };
 
-const getLoseRates = async (players: PlayerDto[]): Promise<{max: any, min: any}> => {
+const getLoseRates = async (players: PlayerDto[]): Promise<{name: string, rate: number}[]> => {
   const getPlayerNameById = (id: string) => players.find(p => p._id === id).name;
 
   const participationByPlayerId = await getAttendedRoundsByPlayerId();
   const allVerlorenEvents: RoundEventDto[] = await getAllVerlorenEvents();
   const verlorenEventsByPlayerId = groupBy('playerId')(allVerlorenEvents);
 
-  const max = { rate: -Infinity, playerName: undefined };
-  const min = { rate: Infinity, playerName: undefined };
+  // const max = { rate: -Infinity, playerName: undefined };
+  // const min = { rate: Infinity, playerName: undefined };
+  const result = [];
   for (const player of players) {
     if (participationByPlayerId[player._id]) {
       const attendedRounds = participationByPlayerId[player._id].length;
       const lostRounds = verlorenEventsByPlayerId[player._id] ? verlorenEventsByPlayerId[player._id].length : 0;
       const rate = lostRounds / attendedRounds;
+      result.push({ name: getPlayerNameById(player._id), rate });
 
-      if (rate > max.rate) {
+      /* if (rate > max.rate) {
         max.rate = rate;
         max.playerName = getPlayerNameById(player._id);
       } else if (rate < min.rate) {
         min.rate = rate;
         min.playerName = getPlayerNameById(player._id);
-      }
+      } */
     }
   }
 
-  return { min, max };
+  // return { min, max };
+  return result;
 };
 
 /* DRY */

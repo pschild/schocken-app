@@ -4,6 +4,7 @@ import { WorkerResponse, WorkerActions } from '../core/worker/model';
 import { map, mergeMap, mergeAll, toArray, switchMap, filter } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { EventTypeRepository, EventTypeDto, PlayerRepository, PlayerDto } from '@hop-backend-api';
+import { SortDirection, SortService } from '../core/service/sort.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class StatisticsDataProvider {
   constructor(
     private eventTypeRepository: EventTypeRepository,
     private playerRepository: PlayerRepository,
+    private sortService: SortService,
     private workerService: WorkerService
   ) {
     this.loadActivePlayers$ = this.playerRepository.getAllActive();
@@ -79,13 +81,14 @@ export class StatisticsDataProvider {
     );
   }
 
-  getLoseRates$(): Observable<{max: any; min: any}> {
+  getLoseRates$(): Observable<{name: string, rate: number}[]> {
     return this.loadActivePlayers$.pipe(
       switchMap((activePlayers: PlayerDto[]) => this.workerService.sendMessage({
         action: WorkerActions.GET_LOSE_RATES,
         payload: { players: activePlayers }
       })),
-      map((response: WorkerResponse) => response.payload)
+      map((response: WorkerResponse) => response.payload),
+      map((rates: {name: string, rate: number}[]) => rates.sort((a, b) => this.sortService.compare(a, b, 'rate', SortDirection.DESC)))
     );
   }
 }
