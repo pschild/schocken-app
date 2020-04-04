@@ -22,6 +22,7 @@ export class OdometerComponent implements OnInit {
     if (!this.precision) {
       this.precision = 0;
     }
+    this.countTo = +this.countTo.toFixed(this.precision);
 
     this.value$ = timer(0, this.COUNT_INTERVAL_MS).pipe(
       map((currentValue: number) => {
