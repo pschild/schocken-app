@@ -10,6 +10,7 @@ import { map, takeWhile } from 'rxjs/operators';
 export class OdometerComponent implements OnInit {
 
   private COUNT_INTERVAL_MS = 10;
+  private DURATION = 500;
 
   value$: Observable<number>;
 
@@ -22,16 +23,17 @@ export class OdometerComponent implements OnInit {
     if (!this.precision) {
       this.precision = 0;
     }
-    this.countTo = +this.countTo.toFixed(this.precision);
+    if (this.countTo) {
+      this.countTo = +this.countTo.toFixed(this.precision);
 
-    this.value$ = timer(0, this.COUNT_INTERVAL_MS).pipe(
-      map((currentValue: number) => {
-        const newValue = currentValue * (this.countTo / 100);
-        return newValue > this.countTo ? this.countTo : newValue;
-      }),
-      map((currentValue: number) => +currentValue.toFixed(this.precision)),
-      takeWhile((currentValue: number) => currentValue <= this.countTo)
-    );
+      this.value$ = timer(0, this.COUNT_INTERVAL_MS).pipe(
+        map((currentValue: number) => {
+          return currentValue * (this.countTo / (this.DURATION / this.COUNT_INTERVAL_MS));
+        }),
+        map((currentValue: number) => +currentValue.toFixed(this.precision)),
+        takeWhile((currentValue: number) => currentValue <= this.countTo)
+      );
+    }
   }
 
 }
