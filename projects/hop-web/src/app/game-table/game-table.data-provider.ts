@@ -315,9 +315,14 @@ export class GameTableDataProvider {
         }
         const roundInRows = currentState[roundRowIndex];
 
-        const playerInColumn: RoundEventsColumnVo = roundInRows.columns.find((col: RoundEventsColumnVo) => col.playerId === playerId);
+        const playerInColumnIndex = roundInRows.columns.findIndex((col: RoundEventsColumnVo) => col.playerId === playerId);
+        const playerInColumn: RoundEventsColumnVo = roundInRows.columns[playerInColumnIndex];
         if (playerInColumn && playerInColumn.events) {
           playerInColumn.events = playerInColumn.events.filter((event: PlayerEventVo) => event.eventId !== removedId);
+        }
+
+        if (playerInColumn.events.length === 0) {
+          roundInRows.columns.splice(playerInColumnIndex, 1);
         }
 
         // IMPORTANT: return new references, so that CD in Component gets triggered!
@@ -343,6 +348,19 @@ export class GameTableDataProvider {
           ]),
           // handle statistics
           tap(_ => this.statisticService.checkRounds())
+        );
+      })
+    ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
+  }
+
+  removeRound(roundId: string): void {
+    this.roundEventsRows$.pipe(
+      take(1),
+      switchMap((roundEventRows: RoundEventsRowVo[]) => {
+        return this.roundRepository.removeById(roundId).pipe(
+          map((removedId: string) => {
+            return roundEventRows.filter(re => re.roundId !== removedId);
+          })
         );
       })
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));

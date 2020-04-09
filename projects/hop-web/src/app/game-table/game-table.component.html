@@ -54,7 +54,14 @@
         <div class="table-container">
           <table>
             <tr>
-              <th></th>
+              <th>
+                <button mat-icon-button (click)="toggleAllRowStates(true)">
+                  <mat-icon>unfold_more</mat-icon>
+                </button>
+                <button mat-icon-button (click)="toggleAllRowStates(false)">
+                  <mat-icon>unfold_less</mat-icon>
+                </button>
+              </th>
               <th *ngFor="let player of visiblePlayers" [class.inactive-player]="!player.active">{{player.name}}</th>
             </tr>
             <tr>
@@ -75,7 +82,8 @@
                 ></hop-event-list>
                 <hop-penalty-sum
                     *ngIf="!visibleRowIndexes['gameEvents']"
-                    [events]="[gameEventsRow] | getAllEvents:player._id">
+                    [events]="[gameEventsRow] | getAllEvents:player._id"
+                    [hideWhenZero]="true">
                   </hop-penalty-sum>
                 <button mat-button color="primary" *ngIf="visibleRowIndexes['gameEvents'] && !gameDetails.completed" (click)="showGameEventTypeDialog(player)">
                   <mat-icon>add</mat-icon>
@@ -89,15 +97,22 @@
                   <mat-icon *ngIf="visibleRowIndexes[i]">keyboard_arrow_up</mat-icon>
                 </button>
                 Rd. {{i + 1}}
+                <button mat-icon-button color="warn" (click)="onRemoveRound(roundEventsRow)" *ngIf="visibleRowIndexes[i] && !gameDetails.completed && roundEventsRow.columns.length === 0">
+                  <mat-icon>delete</mat-icon>
+                </button>
               </td>
               <td *ngFor="let player of visiblePlayers">
                 <ng-template
                   let-participationStatus="participationStatus"
-                  [ngTemplateOutletContext]="{ participationStatus: roundEventsRow | getParticipationStatusForPlayer: player._id }"
+                  let-eventsByPlayer="eventsByPlayer"
+                  [ngTemplateOutletContext]="{
+                    eventsByPlayer: [roundEventsRow] | getAllEvents:player._id,
+                    participationStatus: roundEventsRow | getParticipationStatusForPlayer: player._id
+                  }"
                   [ngTemplateOutlet]="t" #t>
                   <hop-event-list
                     *ngIf="visibleRowIndexes[i]"
-                    [events]="[roundEventsRow] | getAllEvents:player._id"
+                    [events]="eventsByPlayer"
                     [roundId]="roundEventsRow.roundId"
                     [playerId]="player._id"
                     [hideRemoveButton]="gameDetails.completed"
@@ -105,17 +120,18 @@
                   </hop-event-list>
                   <hop-penalty-sum
                     *ngIf="!visibleRowIndexes[i]"
-                    [events]="[roundEventsRow] | getAllEvents:player._id">
+                    [events]="eventsByPlayer"
+                    [hideWhenZero]="true">
                   </hop-penalty-sum>
                   <div class="cell-buttons-container">
                     <button mat-button color="primary"
-                      *ngIf="participationStatus && visibleRowIndexes[i] && !gameDetails.completed"
+                      *ngIf="participationStatus && !gameDetails.completed"
                       (click)="showRoundEventTypeDialog(player, roundEventsRow.roundId)"
                     >
                       <mat-icon>add</mat-icon>
                     </button>
                     <mat-slide-toggle
-                      *ngIf="visibleRowIndexes[i] && !gameDetails.completed"
+                      *ngIf="visibleRowIndexes[i] && !gameDetails.completed && eventsByPlayer.length === 0"
                       [checked]="participationStatus"
                       (change)="onParticipationChange($event, player._id, roundEventsRow.roundId)"></mat-slide-toggle>
                   </div>

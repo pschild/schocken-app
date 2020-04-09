@@ -4,5 +4,7 @@
       {{sumPerUnit.sum | number:'1.2'}} {{sumPerUnit.unit}}
     </div>
   </ng-container>
-  <ng-template #noPenalties>-</ng-template>
+  <ng-template #noPenalties>
+    <span *ngIf="!hideWhenZero">-</span>
+  </ng-template>
 </div>

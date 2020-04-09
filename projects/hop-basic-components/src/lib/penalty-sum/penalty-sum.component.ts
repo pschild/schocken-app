@@ -14,6 +14,8 @@ export class PenaltySumComponent implements OnInit, OnChanges {
 
   @Input() events: PlayerEventVo[];
 
+  @Input() hideWhenZero: boolean;
+
   constructor(
     private penaltyService: PenaltyService
   ) { }
