@@ -27,7 +27,7 @@ export class GameTableComponent implements OnInit {
 
   gameId$: Observable<string>;
   gameDetails$: Observable<GameDetailsVo>;
-  activePlayers$: Observable<PlayerDto[]>;
+  visiblePlayers$: Observable<PlayerDto[]>;
 
   gameEventTypes$: Observable<EventTypeItemVo[]>;
   roundEventTypes$: Observable<EventTypeItemVo[]>;
@@ -59,7 +59,7 @@ export class GameTableComponent implements OnInit {
     this.gameEventsRow$ = this.dataProvider.getGameEventsRow();
     this.roundEventsRows$ = this.dataProvider.getRoundEventsRows();
 
-    this.activePlayers$ = this.dataProvider.loadAllActivePlayers();
+    this.visiblePlayers$ = this.dataProvider.loadVisiblePlayers();
     this.dataProvider.loadAllEventTypes();
 
     this.gameId$ = this.route.params.pipe(map((params: Params) => params.gameId));

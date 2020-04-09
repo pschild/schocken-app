@@ -17,7 +17,7 @@ import {
   GameDto,
   EventTypeHistoryItem
 } from '@hop-backend-api';
-import { Observable, BehaviorSubject, of, zip, GroupedObservable } from 'rxjs';
+import { Observable, BehaviorSubject, of, zip, GroupedObservable, combineLatest } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
 import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take } from 'rxjs/operators';
 import { EventTypeItemVo, EventTypeItemVoMapperService, PlayerEventVo, PlayerEventVoMapperService } from '@hop-basic-components';
@@ -118,9 +118,32 @@ export class GameTableDataProvider {
     ).subscribe((gameDetails: GameDetailsVo) => this.gameDetails$.next(gameDetails));
   }
 
-  loadAllActivePlayers(): Observable<PlayerDto[]> {
-    console.log('%c🔎LOAD ACTIVE PLAYERS', 'color: #f00');
-    return this.playerRepository.getAllActive();
+  loadVisiblePlayers(): Observable<PlayerDto[]> {
+    console.log('%c🔎LOAD VISIBLE PLAYERS', 'color: #f00');
+
+    return combineLatest(
+      this.playerRepository.getAll(),
+      this.gameEventsRow$,
+      this.roundEventsRows$
+    ).pipe(
+      map(([allPlayers, gameEventsRow, roundEventsRows]: [PlayerDto[], GameEventsRowVo, RoundEventsRowVo[]]) => {
+        let idsFromGameEvents: string[] = [];
+        if (gameEventsRow && gameEventsRow.columns.length) {
+          idsFromGameEvents = gameEventsRow.columns.map(c => c.playerId);
+        }
+
+        let idsFromRoundEvents: string[] = [];
+        if (roundEventsRows && roundEventsRows.length) {
+          const participations = roundEventsRows.reduce((acc, cur) => [...acc, ...cur.attendeeList], []);
+          idsFromRoundEvents = [...new Set(participations.map(p => p.playerId))];
+        }
+
+        const idsFromEvents = [...new Set([...idsFromGameEvents, ...idsFromRoundEvents])];
+
+        return allPlayers.filter(p => p.active || idsFromEvents.includes(p._id));
+      }),
+      map((players: PlayerDto[]) => players.sort((a, b) => this.sortService.compare(a, b, 'name', SortDirection.ASC)))
+    );
   }
 
   loadAllEventTypes(): void {

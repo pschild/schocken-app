@@ -66,7 +66,7 @@ export class EventHandlerService {
   }
 
   private _handleSchockAusTrigger(playerId: string, roundId: string): void {
-    forkJoin(this.roundRepository.get(roundId), this.playerRepository.getAll()).pipe(
+    forkJoin(this.roundRepository.get(roundId), this.playerRepository.getAllActive()).pipe(
       // show confirmation, wait for the user to accept or decline
       concatMap(([currentRound, allPlayers]: [RoundDto, PlayerDto[]]) => {
         const activatedPlayerIds = currentRound.attendeeList

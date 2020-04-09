@@ -1,5 +1,5 @@
 <div *ngIf="gameDetails$ | async as gameDetails">
-  <ng-container *ngIf="activePlayers$ | async as activePlayers">
+  <ng-container *ngIf="visiblePlayers$ | async as visiblePlayers">
     <ng-container *ngIf="gameEventsRow$ | async as gameEventsRow">
       <ng-container *ngIf="roundEventsRows$ | async as roundEventsRows">
         <mat-expansion-panel class="details-container">
@@ -55,7 +55,7 @@
           <table>
             <tr>
               <th></th>
-              <th *ngFor="let player of activePlayers">{{player.name}}</th>
+              <th *ngFor="let player of visiblePlayers" [class.inactive-player]="!player.active">{{player.name}}</th>
             </tr>
             <tr>
               <td>
@@ -65,7 +65,7 @@
                 </button>
                 Festst.:
               </td>
-              <td *ngFor="let player of activePlayers">
+              <td *ngFor="let player of visiblePlayers">
                 <hop-event-list
                   *ngIf="visibleRowIndexes['gameEvents']"
                   [events]="[gameEventsRow] | getAllEvents:player._id"
@@ -90,7 +90,7 @@
                 </button>
                 Rd. {{i + 1}}
               </td>
-              <td *ngFor="let player of activePlayers">
+              <td *ngFor="let player of visiblePlayers">
                 <ng-template
                   let-participationStatus="participationStatus"
                   [ngTemplateOutletContext]="{ participationStatus: roundEventsRow | getParticipationStatusForPlayer: player._id }"
@@ -133,7 +133,7 @@
             </tr>
             <tr>
               <td>Summe:</td>
-              <td *ngFor="let player of activePlayers">
+              <td *ngFor="let player of visiblePlayers">
                 <hop-penalty-sum [events]="[gameEventsRow].concat(roundEventsRows) | getAllEvents:player._id"></hop-penalty-sum>
               </td>
             </tr>
