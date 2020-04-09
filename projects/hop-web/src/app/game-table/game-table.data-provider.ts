@@ -17,7 +17,7 @@ import {
   GameDto,
   EventTypeHistoryItem
 } from '@hop-backend-api';
-import { Observable, BehaviorSubject, of, zip, GroupedObservable } from 'rxjs';
+import { Observable, BehaviorSubject, of, zip, GroupedObservable, combineLatest } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
 import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take } from 'rxjs/operators';
 import { EventTypeItemVo, EventTypeItemVoMapperService, PlayerEventVo, PlayerEventVoMapperService } from '@hop-basic-components';
@@ -118,9 +118,32 @@ export class GameTableDataProvider {
     ).subscribe((gameDetails: GameDetailsVo) => this.gameDetails$.next(gameDetails));
   }
 
-  loadAllActivePlayers(): Observable<PlayerDto[]> {
-    console.log('%c🔎LOAD ACTIVE PLAYERS', 'color: #f00');
-    return this.playerRepository.getAllActive();
+  loadVisiblePlayers(): Observable<PlayerDto[]> {
+    console.log('%c🔎LOAD VISIBLE PLAYERS', 'color: #f00');
+
+    return combineLatest(
+      this.playerRepository.getAll(),
+      this.gameEventsRow$,
+      this.roundEventsRows$
+    ).pipe(
+      map(([allPlayers, gameEventsRow, roundEventsRows]: [PlayerDto[], GameEventsRowVo, RoundEventsRowVo[]]) => {
+        let idsFromGameEvents: string[] = [];
+        if (gameEventsRow && gameEventsRow.columns.length) {
+          idsFromGameEvents = gameEventsRow.columns.map(c => c.playerId);
+        }
+
+        let idsFromRoundEvents: string[] = [];
+        if (roundEventsRows && roundEventsRows.length) {
+          const participations = roundEventsRows.reduce((acc, cur) => [...acc, ...cur.attendeeList], []);
+          idsFromRoundEvents = [...new Set(participations.map(p => p.playerId))];
+        }
+
+        const idsFromEvents = [...new Set([...idsFromGameEvents, ...idsFromRoundEvents])];
+
+        return allPlayers.filter(p => p.active || idsFromEvents.includes(p._id));
+      }),
+      map((players: PlayerDto[]) => players.sort((a, b) => this.sortService.compare(a, b, 'name', SortDirection.ASC)))
+    );
   }
 
   loadAllEventTypes(): void {
@@ -292,9 +315,14 @@ export class GameTableDataProvider {
         }
         const roundInRows = currentState[roundRowIndex];
 
-        const playerInColumn: RoundEventsColumnVo = roundInRows.columns.find((col: RoundEventsColumnVo) => col.playerId === playerId);
+        const playerInColumnIndex = roundInRows.columns.findIndex((col: RoundEventsColumnVo) => col.playerId === playerId);
+        const playerInColumn: RoundEventsColumnVo = roundInRows.columns[playerInColumnIndex];
         if (playerInColumn && playerInColumn.events) {
           playerInColumn.events = playerInColumn.events.filter((event: PlayerEventVo) => event.eventId !== removedId);
+        }
+
+        if (playerInColumn.events.length === 0) {
+          roundInRows.columns.splice(playerInColumnIndex, 1);
         }
 
         // IMPORTANT: return new references, so that CD in Component gets triggered!
@@ -320,6 +348,19 @@ export class GameTableDataProvider {
           ]),
           // handle statistics
           tap(_ => this.statisticService.checkRounds())
+        );
+      })
+    ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
+  }
+
+  removeRound(roundId: string): void {
+    this.roundEventsRows$.pipe(
+      take(1),
+      switchMap((roundEventRows: RoundEventsRowVo[]) => {
+        return this.roundRepository.removeById(roundId).pipe(
+          map((removedId: string) => {
+            return roundEventRows.filter(re => re.roundId !== removedId);
+          })
         );
       })
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));

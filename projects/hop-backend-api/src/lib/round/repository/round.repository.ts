@@ -4,7 +4,7 @@ import { PutResponse } from '../../db/model/put-response.model';
 import { GetResponse } from '../../db/model/get-response.model';
 import { RemoveResponse } from '../../db/model/remove-response.model';
 import { EntityType } from '../../entity/enum/entity-type.enum';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { Observable, from } from 'rxjs';
 import { RoundDto } from '../model/round.dto';
 
@@ -48,6 +48,12 @@ export class RoundRepository {
   remove(round: RoundDto): Observable<string> {
     return from(this.pouchDb.remove(round)).pipe(
       map((response: RemoveResponse) => response.id)
+    );
+  }
+
+  removeById(id: string): Observable<string> {
+    return this.get(id).pipe(
+      switchMap((round: RoundDto) => this.remove(round))
     );
   }
 

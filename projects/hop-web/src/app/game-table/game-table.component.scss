@@ -70,6 +70,10 @@ $mask-transparency-value: 0.6;
         z-index: 11;
         background-color: $first-column-background;
       }
+
+      &.inactive-player {
+        text-decoration: line-through;
+      }
     }
 
     tr:nth-last-child(2) td {
