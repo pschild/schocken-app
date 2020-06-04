@@ -85,7 +85,7 @@
                     [events]="[gameEventsRow] | getAllEvents:player._id"
                     [hideWhenZero]="true">
                   </hop-penalty-sum>
-                <button mat-button color="primary" *ngIf="visibleRowIndexes['gameEvents'] && !gameDetails.completed" (click)="showGameEventTypeDialog(player)">
+                <button mat-button color="primary" *ngIf="!gameDetails.completed" (click)="showGameEventTypeDialog(player)">
                   <mat-icon>add</mat-icon>
                 </button>
               </td>
