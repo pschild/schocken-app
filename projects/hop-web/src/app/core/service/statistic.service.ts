@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EventTypeDto, EventTypeRepository } from '@hop-backend-api';
 import { WorkerService } from './worker/worker.service';
 import { WorkerResponse, WorkerMessage, WorkerActions } from '../worker/model';
+import { EventTypeCountPayload, RoundCountPayload } from '../worker/model/worker-response';
 
 @Injectable({
   providedIn: 'root'
@@ -21,14 +22,15 @@ export class StatisticService {
   checkEventType(eventTypeId: string): void {
     const workerMessage: WorkerMessage = { action: WorkerActions.COUNT_EVENT_TYPE_BY_ID, payload: { eventTypeId } };
     this.workerService.sendMessage(workerMessage).subscribe((response: WorkerResponse) => {
-      if (this.NUMBERS_TO_CELEBRATE.includes(response.payload.count)) {
-        this.eventTypeRepository.get(response.payload.eventTypeId).subscribe((eventType: EventTypeDto) => {
+      const payload = response.payload as EventTypeCountPayload;
+      if (this.NUMBERS_TO_CELEBRATE.includes(payload.count)) {
+        this.eventTypeRepository.get(payload.eventTypeId).subscribe((eventType: EventTypeDto) => {
           this.dialog.open(CelebrationModalComponent, {
             height: '80%',
             width: '90%',
             autoFocus: false,
             data: {
-              countValue: response.payload.count,
+              countValue: payload.count,
               eventName: eventType.description
             }
           });
@@ -40,13 +42,14 @@ export class StatisticService {
   checkRounds(): void {
     const workerMessage: WorkerMessage = { action: WorkerActions.COUNT_ROUNDS };
     this.workerService.sendMessage(workerMessage).subscribe((response: WorkerResponse) => {
-      if (this.NUMBERS_TO_CELEBRATE.includes(response.payload.count)) {
+      const payload = response.payload as RoundCountPayload;
+      if (this.NUMBERS_TO_CELEBRATE.includes(payload.count)) {
         this.dialog.open(CelebrationModalComponent, {
           height: '80%',
           width: '90%',
           autoFocus: false,
           data: {
-            countValue: response.payload.count,
+            countValue: payload.count,
             eventName: 'Runden'
           }
         });

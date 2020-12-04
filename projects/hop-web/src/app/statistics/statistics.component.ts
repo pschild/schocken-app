@@ -1,7 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { StatisticsDataProvider } from './statistics.data-provider';
 import { Observable } from 'rxjs';
-import { share } from 'rxjs/operators';
+import { filter, share, startWith, switchMap } from 'rxjs/operators';
+import {
+  AttendanceCountPayload,
+  EventTypeCountPayload,
+  GameCountPayload,
+  LostCountPayload,
+  MaxSchockAusStreakPayload,
+  RoundCountPayload,
+  SchockAusCountPayload
+} from '../core/worker/model/worker-response';
+import { FormBuilder } from '@angular/forms';
 
 @Component({
   selector: 'hop-statistics',
@@ -10,28 +20,61 @@ import { share } from 'rxjs/operators';
 })
 export class StatisticsComponent implements OnInit {
 
-  gamesCountValue$: Observable<number>;
-  roundsCountValue$: Observable<number>;
+  form = this.fb.group({
+    fromDate: [new Date('2018-11-09')],
+    toDate: [new Date()]
+  });
+
+  gamesCountPayload$: Observable<GameCountPayload>;
+  roundsCountPayload$: Observable<RoundCountPayload>;
   maxRoundsPerGameValue$: Observable<number>;
-  attendanceCountValue$: Observable<{ max: any; min: any }>;
-  schockAusStreak$: Observable<{ gameId: string; schockAusCount: number }>;
-  maxSchockAusByPlayer$: Observable<{ playerName: string; schockAusCount: number }>;
-  loseRates$: Observable<{ name: string, rate: number }[]>;
-  eventTypeCountValues$: Observable<Array<{ description: string; count: number; }>>;
+  attendanceCountPayload$: Observable<AttendanceCountPayload>;
+  schockAusStreak$: Observable<MaxSchockAusStreakPayload>;
+  shockAusByPlayer$: Observable<SchockAusCountPayload>;
+  loseRates$: Observable<LostCountPayload>;
+  eventTypeCountValues$: Observable<EventTypeCountPayload[]>;
 
   constructor(
-    private dataProvider: StatisticsDataProvider
+    private dataProvider: StatisticsDataProvider,
+    private fb: FormBuilder
   ) { }
 
   ngOnInit(): void {
-    this.gamesCountValue$ = this.dataProvider.getGamesCount$();
-    this.roundsCountValue$ = this.dataProvider.getRoundsCount$();
-    this.maxRoundsPerGameValue$ = this.dataProvider.getMaxRoundsPerGameCount$();
-    this.attendanceCountValue$ = this.dataProvider.getAttendanceCount$().pipe(share());
-    this.schockAusStreak$ = this.dataProvider.getSchockAusStreak$();
-    this.maxSchockAusByPlayer$ = this.dataProvider.getMaxSchockAusByPlayer$();
-    this.loseRates$ = this.dataProvider.getLoseRates$();
-    this.eventTypeCountValues$ = this.dataProvider.getCountsByEventType$();
+    const valueChanges$ = this.form.valueChanges.pipe(startWith(this.form.value), filter(() => !!this.form.valid));
+
+    this.gamesCountPayload$ = valueChanges$.pipe(
+      switchMap(formValue => this.dataProvider.getGamesCount$(formValue.fromDate, formValue.toDate))
+    );
+
+    this.roundsCountPayload$ = valueChanges$.pipe(
+      switchMap(formValue => this.dataProvider.getRoundsCount$(formValue.fromDate, formValue.toDate))
+    );
+
+    this.attendanceCountPayload$ = valueChanges$.pipe(
+      switchMap(formValue => this.dataProvider.getAttendanceCount$(formValue.fromDate, formValue.toDate)),
+      share()
+    );
+
+    this.loseRates$ = valueChanges$.pipe(
+      switchMap(formValue => this.dataProvider.getLoseRates$(formValue.fromDate, formValue.toDate)),
+      share()
+    );
+
+    this.shockAusByPlayer$ = valueChanges$.pipe(
+      switchMap(formValue => this.dataProvider.getSchockAusByPlayer$(formValue.fromDate, formValue.toDate)),
+      share()
+    );
+
+    this.schockAusStreak$ = valueChanges$.pipe(
+      switchMap(formValue => this.dataProvider.getSchockAusStreak$(formValue.fromDate, formValue.toDate))
+    );
+
+    this.eventTypeCountValues$ = valueChanges$.pipe(
+      switchMap(formValue => this.dataProvider.getCountsByEventType$(formValue.fromDate, formValue.toDate)),
+      share()
+    );
+
+    // this.maxRoundsPerGameValue$ = this.dataProvider.getMaxRoundsPerGameCount$();
   }
 
 }
