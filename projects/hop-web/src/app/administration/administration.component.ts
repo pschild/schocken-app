@@ -7,6 +7,7 @@ import { IDialogResult, DialogResult, SnackBarNotificationService, DialogService
 import { ImportExportService, ImportData } from '../core/service/import-export/import-export.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { SyncService } from '@hop-basic-components';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'hop-administration',
@@ -21,6 +22,9 @@ export class AdministrationComponent implements OnInit {
   uploadedFileContent: ImportData[];
 
   showLoadingIndicator: boolean;
+
+  localDatebaseName: string;
+  remoteDatabaseName: string;
 
   gameItems$: Observable<GameSelectItemVo[]>;
 
@@ -39,6 +43,9 @@ export class AdministrationComponent implements OnInit {
   ngOnInit() {
     this.gameItems$ = this.dataProvider.getGameList();
     this.autoSyncEnabled$ = this.syncService.autoSyncEnabled;
+
+    this.localDatebaseName = environment.env.LOCAL_DATABASE;
+    this.remoteDatabaseName = environment.env.REMOTE_DATABASE;
   }
 
   removeGame(gameId: string): void {
@@ -61,7 +68,7 @@ export class AdministrationComponent implements OnInit {
   deleteLocalDatabase(): void {
     this.dialogService.showYesNoDialog({
       title: '',
-      message: `Soll die lokale Datenbank wirklich gelöscht werden?`
+      message: `Soll die lokale Datenbank '${environment.env.LOCAL_DATABASE}' wirklich gelöscht werden?`
     }).pipe(
       filter((dialogResult: IDialogResult) => dialogResult.result === DialogResult.YES),
     ).subscribe(() => {
