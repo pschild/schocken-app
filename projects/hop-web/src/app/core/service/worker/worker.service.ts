@@ -19,7 +19,7 @@ export class WorkerService {
     const uuid = this.generateUuid();
     message.uuid = uuid;
 
-    return Observable.create((observer: Observer<WorkerResponse>) => {
+    return new Observable((observer: Observer<WorkerResponse>) => {
       this.responseStream$.pipe(
         filter((response: WorkerResponse) => response.uuid === uuid)
       ).subscribe((response: WorkerResponse) => {
@@ -51,8 +51,9 @@ export class WorkerService {
   private generateUuid(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
       // tslint:disable-next-line:no-bitwise
-      // tslint:disable-next-line:one-variable-per-declaration
-      const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+      const r = Math.random() * 16 | 0;
+      // tslint:disable-next-line:no-bitwise
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
   }

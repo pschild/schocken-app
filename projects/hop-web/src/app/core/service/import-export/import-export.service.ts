@@ -70,6 +70,8 @@ export class ImportExportService {
 
   async importJson(uploadedJson: ImportData[]): Promise<any> {
     for (const item of uploadedJson) {
+      // DatetimeCache is set to the game's datetime. All following entities (rounds, events) will be created with a ongoing increasing
+      // datetime, so that their order will be kept correctly.
       this.datetimeCache = new Date(item.datetime);
 
       // create game
