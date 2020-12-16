@@ -45,6 +45,10 @@ $cards-margin: 10px;
     align-items: center;
     margin: 20px 0;
     min-width: 30%;
+
+    h2 {
+      text-align: center;
+    }
   }
 }
 
@@ -56,6 +60,10 @@ $cards-margin: 10px;
   td {
     padding: 5px 15px 5px 0;
   }
+}
+
+.datepicker-row > mat-form-field:first-child {
+  margin-right: 10px;
 }
 
 .quick-filter-row {

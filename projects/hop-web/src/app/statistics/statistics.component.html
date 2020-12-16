@@ -1,17 +1,19 @@
 <form [formGroup]="form">
-  <mat-form-field>
-    <mat-label>von</mat-label>
-    <input matInput formControlName="fromDate" [matDatepicker]="pickerFrom" [min]="minFromDate" [max]="maxFromDate">
-    <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
-    <mat-datepicker #pickerFrom></mat-datepicker>
-  </mat-form-field>
+  <div class="datepicker-row">
+    <mat-form-field>
+      <mat-label>von</mat-label>
+      <input matInput formControlName="fromDate" [matDatepicker]="pickerFrom" [min]="minFromDate" [max]="maxFromDate">
+      <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+      <mat-datepicker #pickerFrom></mat-datepicker>
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>bis</mat-label>
-    <input matInput formControlName="toDate" [matDatepicker]="pickerTo" [min]="minToDate" [max]="maxToDate">
-    <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
-    <mat-datepicker #pickerTo></mat-datepicker>
-  </mat-form-field>
+    <mat-form-field>
+      <mat-label>bis</mat-label>
+      <input matInput formControlName="toDate" [matDatepicker]="pickerTo" [min]="minToDate" [max]="maxToDate">
+      <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+      <mat-datepicker #pickerTo></mat-datepicker>
+    </mat-form-field>
+  </div>
 
   <div class="quick-filter-row">
     <span>Schnellfilter:</span>
@@ -52,7 +54,7 @@
     <mat-card class="min-max-item">
       <h4>Gewinner</h4>
       <ng-container *ngIf="attendanceCountPayload$ | async as attendanceCountPayload; else loading">
-        <h2><span *ngFor="let player of attendanceCountPayload.max; let isLast=last">{{player.name}}{{isLast ? '' : ', '}}</span></h2>
+        <h2><div *ngFor="let player of attendanceCountPayload.max">{{player.name}}</div></h2>
         <div><hop-odometer [countTo]="attendanceCountPayload.max[0].count"></hop-odometer> Runden gespielt</div>
       </ng-container>
     </mat-card>
@@ -60,7 +62,7 @@
     <mat-card class="min-max-item">
       <h4>Verlierer</h4>
       <ng-container *ngIf="attendanceCountPayload$ | async as attendanceCountPayload; else loading">
-        <h2><span *ngFor="let player of attendanceCountPayload.min; let isLast=last">{{player.name}}{{isLast ? '' : ', '}}</span></h2>
+        <h2><div *ngFor="let player of attendanceCountPayload.min">{{player.name}}</div></h2>
         <div><hop-odometer [countTo]="attendanceCountPayload.min[0].count"></hop-odometer> Runden gespielt</div>
       </ng-container>
     </mat-card>
@@ -243,8 +245,8 @@
   </mat-expansion-panel-header>
 
   <form [formGroup]="penaltyForm">
-    <mat-form-field appearance="fill">
-      <mat-label>State</mat-label>
+    <mat-form-field>
+      <mat-label>Strafen</mat-label>
       <mat-select formControlName="types" multiple>
         <mat-optgroup *ngFor="let group of allEventTypeGroups" [label]="group.name">
           <mat-option *ngFor="let type of group.types" [value]="type.id">
