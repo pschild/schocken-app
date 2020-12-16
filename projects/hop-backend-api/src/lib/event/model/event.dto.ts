@@ -13,10 +13,10 @@ export interface EventDto extends EntityDto {
 // tslint:disable-next-line:no-namespace
 export namespace EventDtoUtils {
 
-  export function betweenDatesFilter(from: string, to: string): (row) => boolean {
+  export function betweenDatesFilter(from: Date, to: Date): (row) => boolean {
     return row => (row.type === EntityType.ROUND_EVENT || row.type === EntityType.GAME_EVENT)
-      && isAfter(new Date(row.datetime), new Date(from))
-      && isBefore(new Date(row.datetime), new Date(to));
+      && isAfter(new Date(row.datetime), from)
+      && isBefore(new Date(row.datetime), to);
   }
 
 }

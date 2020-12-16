@@ -14,3 +14,12 @@ export interface EventTypeDto extends EntityDto {
   hasComment?: boolean;
   order?: number;
 }
+
+// tslint:disable-next-line:no-namespace
+export namespace EventTypeDtoUtils {
+
+  export function findDescriptionById(eventTypes: EventTypeDto[], id: string): string {
+    return eventTypes.find(p => p._id === id)?.description;
+  }
+
+}

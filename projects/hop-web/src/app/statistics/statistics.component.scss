@@ -57,3 +57,13 @@ $cards-margin: 10px;
     padding: 5px 15px 5px 0;
   }
 }
+
+.quick-filter-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  & > * {
+    margin: 5px;
+  }
+}

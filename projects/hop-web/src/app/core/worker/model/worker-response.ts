@@ -24,7 +24,7 @@ export interface EventTypeCountPayload extends WorkerResponsePayload {
 export interface AttendanceCountItem {
   playerId: string;
   name: string;
-  roundCount: number;
+  count: number;
   quote: number;
 }
 
@@ -37,25 +37,24 @@ export interface AttendanceCountPayload extends WorkerResponsePayload {
 export interface EventCountItem {
   playerId: string;
   name: string;
-  roundCount: number;
-  eventCount: number;
-  qoute: number;
+  count: number;
+  quote: number;
 }
 
 export interface LostCountPayload extends WorkerResponsePayload {
   ranking: EventCountItem[];
-  minQuote: EventCountItem[];
-  maxQuote: EventCountItem[];
+  minQuote: EventCountItem;
+  maxQuote: EventCountItem;
 }
 
 export interface SchockAusCountPayload extends WorkerResponsePayload {
   ranking: EventCountItem[];
-  minQuote: EventCountItem[];
-  maxQuote: EventCountItem[];
+  minQuote: EventCountItem;
+  maxQuote: EventCountItem;
 }
 
 export interface MaxSchockAusStreakPayload extends WorkerResponsePayload {
   gameId: string;
-  datetime: string;
+  datetime: Date;
   count: number;
 }
