@@ -21,10 +21,11 @@ import {
   GameEventRepository,
   RoundEventDto
 } from '@hop-backend-api';
-import { countBy, groupBy, includes, maxBy, minBy, orderBy } from 'lodash';
+import { countBy, groupBy, includes, maxBy, minBy, orderBy, sumBy } from 'lodash';
 import { isBefore, isEqual } from 'date-fns';
 import {
   CountPayload,
+  PenaltyCountPayload,
   RankingByEventTypeItem,
   RankingByPlayerItem,
   RankingPayload,
@@ -38,6 +39,7 @@ import { SCHOCK_AUS_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID, VERLOREN_
 export class StatisticsDataProvider {
 
   activePlayers$: Observable<PlayerDto[]>;
+  latestGame$: Observable<GameDto>;
   allEventTypes$: Observable<EventTypeDto[]>;
   allGamesBetween$: Observable<GameDto[]>;
   allRoundsBetween$: Observable<RoundDto[]>;
@@ -85,6 +87,11 @@ export class StatisticsDataProvider {
       tap(_ => console.log('loaded events.'))
     );
 
+    this.latestGame$ = allGames$.pipe(
+      map(games => games.filter(game => game.completed)),
+      map(games => maxBy(games, 'datetime'))
+    );
+
     this.allGamesBetween$ = combineLatest([allGames$, combinedDates$]).pipe(
       map(([games, [from, to]]) => games.filter(GameDtoUtils.completedBetweenDatesFilter(from, to))),
       share()
@@ -99,7 +106,6 @@ export class StatisticsDataProvider {
       map(([events, [from, to]]) => events.filter(EventDtoUtils.betweenDatesFilter(from, to))),
       share()
     );
-
   }
 
   updateDates(from: Date, to: Date): void {
@@ -111,6 +117,10 @@ export class StatisticsDataProvider {
     this.chosenEventTypeIds$.next(chosenEventTypeIds);
   }
 
+  getLatestGame$(): Observable<GameDto> {
+    return this.latestGame$;
+  }
+
   getGamesCount$(): Observable<CountPayload> {
     return this.allGamesBetween$.pipe(
       map(games => ({ count: games.length }))
@@ -120,6 +130,45 @@ export class StatisticsDataProvider {
   getRoundsCount$(): Observable<CountPayload> {
     return this.allRoundsBetween$.pipe(
       map(rounds => ({ count: rounds.length }))
+    );
+  }
+
+  getPenaltyCount$(): Observable<CountPayload> {
+    return this.allEventsBetween$.pipe(
+      map(events => events.filter(event => event.eventTypeId !== SCHOCK_AUS_EVENT_TYPE_ID)), // Schock-Aus is not a penalty!
+      map(events => ({ count: events.length }))
+    );
+  }
+
+  getSumPerUnitCount$(): Observable<PenaltyCountPayload> {
+    return combineLatest([this.allEventsBetween$, this.allEventTypes$]).pipe(
+      map(([events, eventTypes]) => {
+        return events.filter(event => event.eventTypeId !== SCHOCK_AUS_EVENT_TYPE_ID).map(event => {
+          const accordingEventType = eventTypes.find(eventType => eventType._id === event.eventTypeId);
+          if (!accordingEventType) {
+            console.warn(`No EventType could be found for Event ${event._id}, eventTypeId=${event.eventTypeId}`);
+            return;
+          }
+          const penaltyAtEventTime = EventTypeDtoUtils.findPenaltyValidAt(accordingEventType.history, event.datetime);
+          return {
+            multiplicatorValue: event.multiplicatorValue || 1,
+            penaltyValue: penaltyAtEventTime.penalty.value,
+            penaltyUnit: penaltyAtEventTime.penalty.unit
+          };
+        });
+      }),
+      map(eventsWithPenalties => groupBy(eventsWithPenalties, 'penaltyUnit')),
+      map(groupedByUnit => {
+        return Object.keys(groupedByUnit).map(unit => ({
+          unit,
+          sum: sumBy(groupedByUnit[unit], penalty => penalty.multiplicatorValue * penalty.penaltyValue),
+          precision: 0
+        }));
+      }),
+      map(penaltyItems => ({
+        primaryItem: penaltyItems.find(item => item.unit === '€'),
+        secondaryItems: penaltyItems.filter(item => item.unit !== '€')
+      }))
     );
   }
 

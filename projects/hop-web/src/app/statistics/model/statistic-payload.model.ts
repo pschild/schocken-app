@@ -2,6 +2,17 @@ export interface CountPayload {
   count: number;
 }
 
+export interface PenaltyCountItem {
+  sum: number;
+  unit: string;
+  precision?: number;
+}
+
+export interface PenaltyCountPayload {
+  primaryItem: PenaltyCountItem;
+  secondaryItems: PenaltyCountItem[];
+}
+
 export interface RankingItem {
   count: number;
   quote?: number;

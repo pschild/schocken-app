@@ -5,8 +5,8 @@ import { filter, share, startWith } from 'rxjs/operators';
 import { FormBuilder } from '@angular/forms';
 import { getYear, isAfter, isBefore } from 'date-fns';
 import { groupBy, orderBy, range } from 'lodash';
-import { CountPayload, RankingPayload, SchockAusStreakPayload } from './model/statistic-payload.model';
-import { EventTypeContext } from '@hop-backend-api';
+import { CountPayload, PenaltyCountPayload, RankingPayload, SchockAusStreakPayload } from './model/statistic-payload.model';
+import { EventTypeContext, GameDto } from '@hop-backend-api';
 import {
   ALL_IDS,
   DISZIPLIN_IDS,
@@ -53,8 +53,11 @@ export class StatisticsComponent implements OnInit {
 
   eventTypeQuickFilter = EventTypeQuickFilter;
 
+  latestGame$: Observable<GameDto>;
   gamesCountPayload$: Observable<CountPayload>;
   roundsCountPayload$: Observable<CountPayload>;
+  penaltyCountPayload$: Observable<CountPayload>;
+  sumPerUnitCountPayload$: Observable<PenaltyCountPayload>;
   maxRoundsPerGameValue$: Observable<CountPayload>;
   attendanceCountPayload$: Observable<RankingPayload>;
   schockAusStreak$: Observable<SchockAusStreakPayload>;
@@ -92,14 +95,17 @@ export class StatisticsComponent implements OnInit {
       ];
     });
 
+    this.latestGame$ = this.dataProvider.getLatestGame$();
     this.gamesCountPayload$ = this.dataProvider.getGamesCount$();
     this.roundsCountPayload$ = this.dataProvider.getRoundsCount$();
+    this.maxRoundsPerGameValue$ = this.dataProvider.getMaxRoundsPerGameCount$();
+    this.penaltyCountPayload$ = this.dataProvider.getPenaltyCount$();
+    this.sumPerUnitCountPayload$ = this.dataProvider.getSumPerUnitCount$();
     this.attendanceCountPayload$ = this.dataProvider.getAttendanceCount$().pipe(share());
     this.loseRates$ = this.dataProvider.getLoseRates$().pipe(share());
     this.shockAusByPlayer$ = this.dataProvider.getSchockAusByPlayer$().pipe(share());
     this.schockAusStreak$ = this.dataProvider.getSchockAusStreak$();
     this.eventTypeCountValues$ = this.dataProvider.getCountsByEventType$().pipe(share());
-    this.maxRoundsPerGameValue$ = this.dataProvider.getMaxRoundsPerGameCount$();
     this.penaltyRates$ = this.dataProvider.getPenaltyRates$().pipe(share());
   }
 

@@ -19,6 +19,7 @@
     <span>Schnellfilter:</span>
     <button mat-raised-button color="secondary" (click)="resetDateRange()">Gesamt</button>
     <button *ngFor="let year of yearsSinceStartOfStats" mat-raised-button color="secondary" (click)="setDateRange(year + '-01-01', year + '-12-31')">{{year}}</button>
+    <button *ngIf="latestGame$ | async as latestGame" mat-raised-button color="secondary" (click)="setDateRange(latestGame.datetime, latestGame.datetime)">Letztes Spiel</button>
   </div>
 </form>
 
@@ -39,6 +40,25 @@
     <ng-container *ngIf="maxRoundsPerGameValue$ | async as maxRoundsPerGameValue; else loading">
       <hop-odometer [countTo]="maxRoundsPerGameValue.count"></hop-odometer>
       <div>Rundenrekord pro Spiel</div>
+    </ng-container>
+  </mat-card>
+  <mat-card class="count-row">
+    <ng-container *ngIf="penaltyCountPayload$ | async as penaltyCountPayload; else loading">
+      <hop-odometer [countTo]="penaltyCountPayload.count"></hop-odometer>
+      <div>Strafen</div>
+    </ng-container>
+  </mat-card>
+  <mat-card class="count-row">
+    <ng-container *ngIf="sumPerUnitCountPayload$ | async as sumPerUnitCountPayload; else loading">
+      <div>
+        <hop-odometer [countTo]="sumPerUnitCountPayload.primaryItem.sum" [precision]="sumPerUnitCountPayload.primaryItem.precision"></hop-odometer>
+        {{sumPerUnitCountPayload.primaryItem.unit}}
+      </div>
+      <div *ngFor="let item of sumPerUnitCountPayload.secondaryItems">
+        <hop-odometer [countTo]="item.sum" [precision]="item.precision"></hop-odometer>
+        {{item.unit}}
+      </div>
+      <div>Erspielter Betrag</div>
     </ng-container>
   </mat-card>
 </div>

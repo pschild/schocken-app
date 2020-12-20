@@ -22,4 +22,21 @@ export namespace EventTypeDtoUtils {
     return eventTypes.find(p => p._id === id)?.description;
   }
 
+  export function findPenaltyValidAt(historyItems: EventTypeHistoryItem[], eventDate: Date): Partial<EventTypeDto> {
+    const eventDatetime = new Date(eventDate).getTime();
+    let eventTypeAtEventTime: Partial<EventTypeDto> = null;
+    let datetimeRef = -1;
+    historyItems.forEach((historyItem: EventTypeHistoryItem) => {
+      const validFrom = new Date(historyItem.validFrom).getTime();
+      if (
+        validFrom < eventDatetime
+        && validFrom > datetimeRef
+      ) {
+        datetimeRef = validFrom;
+        eventTypeAtEventTime = historyItem.eventType;
+      }
+    });
+    return eventTypeAtEventTime;
+  }
+
 }
