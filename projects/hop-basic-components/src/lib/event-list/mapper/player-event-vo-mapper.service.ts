@@ -13,7 +13,7 @@ export class PlayerEventVoMapperService {
     vo.eventTypeId = event.eventTypeId;
     vo.eventTypeDescription = eventType.description;
     vo.eventTypePenalty = eventType.penalty;
-    vo.eventMultiplicatorValue = event.multiplicatorValue || 1;
+    vo.eventMultiplicatorValue = event.multiplicatorValue;
     vo.eventTypeMultiplicatorUnit = eventType.multiplicatorUnit;
     vo.eventTypeTrigger = eventType.trigger;
     vo.eventComment = event.comment;

@@ -21,7 +21,7 @@ import {
   GameEventRepository,
   RoundEventDto
 } from '@hop-backend-api';
-import { countBy, groupBy, includes, maxBy, minBy, orderBy, sumBy } from 'lodash';
+import { countBy, groupBy, includes, maxBy, minBy, orderBy } from 'lodash';
 import { isBefore, isEqual } from 'date-fns';
 import {
   CountPayload,
@@ -32,6 +32,7 @@ import {
   SchockAusStreakPayload
 } from './model/statistic-payload.model';
 import { SCHOCK_AUS_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID } from './model/event-type-ids';
+import { PenaltyService } from '@hop-basic-components';
 
 @Injectable({
   providedIn: 'root'
@@ -55,7 +56,8 @@ export class StatisticsDataProvider {
     private roundRepository: RoundRepository,
     private playerRepository: PlayerRepository,
     private roundEventRepository: RoundEventRepository,
-    private gameEventRepository: GameEventRepository
+    private gameEventRepository: GameEventRepository,
+    private penaltyService: PenaltyService
   ) {
     this.activePlayers$ = this.playerRepository.getAllActive().pipe(
       tap(_ => console.log('loaded players.')),
@@ -157,14 +159,7 @@ export class StatisticsDataProvider {
           };
         });
       }),
-      map(eventsWithPenalties => groupBy(eventsWithPenalties, 'penaltyUnit')),
-      map(groupedByUnit => {
-        return Object.keys(groupedByUnit).map(unit => ({
-          unit,
-          sum: sumBy(groupedByUnit[unit], penalty => penalty.multiplicatorValue * penalty.penaltyValue),
-          precision: 0
-        }));
-      }),
+      map(eventsWithPenalties => this.penaltyService.calculateSumsPerUnit(eventsWithPenalties)),
       map(penaltyItems => ({
         primaryItem: penaltyItems.find(item => item.unit === '€'),
         secondaryItems: penaltyItems.filter(item => item.unit !== '€')
