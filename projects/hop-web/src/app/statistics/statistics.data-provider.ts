@@ -153,7 +153,7 @@ export class StatisticsDataProvider {
           }
           const penaltyAtEventTime = EventTypeDtoUtils.findPenaltyValidAt(accordingEventType.history, event.datetime);
           return {
-            multiplicatorValue: event.multiplicatorValue || 1,
+            multiplicatorValue: event.multiplicatorValue,
             penaltyValue: penaltyAtEventTime.penalty.value,
             penaltyUnit: penaltyAtEventTime.penalty.unit
           };
