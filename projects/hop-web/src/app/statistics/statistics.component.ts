@@ -3,7 +3,7 @@ import { StatisticsDataProvider } from './statistics.data-provider';
 import { Observable } from 'rxjs';
 import { filter, share, startWith } from 'rxjs/operators';
 import { FormBuilder } from '@angular/forms';
-import { getYear, isAfter, isBefore } from 'date-fns';
+import { add, getYear, isAfter, isBefore, set } from 'date-fns';
 import { groupBy, orderBy, range } from 'lodash';
 import { CountPayload, PenaltyCountPayload, RankingPayload, SchockAusStreakPayload } from './model/statistic-payload.model';
 import { EventTypeContext, GameDto } from '@hop-backend-api';
@@ -77,7 +77,10 @@ export class StatisticsComponent implements OnInit {
     this.form.valueChanges.pipe(
       startWith(this.form.value),
       filter(formValue => !!this.form.valid),
-    ).subscribe(formValue => this.dataProvider.updateDates(formValue.fromDate, formValue.toDate));
+    ).subscribe(formValue => this.dataProvider.updateDates(
+      set(formValue.fromDate, { hours: 0, minutes: 0, seconds: 0 }),
+      set(formValue.toDate, { hours: 23, minutes: 59, seconds: 59 })
+    ));
 
     this.penaltyForm.valueChanges.pipe(
       startWith(this.penaltyForm.value),
@@ -121,6 +124,11 @@ export class StatisticsComponent implements OnInit {
     }
 
     this.form.patchValue({ fromDate, toDate });
+  }
+
+  setDateRangeForLatestGame(gameDatetime: string): void {
+    // add 1 day as games usually pass midnight
+    this.setDateRange(gameDatetime, add(new Date(gameDatetime), { days: 1 }));
   }
 
   resetDateRange(): void {

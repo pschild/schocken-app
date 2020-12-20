@@ -19,7 +19,7 @@
     <span>Schnellfilter:</span>
     <button mat-raised-button color="secondary" (click)="resetDateRange()">Gesamt</button>
     <button *ngFor="let year of yearsSinceStartOfStats" mat-raised-button color="secondary" (click)="setDateRange(year + '-01-01', year + '-12-31')">{{year}}</button>
-    <button *ngIf="latestGame$ | async as latestGame" mat-raised-button color="secondary" (click)="setDateRange(latestGame.datetime, latestGame.datetime)">Letztes Spiel</button>
+    <button *ngIf="latestGame$ | async as latestGame" mat-raised-button color="secondary" (click)="setDateRangeForLatestGame(latestGame.datetime)">Letztes Spiel</button>
   </div>
 </form>
 
@@ -54,11 +54,11 @@
         <hop-odometer [countTo]="sumPerUnitCountPayload.primaryItem.sum" [precision]="sumPerUnitCountPayload.primaryItem.precision"></hop-odometer>
         {{sumPerUnitCountPayload.primaryItem.unit}}
       </div>
-      <div *ngFor="let item of sumPerUnitCountPayload.secondaryItems">
+      <!-- <div *ngFor="let item of sumPerUnitCountPayload.secondaryItems">
         <hop-odometer [countTo]="item.sum" [precision]="item.precision"></hop-odometer>
         {{item.unit}}
-      </div>
-      <div>Erspielter Betrag</div>
+      </div> -->
+      <div>Kasse</div>
     </ng-container>
   </mat-card>
 </div>
