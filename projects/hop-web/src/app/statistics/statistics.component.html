@@ -48,19 +48,6 @@
       <div>Strafen</div>
     </ng-container>
   </mat-card>
-  <mat-card class="count-row">
-    <ng-container *ngIf="sumPerUnitCountPayload$ | async as sumPerUnitCountPayload; else loading">
-      <div>
-        <hop-odometer [countTo]="sumPerUnitCountPayload.primaryItem.sum" [precision]="sumPerUnitCountPayload.primaryItem.precision"></hop-odometer>
-        {{sumPerUnitCountPayload.primaryItem.unit}}
-      </div>
-      <!-- <div *ngFor="let item of sumPerUnitCountPayload.secondaryItems">
-        <hop-odometer [countTo]="item.sum" [precision]="item.precision"></hop-odometer>
-        {{item.unit}}
-      </div> -->
-      <div>Kasse</div>
-    </ng-container>
-  </mat-card>
 </div>
 
 <mat-expansion-panel>
@@ -162,6 +149,76 @@
         <td>{{player.quote | percent:'1.1'}}</td>
       </tr>
     </table>
+
+  </mat-expansion-panel>
+
+</mat-expansion-panel>
+
+<br/>
+
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <h3>Kassenstand</h3>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <div class="min-max-container">
+    <mat-card class="min-max-item">
+      <h4>Gesamt</h4>
+      <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
+        <h2><hop-odometer [countTo]="cashCounts.overallCount"></hop-odometer> €</h2>
+        <div *ngIf="cashCounts.inactivePlayerCashSum > 0">(inkl. inakt. Spieler: {{cashCounts.inactivePlayerCashSum | number:'1.2'}} €)</div>
+      </ng-container>
+    </mat-card>
+  </div>
+
+  <div class="min-max-container">
+    <mat-card class="min-max-item">
+      <h4>Gewinner</h4>
+      <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
+        <h2>{{cashCounts.max.name}}</h2>
+        <div><hop-odometer [countTo]="cashCounts.max.count" [precision]="2"></hop-odometer> €</div>
+        <div>({{cashCounts.max.quote | percent:'1.1'}})</div>
+      </ng-container>
+    </mat-card>
+
+    <mat-card class="min-max-item">
+      <h4>Verlierer</h4>
+      <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
+        <h2>{{cashCounts.min.name}}</h2>
+        <div><hop-odometer [countTo]="cashCounts.min.count" [precision]="2"></hop-odometer> €</div>
+        <div>({{cashCounts.min.quote | percent:'1.1'}})</div>
+      </ng-container>
+    </mat-card>
+  </div>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>military_tech</mat-icon> Rangliste
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <table *ngIf="cashCounts$ | async as cashCounts; else loading" class="ranking-table">
+      <tr>
+        <td>Platz</td>
+        <td>Spieler</td>
+        <td>Betrag</td>
+        <td>Anteil</td>
+        <td>€/Runde</td>
+      </tr>
+      <tr *ngFor="let player of cashCounts.ranking; let i = index">
+        <td>{{i + 1}}</td>
+        <td>{{player.name}}</td>
+        <td>{{player.count | number:'1.2-2'}} €</td>
+        <td>{{player.quote | percent:'1.1'}}</td>
+        <td>{{player.cashPerRound | number:'1.2-2'}} €</td>
+      </tr>
+    </table>
+    <ng-container *ngIf="cashCounts$ | async as cashCounts">
+      <p *ngIf="cashCounts.inactivePlayerCashSum > 0">Beitrag von inaktiven Spielern: {{cashCounts.inactivePlayerCashSum | number:'1.2'}} €</p>
+    </ng-container>
 
   </mat-expansion-panel>
 

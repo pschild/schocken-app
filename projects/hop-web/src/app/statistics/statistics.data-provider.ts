@@ -21,11 +21,10 @@ import {
   GameEventRepository,
   RoundEventDto
 } from '@hop-backend-api';
-import { countBy, groupBy, includes, maxBy, minBy, orderBy } from 'lodash';
+import { countBy, groupBy, includes, maxBy, minBy, orderBy, sumBy } from 'lodash';
 import { isBefore, isEqual } from 'date-fns';
 import {
   CountPayload,
-  PenaltyCountPayload,
   RankingByEventTypeItem,
   RankingByPlayerItem,
   RankingPayload,
@@ -142,10 +141,10 @@ export class StatisticsDataProvider {
     );
   }
 
-  getSumPerUnitCount$(): Observable<PenaltyCountPayload> {
-    return combineLatest([this.allEventsBetween$, this.allEventTypes$]).pipe(
-      map(([events, eventTypes]) => {
-        return events.filter(event => event.eventTypeId !== SCHOCK_AUS_EVENT_TYPE_ID).map(event => {
+  getCashCount$(): Observable<RankingPayload | { overallCount: number; inactivePlayerCashSum: number; }> {
+    return combineLatest([this.allEventsBetween$, this.allRoundsBetween$, this.allEventTypes$, this.activePlayers$]).pipe(
+      map(([events, rounds, eventTypes, players]) => {
+        const eventsWithPenalties = events.filter(event => event.eventTypeId !== SCHOCK_AUS_EVENT_TYPE_ID).map(event => {
           const accordingEventType = eventTypes.find(eventType => eventType._id === event.eventTypeId);
           if (!accordingEventType) {
             console.warn(`No EventType could be found for Event ${event._id}, eventTypeId=${event.eventTypeId}`);
@@ -153,17 +152,42 @@ export class StatisticsDataProvider {
           }
           const penaltyAtEventTime = EventTypeDtoUtils.findPenaltyValidAt(accordingEventType.history, event.datetime);
           return {
+            playerId: event.playerId,
             multiplicatorValue: event.multiplicatorValue,
             penaltyValue: penaltyAtEventTime.penalty.value,
             penaltyUnit: penaltyAtEventTime.penalty.unit
           };
         });
-      }),
-      map(eventsWithPenalties => this.penaltyService.calculateSumsPerUnit(eventsWithPenalties)),
-      map(penaltyItems => ({
-        primaryItem: penaltyItems.find(item => item.unit === '€'),
-        secondaryItems: penaltyItems.filter(item => item.unit !== '€')
-      }))
+
+        const groupedByPlayerId = groupBy(eventsWithPenalties, 'playerId');
+        const cashSumsByPlayer = Object.keys(groupedByPlayerId)
+          .map(playerId => {
+            const sums = this.penaltyService.calculateSumsPerUnit(groupedByPlayerId[playerId]);
+            const cashSum = sums.find(item => item.unit === '€');
+            return {
+              playerId,
+              name: PlayerDtoUtils.findNameById(players, playerId),
+              playerIsActive: includes(players.map(player => player._id), playerId),
+              count: cashSum.sum
+            };
+          }
+        );
+
+        const overallCashSum = sumBy(cashSumsByPlayer, 'count');
+        const inactivePlayerCashSum = sumBy(cashSumsByPlayer.filter(sum => !sum.playerIsActive), 'count');
+
+        const roundCountByPlayer = this.getRoundCountByPlayer(players, rounds);
+        const withQuotes = cashSumsByPlayer
+          .filter(sum => sum.playerIsActive)
+          .map(sum => {
+            const playerRoundCount = roundCountByPlayer.find(roundCountItem => roundCountItem.playerId === sum.playerId);
+            return { ...sum, quote: sum.count / overallCashSum, cashPerRound: playerRoundCount ? sum.count / playerRoundCount.count : 0 };
+          });
+        const ranking = orderBy(withQuotes, ['quote', 'name'], 'desc');
+        const min = minBy(withQuotes, 'quote');
+        const max = maxBy(withQuotes, 'quote');
+        return { ranking, min, max, inactivePlayerCashSum, overallCount: overallCashSum };
+      })
     );
   }
 

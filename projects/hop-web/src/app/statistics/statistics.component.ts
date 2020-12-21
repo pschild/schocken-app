@@ -5,7 +5,7 @@ import { filter, share, startWith } from 'rxjs/operators';
 import { FormBuilder } from '@angular/forms';
 import { add, getYear, isAfter, isBefore, set } from 'date-fns';
 import { groupBy, orderBy, range } from 'lodash';
-import { CountPayload, PenaltyCountPayload, RankingPayload, SchockAusStreakPayload } from './model/statistic-payload.model';
+import { CountPayload, RankingPayload, SchockAusStreakPayload } from './model/statistic-payload.model';
 import { EventTypeContext, GameDto } from '@hop-backend-api';
 import {
   ALL_IDS,
@@ -57,7 +57,7 @@ export class StatisticsComponent implements OnInit {
   gamesCountPayload$: Observable<CountPayload>;
   roundsCountPayload$: Observable<CountPayload>;
   penaltyCountPayload$: Observable<CountPayload>;
-  sumPerUnitCountPayload$: Observable<PenaltyCountPayload>;
+  cashCounts$: Observable<RankingPayload | { overallCount: number; inactivePlayerCashSum: number; }>;
   maxRoundsPerGameValue$: Observable<CountPayload>;
   attendanceCountPayload$: Observable<RankingPayload>;
   schockAusStreak$: Observable<SchockAusStreakPayload>;
@@ -103,7 +103,7 @@ export class StatisticsComponent implements OnInit {
     this.roundsCountPayload$ = this.dataProvider.getRoundsCount$();
     this.maxRoundsPerGameValue$ = this.dataProvider.getMaxRoundsPerGameCount$();
     this.penaltyCountPayload$ = this.dataProvider.getPenaltyCount$();
-    this.sumPerUnitCountPayload$ = this.dataProvider.getSumPerUnitCount$();
+    this.cashCounts$ = this.dataProvider.getCashCount$().pipe(share());
     this.attendanceCountPayload$ = this.dataProvider.getAttendanceCount$().pipe(share());
     this.loseRates$ = this.dataProvider.getLoseRates$().pipe(share());
     this.shockAusByPlayer$ = this.dataProvider.getSchockAusByPlayer$().pipe(share());
