@@ -59,7 +59,7 @@
 
   <div class="min-max-container">
     <mat-card class="min-max-item">
-      <h4>Gewinner</h4>
+      <img src="assets/award-gifs/winner.png" height="75"/>
       <ng-container *ngIf="attendanceCountPayload$ | async as attendanceCountPayload; else loading">
         <h2><div *ngFor="let player of attendanceCountPayload.max">{{player.name}}</div></h2>
         <div><hop-odometer [countTo]="attendanceCountPayload.max[0].count"></hop-odometer> Runden gespielt</div>
@@ -67,7 +67,7 @@
     </mat-card>
 
     <mat-card class="min-max-item">
-      <h4>Verlierer</h4>
+      <img src="assets/award-gifs/loser.png" height="75"/>
       <ng-container *ngIf="attendanceCountPayload$ | async as attendanceCountPayload; else loading">
         <h2><div *ngFor="let player of attendanceCountPayload.min">{{player.name}}</div></h2>
         <div><hop-odometer [countTo]="attendanceCountPayload.min[0].count"></hop-odometer> Runden gespielt</div>
@@ -112,7 +112,7 @@
 
   <div class="min-max-container">
     <mat-card class="min-max-item">
-      <h4>Gewinner</h4>
+      <img src="assets/award-gifs/winner.png" height="75"/>
       <ng-container *ngIf="loseRates$ | async as loseRates; else loading">
         <h2>{{loseRates.min.name}}</h2>
         <div><hop-odometer [countTo]="loseRates.min.quote * 100" [precision]="1"></hop-odometer>% verloren</div>
@@ -120,7 +120,7 @@
     </mat-card>
 
     <mat-card class="min-max-item">
-      <h4>Verlierer</h4>
+      <img src="assets/award-gifs/loser.png" height="75"/>
       <ng-container *ngIf="loseRates$ | async as loseRates; else loading">
         <h2>{{loseRates.max.name}}</h2>
         <div><hop-odometer [countTo]="loseRates.max.quote * 100" [precision]="1"></hop-odometer>% verloren</div>
@@ -175,7 +175,7 @@
 
   <div class="min-max-container">
     <mat-card class="min-max-item">
-      <h4>Gewinner</h4>
+      <img src="assets/award-gifs/loser.png" height="75"/>
       <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
         <h2>{{cashCounts.max.name}}</h2>
         <div><hop-odometer [countTo]="cashCounts.max.count" [precision]="2"></hop-odometer> €</div>
@@ -184,7 +184,7 @@
     </mat-card>
 
     <mat-card class="min-max-item">
-      <h4>Verlierer</h4>
+      <img src="assets/award-gifs/winner.png" height="75"/>
       <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
         <h2>{{cashCounts.min.name}}</h2>
         <div><hop-odometer [countTo]="cashCounts.min.count" [precision]="2"></hop-odometer> €</div>
@@ -246,7 +246,7 @@
 
   <div class="min-max-container">
     <mat-card class="min-max-item">
-      <h4>Gewinner</h4>
+      <img src="assets/award-gifs/winner.png" height="75"/>
       <ng-container *ngIf="shockAusByPlayer$ | async as shockAusByPlayer; else loading">
         <h2>{{shockAusByPlayer.max.name}}</h2>
         <div><hop-odometer [countTo]="shockAusByPlayer.max.count"></hop-odometer>x Schock-Aus</div>
@@ -255,7 +255,7 @@
     </mat-card>
 
     <mat-card class="min-max-item">
-      <h4>Verlierer</h4>
+      <img src="assets/award-gifs/loser.png" height="75"/>
       <ng-container *ngIf="shockAusByPlayer$ | async as shockAusByPlayer; else loading">
         <h2>{{shockAusByPlayer.min.name}}</h2>
         <div><hop-odometer [countTo]="shockAusByPlayer.min.count"></hop-odometer>x Schock-Aus</div>
@@ -345,7 +345,7 @@
 
   <div class="min-max-container">
     <mat-card class="min-max-item">
-      <h4>Verlierer</h4>
+      <img src="assets/award-gifs/loser.png" height="75"/>
       <ng-container *ngIf="penaltyRates$ | async as penaltyRates; else loading">
         <h2>{{penaltyRates.max.name}}</h2>
         <div><hop-odometer [countTo]="penaltyRates.max.quote" [precision]="2"></hop-odometer> Strafen/Runde</div>
@@ -353,7 +353,7 @@
     </mat-card>
 
     <mat-card class="min-max-item">
-      <h4>Gewinner</h4>
+      <img src="assets/award-gifs/winner.png" height="75"/>
       <ng-container *ngIf="penaltyRates$ | async as penaltyRates; else loading">
         <h2>{{penaltyRates.min.name}}</h2>
         <div><hop-odometer [countTo]="penaltyRates.min.quote" [precision]="2"></hop-odometer> Strafen/Runde</div>
