@@ -193,7 +193,7 @@ export class GameTableDataProvider {
       // handle event with eventhandler
       tap((event: PlayerEventVo) => this.eventHandlerService.handle(event, playerId)),
       // handle statistics
-      tap((event: PlayerEventVo) => this.statisticService.checkEventType(event.eventTypeId)),
+      tap((event: PlayerEventVo) => this.statisticService.checkEventType(event.eventTypeId, EventTypeContext.GAME)),
       // merge the latest state
       withLatestFrom(this.gameEventsRow$),
       // push the created event to the latest state
@@ -276,7 +276,7 @@ export class GameTableDataProvider {
       // handle event with eventhandler
       tap((event: PlayerEventVo) => this.eventHandlerService.handle(event, playerId, roundId)),
       // handle statistics
-      tap((event: PlayerEventVo) => this.statisticService.checkEventType(event.eventTypeId)),
+      tap((event: PlayerEventVo) => this.statisticService.checkEventType(event.eventTypeId, EventTypeContext.ROUND)),
       // merge the latest state
       withLatestFrom(this.roundEventsRows$),
       // push the created event to the latest state

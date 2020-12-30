@@ -1,6 +1,6 @@
 {
   "name": "schocken-app",
-  "version": "0.4.6",
+  "version": "0.5.4",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

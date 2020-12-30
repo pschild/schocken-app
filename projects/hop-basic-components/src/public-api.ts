@@ -50,3 +50,4 @@ export * from './lib/dialog/all-player-selection-modal/model';
 export * from './lib/dialog/snack-bar-notification/snack-bar-notification.service';
 export * from './lib/dialog/dialog.service';
 export * from './lib/sync-state/sync.service';
+export * from './lib/penalty-sum/penalty.service';

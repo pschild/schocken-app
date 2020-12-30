@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { SumPerUnitVo } from './model';
-import { PlayerEventVo } from '../event-list/model';
+import { PenaltyAggregate, SumPerUnitVo } from './model';
+import { groupBy, sumBy } from 'lodash';
 
 @Injectable({
   providedIn: 'root'
@@ -9,24 +9,13 @@ export class PenaltyService {
 
   constructor() { }
 
-  calculateSumsPerUnit(events: PlayerEventVo[]): SumPerUnitVo[] {
-    const sumsPerUnit: SumPerUnitVo[] = [];
-    events.forEach((event: PlayerEventVo) => {
-      if (event.eventTypePenalty) {
-        const penaltyValue = event.eventTypePenalty.value;
-        const multiplicatorValue = event.eventMultiplicatorValue;
-        const finalValue = penaltyValue * multiplicatorValue;
-
-        const penaltyUnit = event.eventTypePenalty.unit;
-        const existingSumForUnit = sumsPerUnit.find((sum: SumPerUnitVo) => sum.unit === penaltyUnit);
-        if (existingSumForUnit) {
-          existingSumForUnit.sum += finalValue;
-        } else {
-          sumsPerUnit.push({ unit: penaltyUnit, sum: finalValue });
-        }
-      }
-    });
-    return sumsPerUnit;
+  calculateSumsPerUnit(events: PenaltyAggregate[]): SumPerUnitVo[] {
+    const groupedByUnit = groupBy(events, 'penaltyUnit');
+    return Object.keys(groupedByUnit).map(unit => ({
+      unit,
+      sum: sumBy(groupedByUnit[unit], penalty => (penalty.multiplicatorValue || 1) * penalty.penaltyValue),
+      precision: 0
+    }));
   }
 
 }

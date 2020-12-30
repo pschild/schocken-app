@@ -1,3 +1,5 @@
+import { isAfter, isBefore } from 'date-fns';
+import { EntityType } from '../../entity/enum/entity-type.enum';
 import { EntityDto } from '../../entity/model/entity.dto';
 
 export interface EventDto extends EntityDto {
@@ -6,4 +8,15 @@ export interface EventDto extends EntityDto {
   eventTypeId: string;
   multiplicatorValue?: number;
   comment?: string;
+}
+
+// tslint:disable-next-line:no-namespace
+export namespace EventDtoUtils {
+
+  export function betweenDatesFilter(from: Date, to: Date): (row) => boolean {
+    return row => (row.type === EntityType.ROUND_EVENT || row.type === EntityType.GAME_EVENT)
+      && isAfter(new Date(row.datetime), from)
+      && isBefore(new Date(row.datetime), to);
+  }
+
 }

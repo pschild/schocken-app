@@ -46,17 +46,9 @@ export class IdbAdapter {
     });
   }
 
-  async getAllByCriteria(criteria: { [key: string]: string | number; }): Promise<any[]> {
-    await this.initialize();
+  async getAllByCriteria(matchFn: (row) => boolean): Promise<any[]> {
     const allRows = await this.getAll();
-    return allRows.filter(row => {
-      let fullfillsAllCriteria = false;
-      // tslint:disable-next-line:forin
-      for (const key in criteria) {
-        fullfillsAllCriteria = row[key] && row[key] === criteria[key];
-      }
-      return fullfillsAllCriteria;
-    });
+    return allRows.filter(row => !!matchFn(row));
   }
 
 }

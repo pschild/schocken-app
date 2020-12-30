@@ -42,6 +42,12 @@ export class GameEventRepository {
     );
   }
 
+  findByEventTypeId(eventTypeId: string): Observable<GameEventDto[]> {
+    return this.getAll().pipe(
+      map(events => events.filter(event => event.eventTypeId === eventTypeId))
+    );
+  }
+
   findByGameId(gameId: string): Observable<GameEventDto[]> {
     return from(this.pouchDb.getAll<GameEventDto>(`${EntityType.GAME_EVENT}__${this.pouchDb.toRawId(gameId, EntityType.GAME)}__${EntityType.GAME_EVENT}`)).pipe(
       map((res: GetResponse<GameEventDto>) => res.rows.map(row => row.doc as GameEventDto))

@@ -34,3 +34,44 @@ $cards-margin: 10px;
     }
   }
 }
+
+.min-max-container {
+  display: flex;
+  justify-content: space-evenly;
+
+  .min-max-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    min-width: 30%;
+
+    h2 {
+      text-align: center;
+    }
+  }
+}
+
+.ranking-table {
+  tr:first-child {
+    font-weight: bold;
+  }
+
+  td {
+    padding: 5px 15px 5px 0;
+  }
+}
+
+.datepicker-row > mat-form-field:first-child {
+  margin-right: 10px;
+}
+
+.quick-filter-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  & > * {
+    margin: 5px;
+  }
+}

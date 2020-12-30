@@ -42,6 +42,12 @@ export class RoundEventRepository {
     );
   }
 
+  findByEventTypeId(eventTypeId: string): Observable<RoundEventDto[]> {
+    return this.getAll().pipe(
+      map(events => events.filter(event => event.eventTypeId === eventTypeId))
+    );
+  }
+
   findByRoundId(roundId: string): Observable<RoundEventDto[]> {
     return from(this.pouchDb.getAll<RoundEventDto>(`${EntityType.ROUND_EVENT}__${this.pouchDb.toRawId(roundId, EntityType.ROUND)}__${EntityType.ROUND_EVENT}`)).pipe(
       map((res: GetResponse<RoundEventDto>) => res.rows.map(row => row.doc as RoundEventDto))
