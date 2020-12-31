@@ -159,7 +159,7 @@
 <mat-expansion-panel>
   <mat-expansion-panel-header>
     <mat-panel-title>
-      <h3>Kassenstand</h3>
+      <h3>Erspielte Strafen</h3>
     </mat-panel-title>
   </mat-expansion-panel-header>
 
@@ -168,7 +168,9 @@
       <h4>Gesamt</h4>
       <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
         <h2><hop-odometer [countTo]="cashCounts.overallCount"></hop-odometer> €</h2>
-        <div *ngIf="cashCounts.inactivePlayerCashSum > 0">(inkl. inakt. Spieler: {{cashCounts.inactivePlayerCashSum | number:'1.2'}} €)</div>
+        <div>
+          (exkl. Monatsbeiträge<span *ngIf="cashCounts.inactivePlayerCashSum > 0">, inkl. inakt. Spieler: {{cashCounts.inactivePlayerCashSum | number:'1.2'}} €</span>)
+        </div>
       </ng-container>
     </mat-card>
   </div>
