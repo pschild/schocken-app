@@ -75,14 +75,14 @@
           <td>Platz</td>
           <td>Spieler</td>
           <td>Punkte</td>
-          <td>Quote</td>
+          <td>Punkte/Runde</td>
         </tr>
         <ng-container *ngFor="let entry of pointsByPlayer">
           <tr *ngFor="let item of entry.items; let i = index">
             <td><span *ngIf="entry.items.length === 1 || (entry.items.length > 1 && i === 0)">{{entry.rank}}</span></td>
             <td>{{item.name}}</td>
             <td>{{item.pointsSum}}</td>
-            <td>{{item.pointsQuote | percent:'1.1'}}</td>
+            <td>{{item.pointsQuote | number:'1.3-3':'de'}}</td>
           </tr>
         </ng-container>
       </table>
@@ -221,7 +221,7 @@
             <td>{{player.name}}</td>
             <td>{{player.schockAusCount}}</td>
             <td>{{player.schockAusPenaltyCount}}</td>
-            <td>{{player.quote | number:'1.2-2'}}</td>
+            <td>{{player.quote | number:'1.2-2':'de'}}</td>
             <td>
               <span *ngFor="let defeat of player.defeats.max; let last = last">
                 {{defeat.name}}<span *ngIf="!last">,</span><span *ngIf="last"> ({{defeat.count}}x)</span>
