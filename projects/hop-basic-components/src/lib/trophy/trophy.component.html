@@ -1,0 +1,9 @@
+<div class="trophy-wrapper">
+  <div class="trophy">
+    <img [src]="'assets/award-gifs/' + imageName + '.png'" />
+    <svg viewBox="0 0 100 25">
+      <text [ngClass]="cssClass" class="text" y="50%" x="50%">{{name}}</text>
+    </svg>
+  </div>
+  <div [ngClass]="{'mat-display-1': place !== 1, 'mat-display-3': place === 1}">{{value}}</div>
+</div>
