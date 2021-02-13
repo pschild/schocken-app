@@ -34,6 +34,32 @@ export interface RankingPayload {
   max: RankingItem | RankingItem[];
 }
 
+export interface Defeat {
+  loserId: string;
+  name: string;
+  count: number;
+}
+
+export interface DefeatsBySchockAus {
+  playerIdWithSchockAus: string;
+  min: Defeat[];
+  max: Defeat[];
+}
+
+export interface SchockAusEffectivityRankingItem {
+  name: string;
+  schockAusCount: number;
+  schockAusPenaltyCount: number;
+  quote: number;
+  defeats: DefeatsBySchockAus;
+}
+
+export interface SchockAusEffectivityRankingPayload {
+  ranking: SchockAusEffectivityRankingItem[];
+  min: SchockAusEffectivityRankingItem | SchockAusEffectivityRankingItem[];
+  max: SchockAusEffectivityRankingItem | SchockAusEffectivityRankingItem[];
+}
+
 export interface SchockAusStreakPayload {
   gameId: string;
   datetime: Date;

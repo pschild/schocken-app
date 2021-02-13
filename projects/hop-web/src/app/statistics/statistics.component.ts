@@ -5,7 +5,7 @@ import { filter, share, startWith } from 'rxjs/operators';
 import { FormBuilder } from '@angular/forms';
 import { add, getYear, isAfter, isBefore, set } from 'date-fns';
 import { groupBy, orderBy, range } from 'lodash';
-import { CountPayload, RankingPayload, SchockAusStreakPayload } from './model/statistic-payload.model';
+import { CountPayload, RankingPayload, SchockAusEffectivityRankingPayload, SchockAusStreakPayload } from './model/statistic-payload.model';
 import { EventTypeContext, GameDto } from '@hop-backend-api';
 import {
   ALL_IDS,
@@ -56,15 +56,18 @@ export class StatisticsComponent implements OnInit {
   latestGame$: Observable<GameDto>;
   gamesCountPayload$: Observable<CountPayload>;
   roundsCountPayload$: Observable<CountPayload>;
+  averageRoundsPerGame$: Observable<number>;
   penaltyCountPayload$: Observable<CountPayload>;
   cashCounts$: Observable<RankingPayload | { overallCount: number; inactivePlayerCashSum: number; }>;
   maxRoundsPerGameValue$: Observable<CountPayload>;
   attendanceCountPayload$: Observable<RankingPayload>;
   schockAusStreak$: Observable<SchockAusStreakPayload>;
+  mostEffectiveSchockAus$: Observable<SchockAusEffectivityRankingPayload>;
   shockAusByPlayer$: Observable<RankingPayload>;
   loseRates$: Observable<RankingPayload>;
   eventTypeCountValues$: Observable<RankingPayload>;
   penaltyRates$: Observable<RankingPayload>;
+  pointsByPlayer$: Observable<any>;
 
   constructor(
     private dataProvider: StatisticsDataProvider,
@@ -101,6 +104,7 @@ export class StatisticsComponent implements OnInit {
     this.latestGame$ = this.dataProvider.getLatestGame$();
     this.gamesCountPayload$ = this.dataProvider.getGamesCount$();
     this.roundsCountPayload$ = this.dataProvider.getRoundsCount$();
+    this.averageRoundsPerGame$ = this.dataProvider.getAverageRoundsPerGame$();
     this.maxRoundsPerGameValue$ = this.dataProvider.getMaxRoundsPerGameCount$();
     this.penaltyCountPayload$ = this.dataProvider.getPenaltyCount$();
     this.cashCounts$ = this.dataProvider.getCashCount$().pipe(share());
@@ -108,8 +112,19 @@ export class StatisticsComponent implements OnInit {
     this.loseRates$ = this.dataProvider.getLoseRates$().pipe(share());
     this.shockAusByPlayer$ = this.dataProvider.getSchockAusByPlayer$().pipe(share());
     this.schockAusStreak$ = this.dataProvider.getSchockAusStreak$();
+    this.mostEffectiveSchockAus$ = this.dataProvider.getMostEffectiveSchockAus$().pipe(share());
     this.eventTypeCountValues$ = this.dataProvider.getCountsByEventType$().pipe(share());
     this.penaltyRates$ = this.dataProvider.getPenaltyRates$().pipe(share());
+    this.pointsByPlayer$ = this.dataProvider.getPointsByPlayer$().pipe(share());
+    this.pointsByPlayer$.subscribe(console.log);
+  }
+
+  /**
+   * Workaround to refresh sub-tabs.
+   * @see https://github.com/angular/components/issues/7274#issuecomment-396293019
+   */
+  updateSubTabs(): void {
+    window.dispatchEvent(new Event('resize'));
   }
 
   setDateRange(from: string | Date, to: string | Date): void {

@@ -25,13 +25,18 @@ import { countBy, groupBy, includes, maxBy, minBy, orderBy, sumBy } from 'lodash
 import { isBefore, isEqual } from 'date-fns';
 import {
   CountPayload,
+  Defeat,
+  DefeatsBySchockAus,
   RankingByEventTypeItem,
   RankingByPlayerItem,
   RankingPayload,
+  SchockAusEffectivityRankingPayload,
   SchockAusStreakPayload
 } from './model/statistic-payload.model';
-import { SCHOCK_AUS_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID } from './model/event-type-ids';
+import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID } from './model/event-type-ids';
 import { PenaltyService } from '@hop-basic-components';
+import { PointsDataProvider } from './points/points.data-provider';
+import { RankingUtil } from './ranking.util';
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +61,8 @@ export class StatisticsDataProvider {
     private playerRepository: PlayerRepository,
     private roundEventRepository: RoundEventRepository,
     private gameEventRepository: GameEventRepository,
-    private penaltyService: PenaltyService
+    private penaltyService: PenaltyService,
+    private pointsDataProvider: PointsDataProvider
   ) {
     this.activePlayers$ = this.playerRepository.getAllActive().pipe(
       tap(_ => console.log('loaded players.')),
@@ -131,6 +137,12 @@ export class StatisticsDataProvider {
   getRoundsCount$(): Observable<CountPayload> {
     return this.allRoundsBetween$.pipe(
       map(rounds => ({ count: rounds.length }))
+    );
+  }
+
+  getAverageRoundsPerGame$(): Observable<number> {
+    return combineLatest([this.allGamesBetween$, this.allRoundsBetween$]).pipe(
+      map(([games, rounds]) => rounds.length / games.length)
     );
   }
 
@@ -214,7 +226,8 @@ export class StatisticsDataProvider {
         const maxCount = maxBy(attendanceCountItems, 'count');
         const min = ranking.filter(item => item.count === minCount.count);
         const max = ranking.filter(item => item.count === maxCount.count);
-        return { ranking, min, max };
+        // return { ranking, min, max };
+        return RankingUtil.sort(attendanceCountItems, ['count']);
       })
     );
   }
@@ -253,6 +266,126 @@ export class StatisticsDataProvider {
             count: overallMaxSchockAusStreak.count
           };
         }
+      })
+    );
+  }
+
+  getMostEffectiveSchockAus$(): Observable<SchockAusEffectivityRankingPayload> {
+    return combineLatest([this.allEventsBetween$, this.activePlayers$]).pipe(
+      map(([events, players]) => {
+        const relevantEvents = events.filter(event =>
+          event.eventTypeId === SCHOCK_AUS_EVENT_TYPE_ID
+          || event.eventTypeId === SCHOCK_AUS_STRAFE_EVENT_TYPE_ID
+          || event.eventTypeId === VERLOREN_EVENT_TYPE_ID
+          || event.eventTypeId === VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID
+        ) as RoundEventDto[];
+        const eventsByRound = groupBy(relevantEvents, 'roundId');
+
+        const schockAusCounts = {};
+        const schockAusPenaltyCounts = {};
+        const defeatsCount = {};
+        Object.keys(eventsByRound).forEach(roundId => {
+          const playerIdsWithSchockAus = eventsByRound[roundId]
+            .filter(event => event.eventTypeId === SCHOCK_AUS_EVENT_TYPE_ID)
+            .filter(event => includes(players.map(player => player._id), event.playerId))
+            .map(i => ({ playerId: i.playerId }));
+          const playerIdsWithSchockAusPenalty = eventsByRound[roundId]
+            .filter(event => event.eventTypeId === SCHOCK_AUS_STRAFE_EVENT_TYPE_ID)
+            .filter(event => includes(players.map(player => player._id), event.playerId))
+            .map(i => ({ playerId: i.playerId }));
+          const verlorenEvent = eventsByRound[roundId].find(event =>
+            (event.eventTypeId === VERLOREN_EVENT_TYPE_ID
+            || event.eventTypeId === VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID)
+            && includes(players.map(player => player._id), event.playerId)
+          );
+
+          // Note: NOT considering rounds with more than 1 Schock-Aus, because it's impossible to reconstruct
+          // who caused a Schock-Aus-Strafe for whom. Especially for imported games, where times for Events are calculated anew.
+          if (playerIdsWithSchockAus.length === 1) {
+            if (playerIdsWithSchockAusPenalty.length === 0) {
+              console.warn(`Round #${roundId} has 1 Schock-Aus, but is missing any Schock-Aus-Strafe-Event!`);
+            }
+
+            // console.group(roundId);
+            // console.log('schock aus', schockAusPlayerIds[0].playerId.substr(-3, 3));
+            // console.log('schock aus strafe', schockAusStrafePlayerIds.map(i => i.playerId.substr(-3, 3)));
+            // console.log('verloren', verlorenPlayerId ? verlorenPlayerId.playerId.substr(-3, 3) : undefined);
+            // console.groupEnd();
+
+            const playerIdWithSchockAus = playerIdsWithSchockAus[0].playerId;
+            const loserId = verlorenEvent ? verlorenEvent.playerId : undefined;
+
+            // count Schock-Aus
+            if (schockAusCounts[playerIdWithSchockAus] !== undefined) {
+              schockAusCounts[playerIdWithSchockAus].count++;
+            } else {
+              schockAusCounts[playerIdWithSchockAus] = { count: 1 };
+            }
+
+            // count distributed Schock-Aus-Strafen by player with Schock-Aus
+            if (schockAusPenaltyCounts[playerIdWithSchockAus] !== undefined) {
+              schockAusPenaltyCounts[playerIdWithSchockAus].penaltyCount += playerIdsWithSchockAusPenalty.length;
+            } else {
+              schockAusPenaltyCounts[playerIdWithSchockAus] = { penaltyCount: playerIdsWithSchockAusPenalty.length };
+            }
+
+            // count Verloren-events of players for each player with Schock-Aus
+            if (loserId) {
+              if (defeatsCount[playerIdWithSchockAus] !== undefined) {
+                if (defeatsCount[playerIdWithSchockAus][loserId] !== undefined) {
+                  defeatsCount[playerIdWithSchockAus][loserId]++;
+                } else {
+                  defeatsCount[playerIdWithSchockAus][loserId] = 1;
+                }
+              } else {
+                defeatsCount[playerIdWithSchockAus] = { [loserId]: 1 };
+              }
+            } else {
+              console.warn(`Round #${roundId} is missing a Verloren-Event! Maybe an inactive player lost?`);
+            }
+          }
+        });
+
+        const causedDefeats: DefeatsBySchockAus[] = Object.keys(defeatsCount).map(playerId => {
+          const losers = defeatsCount[playerId];
+          const defeatsCountByPlayer: Defeat[] = Object.keys(losers).map(loserId => ({
+            loserId,
+            name: PlayerDtoUtils.findNameById(players, loserId),
+            count: losers[loserId]
+          }));
+          const minDefeats = minBy(defeatsCountByPlayer, 'count');
+          const maxDefeats = maxBy(defeatsCountByPlayer, 'count');
+          return {
+            playerIdWithSchockAus: playerId,
+            min: defeatsCountByPlayer.filter(i => i.count === minDefeats.count),
+            max: defeatsCountByPlayer.filter(i => i.count === maxDefeats.count)
+          };
+        });
+
+        const result = players.map(player => {
+          const schockAusCount = schockAusCounts[player._id] ? schockAusCounts[player._id].count : 0;
+          const schockAusPenaltyCount = schockAusPenaltyCounts[player._id] ? schockAusPenaltyCounts[player._id].penaltyCount : 0;
+          return {
+            name: player.name,
+            schockAusCount,
+            schockAusPenaltyCount,
+            quote: schockAusPenaltyCount / schockAusCount,
+            defeats: causedDefeats.find(i => i.playerIdWithSchockAus === player._id)
+          };
+        });
+
+        const ranking = orderBy(result, ['quote', 'name'], 'desc');
+        const min = minBy(result, 'quote');
+        const max = maxBy(result, 'quote');
+        return { ranking, min, max };
+      })
+    );
+  }
+
+  getPointsByPlayer$(): Observable<any> {
+    return combineLatest([this.allEventTypes$, this.allEventsBetween$, this.allRoundsBetween$, this.activePlayers$]).pipe(
+      map(([eventTypes, events, rounds, players]) => {
+        return this.pointsDataProvider.calculate(eventTypes, events, rounds, players);
       })
     );
   }
