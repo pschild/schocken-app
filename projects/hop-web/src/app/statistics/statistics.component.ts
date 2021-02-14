@@ -16,6 +16,7 @@ import {
   UNGESCHICK_IDS,
   ZWEI_ZWEI_EINS_EVENT_TYPE_ID
 } from './model/event-type-ids';
+import { Ranking } from './ranking.util';
 
 const START_DATE_OF_STATISTICS = new Date('2018-11-09');
 
@@ -58,16 +59,16 @@ export class StatisticsComponent implements OnInit {
   roundsCountPayload$: Observable<CountPayload>;
   averageRoundsPerGame$: Observable<number>;
   penaltyCountPayload$: Observable<CountPayload>;
-  cashCounts$: Observable<RankingPayload | { overallCount: number; inactivePlayerCashSum: number; }>;
+  cashCounts$: Observable<Ranking[] | { overallCount: number; inactivePlayerCashSum: number; }>;
   maxRoundsPerGameValue$: Observable<CountPayload>;
-  attendanceCountPayload$: Observable<RankingPayload>;
+  attendanceCountPayload$: Observable<Ranking[]>;
   schockAusStreak$: Observable<SchockAusStreakPayload>;
-  mostEffectiveSchockAus$: Observable<SchockAusEffectivityRankingPayload>;
-  schockAusByPlayer$: Observable<RankingPayload>;
-  loseRates$: Observable<RankingPayload>;
+  mostEffectiveSchockAus$: Observable<Ranking[]>;
+  schockAusByPlayer$: Observable<Ranking[]>;
+  loseRates$: Observable<Ranking[]>;
   eventTypeCountValues$: Observable<RankingPayload>;
   penaltyRates$: Observable<RankingPayload>;
-  pointsByPlayer$: Observable<any>;
+  pointsByPlayer$: Observable<Ranking[]>;
 
   constructor(
     private dataProvider: StatisticsDataProvider,
@@ -116,7 +117,6 @@ export class StatisticsComponent implements OnInit {
     this.eventTypeCountValues$ = this.dataProvider.getCountsByEventType$().pipe(share());
     this.penaltyRates$ = this.dataProvider.getPenaltyRates$().pipe(share());
     this.pointsByPlayer$ = this.dataProvider.getPointsByPlayer$().pipe(share());
-    this.pointsByPlayer$.subscribe(console.log);
   }
 
   /**

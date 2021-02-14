@@ -17,7 +17,7 @@ import {
   ZWEI_ZWEI_EINS_EVENT_TYPE_ID,
   RAUSGEFALLENE_WUERFEL_EVENT_TYPE_ID
 } from '../model/event-type-ids';
-import { RankingUtil } from '../ranking.util';
+import { Ranking, RankingUtil } from '../ranking.util';
 
 interface PlayerEvent {
   playerId: string;
@@ -42,16 +42,16 @@ export class PointsDataProvider {
     { eventTypeId: VERLOREN_EVENT_TYPE_ID, points: 0 },
     { eventTypeId: VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID, points: -2 },
 
-    { eventTypeId: LUSTWURF_EVENT_TYPE_ID, points: -2 },
-    { eventTypeId: ZWEI_ZWEI_EINS_EVENT_TYPE_ID, points: -2 },
-    { eventTypeId: RAUSGEFALLENE_WUERFEL_EVENT_TYPE_ID, points: -2 },
+    // { eventTypeId: LUSTWURF_EVENT_TYPE_ID, points: -2 },
+    // { eventTypeId: ZWEI_ZWEI_EINS_EVENT_TYPE_ID, points: -2 },
+    // { eventTypeId: RAUSGEFALLENE_WUERFEL_EVENT_TYPE_ID, points: -2 },
   ];
-  private NICHT_VERLOREN_POINTS = 1;
+  private NICHT_VERLOREN_POINTS = 2;
 
   constructor() {
   }
 
-  calculate(eventTypes: EventTypeDto[], events: EventDto[], rounds: RoundDto[], players: PlayerDto[]): any {
+  calculate(eventTypes: EventTypeDto[], events: EventDto[], rounds: RoundDto[], players: PlayerDto[]): Ranking[] {
     const roundCountByPlayer = this.getRoundCountByPlayer(rounds);
     const eventsByPlayer = groupBy(events.filter(event => this.isEventWithPoints(event)), 'playerId');
     const table: PointTable[] = players
@@ -75,6 +75,7 @@ export class PointsDataProvider {
         const roundCount = roundCountByPlayer[playerEvent.playerId] || 0;
         return this.addNichtVerlorenEvents(playerEvent, verlorenCount, roundCount);
       })
+      .filter((playerEvent: PlayerEvent) => roundCountByPlayer[playerEvent.playerId] > 0)
       .map((playerEvent: PlayerEvent) => this.addSumsAndQuotes(playerEvent, roundCountByPlayer[playerEvent.playerId]));
 
     return RankingUtil.sort(table, ['pointsQuote']);

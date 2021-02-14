@@ -1,9 +1,14 @@
 import { groupBy, Many, orderBy } from 'lodash';
 
+export interface Ranking {
+  rank: number;
+  items: any[];
+}
+
 // tslint:disable-next-line:no-namespace
 export namespace RankingUtil {
 
-  export function sort(collection: any, compareKeys: string[], directions?: Many<'asc'|'desc'>): any {
+  export function sort(collection: any, compareKeys: string[], directions?: Many<'asc'|'desc'>): Ranking[] {
     directions = directions || compareKeys.map(key => 'desc');
 
     let rank = 1;

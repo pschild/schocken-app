@@ -36,7 +36,7 @@ import {
 import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID } from './model/event-type-ids';
 import { PenaltyService } from '@hop-basic-components';
 import { PointsDataProvider } from './points/points.data-provider';
-import { RankingUtil } from './ranking.util';
+import { Ranking, RankingUtil } from './ranking.util';
 
 @Injectable({
   providedIn: 'root'
@@ -101,19 +101,16 @@ export class StatisticsDataProvider {
 
     this.allGamesBetween$ = combineLatest([allGames$, combinedDates$]).pipe(
       map(([games, [from, to]]) => games.filter(GameDtoUtils.completedBetweenDatesFilter(from, to))),
-      // filter(games => !!games && games.length > 0),
       share()
     );
 
     this.allRoundsBetween$ = combineLatest([allRounds$, combinedDates$]).pipe(
       map(([rounds, [from, to]]) => rounds.filter(RoundDtoUtils.betweenDatesFilter(from, to))),
-      // filter(rounds => !!rounds && rounds.length > 0),
       share()
     );
 
     this.allEventsBetween$ = combineLatest([allEvents$, combinedDates$]).pipe(
       map(([events, [from, to]]) => events.filter(EventDtoUtils.betweenDatesFilter(from, to))),
-      // filter(events => !!events && events.length > 0),
       share()
     );
   }
@@ -156,7 +153,7 @@ export class StatisticsDataProvider {
     );
   }
 
-  getCashCount$(): Observable<RankingPayload | { overallCount: number; inactivePlayerCashSum: number; }> {
+  getCashCount$(): Observable<Ranking[] | { overallCount: number; inactivePlayerCashSum: number; }> {
     return combineLatest([this.allEventsBetween$, this.allRoundsBetween$, this.allEventTypes$, this.activePlayers$]).pipe(
       map(([events, rounds, eventTypes, players]) => {
         const eventsWithPenalties = events.filter(event => event.eventTypeId !== SCHOCK_AUS_EVENT_TYPE_ID).map(event => {
@@ -198,10 +195,7 @@ export class StatisticsDataProvider {
             const playerRoundCount = roundCountByPlayer.find(roundCountItem => roundCountItem.playerId === sum.playerId);
             return { ...sum, quote: sum.count / overallCashSum, cashPerRound: playerRoundCount ? sum.count / playerRoundCount.count : 0 };
           });
-        const ranking = orderBy(withQuotes, ['quote', 'name'], 'desc');
-        const min = minBy(withQuotes, 'quote');
-        const max = maxBy(withQuotes, 'quote');
-        return { ranking, min, max, inactivePlayerCashSum, overallCount: overallCashSum };
+        return { ranking: RankingUtil.sort(withQuotes, ['quote']), inactivePlayerCashSum, overallCount: overallCashSum };
       })
     );
   }
@@ -216,7 +210,7 @@ export class StatisticsDataProvider {
     );
   }
 
-  getAttendanceCount$(): Observable<RankingPayload> {
+  getAttendanceCount$(): Observable<Ranking[]> {
     return combineLatest([this.allRoundsBetween$, this.activePlayers$]).pipe(
       map(([rounds, players]) => {
         const roundCountByPlayer = this.getRoundCountByPlayer(players, rounds);
@@ -224,12 +218,6 @@ export class StatisticsDataProvider {
           quote: roundCountItem.count / rounds.length,
           ...roundCountItem
         }));
-        const ranking = orderBy(attendanceCountItems, ['count', 'name'], 'desc');
-        const minCount = minBy(attendanceCountItems, 'count');
-        const maxCount = maxBy(attendanceCountItems, 'count');
-        const min = ranking.filter(item => item.count === minCount.count);
-        const max = ranking.filter(item => item.count === maxCount.count);
-        // return { ranking, min, max };
         return RankingUtil.sort(attendanceCountItems, ['count']);
       })
     );
@@ -273,7 +261,7 @@ export class StatisticsDataProvider {
     );
   }
 
-  getMostEffectiveSchockAus$(): Observable<SchockAusEffectivityRankingPayload> {
+  getMostEffectiveSchockAus$(): Observable<Ranking[]> {
     return combineLatest([this.allEventsBetween$, this.activePlayers$]).pipe(
       map(([events, players]) => {
         const relevantEvents = events.filter(event =>
@@ -308,12 +296,6 @@ export class StatisticsDataProvider {
             if (playerIdsWithSchockAusPenalty.length === 0) {
               console.warn(`Round #${roundId} has 1 Schock-Aus, but is missing any Schock-Aus-Strafe-Event!`);
             }
-
-            // console.group(roundId);
-            // console.log('schock aus', schockAusPlayerIds[0].playerId.substr(-3, 3));
-            // console.log('schock aus strafe', schockAusStrafePlayerIds.map(i => i.playerId.substr(-3, 3)));
-            // console.log('verloren', verlorenPlayerId ? verlorenPlayerId.playerId.substr(-3, 3) : undefined);
-            // console.groupEnd();
 
             const playerIdWithSchockAus = playerIdsWithSchockAus[0].playerId;
             const loserId = verlorenEvent ? verlorenEvent.playerId : undefined;
@@ -377,15 +359,12 @@ export class StatisticsDataProvider {
           };
         }).filter(player => player.schockAusCount > 0);
 
-        const ranking = orderBy(result, ['quote', 'name'], 'desc');
-        const min = minBy(result, 'quote');
-        const max = maxBy(result, 'quote');
-        return { ranking, min, max };
+        return RankingUtil.sort(result, ['quote']);
       })
     );
   }
 
-  getPointsByPlayer$(): Observable<any> {
+  getPointsByPlayer$(): Observable<Ranking[]> {
     return combineLatest([this.allEventTypes$, this.allEventsBetween$, this.allRoundsBetween$, this.activePlayers$]).pipe(
       map(([eventTypes, events, rounds, players]) => {
         return this.pointsDataProvider.calculate(eventTypes, events, rounds, players);
@@ -393,7 +372,7 @@ export class StatisticsDataProvider {
     );
   }
 
-  getSchockAusByPlayer$(): Observable<RankingPayload> {
+  getSchockAusByPlayer$(): Observable<Ranking[]> {
     return combineLatest([this.allRoundsBetween$, this.allEventsBetween$, this.activePlayers$]).pipe(
       map(([rounds, events, players]) => {
         const allSchockAusEvents = events.filter(event => event.eventTypeId === SCHOCK_AUS_EVENT_TYPE_ID) as RoundEventDto[];
@@ -408,15 +387,12 @@ export class StatisticsDataProvider {
             };
           }
         }).filter(item => !!item);
-        const ranking = orderBy(eventCountItems, ['quote', 'name'], 'desc');
-        const min = minBy(eventCountItems, 'quote');
-        const max = maxBy(eventCountItems, 'quote');
-        return { ranking, min, max };
+        return RankingUtil.sort(eventCountItems, ['quote']);
       })
     );
   }
 
-  getLoseRates$(): Observable<RankingPayload> {
+  getLoseRates$(): Observable<Ranking[]> {
     return combineLatest([this.allRoundsBetween$, this.allEventsBetween$, this.activePlayers$]).pipe(
       map(([rounds, events, players]) => {
         const allVerlorenEvents = events.filter(
@@ -433,10 +409,7 @@ export class StatisticsDataProvider {
             };
           }
         }).filter(item => !!item);
-        const ranking = orderBy(eventCountItems, ['quote', 'name'], 'desc');
-        const min = minBy(eventCountItems, 'quote');
-        const max = maxBy(eventCountItems, 'quote');
-        return { ranking, min, max };
+        return RankingUtil.sort(eventCountItems, ['quote']);
       })
     );
   }
