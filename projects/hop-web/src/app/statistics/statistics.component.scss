@@ -52,13 +52,20 @@ $cards-margin: 10px;
   }
 }
 
-.ranking-table {
+.stats-table {
   tr:first-child {
     font-weight: bold;
   }
 
   td {
     padding: 5px 15px 5px 0;
+    height: 40px;
+  }
+
+  &.ranking-table {
+    td:first-child {
+      text-align: center;
+    }
   }
 }
 

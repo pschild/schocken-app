@@ -44,7 +44,7 @@ export class OdometerComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.countTo.currentValue) {
+    if (changes.countTo.currentValue >= 0) {
       this.trigger.next(0);
     }
   }

@@ -17,6 +17,7 @@ import { PenaltySumComponent } from './penalty-sum/penalty-sum.component';
 import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator.component';
 import { CelebrationModalComponent } from './dialog/celebration-modal/celebration-modal.component';
 import { OdometerComponent } from './odometer/odometer.component';
+import { BadgeComponent } from './badge/badge.component';
 import { TrophyComponent } from './trophy/trophy.component';
 
 @NgModule({
@@ -36,6 +37,7 @@ import { TrophyComponent } from './trophy/trophy.component';
     LoadingIndicatorComponent,
     CelebrationModalComponent,
     OdometerComponent,
+    BadgeComponent,
     TrophyComponent
   ],
   imports: [
@@ -56,6 +58,7 @@ import { TrophyComponent } from './trophy/trophy.component';
     LoadingIndicatorComponent,
     CelebrationModalComponent,
     OdometerComponent,
+    BadgeComponent,
     TrophyComponent
   ]
 })

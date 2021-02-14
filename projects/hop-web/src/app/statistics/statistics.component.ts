@@ -63,7 +63,7 @@ export class StatisticsComponent implements OnInit {
   attendanceCountPayload$: Observable<RankingPayload>;
   schockAusStreak$: Observable<SchockAusStreakPayload>;
   mostEffectiveSchockAus$: Observable<SchockAusEffectivityRankingPayload>;
-  shockAusByPlayer$: Observable<RankingPayload>;
+  schockAusByPlayer$: Observable<RankingPayload>;
   loseRates$: Observable<RankingPayload>;
   eventTypeCountValues$: Observable<RankingPayload>;
   penaltyRates$: Observable<RankingPayload>;
@@ -110,7 +110,7 @@ export class StatisticsComponent implements OnInit {
     this.cashCounts$ = this.dataProvider.getCashCount$().pipe(share());
     this.attendanceCountPayload$ = this.dataProvider.getAttendanceCount$().pipe(share());
     this.loseRates$ = this.dataProvider.getLoseRates$().pipe(share());
-    this.shockAusByPlayer$ = this.dataProvider.getSchockAusByPlayer$().pipe(share());
+    this.schockAusByPlayer$ = this.dataProvider.getSchockAusByPlayer$().pipe(share());
     this.schockAusStreak$ = this.dataProvider.getSchockAusStreak$();
     this.mostEffectiveSchockAus$ = this.dataProvider.getMostEffectiveSchockAus$().pipe(share());
     this.eventTypeCountValues$ = this.dataProvider.getCountsByEventType$().pipe(share());

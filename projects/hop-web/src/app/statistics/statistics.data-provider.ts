@@ -101,16 +101,19 @@ export class StatisticsDataProvider {
 
     this.allGamesBetween$ = combineLatest([allGames$, combinedDates$]).pipe(
       map(([games, [from, to]]) => games.filter(GameDtoUtils.completedBetweenDatesFilter(from, to))),
+      // filter(games => !!games && games.length > 0),
       share()
     );
 
     this.allRoundsBetween$ = combineLatest([allRounds$, combinedDates$]).pipe(
       map(([rounds, [from, to]]) => rounds.filter(RoundDtoUtils.betweenDatesFilter(from, to))),
+      // filter(rounds => !!rounds && rounds.length > 0),
       share()
     );
 
     this.allEventsBetween$ = combineLatest([allEvents$, combinedDates$]).pipe(
       map(([events, [from, to]]) => events.filter(EventDtoUtils.betweenDatesFilter(from, to))),
+      // filter(events => !!events && events.length > 0),
       share()
     );
   }
@@ -372,7 +375,7 @@ export class StatisticsDataProvider {
             quote: schockAusPenaltyCount / schockAusCount,
             defeats: causedDefeats.find(i => i.playerIdWithSchockAus === player._id)
           };
-        });
+        }).filter(player => player.schockAusCount > 0);
 
         const ranking = orderBy(result, ['quote', 'name'], 'desc');
         const min = minBy(result, 'quote');
@@ -404,7 +407,7 @@ export class StatisticsDataProvider {
               ...eventCountItem
             };
           }
-        });
+        }).filter(item => !!item);
         const ranking = orderBy(eventCountItems, ['quote', 'name'], 'desc');
         const min = minBy(eventCountItems, 'quote');
         const max = maxBy(eventCountItems, 'quote');
@@ -429,7 +432,7 @@ export class StatisticsDataProvider {
               ...eventCountItem
             };
           }
-        });
+        }).filter(item => !!item);
         const ranking = orderBy(eventCountItems, ['quote', 'name'], 'desc');
         const min = minBy(eventCountItems, 'quote');
         const max = maxBy(eventCountItems, 'quote');
