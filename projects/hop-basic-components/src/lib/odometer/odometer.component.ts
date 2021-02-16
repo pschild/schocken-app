@@ -18,6 +18,7 @@ export class OdometerComponent implements OnInit, OnChanges {
 
   @Input() countTo: number;
   @Input() precision: number;
+  @Input() suffix: string;
 
   constructor() { }
 

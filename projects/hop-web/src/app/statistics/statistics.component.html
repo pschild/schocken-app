@@ -16,7 +16,6 @@
 
     <button mat-button [matMenuTriggerFor]="quickfilterDatesMenu">
       <mat-icon>filter_alt</mat-icon>
-      Schnellfilter
       <mat-icon>expand_more</mat-icon>
     </button>
     <mat-menu #quickfilterDatesMenu="matMenu">
@@ -29,7 +28,7 @@
 
 <mat-tab-group (selectedTabChange)="updateSubTabs()">
   <mat-tab label="Spiele & Runden">
-    <div class="statistics-container">
+    <div class="card-container">
       <mat-card class="count-row">
         <ng-container *ngIf="gamesCountPayload$ | async as gamesCountPayload; else loading">
           <hop-odometer [countTo]="gamesCountPayload.count"></hop-odometer>
@@ -127,15 +126,20 @@
         </table>
       </mat-tab>
       <mat-tab label="Kasse">
-        <mat-card class="min-max-item">
-          <h4>Gesamt</h4>
+        <div class="card-container">
+          <mat-card class="count-row">
+            <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
+              <hop-odometer [countTo]="cashCounts.overallCount" [precision]="2" [suffix]="'€'"></hop-odometer>
+              <div>Kassenstand<br/>(exkl. Monatsbeiträge)</div>
+            </ng-container>
+          </mat-card>
           <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
-            <h2><hop-odometer [countTo]="cashCounts.overallCount" [precision]="2"></hop-odometer> €</h2>
-            <div>
-              (exkl. Monatsbeiträge<span *ngIf="cashCounts.inactivePlayerCashSum > 0">, inkl. inakt. Spieler: {{cashCounts.inactivePlayerCashSum | number:'1.2'}} €</span>)
-            </div>
+            <mat-card class="count-row" *ngIf="cashCounts.inactivePlayerCashSum > 0">
+              <hop-odometer [countTo]="cashCounts.inactivePlayerCashSum" [precision]="2" [suffix]="'€'"></hop-odometer>
+              <div>Betrag von inaktiven Spielern</div>
+            </mat-card>
           </ng-container>
-        </mat-card>
+        </div>
 
         <table *ngIf="cashCounts$ | async as cashCounts; else loading" class="stats-table ranking-table">
           <tr>
@@ -155,9 +159,6 @@
             </tr>
           </ng-container>
         </table>
-        <ng-container *ngIf="cashCounts$ | async as cashCounts">
-          <p *ngIf="cashCounts.inactivePlayerCashSum > 0">Beitrag von inaktiven Spielern: {{cashCounts.inactivePlayerCashSum | number:'1.2'}} €</p>
-        </ng-container>
       </mat-tab>
       <mat-tab label="Ereignisse">
         <table *ngIf="eventTypeCountValues$ | async as eventTypeCountValues; else loading" class="stats-table">
@@ -174,14 +175,122 @@
     </mat-tab-group>
   </mat-tab>
   <mat-tab label="Streaks">
-    <mat-card class="min-max-item">
-      <h4>Schock-Aus-Streak</h4>
-      <ng-container *ngIf="schockAusStreak$ | async as schockAusStreak; else loading">
-        <h2><hop-odometer [countTo]="schockAusStreak.count"></hop-odometer></h2>
-        <div>aufeinanderfolgende Runden mit mind. 1x Schock-Aus</div>
-        <a *ngIf="schockAusStreak.count > 0" [href]="'game-table/' + schockAusStreak.gameId">(am {{schockAusStreak.datetime | date:'dd.MM.yyyy'}})</a>
-      </ng-container>
-    </mat-card>
+    <div class="card-container">
+      <mat-card class="streak-row">
+        <ng-container *ngIf="noSchockAusStreak$ | async as noSchockAusStreak; else loading">
+          <div class="current-streak">
+            <div>
+              <span *ngFor="let player of noSchockAusStreak.ranking[0]?.items; let last = last">
+                <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
+              </span>
+            </div>
+            <hop-odometer [countTo]="noSchockAusStreak.ranking[0]?.items[0]?.count"></hop-odometer>
+            <div>Runden ohne <strong>Schock-Aus</strong></div>
+          </div>
+          <div class="record-streak">
+            <h3>Rekord</h3>
+            <div>{{noSchockAusStreak.overallMax.name}}, <hop-odometer [countTo]="noSchockAusStreak.overallMax.count"></hop-odometer> Runden</div>
+            <small>aufgestellt am {{noSchockAusStreak.overallMax.to | date:'dd.MM.yyyy'}}</small>
+          </div>
+        </ng-container>
+      </mat-card>
+      <mat-card class="streak-row">
+        <ng-container *ngIf="noSchockAusStrafeStreak$ | async as noSchockAusStrafeStreak; else loading">
+          <div class="current-streak">
+            <div>
+              <span *ngFor="let player of noSchockAusStrafeStreak.ranking[0]?.items; let last = last">
+                <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
+              </span>
+            </div>
+            <hop-odometer [countTo]="noSchockAusStrafeStreak.ranking[0]?.items[0]?.count"></hop-odometer>
+            <div>Runden ohne <strong>Schock-Aus-Strafe</strong></div>
+          </div>
+          <div class="record-streak">
+            <h3>Rekord</h3>
+            <div>{{noSchockAusStrafeStreak.overallMax.name}}, <hop-odometer [countTo]="noSchockAusStrafeStreak.overallMax.count"></hop-odometer> Runden</div>
+            <small>aufgestellt am {{noSchockAusStrafeStreak.overallMax.to | date:'dd.MM.yyyy'}}</small>
+          </div>
+        </ng-container>
+      </mat-card>
+      <mat-card class="streak-row">
+        <ng-container *ngIf="noVerlorenStreak$ | async as noVerlorenStreak; else loading">
+          <div class="current-streak">
+            <div>
+              <span *ngFor="let player of noVerlorenStreak.ranking[0]?.items; let last = last">
+                <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
+              </span>
+            </div>
+            <hop-odometer [countTo]="noVerlorenStreak.ranking[0]?.items[0]?.count"></hop-odometer>
+            <div>Runden ohne <strong>Niederlage</strong></div>
+          </div>
+          <div class="record-streak">
+            <h3>Rekord</h3>
+            <div>{{noVerlorenStreak.overallMax.name}}, <hop-odometer [countTo]="noVerlorenStreak.overallMax.count"></hop-odometer> Runden</div>
+            <small>aufgestellt am {{noVerlorenStreak.overallMax.to | date:'dd.MM.yyyy'}}</small>
+          </div>
+        </ng-container>
+      </mat-card>
+      <mat-card class="streak-row">
+        <ng-container *ngIf="no221$ | async as no221; else loading">
+          <div class="current-streak">
+            <div>
+              <span *ngFor="let player of no221.ranking[0]?.items; let last = last">
+                <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
+              </span>
+            </div>
+            <hop-odometer [countTo]="no221.ranking[0]?.items[0]?.count"></hop-odometer>
+            <div>Runden ohne <strong>2-2-1</strong></div>
+          </div>
+          <div class="record-streak">
+            <h3>Rekord</h3>
+            <div>{{no221.overallMax.name}}, <hop-odometer [countTo]="no221.overallMax.count"></hop-odometer> Runden</div>
+            <small>aufgestellt am {{no221.overallMax.to | date:'dd.MM.yyyy'}}</small>
+          </div>
+        </ng-container>
+      </mat-card>
+      <mat-card class="streak-row">
+        <ng-container *ngIf="noLustwurf$ | async as noLustwurf; else loading">
+          <div class="current-streak">
+            <div>
+              <span *ngFor="let player of noLustwurf.ranking[0]?.items; let last = last">
+                <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
+              </span>
+            </div>
+            <hop-odometer [countTo]="noLustwurf.ranking[0]?.items[0]?.count"></hop-odometer>
+            <div>Runden ohne <strong>Lustwurf</strong></div>
+          </div>
+          <div class="record-streak">
+            <h3>Rekord</h3>
+            <div>{{noLustwurf.overallMax.name}}, <hop-odometer [countTo]="noLustwurf.overallMax.count"></hop-odometer> Runden</div>
+            <small>aufgestellt am {{noLustwurf.overallMax.to | date:'dd.MM.yyyy'}}</small>
+          </div>
+        </ng-container>
+      </mat-card>
+      <div>
+        <mat-card class="count-row">
+          <ng-container *ngIf="schockAusStreak$ | async as schockAusStreak; else loading">
+            <hop-odometer [countTo]="schockAusStreak.count"></hop-odometer>
+            <div>
+              Schock-Aus-Streak
+              <div>
+                <a *ngIf="schockAusStreak.count > 0" [href]="'game-table/' + schockAusStreak.gameId">
+                  <small>aufgestellt am {{schockAusStreak.datetime | date:'dd.MM.yyyy'}}</small>
+                </a>
+              </div>
+            </div>
+            <button mat-icon-button (click)="tooltip.show()">
+              <mat-icon
+                #tooltip="matTooltip"
+                matTooltip="aufeinanderfolgende Runden mit mind. 1x Schock-Aus"
+                [matTooltipPosition]="'right'"
+                (mouseenter)="$event.stopImmediatePropagation()"
+                (mouseleave)="$event.stopImmediatePropagation()"
+              >info</mat-icon>
+            </button>
+          </ng-container>
+        </mat-card>
+      </div>
+    </div>
   </mat-tab>
   <mat-tab label="Schock-Aus">
     <mat-tab-group color="accent">

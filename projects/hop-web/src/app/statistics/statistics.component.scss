@@ -1,6 +1,8 @@
 $cards-margin: 10px;
 
-.statistics-container {
+.card-container {
+  text-align: center;
+
   mat-card {
     flex-direction: column;
     align-items: center;
@@ -9,11 +11,18 @@ $cards-margin: 10px;
     box-sizing: border-box;
   }
 
-  .count-row {
+  .streak-row {
     display: inline-flex;
-    height: 150px;
+    text-align: center;
 
-    @media (max-width: 600px) {
+    .current-streak {
+      margin-bottom: 10px;
+      hop-odometer {
+        font-size: 40px;
+      }
+    }
+
+    @media (max-width: 550px) {
       width: calc(100% - #{2 * $cards-margin});
     }
 
@@ -21,33 +30,44 @@ $cards-margin: 10px;
       width: calc(50% - #{2 * $cards-margin});
     }
 
-    @media (min-width: 800px) {
+    @media (min-width: 1000px) {
+      width: calc(33.3333% - #{2 * $cards-margin});
+    }
+  }
+
+  .count-row {
+    display: inline-flex;
+    text-align: center;
+    height: 150px;
+
+    @media (max-width: 600px) {
+      width: calc(50% - #{2 * $cards-margin});
+    }
+
+    @media (min-width: 600px) {
+      width: calc(50% - #{2 * $cards-margin});
+    }
+
+    @media (min-width: 700px) {
       width: calc(33.3333% - #{2 * $cards-margin});
     }
 
-    @media (min-width: 1000px) {
+    @media (min-width: 900px) {
       width: calc(25% - #{2 * $cards-margin});
     }
 
-    & > :first-child {
+    @media (min-width: 1100px) {
+      width: calc(20% - #{2 * $cards-margin});
+    }
+
+    hop-odometer {
       font-size: 40px;
     }
-  }
-}
 
-.min-max-container {
-  display: flex;
-  justify-content: space-evenly;
-
-  .min-max-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 20px 0;
-    min-width: 30%;
-
-    h2 {
-      text-align: center;
+    button[mat-icon-button] {
+      position: absolute;
+      top: 0;
+      right: 0;
     }
   }
 }
@@ -70,8 +90,14 @@ $cards-margin: 10px;
   }
 }
 
-.datepicker-row > * {
-  margin-right: 10px;
+.datepicker-row {
+  > * {
+    margin-right: 10px;
+  }
+
+  mat-form-field {
+    max-width: 35%;
+  }
 }
 
 .trophy-wrapper {

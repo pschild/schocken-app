@@ -10,13 +10,17 @@ import { EventTypeContext, GameDto } from '@hop-backend-api';
 import {
   ALL_IDS,
   DISZIPLIN_IDS,
+  LUSTWURF_EVENT_TYPE_ID,
   RUNDENSTRAFEN_IDS,
+  SCHOCK_AUS_EVENT_TYPE_ID,
   SCHOCK_AUS_STRAFE_EVENT_TYPE_ID,
   SPIELSTRAFEN_IDS,
   UNGESCHICK_IDS,
+  VERLOREN_EVENT_TYPE_ID,
   ZWEI_ZWEI_EINS_EVENT_TYPE_ID
 } from './model/event-type-ids';
 import { Ranking } from './ranking.util';
+import { StreakResult } from './streaks/streaks.data-provider';
 
 const START_DATE_OF_STATISTICS = new Date('2018-11-09');
 
@@ -70,6 +74,12 @@ export class StatisticsComponent implements OnInit {
   penaltyRates$: Observable<RankingPayload>;
   pointsByPlayer$: Observable<Ranking[]>;
 
+  noSchockAusStreak$: Observable<StreakResult>;
+  noSchockAusStrafeStreak$: Observable<StreakResult>;
+  noVerlorenStreak$: Observable<StreakResult>;
+  no221$: Observable<StreakResult>;
+  noLustwurf$: Observable<StreakResult>;
+
   constructor(
     private dataProvider: StatisticsDataProvider,
     private fb: FormBuilder
@@ -117,6 +127,12 @@ export class StatisticsComponent implements OnInit {
     this.eventTypeCountValues$ = this.dataProvider.getCountsByEventType$().pipe(share());
     this.penaltyRates$ = this.dataProvider.getPenaltyRates$().pipe(share());
     this.pointsByPlayer$ = this.dataProvider.getPointsByPlayer$().pipe(share());
+
+    this.noSchockAusStreak$ = this.dataProvider.getStreaks$(SCHOCK_AUS_EVENT_TYPE_ID);
+    this.noSchockAusStrafeStreak$ = this.dataProvider.getStreaks$(SCHOCK_AUS_STRAFE_EVENT_TYPE_ID);
+    this.noVerlorenStreak$ = this.dataProvider.getStreaks$(VERLOREN_EVENT_TYPE_ID);
+    this.no221$ = this.dataProvider.getStreaks$(ZWEI_ZWEI_EINS_EVENT_TYPE_ID);
+    this.noLustwurf$ = this.dataProvider.getStreaks$(LUSTWURF_EVENT_TYPE_ID);
   }
 
   /**

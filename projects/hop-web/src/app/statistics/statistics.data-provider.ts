@@ -21,7 +21,7 @@ import {
   GameEventRepository,
   RoundEventDto
 } from '@hop-backend-api';
-import { countBy, groupBy, includes, maxBy, minBy, orderBy, sumBy } from 'lodash';
+import { countBy, difference, groupBy, includes, maxBy, minBy, orderBy, sumBy } from 'lodash';
 import { isBefore, isEqual } from 'date-fns';
 import {
   CountPayload,
@@ -37,6 +37,7 @@ import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_ALL
 import { PenaltyService } from '@hop-basic-components';
 import { PointsDataProvider } from './points/points.data-provider';
 import { Ranking, RankingUtil } from './ranking.util';
+import { StreakResult, StreaksDataProvider } from './streaks/streaks.data-provider';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +63,7 @@ export class StatisticsDataProvider {
     private roundEventRepository: RoundEventRepository,
     private gameEventRepository: GameEventRepository,
     private penaltyService: PenaltyService,
+    private streaksDataProvider: StreaksDataProvider,
     private pointsDataProvider: PointsDataProvider
   ) {
     this.activePlayers$ = this.playerRepository.getAllActive().pipe(
@@ -368,6 +370,14 @@ export class StatisticsDataProvider {
     return combineLatest([this.allEventTypes$, this.allEventsBetween$, this.allRoundsBetween$, this.activePlayers$]).pipe(
       map(([eventTypes, events, rounds, players]) => {
         return this.pointsDataProvider.calculate(eventTypes, events, rounds, players);
+      })
+    );
+  }
+
+  getStreaks$(eventTypeId: string): Observable<StreakResult> {
+    return combineLatest([this.allRoundsBetween$, this.allEventsBetween$, this.activePlayers$]).pipe(
+      map(([rounds, events, players]) => {
+        return this.streaksDataProvider.calculate(rounds, events, players, eventTypeId);
       })
     );
   }
