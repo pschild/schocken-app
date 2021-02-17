@@ -16,3 +16,17 @@ export namespace RoundEventDtoUtils {
   }
 
 }
+
+// tslint:disable-next-line:no-namespace
+export namespace RoundEventDtoTestdaten {
+  export function create(id: string, roundId: string, playerId: string, eventTypeId: string, datetime?: Date): RoundEventDto {
+    return {
+      _id: id,
+      type: EntityType.ROUND_EVENT,
+      roundId,
+      datetime: datetime || new Date(),
+      eventTypeId,
+      playerId
+    };
+  }
+}

@@ -17,7 +17,6 @@ import {
   ZWEI_ZWEI_EINS_EVENT_TYPE_ID,
   RAUSGEFALLENE_WUERFEL_EVENT_TYPE_ID
 } from '../model/event-type-ids';
-import { Ranking, RankingUtil } from '../ranking.util';
 
 interface PlayerEvent {
   playerId: string;
@@ -25,7 +24,7 @@ interface PlayerEvent {
   events: { eventId?: string; description: string; count: number; points: number; }[];
 }
 
-interface PointTable extends PlayerEvent {
+interface PlayerEventWithPoints extends PlayerEvent {
   pointsSum: number;
   pointsQuote: number;
 }
@@ -35,26 +34,31 @@ interface PointTable extends PlayerEvent {
 })
 export class PointsDataProvider {
 
-  private pointMap = [
-    { eventTypeId: SCHOCK_AUS_EVENT_TYPE_ID, points: 4 },
-    { eventTypeId: SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, points: -1 },
-
-    { eventTypeId: VERLOREN_EVENT_TYPE_ID, points: 0 },
-    { eventTypeId: VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID, points: -2 },
-
-    // { eventTypeId: LUSTWURF_EVENT_TYPE_ID, points: -2 },
-    // { eventTypeId: ZWEI_ZWEI_EINS_EVENT_TYPE_ID, points: -2 },
-    // { eventTypeId: RAUSGEFALLENE_WUERFEL_EVENT_TYPE_ID, points: -2 },
-  ];
-  private NICHT_VERLOREN_POINTS = 2;
-
   constructor() {
   }
 
-  calculate(eventTypes: EventTypeDto[], events: EventDto[], rounds: RoundDto[], players: PlayerDto[]): Ranking[] {
+  getPointMap(): { eventTypeId: string; points: number; }[] {
+    return [
+      { eventTypeId: SCHOCK_AUS_EVENT_TYPE_ID, points: 4 },
+      { eventTypeId: SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, points: -1 },
+
+      { eventTypeId: VERLOREN_EVENT_TYPE_ID, points: 0 },
+      { eventTypeId: VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID, points: -2 },
+
+      // { eventTypeId: LUSTWURF_EVENT_TYPE_ID, points: -2 },
+      // { eventTypeId: ZWEI_ZWEI_EINS_EVENT_TYPE_ID, points: -2 },
+      // { eventTypeId: RAUSGEFALLENE_WUERFEL_EVENT_TYPE_ID, points: -2 },
+    ];
+  }
+
+  getNichtVerlorenPoints(): number {
+    return 2;
+  }
+
+  calculate(eventTypes: EventTypeDto[], events: EventDto[], rounds: RoundDto[], players: PlayerDto[]): PlayerEventWithPoints[] {
     const roundCountByPlayer = this.getRoundCountByPlayer(rounds);
     const eventsByPlayer = groupBy(events.filter(event => this.isEventWithPoints(event)), 'playerId');
-    const table: PointTable[] = players
+    return players
       .map(player => ({
         playerId: player._id,
         name: PlayerDtoUtils.findNameById(players, player._id),
@@ -77,8 +81,6 @@ export class PointsDataProvider {
       })
       .filter((playerEvent: PlayerEvent) => roundCountByPlayer[playerEvent.playerId] > 0)
       .map((playerEvent: PlayerEvent) => this.addSumsAndQuotes(playerEvent, roundCountByPlayer[playerEvent.playerId]));
-
-    return RankingUtil.sort(table, ['pointsQuote']);
   }
 
   private getRoundCountByPlayer(rounds: RoundDto[]): Dictionary<number> {
@@ -94,22 +96,22 @@ export class PointsDataProvider {
       events: [...playerRow.events, {
         description: 'Nicht verloren',
         count: nichtVerlorenCount,
-        points: nichtVerlorenCount * this.NICHT_VERLOREN_POINTS
+        points: nichtVerlorenCount * this.getNichtVerlorenPoints()
       }]
     };
   }
 
-  private addSumsAndQuotes(playerRow: PlayerEvent, roundCount: number): PointTable {
+  private addSumsAndQuotes(playerRow: PlayerEvent, roundCount: number): PlayerEventWithPoints {
     const pointsSum = sumBy(playerRow.events, 'points');
     return { ...playerRow, pointsSum, pointsQuote: pointsSum / roundCount };
   }
 
   private getPointsByEventTypeId(eventTypeId: string): number {
-    return this.pointMap.find(entry => entry.eventTypeId === eventTypeId)?.points;
+    return this.getPointMap().find(entry => entry.eventTypeId === eventTypeId)?.points;
   }
 
   private isEventWithPoints(event: EventDto): boolean {
-    return !!this.pointMap.map(entry => entry.eventTypeId).find(id => id === event.eventTypeId);
+    return !!this.getPointMap().map(entry => entry.eventTypeId).find(id => id === event.eventTypeId);
   }
 
   private isVerlorenEvent(event: EventDto): boolean {

@@ -307,7 +307,7 @@
               <td><hop-badge [place]="entry.rank"></hop-badge></td>
               <td>{{item.name}}</td>
               <td>{{item.count}}</td>
-              <td>{{item.quote | percent:'1.1'}} (alle {{1 / item.quote | number:'1.1-1':'de'}} Runden)</td>
+              <td>alle {{1 / item.quote | number:'1.1-1':'de'}} Runden</td>
             </tr>
           </ng-container>
         </table>
@@ -319,9 +319,9 @@
             <td>Spieler</td>
             <td>
               Schock-Aus
-              <button mat-icon-button (click)="tooltip.show()">
+              <button mat-icon-button (click)="tooltipSA.show()">
                 <mat-icon
-                  #tooltip="matTooltip"
+                  #tooltipSA="matTooltip"
                   matTooltip="Mehrere Schock-Aus in einer Runde werden nicht beachtet."
                   [matTooltipPosition]="'right'"
                   (mouseenter)="$event.stopImmediatePropagation()"
@@ -330,9 +330,19 @@
               </button>
             </td>
             <td>Verursachte SA-Strafen</td>
-            <td>Quote</td>
-            <td>meiste Niederlagen bei SA</td>
-            <td>wenigste Niederlagen bei SA</td>
+            <td>
+              Quote
+              <button mat-icon-button (click)="tooltipSAQuote.show()">
+                <mat-icon
+                  #tooltipSAQuote="matTooltip"
+                  matTooltip="Schock-Aus-Strafen pro Schock-Aus"
+                  [matTooltipPosition]="'right'"
+                  (mouseenter)="$event.stopImmediatePropagation()"
+                  (mouseleave)="$event.stopImmediatePropagation()"
+                >info</mat-icon>
+              </button>
+            </td>
+            <td>Durch SA zugefügte Niederlagen</td>
           </tr>
           <ng-container *ngFor="let entry of mostEffectiveSchockAus">
             <tr *ngFor="let item of entry.items">
@@ -341,12 +351,11 @@
               <td>{{item.schockAusCount}}</td>
               <td>{{item.schockAusPenaltyCount}}</td>
               <td>{{item.quote | number:'1.2-2':'de'}}</td>
-              <td>
+              <td class="min-max-defeats">
                 <span *ngFor="let defeat of item.defeats?.max; let last = last">
                   {{defeat.name}}<span *ngIf="!last">,</span><span *ngIf="last"> ({{defeat.count}}x)</span>
                 </span>
-              </td>
-              <td>
+                <mat-icon>more_horiz</mat-icon>
                 <span *ngFor="let defeat of item.defeats?.min; let last = last">
                   {{defeat.name}}<span *ngIf="!last">,</span><span *ngIf="last"> ({{defeat.count}}x)</span>
                 </span>

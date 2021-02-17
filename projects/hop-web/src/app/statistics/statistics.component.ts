@@ -20,7 +20,7 @@ import {
   ZWEI_ZWEI_EINS_EVENT_TYPE_ID
 } from './model/event-type-ids';
 import { Ranking } from './ranking.util';
-import { StreakResult } from './streaks/streaks.data-provider';
+import { StreakRanking, StreakResult } from './streaks/streaks.data-provider';
 
 const START_DATE_OF_STATISTICS = new Date('2018-11-09');
 
@@ -36,7 +36,8 @@ enum EventTypeQuickFilter {
 @Component({
   selector: 'hop-statistics',
   templateUrl: './statistics.component.html',
-  styleUrls: ['./statistics.component.scss']
+  styleUrls: ['./statistics.component.scss'],
+  providers: [StatisticsDataProvider]
 })
 export class StatisticsComponent implements OnInit {
 
@@ -74,11 +75,11 @@ export class StatisticsComponent implements OnInit {
   penaltyRates$: Observable<RankingPayload>;
   pointsByPlayer$: Observable<Ranking[]>;
 
-  noSchockAusStreak$: Observable<StreakResult>;
-  noSchockAusStrafeStreak$: Observable<StreakResult>;
-  noVerlorenStreak$: Observable<StreakResult>;
-  no221$: Observable<StreakResult>;
-  noLustwurf$: Observable<StreakResult>;
+  noSchockAusStreak$: Observable<StreakRanking>;
+  noSchockAusStrafeStreak$: Observable<StreakRanking>;
+  noVerlorenStreak$: Observable<StreakRanking>;
+  no221$: Observable<StreakRanking>;
+  noLustwurf$: Observable<StreakRanking>;
 
   constructor(
     private dataProvider: StatisticsDataProvider,

@@ -10,6 +10,7 @@ import { of } from 'rxjs';
 
 class GameTableDataProviderMock {
   resetRows() {}
+  getGameDetails() { return of({}); }
   getGameEventTypes() {}
   getRoundEventTypes() {}
   getGameEventsRow() {}
@@ -19,6 +20,7 @@ class GameTableDataProviderMock {
   loadGameDetails() { return of({}); }
   loadGameEventsRow() {}
   loadRoundEventsRows() {}
+  loadVisiblePlayers() {}
 }
 
 describe('GameTableComponent', () => {

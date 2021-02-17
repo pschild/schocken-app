@@ -12,7 +12,11 @@ export namespace RankingUtil {
     directions = directions || compareKeys.map(key => 'desc');
 
     let rank = 1;
-    const groupedByPrimaryKey = groupBy(collection, item => compareKeys.reduce((acc, cur) => item[acc] + item[cur], compareKeys[0]));
+    const groupedByPrimaryKey = groupBy(collection, item =>
+      compareKeys.length > 1
+      ? compareKeys.reduce((acc, cur) => item[acc] + item[cur])
+      : item[compareKeys[0]]
+    );
     return Object.keys(groupedByPrimaryKey)
       .sort((a, b) => +b - +a)
       .map(key => ({ rank: rank++, items: orderBy(groupedByPrimaryKey[key], compareKeys, directions) }));

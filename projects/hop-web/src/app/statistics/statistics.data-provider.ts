@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { map, tap, share, distinctUntilChanged, filter } from 'rxjs/operators';
-import { BehaviorSubject, combineLatest, forkJoin, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, forkJoin, Observable, of } from 'rxjs';
 import {
   EventTypeRepository,
   EventTypeDto,
@@ -37,11 +37,10 @@ import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_ALL
 import { PenaltyService } from '@hop-basic-components';
 import { PointsDataProvider } from './points/points.data-provider';
 import { Ranking, RankingUtil } from './ranking.util';
-import { StreakResult, StreaksDataProvider } from './streaks/streaks.data-provider';
+import { RecordWithTime, StreakRanking, StreakResult, StreaksDataProvider } from './streaks/streaks.data-provider';
+import { SortDirection, SortService } from '../core/service/sort.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class StatisticsDataProvider {
 
   activePlayers$: Observable<PlayerDto[]>;
@@ -64,7 +63,8 @@ export class StatisticsDataProvider {
     private gameEventRepository: GameEventRepository,
     private penaltyService: PenaltyService,
     private streaksDataProvider: StreaksDataProvider,
-    private pointsDataProvider: PointsDataProvider
+    private pointsDataProvider: PointsDataProvider,
+    private sortService: SortService
   ) {
     this.activePlayers$ = this.playerRepository.getAllActive().pipe(
       tap(_ => console.log('loaded players.')),
@@ -88,12 +88,13 @@ export class StatisticsDataProvider {
     );
 
     const allRounds$ = this.roundRepository.getAll().pipe(
+      map(rounds => rounds.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.ASC))),
       tap(_ => console.log('loaded rounds.'))
     );
 
     const allEvents$ = forkJoin([this.roundEventRepository.getAll(), this.gameEventRepository.getAll()]).pipe(
       map(([roundEvents, gameEvents]) => [...roundEvents, ...gameEvents]),
-      tap(_ => console.log('loaded events.'))
+      tap(_ => console.log(`loaded ${_.length} events.`))
     );
 
     this.latestGame$ = allGames$.pipe(
@@ -102,7 +103,7 @@ export class StatisticsDataProvider {
     );
 
     this.allGamesBetween$ = combineLatest([allGames$, combinedDates$]).pipe(
-      map(([games, [from, to]]) => games.filter(GameDtoUtils.completedBetweenDatesFilter(from, to))),
+      map(([games, [from, to]]) => games.filter(GameDtoUtils.betweenDatesFilter(from, to))),
       share()
     );
 
@@ -369,15 +370,23 @@ export class StatisticsDataProvider {
   getPointsByPlayer$(): Observable<Ranking[]> {
     return combineLatest([this.allEventTypes$, this.allEventsBetween$, this.allRoundsBetween$, this.activePlayers$]).pipe(
       map(([eventTypes, events, rounds, players]) => {
-        return this.pointsDataProvider.calculate(eventTypes, events, rounds, players);
+        const result = this.pointsDataProvider.calculate(eventTypes, events, rounds, players);
+        if (!result) {
+          throw new Error(`Calculating points returned undefined!`);
+        }
+        return RankingUtil.sort(result, ['pointsQuote']);
       })
     );
   }
 
-  getStreaks$(eventTypeId: string): Observable<StreakResult> {
+  getStreaks$(eventTypeId: string): Observable<StreakRanking> {
     return combineLatest([this.allRoundsBetween$, this.allEventsBetween$, this.activePlayers$]).pipe(
       map(([rounds, events, players]) => {
-        return this.streaksDataProvider.calculate(rounds, events, players, eventTypeId);
+        const result = this.streaksDataProvider.calculate(rounds, events, players, eventTypeId);
+        if (!result) {
+          throw new Error(`Calculating streaks returned undefined!`);
+        }
+        return { ranking: RankingUtil.sort(result.list, ['count']), overallMax: result.overallMax };
       })
     );
   }

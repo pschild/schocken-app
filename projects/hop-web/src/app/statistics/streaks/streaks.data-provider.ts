@@ -7,17 +7,27 @@ import {
   RoundEventDto
 } from '@hop-backend-api';
 import { difference, includes } from 'lodash';
-import { SortDirection, SortService } from '../../core/service/sort.service';
-import { LUSTWURF_EVENT_TYPE_ID, SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID, ZWEI_ZWEI_EINS_EVENT_TYPE_ID } from '../model/event-type-ids';
-import { Ranking, RankingUtil } from '../ranking.util';
+import { Ranking } from '../ranking.util';
 
 interface PlayerDictionary {
   [playerId: string]: number;
 }
 
+export interface RecordWithTime {
+  playerId: string;
+  name?: string;
+  count: number;
+  to: Date;
+}
+
 export interface StreakResult {
+  list: { name: string; count: number; }[];
+  overallMax: RecordWithTime;
+}
+
+export interface StreakRanking {
   ranking: Ranking[];
-  overallMax: { playerId: string; name: string; count: number; to: string; };
+  overallMax: RecordWithTime;
 }
 
 @Injectable({
@@ -26,41 +36,38 @@ export interface StreakResult {
 export class StreaksDataProvider {
 
   constructor(
-    private sortService: SortService
   ) {
   }
 
   calculate(rounds: RoundDto[], events: EventDto[], players: PlayerDto[], eventTypeId: string): StreakResult {
-    const sortedRounds = rounds.sort((a, b) => this.sortService.compare(a, b, 'datetime', SortDirection.ASC));
+    if (!rounds.length || !events.length || !players.length) {
+      return;
+    }
+
     const eventsOfType = events.filter(e => e.eventTypeId === eventTypeId) as RoundEventDto[];
 
-    let playerMap: { [playerId: string]: number; } = {};
+    let playerMap: PlayerDictionary = {};
     let max = null;
-    sortedRounds.map(round => {
+    rounds.map(round => {
       const eventsInRound = eventsOfType.filter(e => e.roundId === round._id);
       const attendeeIds = round.attendeeList.map(attendee => attendee.playerId);
       if (eventsInRound && eventsInRound.length) {
-        const playerIdsWithSchockAus = eventsInRound.map(e => e.playerId);
-        playerMap = this.resetCount(playerMap, playerIdsWithSchockAus);
-        const playerIdsWithoutSchockAus = difference(attendeeIds, playerIdsWithSchockAus);
-        playerMap = this.increaseCount(playerMap, playerIdsWithoutSchockAus);
+        const playerIdsWithEvent = eventsInRound.map(e => e.playerId);
+        playerMap = this.resetCount(playerMap, playerIdsWithEvent);
+        const playerIdsWithoutEvent = difference(attendeeIds, playerIdsWithEvent);
+        playerMap = this.increaseCount(playerMap, playerIdsWithoutEvent);
       } else {
         playerMap = this.increaseCount(playerMap, attendeeIds);
       }
-
-      for (const [key, value] of Object.entries(playerMap)) {
-        if (!max || value > max.count) {
-          max = { playerId: key, count: value, to: round.datetime };
-        }
-      }
+      max = this.refreshMax(max, playerMap, round.datetime);
     });
 
-    const countList = Object.keys(playerMap)
+    const list = Object.keys(playerMap)
       .filter(playerId => includes(players.map(player => player._id), playerId))
       .map(playerId => ({ name: PlayerDtoUtils.findNameById(players, playerId), count: playerMap[playerId] }));
     const overallMax = { ...max, name: PlayerDtoUtils.findNameById(players, max.playerId) };
 
-    return { ranking: RankingUtil.sort(countList, ['count']), overallMax };
+    return { list, overallMax };
   }
 
   private increaseCount(playerMap: PlayerDictionary, ids: string[]): PlayerDictionary {
@@ -71,6 +78,15 @@ export class StreaksDataProvider {
   private resetCount(playerMap: PlayerDictionary, ids: string[]): PlayerDictionary {
     ids.map(id => playerMap[id] = 0);
     return playerMap;
+  }
+
+  private refreshMax(max: RecordWithTime, map: PlayerDictionary, datetime: Date): RecordWithTime {
+    for (const [key, value] of Object.entries(map)) {
+      if (!max || +value >= max.count) {
+        return { playerId: key, count: +value, to: datetime };
+      }
+    }
+    return max;
   }
 
 }
