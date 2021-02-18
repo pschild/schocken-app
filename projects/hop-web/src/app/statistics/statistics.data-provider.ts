@@ -37,7 +37,7 @@ import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_ALL
 import { PenaltyService } from '@hop-basic-components';
 import { PointsDataProvider } from './points/points.data-provider';
 import { Ranking, RankingUtil } from './ranking.util';
-import { RecordWithTime, StreakRanking, StreakResult, StreaksDataProvider } from './streaks/streaks.data-provider';
+import { StreakRanking, StreaksDataProvider } from './streaks/streaks.data-provider';
 import { SortDirection, SortService } from '../core/service/sort.service';
 
 @Injectable()

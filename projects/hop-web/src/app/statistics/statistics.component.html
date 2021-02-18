@@ -27,7 +27,11 @@
 </form>
 
 <mat-tab-group (selectedTabChange)="updateSubTabs()">
-  <mat-tab label="Spiele & Runden">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>casino</mat-icon>
+      Spiele & Runden
+    </ng-template>
     <div class="card-container">
       <mat-card class="count-row">
         <ng-container *ngIf="gamesCountPayload$ | async as gamesCountPayload; else loading">
@@ -61,7 +65,11 @@
       </mat-card>
     </div>
   </mat-tab>
-  <mat-tab label="Punkte">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>military_tech</mat-icon>
+      Punkte
+    </ng-template>
     <div *ngIf="pointsByPlayer$ | async as pointsByPlayer; else loading">
       <!-- <div class="trophy-wrapper" *ngIf="pointsByPlayer.length >= 3">
         <hop-trophy [place]="2" [name]="pointsByPlayer[1].items[0]?.name" [value]="pointsByPlayer[1].items[0]?.pointsSum"></hop-trophy>
@@ -87,7 +95,11 @@
       </table>
     </div>
   </mat-tab>
-  <mat-tab label="Teilnahmen">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>beenhere</mat-icon>
+      Teilnahmen
+    </ng-template>
     <table *ngIf="attendanceCountPayload$ | async as attendanceCountPayload; else loading" class="stats-table ranking-table">
       <tr>
         <td>Platz</td>
@@ -105,14 +117,18 @@
       </ng-container>
     </table>
   </mat-tab>
-  <mat-tab label="Strafen">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>gavel</mat-icon>
+      Strafen
+    </ng-template>
     <mat-tab-group color="accent">
       <mat-tab label="Niederlagen">
         <table *ngIf="loseRates$ | async as loseRates; else loading" class="stats-table ranking-table">
           <tr>
             <td>Platz</td>
             <td>Spieler</td>
-            <td>Runden verloren</td>
+            <td>Niederlagen</td>
             <td>Quote</td>
           </tr>
           <ng-container *ngFor="let entry of loseRates">
@@ -130,8 +146,17 @@
           <mat-card class="count-row">
             <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
               <hop-odometer [countTo]="cashCounts.overallCount" [precision]="2" [suffix]="'€'"></hop-odometer>
-              <div>Kassenstand<br/>(exkl. Monatsbeiträge)</div>
+              <div>Bußgelder</div>
             </ng-container>
+            <button mat-icon-button (click)="tooltipSAStreak.show()">
+              <mat-icon
+                #tooltipSAStreak="matTooltip"
+                matTooltip="exkl. Monatsbeiträge, inkl. Betrag von inaktiven Spielern"
+                [matTooltipPosition]="'right'"
+                (mouseenter)="$event.stopImmediatePropagation()"
+                (mouseleave)="$event.stopImmediatePropagation()"
+              >info</mat-icon>
+            </button>
           </mat-card>
           <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
             <mat-card class="count-row" *ngIf="cashCounts.inactivePlayerCashSum > 0">
@@ -174,7 +199,11 @@
       </mat-tab>
     </mat-tab-group>
   </mat-tab>
-  <mat-tab label="Streaks">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>insights</mat-icon>
+      Streaks
+    </ng-template>
     <div class="card-container">
       <mat-card class="streak-row">
         <ng-container *ngIf="noSchockAusStreak$ | async as noSchockAusStreak; else loading">
@@ -187,10 +216,13 @@
             <hop-odometer [countTo]="noSchockAusStreak.ranking[0]?.items[0]?.count"></hop-odometer>
             <div>Runden ohne <strong>Schock-Aus</strong></div>
           </div>
-          <div class="record-streak">
+          <div class="record-streak" *ngIf="noSchockAusStreak.overallMax.count !== noSchockAusStreak.ranking[0]?.items[0]?.count">
             <h3>Rekord</h3>
             <div>{{noSchockAusStreak.overallMax.name}}, <hop-odometer [countTo]="noSchockAusStreak.overallMax.count"></hop-odometer> Runden</div>
             <small>aufgestellt am {{noSchockAusStreak.overallMax.to | date:'dd.MM.yyyy'}}</small>
+          </div>
+          <div class="record-streak" *ngIf="noSchockAusStreak.overallMax.count === noSchockAusStreak.ranking[0]?.items[0]?.count">
+            <h3>🎉Aktueller Rekord🎉</h3>
           </div>
         </ng-container>
       </mat-card>
@@ -205,10 +237,13 @@
             <hop-odometer [countTo]="noSchockAusStrafeStreak.ranking[0]?.items[0]?.count"></hop-odometer>
             <div>Runden ohne <strong>Schock-Aus-Strafe</strong></div>
           </div>
-          <div class="record-streak">
+          <div class="record-streak" *ngIf="noSchockAusStrafeStreak.overallMax.count !== noSchockAusStrafeStreak.ranking[0]?.items[0]?.count">
             <h3>Rekord</h3>
             <div>{{noSchockAusStrafeStreak.overallMax.name}}, <hop-odometer [countTo]="noSchockAusStrafeStreak.overallMax.count"></hop-odometer> Runden</div>
             <small>aufgestellt am {{noSchockAusStrafeStreak.overallMax.to | date:'dd.MM.yyyy'}}</small>
+          </div>
+          <div class="record-streak" *ngIf="noSchockAusStrafeStreak.overallMax.count === noSchockAusStrafeStreak.ranking[0]?.items[0]?.count">
+            <h3>🎉Aktueller Rekord🎉</h3>
           </div>
         </ng-container>
       </mat-card>
@@ -223,10 +258,13 @@
             <hop-odometer [countTo]="noVerlorenStreak.ranking[0]?.items[0]?.count"></hop-odometer>
             <div>Runden ohne <strong>Niederlage</strong></div>
           </div>
-          <div class="record-streak">
+          <div class="record-streak" *ngIf="noVerlorenStreak.overallMax.count !== noVerlorenStreak.ranking[0]?.items[0]?.count">
             <h3>Rekord</h3>
             <div>{{noVerlorenStreak.overallMax.name}}, <hop-odometer [countTo]="noVerlorenStreak.overallMax.count"></hop-odometer> Runden</div>
             <small>aufgestellt am {{noVerlorenStreak.overallMax.to | date:'dd.MM.yyyy'}}</small>
+          </div>
+          <div class="record-streak" *ngIf="noVerlorenStreak.overallMax.count === noVerlorenStreak.ranking[0]?.items[0]?.count">
+            <h3>🎉Aktueller Rekord🎉</h3>
           </div>
         </ng-container>
       </mat-card>
@@ -241,10 +279,13 @@
             <hop-odometer [countTo]="no221.ranking[0]?.items[0]?.count"></hop-odometer>
             <div>Runden ohne <strong>2-2-1</strong></div>
           </div>
-          <div class="record-streak">
+          <div class="record-streak" *ngIf="no221.overallMax.count !== no221.ranking[0]?.items[0]?.count">
             <h3>Rekord</h3>
             <div>{{no221.overallMax.name}}, <hop-odometer [countTo]="no221.overallMax.count"></hop-odometer> Runden</div>
             <small>aufgestellt am {{no221.overallMax.to | date:'dd.MM.yyyy'}}</small>
+          </div>
+          <div class="record-streak" *ngIf="no221.overallMax.count === no221.ranking[0]?.items[0]?.count">
+            <h3>🎉Aktueller Rekord🎉</h3>
           </div>
         </ng-container>
       </mat-card>
@@ -259,10 +300,13 @@
             <hop-odometer [countTo]="noLustwurf.ranking[0]?.items[0]?.count"></hop-odometer>
             <div>Runden ohne <strong>Lustwurf</strong></div>
           </div>
-          <div class="record-streak">
+          <div class="record-streak" *ngIf="noLustwurf.overallMax.count !== noLustwurf.ranking[0]?.items[0]?.count">
             <h3>Rekord</h3>
             <div>{{noLustwurf.overallMax.name}}, <hop-odometer [countTo]="noLustwurf.overallMax.count"></hop-odometer> Runden</div>
             <small>aufgestellt am {{noLustwurf.overallMax.to | date:'dd.MM.yyyy'}}</small>
+          </div>
+          <div class="record-streak" *ngIf="noLustwurf.overallMax.count === noLustwurf.ranking[0]?.items[0]?.count">
+            <h3>🎉Aktueller Rekord🎉</h3>
           </div>
         </ng-container>
       </mat-card>
@@ -278,9 +322,9 @@
                 </a>
               </div>
             </div>
-            <button mat-icon-button (click)="tooltip.show()">
+            <button mat-icon-button (click)="tooltipSAStreak.show()">
               <mat-icon
-                #tooltip="matTooltip"
+                #tooltipSAStreak="matTooltip"
                 matTooltip="aufeinanderfolgende Runden mit mind. 1x Schock-Aus"
                 [matTooltipPosition]="'right'"
                 (mouseenter)="$event.stopImmediatePropagation()"
@@ -292,7 +336,11 @@
       </div>
     </div>
   </mat-tab>
-  <mat-tab label="Schock-Aus">
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon svgIcon="schock_aus"></mat-icon>
+      Schock-Aus
+    </ng-template>
     <mat-tab-group color="accent">
       <mat-tab label="Schock-Aus">
         <table *ngIf="schockAusByPlayer$ | async as schockAusByPlayer; else loading" class="stats-table ranking-table">
