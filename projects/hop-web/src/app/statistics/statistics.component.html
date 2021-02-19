@@ -170,17 +170,21 @@
           <tr>
             <td>Platz</td>
             <td>Spieler</td>
-            <td>Betrag</td>
-            <td>Anteil</td>
+            <td>Rundenstrafen</td>
+            <td>Feststellungen</td>
+            <td>Gesamtsumme</td>
             <td>€/Runde</td>
+            <td>Anteil</td>
           </tr>
           <ng-container *ngFor="let entry of cashCounts.ranking">
             <tr *ngFor="let item of entry.items">
               <td><hop-badge [place]="entry.rank"></hop-badge></td>
               <td>{{item.name}}</td>
-              <td>{{item.count | number:'1.2-2'}} €</td>
-              <td>{{item.quote | percent:'1.1'}}</td>
+              <td>{{item.roundEventSum | number:'1.2-2'}} €</td>
+              <td>{{item.gameEventSum | number:'1.2-2'}} €</td>
+              <td>{{item.combinedSum | number:'1.2-2'}} €</td>
               <td>{{item.cashPerRound | number:'1.2-2'}} €</td>
+              <td>{{item.quote | percent:'1.1'}}</td>
             </tr>
           </ng-container>
         </table>

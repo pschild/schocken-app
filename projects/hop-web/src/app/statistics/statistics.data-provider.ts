@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { map, tap, share, distinctUntilChanged, filter } from 'rxjs/operators';
-import { BehaviorSubject, combineLatest, EMPTY, forkJoin, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, Observable } from 'rxjs';
 import {
   EventTypeRepository,
   EventTypeDto,
@@ -19,9 +19,10 @@ import {
   EventTypeDtoUtils,
   RoundEventRepository,
   GameEventRepository,
-  RoundEventDto
+  RoundEventDto,
+  EventTypeContext
 } from '@hop-backend-api';
-import { countBy, difference, groupBy, includes, maxBy, minBy, orderBy, sumBy } from 'lodash';
+import { countBy, groupBy, includes, maxBy, minBy, orderBy, sumBy } from 'lodash';
 import { isBefore, isEqual } from 'date-fns';
 import {
   CountPayload,
@@ -30,10 +31,14 @@ import {
   RankingByEventTypeItem,
   RankingByPlayerItem,
   RankingPayload,
-  SchockAusEffectivityRankingPayload,
   SchockAusStreakPayload
 } from './model/statistic-payload.model';
-import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID } from './model/event-type-ids';
+import {
+  SCHOCK_AUS_EVENT_TYPE_ID,
+  SCHOCK_AUS_STRAFE_EVENT_TYPE_ID,
+  VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID,
+  VERLOREN_EVENT_TYPE_ID
+} from './model/event-type-ids';
 import { PenaltyService } from '@hop-basic-components';
 import { PointsDataProvider } from './points/points.data-provider';
 import { Ranking, RankingUtil } from './ranking.util';
@@ -50,8 +55,7 @@ export class StatisticsDataProvider {
   allRoundsBetween$: Observable<RoundDto[]>;
   allEventsBetween$: Observable<EventDto[]>;
 
-  private fromDate$ = new BehaviorSubject<Date>(null);
-  private toDate$ = new BehaviorSubject<Date>(null);
+  private dateSpan$ = new BehaviorSubject<{ from: Date; to: Date; }>(null);
   private chosenEventTypeIds$ = new BehaviorSubject<string[]>([]);
 
   constructor(
@@ -76,11 +80,12 @@ export class StatisticsDataProvider {
       share()
     );
 
-    const combinedDates$ = combineLatest([this.fromDate$, this.toDate$]).pipe(
-      distinctUntilChanged(([fromOld, toOld], [fromNew, toNew]) => {
-        return isEqual(fromOld, fromNew) && isEqual(toOld, toNew);
+    const combinedDates$ = this.dateSpan$.pipe(
+      distinctUntilChanged((oldDate, newDate) => {
+        return isEqual(oldDate.from, newDate.from) && isEqual(oldDate.to, newDate.to);
       }),
-      filter(([fromDate, toDate]) => isBefore(fromDate, toDate))
+      filter(timeSpan => isBefore(timeSpan.from, timeSpan.to)),
+      map(timeSpan => [timeSpan.from, timeSpan.to]),
     );
 
     const allGames$ = this.gameRepository.getAll().pipe(
@@ -119,8 +124,7 @@ export class StatisticsDataProvider {
   }
 
   updateDates(from: Date, to: Date): void {
-    this.fromDate$.next(from);
-    this.toDate$.next(to);
+    this.dateSpan$.next({ from, to });
   }
 
   updateChosenEventTypeIds(chosenEventTypeIds: string[]): void {
@@ -168,6 +172,7 @@ export class StatisticsDataProvider {
           const penaltyAtEventTime = EventTypeDtoUtils.findPenaltyValidAt(accordingEventType.history, event.datetime);
           return {
             playerId: event.playerId,
+            context: accordingEventType.context,
             multiplicatorValue: event.multiplicatorValue,
             penaltyValue: penaltyAtEventTime.penalty.value,
             penaltyUnit: penaltyAtEventTime.penalty.unit
@@ -175,28 +180,36 @@ export class StatisticsDataProvider {
         });
 
         const groupedByPlayerId = groupBy(eventsWithPenalties, 'playerId');
-        const cashSumsByPlayer = Object.keys(groupedByPlayerId)
-          .map(playerId => {
-            const sums = this.penaltyService.calculateSumsPerUnit(groupedByPlayerId[playerId]);
-            const cashSum = sums.find(item => item.unit === '€');
-            return {
-              playerId,
-              name: PlayerDtoUtils.findNameById(players, playerId),
-              playerIsActive: includes(players.map(player => player._id), playerId),
-              count: cashSum.sum
-            };
-          }
-        );
+        const groupedByPlayerIdAndContext = Object.keys(groupedByPlayerId).map(playerId => {
+          const groupedByContext = groupBy(groupedByPlayerId[playerId], 'context');
+          return {playerId, round: groupedByContext[EventTypeContext.ROUND], game: groupedByContext[EventTypeContext.GAME]};
+        });
+        const cashSumsByPlayer = groupedByPlayerIdAndContext.map(row => {
+          const roundEventCashSums = this.penaltyService.calculateSumsPerUnit(row.round).find(item => item.unit === '€');
+          const gameEventCashSums = this.penaltyService.calculateSumsPerUnit(row.game).find(item => item.unit === '€');
+          return {
+            playerId: row.playerId,
+            name: PlayerDtoUtils.findNameById(players, row.playerId),
+            playerIsActive: includes(players.map(player => player._id), row.playerId),
+            roundEventSum: roundEventCashSums?.sum ?? 0,
+            gameEventSum: gameEventCashSums?.sum ?? 0,
+            combinedSum: (roundEventCashSums?.sum ?? 0) + (gameEventCashSums?.sum ?? 0)
+          };
+        });
 
-        const overallCashSum = sumBy(cashSumsByPlayer, 'count');
-        const inactivePlayerCashSum = sumBy(cashSumsByPlayer.filter(sum => !sum.playerIsActive), 'count');
+        const overallCashSum = sumBy(cashSumsByPlayer, 'combinedSum');
+        const inactivePlayerCashSum = sumBy(cashSumsByPlayer.filter(sum => !sum.playerIsActive), 'combinedSum');
 
         const roundCountByPlayer = this.getRoundCountByPlayer(players, rounds);
         const withQuotes = cashSumsByPlayer
           .filter(sum => sum.playerIsActive)
           .map(sum => {
             const playerRoundCount = roundCountByPlayer.find(roundCountItem => roundCountItem.playerId === sum.playerId);
-            return { ...sum, quote: sum.count / overallCashSum, cashPerRound: playerRoundCount ? sum.count / playerRoundCount.count : 0 };
+            return {
+              ...sum,
+              quote: sum.combinedSum / overallCashSum,
+              cashPerRound: playerRoundCount ? sum.roundEventSum / playerRoundCount.count : 0
+            };
           });
         return { ranking: RankingUtil.sort(withQuotes, ['quote']), inactivePlayerCashSum, overallCount: overallCashSum };
       })
