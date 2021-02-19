@@ -73,30 +73,35 @@ $cards-margin: 10px;
   }
 }
 
-.stats-table {
-  tr:first-child {
-    font-weight: bold;
-  }
+.table-wrapper {
+  max-width: 100%;
+  overflow: auto;
 
-  td {
-    padding: 5px 15px 5px 0;
-    height: 40px;
-    white-space: nowrap;
+  .stats-table {
+    tr:first-child {
+      font-weight: bold;
+    }
 
-    &.min-max-defeats {
-      display: flex;
-      align-items: center;
+    td {
+      padding: 5px 15px 5px 0;
+      height: 40px;
+      white-space: nowrap;
 
-      mat-icon {
-        margin: 0 5px;
-        color:#999
+      &.min-max-defeats {
+        display: flex;
+        align-items: center;
+
+        mat-icon {
+          margin: 0 5px;
+          color:#999
+        }
       }
     }
-  }
 
-  &.ranking-table {
-    td:first-child {
-      text-align: center;
+    &.ranking-table {
+      td:first-child {
+        text-align: center;
+      }
     }
   }
 }

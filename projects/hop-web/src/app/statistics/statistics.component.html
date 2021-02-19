@@ -76,23 +76,24 @@
         <hop-trophy [place]="1" [name]="pointsByPlayer[0].items[0]?.name" [value]="pointsByPlayer[0].items[0]?.pointsSum"></hop-trophy>
         <hop-trophy [place]="3" [name]="pointsByPlayer[2].items[0]?.name" [value]="pointsByPlayer[2].items[0]?.pointsSum"></hop-trophy>
       </div> -->
-
-      <table class="stats-table ranking-table">
-        <tr>
-          <td>Platz</td>
-          <td>Spieler</td>
-          <td>Punkte</td>
-          <td>Punkte/Runde</td>
-        </tr>
-        <ng-container *ngFor="let entry of pointsByPlayer">
-          <tr *ngFor="let item of entry.items">
-            <td><hop-badge [place]="entry.rank"></hop-badge></td>
-            <td>{{item.name}}</td>
-            <td>{{item.pointsSum}}</td>
-            <td>{{item.pointsQuote | number:'1.3-3':'de'}}</td>
+      <div class="table-wrapper">
+        <table class="stats-table ranking-table">
+          <tr>
+            <td>Platz</td>
+            <td>Spieler</td>
+            <td>Punkte</td>
+            <td>Punkte/Runde</td>
           </tr>
-        </ng-container>
-      </table>
+          <ng-container *ngFor="let entry of pointsByPlayer">
+            <tr *ngFor="let item of entry.items">
+              <td><hop-badge [place]="entry.rank"></hop-badge></td>
+              <td>{{item.name}}</td>
+              <td>{{item.pointsSum}}</td>
+              <td>{{item.pointsQuote | number:'1.3-3':'de'}}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </div>
     </div>
   </mat-tab>
   <mat-tab>
@@ -100,22 +101,24 @@
       <mat-icon>beenhere</mat-icon>
       Teilnahmen
     </ng-template>
-    <table *ngIf="attendanceCountPayload$ | async as attendanceCountPayload; else loading" class="stats-table ranking-table">
-      <tr>
-        <td>Platz</td>
-        <td>Spieler</td>
-        <td>Runden</td>
-        <td>Quote</td>
-      </tr>
-      <ng-container *ngFor="let entry of attendanceCountPayload">
-        <tr *ngFor="let item of entry.items">
-          <td><hop-badge [place]="entry.rank"></hop-badge></td>
-          <td>{{item.name}}</td>
-          <td>{{item.count}}</td>
-          <td>{{item.quote | percent:'1.1'}}</td>
+    <div class="table-wrapper">
+      <table *ngIf="attendanceCountPayload$ | async as attendanceCountPayload; else loading" class="stats-table ranking-table">
+        <tr>
+          <td>Platz</td>
+          <td>Spieler</td>
+          <td>Runden</td>
+          <td>Quote</td>
         </tr>
-      </ng-container>
-    </table>
+        <ng-container *ngFor="let entry of attendanceCountPayload">
+          <tr *ngFor="let item of entry.items">
+            <td><hop-badge [place]="entry.rank"></hop-badge></td>
+            <td>{{item.name}}</td>
+            <td>{{item.count}}</td>
+            <td>{{item.quote | percent:'1.1'}}</td>
+          </tr>
+        </ng-container>
+      </table>
+    </div>
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>
@@ -124,82 +127,83 @@
     </ng-template>
     <mat-tab-group color="accent">
       <mat-tab label="Niederlagen">
-        <table *ngIf="loseRates$ | async as loseRates; else loading" class="stats-table ranking-table">
-          <tr>
-            <td>Platz</td>
-            <td>Spieler</td>
-            <td>Niederlagen</td>
-            <td>Quote</td>
-          </tr>
-          <ng-container *ngFor="let entry of loseRates">
-            <tr *ngFor="let item of entry.items">
-              <td><hop-badge [place]="entry.rank"></hop-badge></td>
-              <td>{{item.name}}</td>
-              <td>{{item.count}}</td>
-              <td>{{item.quote | percent:'1.1'}}</td>
+        <div class="table-wrapper">
+          <table *ngIf="loseRates$ | async as loseRates; else loading" class="stats-table ranking-table">
+            <tr>
+              <td>Platz</td>
+              <td>Spieler</td>
+              <td>Niederlagen</td>
+              <td>Quote</td>
             </tr>
-          </ng-container>
-        </table>
+            <ng-container *ngFor="let entry of loseRates">
+              <tr *ngFor="let item of entry.items">
+                <td><hop-badge [place]="entry.rank"></hop-badge></td>
+                <td>{{item.name}}</td>
+                <td>{{item.count}}</td>
+                <td>{{item.quote | percent:'1.1'}}</td>
+              </tr>
+            </ng-container>
+          </table>
+        </div>
       </mat-tab>
       <mat-tab label="Kasse">
         <div class="card-container">
           <mat-card class="count-row">
             <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
               <hop-odometer [countTo]="cashCounts.overallCount" [precision]="2" [suffix]="'€'"></hop-odometer>
+              <small *ngIf="cashCounts.inactivePlayerCashSum > 0">(inkl. {{cashCounts.inactivePlayerCashSum | number:'1.2-2'}} € von Inaktiven)</small>
               <div>Bußgelder</div>
             </ng-container>
             <button mat-icon-button (click)="tooltipSAStreak.show()">
               <mat-icon
                 #tooltipSAStreak="matTooltip"
-                matTooltip="exkl. Monatsbeiträge, inkl. Betrag von inaktiven Spielern"
+                matTooltip="exkl. Monatsbeiträge"
                 [matTooltipPosition]="'right'"
                 (mouseenter)="$event.stopImmediatePropagation()"
                 (mouseleave)="$event.stopImmediatePropagation()"
               >info</mat-icon>
             </button>
           </mat-card>
-          <ng-container *ngIf="cashCounts$ | async as cashCounts; else loading">
-            <mat-card class="count-row" *ngIf="cashCounts.inactivePlayerCashSum > 0">
-              <hop-odometer [countTo]="cashCounts.inactivePlayerCashSum" [precision]="2" [suffix]="'€'"></hop-odometer>
-              <div>Betrag von inaktiven Spielern</div>
-            </mat-card>
-          </ng-container>
         </div>
 
-        <table *ngIf="cashCounts$ | async as cashCounts; else loading" class="stats-table ranking-table">
-          <tr>
-            <td>Platz</td>
-            <td>Spieler</td>
-            <td>Rundenstrafen</td>
-            <td>Feststellungen</td>
-            <td>Gesamtsumme</td>
-            <td>€/Runde</td>
-            <td>Anteil</td>
-          </tr>
-          <ng-container *ngFor="let entry of cashCounts.ranking">
-            <tr *ngFor="let item of entry.items">
-              <td><hop-badge [place]="entry.rank"></hop-badge></td>
-              <td>{{item.name}}</td>
-              <td>{{item.roundEventSum | number:'1.2-2'}} €</td>
-              <td>{{item.gameEventSum | number:'1.2-2'}} €</td>
-              <td>{{item.combinedSum | number:'1.2-2'}} €</td>
-              <td>{{item.cashPerRound | number:'1.2-2'}} €</td>
-              <td>{{item.quote | percent:'1.1'}}</td>
+        <div class="table-wrapper">
+          <table *ngIf="cashCounts$ | async as cashCounts; else loading" class="stats-table ranking-table">
+            <tr>
+              <td>Platz</td>
+              <td>Spieler</td>
+              <td>Rundenstrafen</td>
+              <td>Feststellungen</td>
+              <td>Gesamtsumme</td>
+              <td>€/Runde</td>
+              <td>Anteil</td>
             </tr>
-          </ng-container>
-        </table>
+            <ng-container *ngFor="let entry of cashCounts.ranking">
+              <tr *ngFor="let item of entry.items">
+                <td><hop-badge [place]="entry.rank"></hop-badge></td>
+                <td>{{item.name}}</td>
+                <td>{{item.roundEventSum | number:'1.2-2'}} €</td>
+                <td>{{item.gameEventSum | number:'1.2-2'}} €</td>
+                <td>{{item.combinedSum | number:'1.2-2'}} €</td>
+                <td>{{item.cashPerRound | number:'1.2-2'}} €</td>
+                <td>{{item.quote | percent:'1.1'}}</td>
+              </tr>
+            </ng-container>
+          </table>
+        </div>
       </mat-tab>
       <mat-tab label="Ereignisse">
-        <table *ngIf="eventTypeCountValues$ | async as eventTypeCountValues; else loading" class="stats-table">
-          <tr>
-            <td>Bezeichnung</td>
-            <td>Anzahl</td>
-          </tr>
-          <tr *ngFor="let item of eventTypeCountValues.ranking">
-            <td>{{item.description}}</td>
-            <td>{{item.count}}</td>
-          </tr>
-        </table>
+        <div class="table-wrapper">
+          <table *ngIf="eventTypeCountValues$ | async as eventTypeCountValues; else loading" class="stats-table">
+            <tr>
+              <td>Bezeichnung</td>
+              <td>Anzahl</td>
+            </tr>
+            <tr *ngFor="let item of eventTypeCountValues.ranking">
+              <td>{{item.description}}</td>
+              <td>{{item.count}}</td>
+            </tr>
+          </table>
+        </div>
       </mat-tab>
     </mat-tab-group>
   </mat-tab>
@@ -347,74 +351,78 @@
     </ng-template>
     <mat-tab-group color="accent">
       <mat-tab label="Schock-Aus">
-        <table *ngIf="schockAusByPlayer$ | async as schockAusByPlayer; else loading" class="stats-table ranking-table">
-          <tr>
-            <td>Platz</td>
-            <td>Spieler</td>
-            <td>Schock-Aus</td>
-            <td>Quote</td>
-          </tr>
-          <ng-container *ngFor="let entry of schockAusByPlayer">
-            <tr *ngFor="let item of entry.items">
-              <td><hop-badge [place]="entry.rank"></hop-badge></td>
-              <td>{{item.name}}</td>
-              <td>{{item.count}}</td>
-              <td>alle {{1 / item.quote | number:'1.1-1':'de'}} Runden</td>
+        <div class="table-wrapper">
+          <table *ngIf="schockAusByPlayer$ | async as schockAusByPlayer; else loading" class="stats-table ranking-table">
+            <tr>
+              <td>Platz</td>
+              <td>Spieler</td>
+              <td>Schock-Aus</td>
+              <td>Quote</td>
             </tr>
-          </ng-container>
-        </table>
+            <ng-container *ngFor="let entry of schockAusByPlayer">
+              <tr *ngFor="let item of entry.items">
+                <td><hop-badge [place]="entry.rank"></hop-badge></td>
+                <td>{{item.name}}</td>
+                <td>{{item.count}}</td>
+                <td>alle {{1 / item.quote | number:'1.1-1':'de'}} Runden</td>
+              </tr>
+            </ng-container>
+          </table>
+        </div>
       </mat-tab>
       <mat-tab label="Effektivität">
-        <table *ngIf="mostEffectiveSchockAus$ | async as mostEffectiveSchockAus; else loading" class="stats-table ranking-table">
-          <tr>
-            <td>Platz</td>
-            <td>Spieler</td>
-            <td>
-              Schock-Aus
-              <button mat-icon-button (click)="tooltipSA.show()">
-                <mat-icon
-                  #tooltipSA="matTooltip"
-                  matTooltip="Mehrere Schock-Aus in einer Runde werden nicht beachtet."
-                  [matTooltipPosition]="'right'"
-                  (mouseenter)="$event.stopImmediatePropagation()"
-                  (mouseleave)="$event.stopImmediatePropagation()"
-                >info</mat-icon>
-              </button>
-            </td>
-            <td>Verursachte SA-Strafen</td>
-            <td>
-              Quote
-              <button mat-icon-button (click)="tooltipSAQuote.show()">
-                <mat-icon
-                  #tooltipSAQuote="matTooltip"
-                  matTooltip="Schock-Aus-Strafen pro Schock-Aus"
-                  [matTooltipPosition]="'right'"
-                  (mouseenter)="$event.stopImmediatePropagation()"
-                  (mouseleave)="$event.stopImmediatePropagation()"
-                >info</mat-icon>
-              </button>
-            </td>
-            <td>Durch SA zugefügte Niederlagen</td>
-          </tr>
-          <ng-container *ngFor="let entry of mostEffectiveSchockAus">
-            <tr *ngFor="let item of entry.items">
-              <td><hop-badge [place]="entry.rank"></hop-badge></td>
-              <td>{{item.name}}</td>
-              <td>{{item.schockAusCount}}</td>
-              <td>{{item.schockAusPenaltyCount}}</td>
-              <td>{{item.quote | number:'1.2-2':'de'}}</td>
-              <td class="min-max-defeats">
-                <span *ngFor="let defeat of item.defeats?.max; let last = last">
-                  {{defeat.name}}<span *ngIf="!last">,</span><span *ngIf="last"> ({{defeat.count}}x)</span>
-                </span>
-                <mat-icon>more_horiz</mat-icon>
-                <span *ngFor="let defeat of item.defeats?.min; let last = last">
-                  {{defeat.name}}<span *ngIf="!last">,</span><span *ngIf="last"> ({{defeat.count}}x)</span>
-                </span>
+        <div class="table-wrapper">
+          <table *ngIf="mostEffectiveSchockAus$ | async as mostEffectiveSchockAus; else loading" class="stats-table ranking-table">
+            <tr>
+              <td>Platz</td>
+              <td>Spieler</td>
+              <td>
+                Schock-Aus
+                <button mat-icon-button (click)="tooltipSA.show()">
+                  <mat-icon
+                    #tooltipSA="matTooltip"
+                    matTooltip="Mehrere Schock-Aus in einer Runde werden nicht beachtet."
+                    [matTooltipPosition]="'right'"
+                    (mouseenter)="$event.stopImmediatePropagation()"
+                    (mouseleave)="$event.stopImmediatePropagation()"
+                  >info</mat-icon>
+                </button>
               </td>
+              <td>Verursachte SA-Strafen</td>
+              <td>
+                Quote
+                <button mat-icon-button (click)="tooltipSAQuote.show()">
+                  <mat-icon
+                    #tooltipSAQuote="matTooltip"
+                    matTooltip="Schock-Aus-Strafen pro Schock-Aus"
+                    [matTooltipPosition]="'right'"
+                    (mouseenter)="$event.stopImmediatePropagation()"
+                    (mouseleave)="$event.stopImmediatePropagation()"
+                  >info</mat-icon>
+                </button>
+              </td>
+              <td>Durch SA zugefügte Niederlagen</td>
             </tr>
-          </ng-container>
-        </table>
+            <ng-container *ngFor="let entry of mostEffectiveSchockAus">
+              <tr *ngFor="let item of entry.items">
+                <td><hop-badge [place]="entry.rank"></hop-badge></td>
+                <td>{{item.name}}</td>
+                <td>{{item.schockAusCount}}</td>
+                <td>{{item.schockAusPenaltyCount}}</td>
+                <td>{{item.quote | number:'1.2-2':'de'}}</td>
+                <td class="min-max-defeats">
+                  <span *ngFor="let defeat of item.defeats?.max; let last = last">
+                    {{defeat.name}}<span *ngIf="!last">,</span><span *ngIf="last"> ({{defeat.count}}x)</span>
+                  </span>
+                  <mat-icon>more_horiz</mat-icon>
+                  <span *ngFor="let defeat of item.defeats?.min; let last = last">
+                    {{defeat.name}}<span *ngIf="!last">,</span><span *ngIf="last"> ({{defeat.count}}x)</span>
+                  </span>
+                </td>
+              </tr>
+            </ng-container>
+          </table>
+        </div>
       </mat-tab>
     </mat-tab-group>
   </mat-tab>

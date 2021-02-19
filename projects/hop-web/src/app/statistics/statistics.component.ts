@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { StatisticsDataProvider } from './statistics.data-provider';
 import { Observable } from 'rxjs';
-import { filter, share, startWith } from 'rxjs/operators';
+import { debounceTime, filter, share, startWith } from 'rxjs/operators';
 import { FormBuilder } from '@angular/forms';
 import { add, getYear, isAfter, isBefore, set } from 'date-fns';
 import { groupBy, orderBy, range } from 'lodash';
@@ -90,6 +90,7 @@ export class StatisticsComponent implements OnInit {
     this.yearsSinceStartOfStats = range(getYear(START_DATE_OF_STATISTICS), getYear(new Date()) + 1);
 
     this.form.valueChanges.pipe(
+      debounceTime(100),
       startWith(this.form.value),
       filter(formValue => !!this.form.valid),
     ).subscribe(formValue => this.dataProvider.updateDates(

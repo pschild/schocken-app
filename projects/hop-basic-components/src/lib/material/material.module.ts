@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatOptionModule, MatNativeDateModule, MAT_DATE_LOCALE, MatRippleModule } from '@angular/material/core';
+import { MatOptionModule, MatNativeDateModule, MAT_DATE_LOCALE, MatRippleModule, DateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -34,6 +34,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
+import { MatDateAdapterCustom } from './material-custom-date-adapter';
 
 const materialModules = [
   MatButtonModule,
@@ -86,7 +87,8 @@ const materialModules = [
   providers: [
     { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 4000 } },
     { provide: MatPaginatorIntl, useClass: MatPaginatorIntlCustom },
-    { provide: MAT_DATE_LOCALE, useValue: 'de-DE' }
+    { provide: MAT_DATE_LOCALE, useValue: 'de-DE' },
+    { provide: DateAdapter, useClass: MatDateAdapterCustom }
   ]
 })
 export class MaterialModule {
