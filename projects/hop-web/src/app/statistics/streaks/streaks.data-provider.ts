@@ -81,12 +81,17 @@ export class StreaksDataProvider {
   }
 
   private refreshMax(max: RecordWithTime, map: PlayerDictionary, datetime: Date): RecordWithTime {
+    let localMax;
     for (const [key, value] of Object.entries(map)) {
-      if (!max || +value >= max.count) {
-        return { playerId: key, count: +value, to: datetime };
+      if (!localMax || +value > localMax.count) {
+        localMax = { playerId: key, count: +value };
       }
     }
-    return max;
+    if (!max || localMax.count >= max.count) {
+      return { ...localMax, to: datetime };
+    } else {
+      return max;
+    }
   }
 
 }

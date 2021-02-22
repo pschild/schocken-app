@@ -1,0 +1,14 @@
+.current-streak {
+  margin-bottom: 10px;
+  hop-odometer {
+    font-size: 40px;
+  }
+}
+
+.record-streak {
+  mat-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+}

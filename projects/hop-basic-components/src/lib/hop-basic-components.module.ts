@@ -19,6 +19,7 @@ import { CelebrationModalComponent } from './dialog/celebration-modal/celebratio
 import { OdometerComponent } from './odometer/odometer.component';
 import { BadgeComponent } from './badge/badge.component';
 import { TrophyComponent } from './trophy/trophy.component';
+import { StreakComponent } from './streak/streak.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { TrophyComponent } from './trophy/trophy.component';
     CelebrationModalComponent,
     OdometerComponent,
     BadgeComponent,
-    TrophyComponent
+    TrophyComponent,
+    StreakComponent
   ],
   imports: [
     MaterialModule,
@@ -59,7 +61,8 @@ import { TrophyComponent } from './trophy/trophy.component';
     CelebrationModalComponent,
     OdometerComponent,
     BadgeComponent,
-    TrophyComponent
+    TrophyComponent,
+    StreakComponent
   ]
 })
 export class HopBasicComponentsModule { }

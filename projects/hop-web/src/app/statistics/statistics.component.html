@@ -82,7 +82,7 @@
             <td>Platz</td>
             <td>Spieler</td>
             <td>Punkte</td>
-            <td>Punkte/Runde</td>
+            <td>Pkt./Rd.</td>
           </tr>
           <ng-container *ngFor="let entry of pointsByPlayer">
             <tr *ngFor="let item of entry.items">
@@ -173,17 +173,26 @@
               <td>Spieler</td>
               <td>Rundenstrafen</td>
               <td>Feststellungen</td>
-              <td>Gesamtsumme</td>
-              <td>€/Runde</td>
+              <td>Summe</td>
+              <td>€/Rd.</td>
               <td>Anteil</td>
             </tr>
             <ng-container *ngFor="let entry of cashCounts.ranking">
               <tr *ngFor="let item of entry.items">
                 <td><hop-badge [place]="entry.rank"></hop-badge></td>
                 <td>{{item.name}}</td>
-                <td>{{item.roundEventSum | number:'1.2-2'}} €</td>
-                <td>{{item.gameEventSum | number:'1.2-2'}} €</td>
-                <td>{{item.combinedSum | number:'1.2-2'}} €</td>
+                <td>
+                  <span *ngIf="item.roundEventSum > 0">{{item.roundEventSum | number:'1.2-2'}} €</span>
+                  <span *ngIf="item.roundEventSum === 0">-</span>
+                </td>
+                <td>
+                  <span *ngIf="item.gameEventSum > 0">{{item.gameEventSum | number:'1.2-2'}} €</span>
+                  <span *ngIf="item.gameEventSum === 0">-</span>
+                </td>
+                <td>
+                  <span *ngIf="item.combinedSum > 0">{{item.combinedSum | number:'1.2-2'}} €</span>
+                  <span *ngIf="item.combinedSum === 0">-</span>
+                </td>
                 <td>{{item.cashPerRound | number:'1.2-2'}} €</td>
                 <td>{{item.quote | percent:'1.1'}}</td>
               </tr>
@@ -214,109 +223,19 @@
     </ng-template>
     <div class="card-container">
       <mat-card class="streak-row">
-        <ng-container *ngIf="noSchockAusStreak$ | async as noSchockAusStreak; else loading">
-          <div class="current-streak">
-            <div>
-              <span *ngFor="let player of noSchockAusStreak.ranking[0]?.items; let last = last">
-                <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
-              </span>
-            </div>
-            <hop-odometer [countTo]="noSchockAusStreak.ranking[0]?.items[0]?.count"></hop-odometer>
-            <div>Runden ohne <strong>Schock-Aus</strong></div>
-          </div>
-          <div class="record-streak" *ngIf="noSchockAusStreak.overallMax.count !== noSchockAusStreak.ranking[0]?.items[0]?.count">
-            <h3>Rekord</h3>
-            <div>{{noSchockAusStreak.overallMax.name}}, <hop-odometer [countTo]="noSchockAusStreak.overallMax.count"></hop-odometer> Runden</div>
-            <small>aufgestellt am {{noSchockAusStreak.overallMax.to | date:'dd.MM.yyyy'}}</small>
-          </div>
-          <div class="record-streak" *ngIf="noSchockAusStreak.overallMax.count === noSchockAusStreak.ranking[0]?.items[0]?.count">
-            <h3>🎉Aktueller Rekord🎉</h3>
-          </div>
-        </ng-container>
+        <hop-streak *ngIf="noSchockAusStreak$ | async as noSchockAusStreak; else loading" [streakData]="noSchockAusStreak" [streakName]="'Schock-Aus'"></hop-streak>
       </mat-card>
       <mat-card class="streak-row">
-        <ng-container *ngIf="noSchockAusStrafeStreak$ | async as noSchockAusStrafeStreak; else loading">
-          <div class="current-streak">
-            <div>
-              <span *ngFor="let player of noSchockAusStrafeStreak.ranking[0]?.items; let last = last">
-                <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
-              </span>
-            </div>
-            <hop-odometer [countTo]="noSchockAusStrafeStreak.ranking[0]?.items[0]?.count"></hop-odometer>
-            <div>Runden ohne <strong>Schock-Aus-Strafe</strong></div>
-          </div>
-          <div class="record-streak" *ngIf="noSchockAusStrafeStreak.overallMax.count !== noSchockAusStrafeStreak.ranking[0]?.items[0]?.count">
-            <h3>Rekord</h3>
-            <div>{{noSchockAusStrafeStreak.overallMax.name}}, <hop-odometer [countTo]="noSchockAusStrafeStreak.overallMax.count"></hop-odometer> Runden</div>
-            <small>aufgestellt am {{noSchockAusStrafeStreak.overallMax.to | date:'dd.MM.yyyy'}}</small>
-          </div>
-          <div class="record-streak" *ngIf="noSchockAusStrafeStreak.overallMax.count === noSchockAusStrafeStreak.ranking[0]?.items[0]?.count">
-            <h3>🎉Aktueller Rekord🎉</h3>
-          </div>
-        </ng-container>
+        <hop-streak *ngIf="noSchockAusStrafeStreak$ | async as noSchockAusStrafeStreak; else loading" [streakData]="noSchockAusStrafeStreak" [streakName]="'Schock-Aus-Strafe'"></hop-streak>
       </mat-card>
       <mat-card class="streak-row">
-        <ng-container *ngIf="noVerlorenStreak$ | async as noVerlorenStreak; else loading">
-          <div class="current-streak">
-            <div>
-              <span *ngFor="let player of noVerlorenStreak.ranking[0]?.items; let last = last">
-                <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
-              </span>
-            </div>
-            <hop-odometer [countTo]="noVerlorenStreak.ranking[0]?.items[0]?.count"></hop-odometer>
-            <div>Runden ohne <strong>Niederlage</strong></div>
-          </div>
-          <div class="record-streak" *ngIf="noVerlorenStreak.overallMax.count !== noVerlorenStreak.ranking[0]?.items[0]?.count">
-            <h3>Rekord</h3>
-            <div>{{noVerlorenStreak.overallMax.name}}, <hop-odometer [countTo]="noVerlorenStreak.overallMax.count"></hop-odometer> Runden</div>
-            <small>aufgestellt am {{noVerlorenStreak.overallMax.to | date:'dd.MM.yyyy'}}</small>
-          </div>
-          <div class="record-streak" *ngIf="noVerlorenStreak.overallMax.count === noVerlorenStreak.ranking[0]?.items[0]?.count">
-            <h3>🎉Aktueller Rekord🎉</h3>
-          </div>
-        </ng-container>
+        <hop-streak *ngIf="noVerlorenStreak$ | async as noVerlorenStreak; else loading" [streakData]="noVerlorenStreak" [streakName]="'Niederlage'"></hop-streak>
       </mat-card>
       <mat-card class="streak-row">
-        <ng-container *ngIf="no221$ | async as no221; else loading">
-          <div class="current-streak">
-            <div>
-              <span *ngFor="let player of no221.ranking[0]?.items; let last = last">
-                <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
-              </span>
-            </div>
-            <hop-odometer [countTo]="no221.ranking[0]?.items[0]?.count"></hop-odometer>
-            <div>Runden ohne <strong>2-2-1</strong></div>
-          </div>
-          <div class="record-streak" *ngIf="no221.overallMax.count !== no221.ranking[0]?.items[0]?.count">
-            <h3>Rekord</h3>
-            <div>{{no221.overallMax.name}}, <hop-odometer [countTo]="no221.overallMax.count"></hop-odometer> Runden</div>
-            <small>aufgestellt am {{no221.overallMax.to | date:'dd.MM.yyyy'}}</small>
-          </div>
-          <div class="record-streak" *ngIf="no221.overallMax.count === no221.ranking[0]?.items[0]?.count">
-            <h3>🎉Aktueller Rekord🎉</h3>
-          </div>
-        </ng-container>
+        <hop-streak *ngIf="no221$ | async as no221; else loading" [streakData]="no221" [streakName]="'2-2-1'"></hop-streak>
       </mat-card>
       <mat-card class="streak-row">
-        <ng-container *ngIf="noLustwurf$ | async as noLustwurf; else loading">
-          <div class="current-streak">
-            <div>
-              <span *ngFor="let player of noLustwurf.ranking[0]?.items; let last = last">
-                <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
-              </span>
-            </div>
-            <hop-odometer [countTo]="noLustwurf.ranking[0]?.items[0]?.count"></hop-odometer>
-            <div>Runden ohne <strong>Lustwurf</strong></div>
-          </div>
-          <div class="record-streak" *ngIf="noLustwurf.overallMax.count !== noLustwurf.ranking[0]?.items[0]?.count">
-            <h3>Rekord</h3>
-            <div>{{noLustwurf.overallMax.name}}, <hop-odometer [countTo]="noLustwurf.overallMax.count"></hop-odometer> Runden</div>
-            <small>aufgestellt am {{noLustwurf.overallMax.to | date:'dd.MM.yyyy'}}</small>
-          </div>
-          <div class="record-streak" *ngIf="noLustwurf.overallMax.count === noLustwurf.ranking[0]?.items[0]?.count">
-            <h3>🎉Aktueller Rekord🎉</h3>
-          </div>
-        </ng-container>
+        <hop-streak *ngIf="noLustwurf$ | async as noLustwurf; else loading" [streakData]="noLustwurf" [streakName]="'Lustwurf'"></hop-streak>
       </mat-card>
       <div>
         <mat-card class="count-row">
@@ -412,11 +331,11 @@
                 <td>{{item.quote | number:'1.2-2':'de'}}</td>
                 <td class="min-max-defeats">
                   <span *ngFor="let defeat of item.defeats?.max; let last = last">
-                    {{defeat.name}}<span *ngIf="!last">,</span><span *ngIf="last"> ({{defeat.count}}x)</span>
+                    {{defeat.name}}<span *ngIf="!last">/</span><span *ngIf="last"> ({{defeat.count}}x)</span>
                   </span>
                   <mat-icon>more_horiz</mat-icon>
                   <span *ngFor="let defeat of item.defeats?.min; let last = last">
-                    {{defeat.name}}<span *ngIf="!last">,</span><span *ngIf="last"> ({{defeat.count}}x)</span>
+                    {{defeat.name}}<span *ngIf="!last">/</span><span *ngIf="last"> ({{defeat.count}}x)</span>
                   </span>
                 </td>
               </tr>

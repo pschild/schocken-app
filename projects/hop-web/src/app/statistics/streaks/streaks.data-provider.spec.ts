@@ -20,10 +20,9 @@ const events: RoundEventDto[] = [
   RoundEventDtoTestdaten.create('roundEvent1', 'round1', 'player1', 'eventType1'),
   RoundEventDtoTestdaten.create('roundEvent2', 'round1', 'player1', 'eventType1'),
   RoundEventDtoTestdaten.create('roundEvent3', 'round2', 'player1', 'eventType1'),
-  RoundEventDtoTestdaten.create('roundEvent4', 'round2', 'player2', 'eventType1'),
+  RoundEventDtoTestdaten.create('roundEvent4', 'round3', 'player3', 'eventType1'),
   RoundEventDtoTestdaten.create('roundEvent5', 'round3', 'player3', 'eventType1'),
-  RoundEventDtoTestdaten.create('roundEvent6', 'round3', 'player3', 'eventType1'),
-  RoundEventDtoTestdaten.create('roundEvent7', 'round4', 'player3', 'eventType1')
+  RoundEventDtoTestdaten.create('roundEvent6', 'round4', 'player3', 'eventType1')
 ];
 const players: PlayerDto[] = [
   PlayerDtoTestdaten.create('player1', 'Adam'),
@@ -53,11 +52,11 @@ describe('StreaksDataProvider', () => {
 
     expect(result.list).toBeDefined();
     expect(result.list).toEqual([
-      { name: 'Adam', count: 2 }, { name: 'Bert', count: 1 }, { name: 'Caroline', count: 0 }
+      { name: 'Adam', count: 2 }, { name: 'Bert', count: 3 }, { name: 'Caroline', count: 0 }
     ]);
 
     expect(result.overallMax).toBeDefined();
-    expect(result.overallMax.name).toBe('Adam');
-    expect(result.overallMax.count).toBe(2);
+    expect(result.overallMax.name).toBe('Bert');
+    expect(result.overallMax.count).toBe(3);
   });
 });

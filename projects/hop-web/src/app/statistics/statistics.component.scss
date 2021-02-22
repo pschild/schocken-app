@@ -16,13 +16,6 @@ $cards-margin: 10px;
     text-align: center;
     height: 230px;
 
-    .current-streak {
-      margin-bottom: 10px;
-      hop-odometer {
-        font-size: 40px;
-      }
-    }
-
     @media (max-width: 550px) {
       width: calc(100% - #{2 * $cards-margin});
     }
@@ -80,16 +73,20 @@ $cards-margin: 10px;
   .stats-table {
     tr:first-child {
       font-weight: bold;
+
+      td {
+        white-space: nowrap;
+      }
     }
 
     td {
       padding: 5px 15px 5px 0;
       height: 40px;
-      white-space: nowrap;
 
       &.min-max-defeats {
         display: flex;
         align-items: center;
+        white-space: nowrap;
 
         mat-icon {
           margin: 0 5px;
