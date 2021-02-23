@@ -1,6 +1,7 @@
 import { isAfter, isBefore } from 'date-fns';
 import { EntityType } from '../../entity/enum/entity-type.enum';
 import { EntityDto } from '../../entity/model/entity.dto';
+import { UUIDUtil } from '../../util/uuid.util';
 import { ParticipationDto } from './participation.dto';
 
 export interface RoundDto extends EntityDto {
@@ -30,5 +31,9 @@ export namespace RoundDtoTestdaten {
       datetime: datetime || new Date(),
       attendeeList: attendeeList || []
     };
+  }
+
+  export function createManyForGame(length: number, gameId: string): RoundDto[] {
+    return Array(length).fill(null).map(item => create(UUIDUtil.generate(), gameId));
   }
 }

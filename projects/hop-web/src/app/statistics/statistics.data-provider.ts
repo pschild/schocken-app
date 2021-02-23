@@ -30,8 +30,7 @@ import {
   DefeatsBySchockAus,
   RankingByEventTypeItem,
   RankingByPlayerItem,
-  RankingPayload,
-  SchockAusStreakPayload
+  RankingPayload
 } from './model/statistic-payload.model';
 import {
   SCHOCK_AUS_EVENT_TYPE_ID,
@@ -42,8 +41,9 @@ import {
 import { PenaltyService } from '@hop-basic-components';
 import { PointsDataProvider } from './points/points.data-provider';
 import { Ranking, RankingUtil } from './ranking.util';
-import { StreakRanking, StreaksDataProvider } from './streaks/streaks.data-provider';
+import { SchockAusStreakPayload, StreakRanking, StreaksDataProvider } from './streaks/streaks.data-provider';
 import { SortDirection, SortService } from '../core/service/sort.service';
+import { StatisticsUtil } from './statistics.util';
 
 @Injectable()
 export class StatisticsDataProvider {
@@ -219,7 +219,7 @@ export class StatisticsDataProvider {
   getMaxRoundsPerGameCount$(): Observable<CountPayload> {
     return this.allRoundsBetween$.pipe(
       map(rounds => {
-        const roundsByGame = this.groupByGameId(rounds);
+        const roundsByGame = StatisticsUtil.groupByGameIdAndSort(rounds);
         const maxCount = maxBy(roundsByGame, g => g.rounds.length);
         return { count: maxCount.rounds.length };
       })
@@ -242,37 +242,7 @@ export class StatisticsDataProvider {
   getSchockAusStreak$(): Observable<SchockAusStreakPayload> {
     return combineLatest([this.allGamesBetween$, this.allRoundsBetween$, this.allEventsBetween$]).pipe(
       map(([games, rounds, events]) => {
-        const allSchockAusEvents = events.filter(event => event.eventTypeId === SCHOCK_AUS_EVENT_TYPE_ID) as RoundEventDto[];
-        const roundsByGame = this.groupByGameId(rounds);
-
-        let overallMaxSchockAusStreak = null;
-        for (const game of roundsByGame) {
-          let maxStreakForGame = 0;
-          let schockAusCounter = 0;
-          for (const round of game.rounds) {
-            // multiple Schock-Aus in a single round won't be recognized. To count them, switch to .filter()
-            if (!!allSchockAusEvents.find(e => e.roundId === round._id)) {
-              schockAusCounter++;
-              if (schockAusCounter > maxStreakForGame) {
-                maxStreakForGame = schockAusCounter;
-              }
-            } else {
-              schockAusCounter = 0;
-            }
-          }
-          if (!overallMaxSchockAusStreak || overallMaxSchockAusStreak.count < maxStreakForGame) {
-            overallMaxSchockAusStreak = { gameId: game.gameId, count: maxStreakForGame };
-          }
-        }
-
-        const accordingGame = games.find(game => game._id === overallMaxSchockAusStreak.gameId);
-        if (!!accordingGame && !!overallMaxSchockAusStreak) {
-          return {
-            gameId: overallMaxSchockAusStreak.gameId,
-            datetime: accordingGame.datetime,
-            count: overallMaxSchockAusStreak.count
-          };
-        }
+        return this.streaksDataProvider.calculateSchockAusStreak(games, rounds, events);
       })
     );
   }
@@ -395,7 +365,7 @@ export class StatisticsDataProvider {
   getStreaks$(eventTypeId: string): Observable<StreakRanking> {
     return combineLatest([this.allRoundsBetween$, this.allEventsBetween$, this.activePlayers$]).pipe(
       map(([rounds, events, players]) => {
-        const result = this.streaksDataProvider.calculate(rounds, events, players, eventTypeId);
+        const result = this.streaksDataProvider.calculateStreakByEventTypeId(rounds, events, players, eventTypeId);
         if (!result) {
           throw new Error(`Calculating streaks returned undefined!`);
         }
@@ -515,11 +485,5 @@ export class StatisticsDataProvider {
           description: EventTypeDtoUtils.findDescriptionById(eventTypes, item.eventTypeId),
           ...item
         }));
-  }
-
-  private groupByGameId(rounds: RoundDto[]): { gameId: string; rounds: RoundDto[]; }[] {
-    const roundsByGameId = groupBy(rounds, 'gameId');
-    return Object.keys(roundsByGameId)
-      .map(gameId => ({ gameId, rounds: orderBy(roundsByGameId[gameId], 'datetime', 'asc') }));
   }
 }

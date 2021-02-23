@@ -5,7 +5,7 @@ import { debounceTime, filter, share, startWith } from 'rxjs/operators';
 import { FormBuilder } from '@angular/forms';
 import { add, getYear, isAfter, isBefore, set } from 'date-fns';
 import { groupBy, orderBy, range } from 'lodash';
-import { CountPayload, RankingPayload, SchockAusStreakPayload } from './model/statistic-payload.model';
+import { CountPayload, RankingPayload } from './model/statistic-payload.model';
 import { EventTypeContext, GameDto } from '@hop-backend-api';
 import {
   ALL_IDS,
@@ -20,7 +20,7 @@ import {
   ZWEI_ZWEI_EINS_EVENT_TYPE_ID
 } from './model/event-type-ids';
 import { Ranking } from './ranking.util';
-import { StreakRanking } from './streaks/streaks.data-provider';
+import { SchockAusStreakPayload, StreakRanking } from './streaks/streaks.data-provider';
 
 const START_DATE_OF_STATISTICS = new Date('2018-11-09');
 

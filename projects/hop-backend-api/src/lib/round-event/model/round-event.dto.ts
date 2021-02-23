@@ -1,6 +1,7 @@
 import { isAfter, isBefore } from 'date-fns';
 import { EntityType } from '../../entity/enum/entity-type.enum';
 import { EventDto } from '../../event';
+import { UUIDUtil } from '../../util/uuid.util';
 
 export interface RoundEventDto extends EventDto {
   roundId: string;
@@ -19,12 +20,27 @@ export namespace RoundEventDtoUtils {
 
 // tslint:disable-next-line:no-namespace
 export namespace RoundEventDtoTestdaten {
-  export function create(id: string, roundId: string, playerId: string, eventTypeId: string, datetime?: Date): RoundEventDto {
+
+  export function createByPartial(cfg: Partial<RoundEventDto>): RoundEventDto {
+    return create(
+      cfg._id || UUIDUtil.generate(),
+      cfg.roundId || UUIDUtil.generate(),
+      cfg.playerId || UUIDUtil.generate(),
+      cfg.eventTypeId || UUIDUtil.generate(),
+      cfg.datetime || new Date()
+    );
+  }
+
+  export function createWithRoundAndType(roundId: string, eventTypeId: string): RoundEventDto {
+    return createByPartial({roundId, eventTypeId});
+  }
+
+  function create(id: string, roundId: string, playerId: string, eventTypeId: string, datetime: Date): RoundEventDto {
     return {
       _id: id,
       type: EntityType.ROUND_EVENT,
       roundId,
-      datetime: datetime || new Date(),
+      datetime,
       eventTypeId,
       playerId
     };

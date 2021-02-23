@@ -30,3 +30,15 @@ export namespace GameDtoUtils {
   }
 
 }
+
+// tslint:disable-next-line:no-namespace
+export namespace GameDtoTestdaten {
+  export function create(id: string, completed: boolean = true, datetime?: Date): GameDto {
+    return {
+      _id: id,
+      type: EntityType.GAME,
+      datetime: datetime || new Date(),
+      completed
+    };
+  }
+}

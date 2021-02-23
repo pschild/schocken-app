@@ -25,14 +25,14 @@ const eventTypes: EventTypeDto[] = [
   EventTypeDtoTestdaten.create('eventType2', EventTypeContext.ROUND)
 ];
 const events: RoundEventDto[] = [
-  RoundEventDtoTestdaten.create('roundEvent1', 'round1', 'player1', 'eventType1'),
-  RoundEventDtoTestdaten.create('roundEvent2', 'round1', 'player2', VERLOREN_EVENT_TYPE_ID),
-  RoundEventDtoTestdaten.create('roundEvent3', 'round2', 'player1', 'eventType2'),
-  RoundEventDtoTestdaten.create('roundEvent4', 'round2', 'player2', VERLOREN_EVENT_TYPE_ID),
-  RoundEventDtoTestdaten.create('roundEvent5', 'round3', 'player1', VERLOREN_EVENT_TYPE_ID),
-  RoundEventDtoTestdaten.create('roundEvent6', 'round3', 'player2', 'eventType1'),
-  RoundEventDtoTestdaten.create('roundEvent7', 'round4', 'player1', 'eventType1'),
-  RoundEventDtoTestdaten.create('roundEvent8', 'round4', 'player3', 'eventType2')
+  RoundEventDtoTestdaten.createByPartial({roundId: 'round1', playerId: 'player1', eventTypeId: 'eventType1'}),
+  RoundEventDtoTestdaten.createByPartial({roundId: 'round1', playerId: 'player2', eventTypeId: VERLOREN_EVENT_TYPE_ID}),
+  RoundEventDtoTestdaten.createByPartial({roundId: 'round2', playerId: 'player1', eventTypeId: 'eventType2'}),
+  RoundEventDtoTestdaten.createByPartial({roundId: 'round2', playerId: 'player2', eventTypeId: VERLOREN_EVENT_TYPE_ID}),
+  RoundEventDtoTestdaten.createByPartial({roundId: 'round3', playerId: 'player1', eventTypeId: VERLOREN_EVENT_TYPE_ID}),
+  RoundEventDtoTestdaten.createByPartial({roundId: 'round3', playerId: 'player2', eventTypeId: 'eventType1'}),
+  RoundEventDtoTestdaten.createByPartial({roundId: 'round4', playerId: 'player1', eventTypeId: 'eventType1'}),
+  RoundEventDtoTestdaten.createByPartial({roundId: 'round4', playerId: 'player3', eventTypeId: 'eventType2'})
 ];
 const players: PlayerDto[] = [
   PlayerDtoTestdaten.create('player1', 'Adam'),

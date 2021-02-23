@@ -59,9 +59,3 @@ export interface SchockAusEffectivityRankingPayload {
   min: SchockAusEffectivityRankingItem | SchockAusEffectivityRankingItem[];
   max: SchockAusEffectivityRankingItem | SchockAusEffectivityRankingItem[];
 }
-
-export interface SchockAusStreakPayload {
-  gameId: string;
-  datetime: Date;
-  count: number;
-}

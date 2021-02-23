@@ -4,10 +4,13 @@ import {
   RoundDto,
   PlayerDtoUtils,
   EventDto,
-  RoundEventDto
+  RoundEventDto,
+  GameDto
 } from '@hop-backend-api';
 import { difference, includes } from 'lodash';
+import { SCHOCK_AUS_EVENT_TYPE_ID } from '../model/event-type-ids';
 import { Ranking } from '../ranking.util';
+import { StatisticsUtil } from '../statistics.util';
 
 interface PlayerDictionary {
   [playerId: string]: number;
@@ -30,6 +33,12 @@ export interface StreakRanking {
   overallMax: RecordWithTime;
 }
 
+export interface SchockAusStreakPayload {
+  gameId: string;
+  datetime: Date;
+  count: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -39,7 +48,7 @@ export class StreaksDataProvider {
   ) {
   }
 
-  calculate(rounds: RoundDto[], events: EventDto[], players: PlayerDto[], eventTypeId: string): StreakResult {
+  calculateStreakByEventTypeId(rounds: RoundDto[], events: EventDto[], players: PlayerDto[], eventTypeId: string): StreakResult {
     if (!rounds.length || !events.length || !players.length) {
       return;
     }
@@ -68,6 +77,44 @@ export class StreaksDataProvider {
     const overallMax = { ...max, name: PlayerDtoUtils.findNameById(players, max.playerId) };
 
     return { list, overallMax };
+  }
+
+  calculateSchockAusStreak(games: GameDto[], rounds: RoundDto[], events: EventDto[]): SchockAusStreakPayload {
+    if (!games.length || !rounds.length || !events.length) {
+      return;
+    }
+
+    const allSchockAusEvents = events.filter(event => event.eventTypeId === SCHOCK_AUS_EVENT_TYPE_ID) as RoundEventDto[];
+    const roundsByGame = StatisticsUtil.groupByGameIdAndSort(rounds);
+
+    let overallMaxSchockAusStreak = null;
+    for (const game of roundsByGame) {
+      let maxStreakForGame = 0;
+      let schockAusCounter = 0;
+      for (const round of game.rounds) {
+        // multiple Schock-Aus in a single round won't be recognized. To count them, switch to .filter()
+        if (!!allSchockAusEvents.find(e => e.roundId === round._id)) {
+          schockAusCounter++;
+          if (schockAusCounter > maxStreakForGame) {
+            maxStreakForGame = schockAusCounter;
+          }
+        } else {
+          schockAusCounter = 0;
+        }
+      }
+      if (!overallMaxSchockAusStreak || overallMaxSchockAusStreak.count < maxStreakForGame) {
+        overallMaxSchockAusStreak = { gameId: game.gameId, count: maxStreakForGame };
+      }
+    }
+
+    const accordingGame = games.find(game => game._id === overallMaxSchockAusStreak.gameId);
+    if (!!accordingGame && !!overallMaxSchockAusStreak) {
+      return {
+        gameId: overallMaxSchockAusStreak.gameId,
+        datetime: accordingGame.datetime,
+        count: overallMaxSchockAusStreak.count
+      };
+    }
   }
 
   private increaseCount(playerMap: PlayerDictionary, ids: string[]): PlayerDictionary {
