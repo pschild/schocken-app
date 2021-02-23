@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { StatisticsComponent } from './statistics.component';
 import { ENV } from '@hop-backend-api';
@@ -32,7 +32,7 @@ xdescribe('StatisticsComponent', () => {
   let component: StatisticsComponent;
   let fixture: ComponentFixture<StatisticsComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ StatisticsComponent ],
       imports: [ ReactiveFormsModule, HopBasicComponentsModule ],

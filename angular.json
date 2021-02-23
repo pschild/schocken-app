@@ -46,7 +46,6 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -142,7 +141,7 @@
       "prefix": "hop",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "tsConfig": "projects/hop-basic-components/tsconfig.lib.json",
             "project": "projects/hop-basic-components/ng-package.json"
@@ -182,7 +181,7 @@
       "prefix": "hop",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "tsConfig": "projects/hop-backend-api/tsconfig.lib.json",
             "project": "projects/hop-backend-api/ng-package.json"

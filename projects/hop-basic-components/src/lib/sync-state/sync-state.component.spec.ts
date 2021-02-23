@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SyncStateComponent } from './sync-state.component';
 import { SyncService, SyncType } from './sync.service';
@@ -21,7 +21,7 @@ describe('SyncStateComponent', () => {
   let component: SyncStateComponent;
   let fixture: ComponentFixture<SyncStateComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SyncStateComponent ],
       providers: [

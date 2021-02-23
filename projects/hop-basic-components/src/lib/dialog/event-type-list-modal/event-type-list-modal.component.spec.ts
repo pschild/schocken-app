@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { EventTypeListModalComponent } from './event-type-list-modal.component';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -7,7 +7,7 @@ describe('EventTypeListModalComponent', () => {
   let component: EventTypeListModalComponent;
   let fixture: ComponentFixture<EventTypeListModalComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ EventTypeListModalComponent ],
       providers: [

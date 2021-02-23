@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AllPlayerSelectionModalComponent } from './all-player-selection-modal.component';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -7,7 +7,7 @@ describe('AllPlayerSelectionModalComponent', () => {
   let component: AllPlayerSelectionModalComponent;
   let fixture: ComponentFixture<AllPlayerSelectionModalComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ AllPlayerSelectionModalComponent ],
       providers: [
