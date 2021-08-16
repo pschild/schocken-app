@@ -36,7 +36,6 @@ export class StatisticService {
     }
     eventTypeCount$.subscribe((events: EventDto[]) => {
       const count = events.length;
-      console.log('eventTypeCount', eventTypeId, count);
       if (this.NUMBERS_TO_CELEBRATE.includes(count)) {
         this.eventTypeRepository.get(eventTypeId).subscribe((eventType: EventTypeDto) => {
           this.dialog.open(CelebrationModalComponent, {
