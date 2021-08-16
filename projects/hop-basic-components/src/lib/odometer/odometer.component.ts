@@ -18,6 +18,7 @@ export class OdometerComponent implements OnInit, OnChanges {
 
   @Input() countTo: number;
   @Input() precision: number;
+  @Input() suffix: string;
 
   constructor() { }
 
@@ -44,7 +45,8 @@ export class OdometerComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.countTo.currentValue) {
+    if (changes.countTo.currentValue >= 0) {
+      this.countTo = +changes.countTo.currentValue.toFixed(this.precision);
       this.trigger.next(0);
     }
   }

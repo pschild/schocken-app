@@ -1,0 +1,18 @@
+<div class="current-streak">
+  <div>
+    <span *ngFor="let player of streakData.ranking[0]?.items; let last = last">
+      <strong>{{player.name}}<span *ngIf="!last">, </span></strong>
+    </span>
+  </div>
+  <hop-odometer [countTo]="streakData.ranking[0]?.items[0]?.count"></hop-odometer>
+  <div>Runden ohne <strong>{{streakName}}</strong></div>
+</div>
+<div class="record-streak" *ngIf="streakData.overallMax.count !== streakData.ranking[0]?.items[0]?.count">
+  <h3>Rekord</h3>
+  <div>{{streakData.overallMax.name}}, <hop-odometer [countTo]="streakData.overallMax.count"></hop-odometer> Runden</div>
+  <small>aufgestellt am {{streakData.overallMax.to | date:'dd.MM.yyyy'}}</small>
+  <mat-progress-bar [color]="'accent'" [value]="(streakData.ranking[0]?.items[0]?.count / streakData.overallMax.count) * 100"></mat-progress-bar>
+</div>
+<div class="record-streak" *ngIf="streakData.overallMax.count === streakData.ranking[0]?.items[0]?.count">
+  <h3>🎉Aktueller Rekord🎉</h3>
+</div>

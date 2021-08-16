@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { CelebrationModalComponent } from './celebration-modal.component';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -7,7 +7,7 @@ describe('CelebrationModalComponent', () => {
   let component: CelebrationModalComponent;
   let fixture: ComponentFixture<CelebrationModalComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ CelebrationModalComponent ],
       providers: [

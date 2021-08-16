@@ -16,6 +16,12 @@ export namespace GameDtoUtils {
     return row => row['_doc_id_rev'].includes(gameId);
   }
 
+  export function betweenDatesFilter(from: Date, to: Date): (row) => boolean {
+    return row => row.type === EntityType.GAME
+      && isAfter(new Date(row.datetime), from)
+      && isBefore(new Date(row.datetime), to);
+  }
+
   export function completedBetweenDatesFilter(from: Date, to: Date): (row) => boolean {
     return row => row.type === EntityType.GAME
       && isAfter(new Date(row.datetime), from)
@@ -23,4 +29,16 @@ export namespace GameDtoUtils {
       && row.completed === true;
   }
 
+}
+
+// tslint:disable-next-line:no-namespace
+export namespace GameDtoTestdaten {
+  export function create(id: string, completed: boolean = true, datetime?: Date): GameDto {
+    return {
+      _id: id,
+      type: EntityType.GAME,
+      datetime: datetime || new Date(),
+      completed
+    };
+  }
 }

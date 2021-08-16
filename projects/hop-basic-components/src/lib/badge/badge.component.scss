@@ -1,0 +1,18 @@
+$gold: #f2be1d;
+$silver: #c3cfd7;
+$bronze: #d77941;
+
+.badge-wrapper {
+  & > .gold {
+    color: $gold;
+    text-shadow: 0 0 5px $gold;
+  }
+
+  & > .silver {
+    color: $silver;
+  }
+
+  & > .bronze {
+    color: $bronze;
+  }
+}

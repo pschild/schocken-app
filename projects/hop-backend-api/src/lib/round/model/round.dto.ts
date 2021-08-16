@@ -1,6 +1,7 @@
 import { isAfter, isBefore } from 'date-fns';
 import { EntityType } from '../../entity/enum/entity-type.enum';
 import { EntityDto } from '../../entity/model/entity.dto';
+import { UUIDUtil } from '../../util/uuid.util';
 import { ParticipationDto } from './participation.dto';
 
 export interface RoundDto extends EntityDto {
@@ -18,4 +19,21 @@ export namespace RoundDtoUtils {
       && isBefore(new Date(row.datetime), to);
   }
 
+}
+
+// tslint:disable-next-line:no-namespace
+export namespace RoundDtoTestdaten {
+  export function create(id: string, gameId: string, attendeeList?: ParticipationDto[], datetime?: Date): RoundDto {
+    return {
+      _id: id,
+      type: EntityType.ROUND,
+      gameId,
+      datetime: datetime || new Date(),
+      attendeeList: attendeeList || []
+    };
+  }
+
+  export function createManyForGame(length: number, gameId: string): RoundDto[] {
+    return Array(length).fill(null).map(item => create(UUIDUtil.generate(), gameId));
+  }
 }

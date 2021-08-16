@@ -1,0 +1,4 @@
+<div class="badge-wrapper">
+  <span *ngIf="place <= 3" [ngClass]="{'gold': place === 1, 'silver': place === 2, 'bronze': place === 3}"><mat-icon>military_tech</mat-icon></span>
+  <span *ngIf="place > 3">{{place}}</span>
+</div>

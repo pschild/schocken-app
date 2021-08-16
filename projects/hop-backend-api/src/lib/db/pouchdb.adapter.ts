@@ -6,6 +6,7 @@ import { PutResponse } from './model/put-response.model';
 import { GetResponse } from './model/get-response.model';
 import { RemoveResponse } from './model/remove-response.model';
 import { ENV } from '../hop-backend-api.module';
+import { UUIDUtil } from '../util/uuid.util';
 
 // @see https://www.npmjs.com/package/pouchdb-find
 PouchDB.plugin(pouchdbDebug);
@@ -84,19 +85,10 @@ export class PouchDbAdapter {
   }
 
   generateId(prefix: string): string {
-    return `${prefix}-${this._generateUuid()}`;
+    return `${prefix}-${UUIDUtil.generate()}`;
   }
 
   destroy(): Promise<any> {
     return this.instance.destroy();
-  }
-
-  private _generateUuid(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      // tslint:disable-next-line:no-bitwise
-      // tslint:disable-next-line:one-variable-per-declaration
-      const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
   }
 }

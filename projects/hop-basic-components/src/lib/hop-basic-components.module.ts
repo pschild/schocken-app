@@ -17,6 +17,9 @@ import { PenaltySumComponent } from './penalty-sum/penalty-sum.component';
 import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator.component';
 import { CelebrationModalComponent } from './dialog/celebration-modal/celebration-modal.component';
 import { OdometerComponent } from './odometer/odometer.component';
+import { BadgeComponent } from './badge/badge.component';
+import { TrophyComponent } from './trophy/trophy.component';
+import { StreakComponent } from './streak/streak.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +37,10 @@ import { OdometerComponent } from './odometer/odometer.component';
     PenaltySumComponent,
     LoadingIndicatorComponent,
     CelebrationModalComponent,
-    OdometerComponent
+    OdometerComponent,
+    BadgeComponent,
+    TrophyComponent,
+    StreakComponent
   ],
   imports: [
     MaterialModule,
@@ -53,7 +59,10 @@ import { OdometerComponent } from './odometer/odometer.component';
     PenaltySumComponent,
     LoadingIndicatorComponent,
     CelebrationModalComponent,
-    OdometerComponent
+    OdometerComponent,
+    BadgeComponent,
+    TrophyComponent,
+    StreakComponent
   ]
 })
 export class HopBasicComponentsModule { }

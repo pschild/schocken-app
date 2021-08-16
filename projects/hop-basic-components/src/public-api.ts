@@ -23,6 +23,11 @@ export * from './lib/event-list/event-list.component';
 export * from './lib/event-list/mapper';
 export * from './lib/event-list/model';
 
+export * from './lib/badge/badge.component';
+export * from './lib/trophy/trophy.component';
+
+export * from './lib/streak/streak.component';
+
 export * from './lib/event-type-list/event-type-list.component';
 export * from './lib/event-type-list/mapper';
 export * from './lib/event-type-list/model';
