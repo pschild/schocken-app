@@ -20,6 +20,9 @@ import { OdometerComponent } from './odometer/odometer.component';
 import { BadgeComponent } from './badge/badge.component';
 import { TrophyComponent } from './trophy/trophy.component';
 import { StreakComponent } from './streak/streak.component';
+import { SoundBoardComponent } from './sound-board/sound-board.component';
+import { NgxsModule } from '@ngxs/store';
+import { SoundboardState } from './sound-board/state/soundboard.state';
 
 @NgModule({
   declarations: [
@@ -40,13 +43,15 @@ import { StreakComponent } from './streak/streak.component';
     OdometerComponent,
     BadgeComponent,
     TrophyComponent,
-    StreakComponent
+    StreakComponent,
+    SoundBoardComponent
   ],
   imports: [
     MaterialModule,
     RouterModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgxsModule.forFeature([SoundboardState])
   ],
   exports: [
     MaterialModule,
@@ -62,7 +67,8 @@ import { StreakComponent } from './streak/streak.component';
     OdometerComponent,
     BadgeComponent,
     TrophyComponent,
-    StreakComponent
+    StreakComponent,
+    SoundBoardComponent
   ]
 })
 export class HopBasicComponentsModule { }

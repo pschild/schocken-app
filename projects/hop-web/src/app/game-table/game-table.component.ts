@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { merge, Observable, Subject } from 'rxjs';
 import { ActivatedRoute, Params } from '@angular/router';
-import { map, filter, take, withLatestFrom, switchMap, tap } from 'rxjs/operators';
+import { map, filter, take, withLatestFrom, switchMap, tap, takeUntil } from 'rxjs/operators';
 import { PlayerDto } from '@hop-backend-api';
 import { GameTableDataProvider } from './game-table.data-provider';
 import { GameEventsRowVo } from './model/game-events-row.vo';
@@ -11,12 +11,16 @@ import {
   EventTypeListModalComponent,
   EventTypeListModalDialogResult,
   EventTypeListModalDialogData,
-  SnackBarNotificationService
+  SnackBarNotificationService,
+  SoundboardActions,
+  SoundboardState
 } from '@hop-basic-components';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { GameDetailsVo } from './model/game-details.vo';
 import { FormControl } from '@angular/forms';
+import { HotkeysService } from '../core/service/hotkeys.service';
+import { Store } from '@ngxs/store';
 
 @Component({
   selector: 'hop-game-table',
@@ -24,7 +28,7 @@ import { FormControl } from '@angular/forms';
   styleUrls: ['./game-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GameTableComponent implements OnInit {
+export class GameTableComponent implements OnInit, OnDestroy {
 
   gameId$: Observable<string>;
   gameDetails$: Observable<GameDetailsVo>;
@@ -40,11 +44,15 @@ export class GameTableComponent implements OnInit {
 
   placeFormControl = new FormControl('');
 
+  private destroy$ = new Subject();
+
   constructor(
     private route: ActivatedRoute,
     private dataProvider: GameTableDataProvider,
     private dialog: MatDialog,
-    private snackBarNotificationService: SnackBarNotificationService
+    private snackBarNotificationService: SnackBarNotificationService,
+    private hotkeys: HotkeysService,
+    private store: Store
   ) {
   }
 
@@ -69,6 +77,15 @@ export class GameTableComponent implements OnInit {
       this.dataProvider.loadGameEventsRow(gameId);
       this.dataProvider.loadRoundEventsRows(gameId);
     });
+
+    const keyObservables$ = this.store.selectSnapshot(SoundboardState.keys).map(key => this.hotkeys.addShortcut({ keys: key }).pipe(
+      tap((event: KeyboardEvent) => this.store.dispatch(new SoundboardActions.Play(event.key)))
+    ));
+    merge(...keyObservables$).pipe(takeUntil(this.destroy$)).subscribe();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
   }
 
   onRemoveGameEvent(eventId: string, playerId: string): void {

@@ -1,0 +1,3 @@
+<div class="soundboard-container" *ngIf="keyMap$ | async as keyMap">
+  <button *ngFor="let item of keyMap" (click)="handleClick(item.key)" [ngClass]="{'pressed': isPressed$(item.key) | async}">{{ item.icon }}</button>
+</div>
