@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { StatisticsDataProvider } from './statistics.data-provider';
 import { Observable } from 'rxjs';
-import { debounceTime, filter, share, startWith } from 'rxjs/operators';
+import { debounceTime, filter, map, share, startWith } from 'rxjs/operators';
 import { FormBuilder } from '@angular/forms';
 import { add, getYear, isAfter, isBefore, set } from 'date-fns';
 import { groupBy, orderBy, range } from 'lodash';
@@ -21,6 +21,7 @@ import {
 } from './model/event-type-ids';
 import { Ranking } from './ranking.util';
 import { SchockAusStreakPayload, StreakRanking } from './streaks/streaks.data-provider';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 const START_DATE_OF_STATISTICS = new Date('2018-11-09');
 
@@ -81,9 +82,12 @@ export class StatisticsComponent implements OnInit {
   no221$: Observable<StreakRanking>;
   noLustwurf$: Observable<StreakRanking>;
 
+  isMobile$: Observable<boolean>;
+
   constructor(
     private dataProvider: StatisticsDataProvider,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private breakpointObserver: BreakpointObserver
   ) { }
 
   ngOnInit(): void {
@@ -135,6 +139,8 @@ export class StatisticsComponent implements OnInit {
     this.noVerlorenStreak$ = this.dataProvider.getStreaks$(VERLOREN_EVENT_TYPE_ID);
     this.no221$ = this.dataProvider.getStreaks$(ZWEI_ZWEI_EINS_EVENT_TYPE_ID);
     this.noLustwurf$ = this.dataProvider.getStreaks$(LUSTWURF_EVENT_TYPE_ID);
+
+    this.isMobile$ = this.breakpointObserver.observe([Breakpoints.Handset]).pipe(map(state => state.matches));
   }
 
   /**

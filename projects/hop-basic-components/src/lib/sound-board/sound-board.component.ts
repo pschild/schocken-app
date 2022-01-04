@@ -1,8 +1,9 @@
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { Select, Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { SoundboardActions, SoundboardState } from './state';
+import { SoundboardActions, SoundboardState, SoundItem } from './state';
 
 @Component({
   selector: 'hop-sound-board',
@@ -12,12 +13,18 @@ import { SoundboardActions, SoundboardState } from './state';
 export class SoundBoardComponent implements OnInit {
 
   @Select(SoundboardState.keyMap)
-  keyMap$: Observable<{ key: string; icon: string; loop: boolean; soundFile: string; }[]>;
+  keyMap$: Observable<SoundItem[]>;
 
-  constructor(private store: Store) {
+  isMobile$: Observable<boolean>;
+
+  constructor(
+    private store: Store,
+    private breakpointObserver: BreakpointObserver
+  ) {
   }
 
   ngOnInit() {
+    this.isMobile$ = this.breakpointObserver.observe([Breakpoints.Handset]).pipe(map(state => state.matches));
   }
 
   handleClick(key: string): void {

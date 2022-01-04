@@ -4,13 +4,21 @@ import { patch, removeItem, insertItem } from '@ngxs/store/operators';
 import { SoundboardActions } from './soundboard.action';
 import { Howl } from 'howler';
 
+export interface SoundItem {
+  key: string;
+  icon: string;
+  loop: boolean;
+  soundFile: string;
+  volume?: number;
+}
+
 interface HowlInstance {
   key: string;
   howl: Howl;
 }
 
 export interface SoundboardStateModel {
-  keyMap: { key: string; icon: string; loop: boolean; soundFile: string; }[];
+  keyMap: SoundItem[];
   instances: HowlInstance[];
 }
 
@@ -20,10 +28,10 @@ export const SOUNDBOARD_STATE = new StateToken<SoundboardStateModel>('soundboard
   name: SOUNDBOARD_STATE,
   defaults: {
     keyMap: [
-      { key: 'f', icon: '🚨🚨🚨', loop: true, soundFile: 'fast.wav' },
-      { key: 'm', icon: '🚨🚨', loop: true, soundFile: 'medium.wav' },
-      { key: 's', icon: '🚨', loop: true, soundFile: 'slow.wav' },
-      { key: 'h', icon: '📯', loop: true, soundFile: 'horn.wav' },
+      { key: 'f', icon: '🚨🚨🚨', loop: true, soundFile: 'fast.wav', volume: 0.2 },
+      { key: 'm', icon: '🚨🚨', loop: true, soundFile: 'medium.wav', volume: 0.2 },
+      { key: 's', icon: '🚨', loop: true, soundFile: 'slow.wav', volume: 0.2 },
+      { key: 'h', icon: '📯', loop: true, soundFile: 'horn.wav', volume: 0.2 },
       { key: 'w', icon: '🙏', loop: false, soundFile: 'wololo.mp3' }
     ],
     instances: []
@@ -34,7 +42,7 @@ export const SOUNDBOARD_STATE = new StateToken<SoundboardStateModel>('soundboard
 export class SoundboardState implements NgxsOnInit {
 
   @Selector()
-  static keyMap(state: SoundboardStateModel): { key: string; icon: string; loop: boolean; soundFile: string; }[] {
+  static keyMap(state: SoundboardStateModel): SoundItem[] {
     return state.keyMap;
   }
 
@@ -67,7 +75,7 @@ export class SoundboardState implements NgxsOnInit {
       const newInstance = new Howl({
         src: [`./assets/sounds/${soundDetails.soundFile}`],
         loop: soundDetails.loop,
-        volume: 0.2,
+        volume: soundDetails.volume || 1.0,
         onend: () => {
           if (!soundDetails.loop) {
             ctx.setState(patch({ instances: removeItem<HowlInstance>(i => i.key === action.key) }));

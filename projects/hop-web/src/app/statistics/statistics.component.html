@@ -14,8 +14,9 @@
       <mat-datepicker #pickerTo></mat-datepicker>
     </mat-form-field>
 
-    <button mat-button [matMenuTriggerFor]="quickfilterDatesMenu">
-      <mat-icon>filter_alt</mat-icon>
+    <button mat-stroked-button color="primary" [matMenuTriggerFor]="quickfilterDatesMenu">
+      <mat-icon *ngIf="isMobile$ | async">filter_alt</mat-icon>
+      <span *ngIf="!(isMobile$ | async)">Schnellfilter</span>
       <mat-icon>expand_more</mat-icon>
     </button>
     <mat-menu #quickfilterDatesMenu="matMenu">
