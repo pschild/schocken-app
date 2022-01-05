@@ -11,9 +11,12 @@ import { appInitializerFn } from './initialization/bootstrap';
 import { ENV, PouchDbAdapter } from '@hop-backend-api';
 import { VERSION, COMMIT_SHA, COMMIT_DATE } from '../environments/version';
 import { GlobalErrorHandler, RollbarService, rollbarFactory } from './core/global-error-handler';
+import { NgxsModule } from '@ngxs/store';
 
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
+// import { GameState } from './home/state';
+// import { RoundState } from './round/state';
 
 registerLocaleData(localeDe, 'de');
 
@@ -24,6 +27,7 @@ registerLocaleData(localeDe, 'de');
   imports: [
     BrowserModule,
     AppRoutingModule,
+    NgxsModule.forRoot(/*[GameState, RoundState]*/),
     HopBasicComponentsModule,
     BrowserAnimationsModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })

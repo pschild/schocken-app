@@ -1,0 +1,6 @@
+<div class="soundboard-container" *ngIf="keyMap$ | async as keyMap">
+  <div class="button-container" *ngFor="let item of keyMap">
+    <button (click)="handleClick(item.key)" [ngClass]="{'pressed': isPressed$(item.key) | async}">{{ item.icon }}</button>
+    <div *ngIf="!(isMobile$ | async)" class="shortcut">{{item.key}}</div>
+  </div>
+</div>
