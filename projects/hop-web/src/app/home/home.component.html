@@ -3,3 +3,8 @@
   Neues Spiel starten
 </button>
 <hop-game-list *ngIf="gameListItems$ | async as gameListItems" [gameListItems]="gameListItems"></hop-game-list>
+
+<div *ngFor="let game of games$ | async">
+  {{ game.datetime | date:'dd.MM.yyyy' }}
+  {{ (roundCountByGameId$(game._id) | async).length }}
+</div>
