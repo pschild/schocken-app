@@ -416,7 +416,7 @@ export class StatisticsDataProvider {
     );
   }
 
-  getPenaltyRates$(): Observable<RankingPayload> {
+  getPenaltyRates$(): Observable<Ranking[]> {
     return combineLatest([this.allRoundsBetween$, this.allEventsBetween$, this.chosenEventTypeIds$, this.activePlayers$]).pipe(
       map(([rounds, events, chosenEventTypeIds, players]) => {
         if (chosenEventTypeIds.length === 0) {
@@ -433,11 +433,8 @@ export class StatisticsDataProvider {
               ...eventCountItem
             };
           }
-        });
-        const ranking = orderBy(eventCountItems, ['quote', 'name'], 'desc');
-        const min = minBy(eventCountItems, 'quote');
-        const max = maxBy(eventCountItems, 'quote');
-        return { ranking, min, max };
+        }).filter(item => !!item);
+        return RankingUtil.sort(eventCountItems, ['quote']);
       })
     );
   }
