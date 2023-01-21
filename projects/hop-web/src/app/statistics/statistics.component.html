@@ -127,7 +127,7 @@
       Strafen
     </ng-template>
     <mat-tab-group color="accent">
-      <mat-tab label="Niederlagen">
+      <!-- <mat-tab label="Niederlagen">
         <div class="table-wrapper">
           <table *ngIf="loseRates$ | async as loseRates; else loading" class="stats-table ranking-table">
             <tr>
@@ -144,6 +144,52 @@
                 <td>{{item.quote | percent:'1.1'}}</td>
               </tr>
             </ng-container>
+          </table>
+        </div>
+      </mat-tab> -->
+      <mat-tab label="pro Spieler">
+        <form [formGroup]="penaltyForm" style="padding-top: 20px;">
+          <mat-form-field style="width: 350px;">
+            <mat-label>Strafen</mat-label>
+            <mat-select formControlName="types" multiple>
+              <mat-optgroup *ngFor="let group of allEventTypeGroups" [label]="group.name">
+                <mat-option *ngFor="let type of group.types" [value]="type.id">
+                  {{type.description}}
+                </mat-option>
+              </mat-optgroup>
+            </mat-select>
+          </mat-form-field>
+        </form>
+        <div class="table-wrapper">
+          <table *ngIf="penaltyRates$ | async as penaltyRates; else loading" class="stats-table ranking-table">
+            <tr>
+              <td>Platz</td>
+              <td>Spieler</td>
+              <td>Niederlagen</td>
+              <td>Quote</td>
+            </tr>
+            <ng-container *ngFor="let entry of penaltyRates">
+              <tr *ngFor="let item of entry.items">
+                <td><hop-badge [place]="entry.rank"></hop-badge></td>
+                <td>{{item.name}}</td>
+                <td>{{item.count}}</td>
+                <td>{{item.quote | percent:'1.1'}}</td>
+              </tr>
+            </ng-container>
+          </table>
+        </div>
+      </mat-tab>
+      <mat-tab label="Gesamt">
+        <div class="table-wrapper">
+          <table *ngIf="eventTypeCountValues$ | async as eventTypeCountValues; else loading" class="stats-table">
+            <tr>
+              <td>Bezeichnung</td>
+              <td>Anzahl</td>
+            </tr>
+            <tr *ngFor="let item of eventTypeCountValues.ranking">
+              <td>{{item.description}}</td>
+              <td>{{item.count}}</td>
+            </tr>
           </table>
         </div>
       </mat-tab>
@@ -198,20 +244,6 @@
                 <td>{{item.quote | percent:'1.1'}}</td>
               </tr>
             </ng-container>
-          </table>
-        </div>
-      </mat-tab>
-      <mat-tab label="Ereignisse">
-        <div class="table-wrapper">
-          <table *ngIf="eventTypeCountValues$ | async as eventTypeCountValues; else loading" class="stats-table">
-            <tr>
-              <td>Bezeichnung</td>
-              <td>Anzahl</td>
-            </tr>
-            <tr *ngFor="let item of eventTypeCountValues.ranking">
-              <td>{{item.description}}</td>
-              <td>{{item.count}}</td>
-            </tr>
           </table>
         </div>
       </mat-tab>

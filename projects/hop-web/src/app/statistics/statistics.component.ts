@@ -17,7 +17,8 @@ import {
   SPIELSTRAFEN_IDS,
   UNGESCHICK_IDS,
   VERLOREN_EVENT_TYPE_ID,
-  ZWEI_ZWEI_EINS_EVENT_TYPE_ID
+  ZWEI_ZWEI_EINS_EVENT_TYPE_ID,
+  VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID
 } from './model/event-type-ids';
 import { Ranking } from './ranking.util';
 import { SchockAusStreakPayload, StreakRanking } from './streaks/streaks.data-provider';
@@ -55,7 +56,7 @@ export class StatisticsComponent implements OnInit {
 
   allEventTypeGroups: { name: string; types: { id: string; description: string; }[] }[] = [];
   penaltyForm = this.fb.group({
-    types: [[ZWEI_ZWEI_EINS_EVENT_TYPE_ID]]
+    types: [[VERLOREN_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID]]
   });
 
   eventTypeQuickFilter = EventTypeQuickFilter;
@@ -73,7 +74,7 @@ export class StatisticsComponent implements OnInit {
   schockAusByPlayer$: Observable<Ranking[]>;
   loseRates$: Observable<Ranking[]>;
   eventTypeCountValues$: Observable<RankingPayload>;
-  penaltyRates$: Observable<RankingPayload>;
+  penaltyRates$: Observable<Ranking[]>;
   pointsByPlayer$: Observable<Ranking[]>;
 
   noSchockAusStreak$: Observable<StreakRanking>;
