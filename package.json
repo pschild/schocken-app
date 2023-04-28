@@ -1,6 +1,6 @@
 {
   "name": "schocken-app",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -64,6 +64,7 @@
     "@angular/cli": "~11.2.1",
     "@angular/compiler-cli": "~11.2.2",
     "@angular/language-service": "~11.2.2",
+    "@ngxs/devtools-plugin": "^3.7.6",
     "@schematics/angular": "^11.2.1",
     "@types/jasmine": "~3.6.0",
     "@types/jasminewd2": "~2.0.3",

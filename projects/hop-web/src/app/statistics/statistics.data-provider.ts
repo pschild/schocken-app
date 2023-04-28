@@ -384,7 +384,7 @@ export class StatisticsDataProvider {
           const playerRoundCount = roundCountByPlayer.find(roundCountItem => roundCountItem.playerId === eventCountItem.playerId);
           if (playerRoundCount) {
             return {
-              quote: eventCountItem.count / playerRoundCount.count,
+              quote: playerRoundCount.count ? eventCountItem.count / playerRoundCount.count : 0,
               ...eventCountItem
             };
           }
@@ -406,7 +406,7 @@ export class StatisticsDataProvider {
           const playerRoundCount = roundCountByPlayer.find(roundCountItem => roundCountItem.playerId === eventCountItem.playerId);
           if (playerRoundCount) {
             return {
-              quote: eventCountItem.count / playerRoundCount.count,
+              quote: playerRoundCount.count ? eventCountItem.count / playerRoundCount.count : 0,
               ...eventCountItem
             };
           }
@@ -429,7 +429,7 @@ export class StatisticsDataProvider {
           const playerRoundCount = roundCountByPlayer.find(roundCountItem => roundCountItem.playerId === eventCountItem.playerId);
           if (playerRoundCount) {
             return {
-              quote: eventCountItem.count / playerRoundCount.count,
+              quote: playerRoundCount.count ? eventCountItem.count / playerRoundCount.count : 0,
               ...eventCountItem
             };
           }
@@ -465,13 +465,11 @@ export class StatisticsDataProvider {
 
   private countByPropByPlayer(players: PlayerDto[], entities: { playerId: string; }[]): RankingByPlayerItem[] {
     const countByProp = countBy(entities, 'playerId');
-    return Object.keys(countByProp)
-        .filter(playerId => includes(players.map(player => player._id), playerId))
-        .map(playerId => ({ playerId, count: countByProp[playerId] }))
-        .map(item => ({
-          name: PlayerDtoUtils.findNameById(players, item.playerId),
-          ...item
-        }));
+    return players.map(player => ({
+      playerId: player._id,
+      name: player.name,
+      count: countByProp[player._id] || 0
+    }));
   }
 
   private countByPropByEventType(eventTypes: EventTypeDto[], entities: { eventTypeId: string; }[]): RankingByEventTypeItem[] {

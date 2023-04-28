@@ -70,6 +70,12 @@ $cards-margin: 10px;
   max-width: 100%;
   overflow: auto;
 
+  .hint {
+    display: flex;
+    align-items: center;
+    color: #888;
+  }
+
   .stats-table {
     tr:first-child {
       font-weight: bold;
@@ -98,6 +104,10 @@ $cards-margin: 10px;
     &.ranking-table {
       td:first-child {
         text-align: center;
+      }
+
+      td.inactive-player {
+        text-decoration: line-through
       }
     }
   }
