@@ -23,7 +23,7 @@ import { maxBy, isEqual as lodashIsEqual, orderBy, groupBy } from 'lodash';
 import { tap } from 'rxjs/operators';
 import { StatisticsStateUtil } from './statistics-state.util';
 import { StatisticsActions } from './statistics.action';
-import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID } from '../model/event-type-ids';
+import { LUSTWURF_EVENT_TYPE_ID, SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID, ZWEI_ZWEI_EINS_EVENT_TYPE_ID } from '../model/event-type-ids';
 import { isEqual } from 'date-fns';
 import { Ranking, RankingUtil } from '../ranking.util';
 import { StreakUtil } from './streak.util';
@@ -242,9 +242,10 @@ export class StatisticsState implements NgxsOnInit {
     roundEvents: RoundEventDto[],
     eventTypes: EventTypeDto[]
   ): number {
+    const eventsByRoundId = StatisticsStateUtil.customGroupBy(roundEvents, 'roundId');
     const gameSum = roundsByGame
       .reduce((prev, curr) => {
-        const eventsForGameRounds = roundEvents.filter(event => curr.rounds.map(r => r._id).includes(event.roundId)) || [];
+        const eventsForGameRounds = [].concat.apply([], curr.rounds.map(round => eventsByRoundId[round._id] || []));
         const roundEventPenalties = StatisticsStateUtil.calculateEventPenaltySum(eventsForGameRounds, eventTypes);
         return prev + roundEventPenalties;
       }, 0);
@@ -265,10 +266,15 @@ export class StatisticsState implements NgxsOnInit {
         roundEvents: RoundEventDto[],
         players: PlayerDto[]
       ) => {
+        const eventsByRoundId = StatisticsStateUtil.customGroupBy(roundEvents, 'roundId');
         const countsByGameAndPlayerId = roundsByGame.map(item => {
-          const roundIds = item.rounds.map(round => round._id);
-          const playerIds = players.map(player => player._id);
-          const eventTypeOfRounds = StatisticsStateUtil.eventTypeOfRounds(roundEvents, roundIds, playerIds, eventTypeId);
+          const eventTypeOfRounds = [].concat.apply(
+            [],
+            item.rounds.map(round => eventsByRoundId[round._id]
+              ? eventsByRoundId[round._id].filter(event => event.eventTypeId === eventTypeId)
+              : []
+            )
+          );
           return StatisticsStateUtil.customCountBy(eventTypeOfRounds, 'playerId')
             .map(countItem => ({
               gameId: item.gameId,
@@ -286,20 +292,21 @@ export class StatisticsState implements NgxsOnInit {
   @Selector([
     StatisticsState.filteredGames,
     StatisticsState.roundsGroupedByGameId(true),
-    StatisticsState.filteredRoundEvents,
-    StatisticsState.filteredPlayerIds
+    StatisticsState.filteredRoundEvents
   ])
   static maxSchockAusStreak(
     games: GameDto[],
     roundsByGame: { gameId: string; rounds: RoundDto[]; }[],
-    roundEvents: RoundEventDto[],
-    playerIds: string[]
+    roundEvents: RoundEventDto[]
   ): { gameId: string; datetime: Date; count: number; } {
+    const eventsByRoundId = StatisticsStateUtil.customGroupBy(roundEvents, 'roundId');
     const maximaByGame = roundsByGame.map(item => {
       let max = 0;
       let counter = 0;
       item.rounds.forEach(round => {
-        const schockAusOfRound = StatisticsStateUtil.eventTypeOfRounds(roundEvents, round._id, playerIds, SCHOCK_AUS_EVENT_TYPE_ID);
+        const schockAusOfRound = eventsByRoundId[round._id]
+          ? eventsByRoundId[round._id].filter(event => event.eventTypeId === SCHOCK_AUS_EVENT_TYPE_ID)
+          : [];
         counter = schockAusOfRound.length > 0 ? counter + 1 : 0;
         if (counter > max) {
           max = counter;
@@ -493,6 +500,23 @@ export class StatisticsState implements NgxsOnInit {
         return { ranking: RankingUtil.sort(result.list, ['count']), overallMax: result.overallMax };
       }
     );
+  }
+
+  @Selector([
+    StatisticsState.eventCountsByPlayerTable([SCHOCK_AUS_EVENT_TYPE_ID]),
+    StatisticsState.eventCountsByPlayerTable([ZWEI_ZWEI_EINS_EVENT_TYPE_ID], 'asc'),
+    StatisticsState.eventCountsByPlayerTable([LUSTWURF_EVENT_TYPE_ID], 'asc'),
+    StatisticsState.eventCountsByPlayerTable([VERLOREN_EVENT_TYPE_ID], 'asc'),
+  ])
+  static xxx(
+    schockAus: Ranking[],
+    zze: Ranking[],
+    lustwuerfe: Ranking[],
+    verloren: Ranking[],
+  ): any {
+    const points = [5, 3, 2, 1];
+    console.log(zze);
+    return 42;
   }
 
   constructor(

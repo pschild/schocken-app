@@ -46,16 +46,4 @@ export namespace StatisticsStateUtil {
       .filter(event => event.eventType.penalty && event.eventType.penalty.unit === '€')
       .reduce((prev, curr) => prev + (+curr.multiplicatorValue || 1) * curr.eventType.penalty.value, 0);
   }
-
-  export function eventTypeOfRounds(
-    roundEvents: RoundEventDto[],
-    roundIds: string | string[],
-    playerIds: string[],
-    eventTypeId: string
-  ): RoundEventDto[] {
-    return roundEvents
-      .filter(event => Array.isArray(roundIds) ? roundIds.includes(event.roundId) : event.roundId === roundIds)
-      .filter(event => playerIds.includes(event.playerId))
-      .filter(event => event.eventTypeId === eventTypeId);
-  }
 }
