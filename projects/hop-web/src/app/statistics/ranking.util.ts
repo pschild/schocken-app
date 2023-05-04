@@ -8,6 +8,10 @@ export interface Ranking {
 // tslint:disable-next-line:no-namespace
 export namespace RankingUtil {
 
+  export function createNotParticipatedItems(collection: any): Ranking {
+    return { rank: undefined, items: collection };
+  }
+
   export function sort(collection: any, compareKeys: string[], direction: 'asc'|'desc' = 'desc'): Ranking[] {
     let rank = 1;
     const groupedByPrimaryKey = groupBy(collection, item =>

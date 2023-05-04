@@ -368,9 +368,15 @@ export class StatisticsState implements NgxsOnInit {
           const eventCount = eventCounts.find(item => item.playerId === player._id)?.count || 0;
           const roundCountByPlayer = roundCountsByPlayer.find(item => item.playerId === player._id)?.count || 0;
           const quote = (eventCount / roundCountByPlayer) || 0;
-          return { name: player.name, active: player.active, eventCount, quote };
+          return { id: player._id, name: player.name, active: player.active, roundCount: roundCountByPlayer, eventCount, quote };
         });
-        return RankingUtil.sort(result, ['quote'], sortDirection);
+
+        const participatedPlayers = result.filter(item => item.roundCount > 0);
+        const notParticipatedPlayers = result.filter(item => !item.roundCount);
+        return [
+          ...RankingUtil.sort(participatedPlayers, ['quote'], sortDirection),
+          RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
+        ];
       }
     );
   }

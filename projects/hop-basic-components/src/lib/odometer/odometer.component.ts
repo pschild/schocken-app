@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Observable, Subject, timer } from 'rxjs';
-import { map, startWith, switchMap, takeWhile } from 'rxjs/operators';
+import { endWith, map, startWith, switchMap, takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'hop-odometer',
@@ -27,12 +27,12 @@ export class OdometerComponent implements OnInit, OnChanges {
       map((currentValue: number) => {
         return currentValue * (this.countTo / (this.DURATION / this.COUNT_INTERVAL_MS));
       }),
-      takeWhile((currentValue: number) => currentValue <= this.countTo)
+      takeWhile((currentValue: number) => currentValue <= this.countTo, true)
     );
 
     this.value$ = this.trigger.asObservable().pipe(
       startWith(0),
-      switchMap(() => timer$),
+      switchMap(() => timer$.pipe(endWith(this.countTo))),
       map((value: number) => value.toFixed(this.precision))
     );
   }

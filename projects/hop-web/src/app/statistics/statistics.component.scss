@@ -85,6 +85,10 @@ $cards-margin: 10px;
       }
     }
 
+    tr.not-participated {
+      color: #999;
+    }
+
     td {
       padding: 5px 15px 5px 0;
       height: 40px;

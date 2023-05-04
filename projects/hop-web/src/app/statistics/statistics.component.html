@@ -281,7 +281,7 @@
               <td>Quote</td>
             </tr>
             <ng-container *ngFor="let entry of stateEventCountsByPlayerTable">
-              <tr *ngFor="let item of entry.items">
+              <tr *ngFor="let item of entry.items" [ngClass]="{ 'not-participated': !item.roundCount }">
                 <td><hop-badge [place]="entry.rank"></hop-badge></td>
                 <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
                 <td>{{item.eventCount}}</td>
@@ -376,7 +376,7 @@
               <td>Quote</td>
             </tr>
             <ng-container *ngFor="let entry of stateSchockAusCountsByPlayerTable">
-              <tr *ngFor="let item of entry.items">
+              <tr *ngFor="let item of entry.items" [ngClass]="{ 'not-participated': !item.roundCount }">
                 <td><hop-badge [place]="entry.rank"></hop-badge></td>
                 <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
                 <td>{{item.eventCount}}</td>
