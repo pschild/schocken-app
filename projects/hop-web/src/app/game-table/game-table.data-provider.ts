@@ -398,8 +398,8 @@ export class GameTableDataProvider {
     ).subscribe((rows: RoundEventsRowVo[]) => this.roundEventsRows$.next(rows));
   }
 
-  updatePlace(gameId: string, placeValue: string): Observable<string> {
-    return this.gameRepository.update(gameId, { place: placeValue });
+  updatePlace(gameId: string, placeValue: string, placeDetailValue: string): Observable<string> {
+    return this.gameRepository.update(gameId, { place: placeValue, placeDetail: placeDetailValue });
   }
 
   updateCompletedStatus(gameId: string, completedStatus: boolean): Observable<string> {

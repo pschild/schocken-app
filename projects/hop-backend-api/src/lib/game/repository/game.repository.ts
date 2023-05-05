@@ -22,6 +22,7 @@ export class GameRepository {
       type: EntityType.GAME,
       datetime: data && data.datetime || new Date(),
       place: data && data.place,
+      placeDetail: data && data.placeDetail,
       completed: data && data.completed !== undefined ? data.completed : false
     };
     return from(this.pouchDb.create(game)).pipe(

@@ -12,6 +12,7 @@ export class GameDetailsVoMapperService {
     vo.id = input._id;
     vo.datetime = input.datetime;
     vo.place = input.place;
+    vo.placeDetail = input.placeDetail;
     vo.completed = input.completed;
     return vo;
   }

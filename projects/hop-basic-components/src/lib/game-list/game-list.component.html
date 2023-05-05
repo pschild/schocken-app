@@ -1,10 +1,12 @@
 <h3>Laufende Spiele</h3>
 <ng-container *ngIf="activeGames && activeGames.length > 0; else noGames">
   <div *ngFor="let game of activeGames" class="game-item-container">
+    {{game}}
     <div>
       <div>
         <strong>{{ game.datetime | date:'dd.MM.yyyy' }}</strong>
         <span *ngIf="game.place">&nbsp;{{ game.place }}</span>
+        <span *ngIf="game.placeDetail">&nbsp;({{ game.placeDetail }})</span>
       </div>
       <div>{{ game.roundCount }} Runde(n)</div>
     </div>
@@ -34,6 +36,7 @@
       <div>
         <strong>{{ game.datetime | date:'dd.MM.yyyy' }}</strong>
         <span *ngIf="game.place">&nbsp;{{ game.place }}</span>
+        <span *ngIf="game.placeDetail">&nbsp;({{ game.placeDetail }})</span>
       </div>
       <div>{{ game.roundCount }} Runde(n)</div>
     </div>

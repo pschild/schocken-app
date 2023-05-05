@@ -42,7 +42,10 @@ export class GameTableComponent implements OnInit, OnDestroy {
 
   visibleRowIndexes: boolean[] = [];
 
-  placeFormControl = new FormControl('');
+  placeSelectFormControl = new FormControl('');
+  placeDetailFormControl = new FormControl('');
+
+  possiblePlaces$: Observable<string[]>;
 
   private destroy$ = new Subject();
 
@@ -61,7 +64,10 @@ export class GameTableComponent implements OnInit, OnDestroy {
 
     this.gameDetails$ = this.dataProvider.getGameDetails().pipe(
       filter((gameDetails: GameDetailsVo) => !!gameDetails),
-      tap((gameDetails: GameDetailsVo) => this.placeFormControl.setValue(gameDetails.place))
+      tap((gameDetails: GameDetailsVo) => {
+        this.placeSelectFormControl.setValue(gameDetails.place);
+        this.placeDetailFormControl.setValue(gameDetails.placeDetail);
+      })
     );
     this.gameEventTypes$ = this.dataProvider.getGameEventTypes();
     this.roundEventTypes$ = this.dataProvider.getRoundEventTypes();
@@ -82,6 +88,10 @@ export class GameTableComponent implements OnInit, OnDestroy {
       tap((event: KeyboardEvent) => this.store.dispatch(new SoundboardActions.Play(event.key)))
     ));
     merge(...keyObservables$).pipe(takeUntil(this.destroy$)).subscribe();
+
+    this.possiblePlaces$ = this.visiblePlayers$.pipe(
+      map(players => [...players.map(player => player.name), 'auswärts'])
+    );
   }
 
   ngOnDestroy(): void {
@@ -157,10 +167,14 @@ export class GameTableComponent implements OnInit, OnDestroy {
   onUpdatePlace(): void {
     this.gameId$.pipe(
       take(1),
-      switchMap((gameId: string) => this.dataProvider.updatePlace(gameId, this.placeFormControl.value))
+      switchMap((gameId: string) => this.dataProvider.updatePlace(
+        gameId,
+        this.placeSelectFormControl.value,
+        this.placeDetailFormControl.value
+      ))
     ).subscribe((updatedGameId: string) => {
       this.snackBarNotificationService.showMessage(`Das Spiel wurde aktualisiert`);
-      this.placeFormControl.markAsPristine();
+      this.placeSelectFormControl.markAsPristine();
     });
   }
 

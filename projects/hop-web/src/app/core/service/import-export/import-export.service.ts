@@ -80,6 +80,7 @@ export class ImportExportService {
         // datetime: this.increaseAndGetDatetimeCache(), // TODO: warum?
         datetime: item.datetime,
         place: item.place,
+        placeDetail: item.placeDetail,
         completed: item.completed
       }).toPromise();
 

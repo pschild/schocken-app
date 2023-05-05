@@ -13,6 +13,7 @@ export class GameListItemVoMapperService {
     vo.datetime = input.datetime;
     vo.completed = input.completed;
     vo.place = input.place;
+    vo.placeDetail = input.placeDetail;
     vo.currentRoundId = roundId;
     vo.roundCount = roundCount;
     return vo;

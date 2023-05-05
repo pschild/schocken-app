@@ -17,11 +17,21 @@
             <div><strong>Ort:</strong></div>
             <div>
               <mat-form-field>
-                <input matInput placeholder="Ort" [formControl]="placeFormControl">
+                <mat-select [formControl]="placeSelectFormControl">
+                  <mat-option *ngFor="let place of possiblePlaces$ | async" [value]="place">
+                    {{place}}
+                  </mat-option>
+                </mat-select>
               </mat-form-field>
-              <button mat-icon-button color="primary" *ngIf="!placeFormControl.pristine" (click)="onUpdatePlace()">
+              <mat-form-field *ngIf="placeSelectFormControl.value === 'auswärts'" style="padding-left: 10px">
+                <input matInput placeholder="Wo genau?" [formControl]="placeDetailFormControl">
+              </mat-form-field>
+              <button mat-icon-button color="primary" *ngIf="!placeSelectFormControl.pristine" (click)="onUpdatePlace()">
                 <mat-icon>check</mat-icon>
               </button>
+            </div>
+            <div>
+              <small>Urspr.: {{gameDetails.place}}</small>
             </div>
           </div>
           <div class="details-row">
