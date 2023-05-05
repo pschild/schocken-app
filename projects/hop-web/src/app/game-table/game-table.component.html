@@ -23,7 +23,7 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
-              <mat-form-field *ngIf="placeSelectFormControl.value === 'auswärts'" style="padding-left: 10px">
+              <mat-form-field *ngIf="placeSelectFormControl.value === 'Auswärts'" style="padding-left: 10px">
                 <input matInput placeholder="Wo genau?" [formControl]="placeDetailFormControl">
               </mat-form-field>
               <button mat-icon-button color="primary" *ngIf="!placeSelectFormControl.pristine" (click)="onUpdatePlace()">

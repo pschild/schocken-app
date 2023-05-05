@@ -90,7 +90,7 @@ export class GameTableComponent implements OnInit, OnDestroy {
     merge(...keyObservables$).pipe(takeUntil(this.destroy$)).subscribe();
 
     this.possiblePlaces$ = this.visiblePlayers$.pipe(
-      map(players => [...players.map(player => player.name), 'auswärts'])
+      map(players => [...players.map(player => player.name), 'Remote', 'Auswärts'])
     );
   }
 

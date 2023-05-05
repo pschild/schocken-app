@@ -1,7 +1,6 @@
 <h3>Laufende Spiele</h3>
 <ng-container *ngIf="activeGames && activeGames.length > 0; else noGames">
   <div *ngFor="let game of activeGames" class="game-item-container">
-    {{game}}
     <div>
       <div>
         <strong>{{ game.datetime | date:'dd.MM.yyyy' }}</strong>
@@ -51,8 +50,9 @@
     <div>
       <div>
         <strong>05.10.2018</strong>
-        <span>&nbsp;bei Tobi</span>
+        <span>&nbsp;Tobias</span>
       </div>
+      <div>ohne Wertung</div>
     </div>
     <div class="game-action-button-container">
       <button mat-stroked-button color="primary" disabled>
@@ -65,8 +65,9 @@
     <div>
       <div>
         <strong>14.09.2018</strong>
-        <span>&nbsp;bei Cristian</span>
+        <span>&nbsp;Christian</span>
       </div>
+      <div>ohne Wertung</div>
     </div>
     <div class="game-action-button-container">
       <button mat-stroked-button color="primary" disabled>
