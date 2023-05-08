@@ -26,6 +26,7 @@
     </mat-menu>
   </div>
   <mat-checkbox formControlName="activePlayersOnly">nur aktive Spieler</mat-checkbox>
+  <mat-checkbox formControlName="completedGamesOnly">nur abgeschlossene Spiele</mat-checkbox>
 </form>
 
 <mat-tab-group (selectedTabChange)="updateSubTabs()">
@@ -34,38 +35,52 @@
       <mat-icon>casino</mat-icon>
       Spiele & Runden
     </ng-template>
-    <div class="card-container">
-      <mat-card class="count-row">
-        <ng-container *ngIf="stateGamesCount$ | async as stateGamesCount; else loading">
-          <hop-odometer [countTo]="stateGamesCount"></hop-odometer>
-          <div>Spiele</div>
-        </ng-container>
-      </mat-card>
-      <mat-card class="count-row">
-        <ng-container *ngIf="stateRoundsCount$ | async as stateRoundsCount; else loading">
-          <hop-odometer [countTo]="stateRoundsCount"></hop-odometer>
-          <div>Runden</div>
-        </ng-container>
-      </mat-card>
-      <mat-card class="count-row">
-        <ng-container *ngIf="stateEventsWithPenalty$ | async as stateEventsWithPenalty; else loading">
-          <hop-odometer [countTo]="stateEventsWithPenalty"></hop-odometer>
-          <div>Strafen</div>
-        </ng-container>
-      </mat-card>
-      <mat-card class="count-row">
-        <ng-container *ngIf="stateAverageRoundsPerGame$ | async as stateAverageRoundsPerGame; else loading">
-          <hop-odometer [countTo]="stateAverageRoundsPerGame" [precision]="1"></hop-odometer>
-          <div>Runden pro Spiel</div>
-        </ng-container>
-      </mat-card>
-      <mat-card class="count-row">
-        <ng-container *ngIf="stateAveragePenaltyPerGame$ | async as stateAveragePenaltyPerGame; else loading">
-          <hop-odometer [countTo]="stateAveragePenaltyPerGame" [precision]="2" suffix="€"></hop-odometer>
-          <div>Strafen pro Spiel</div>
-        </ng-container>
-      </mat-card>
-    </div>
+    <mat-tab-group color="accent">
+      <mat-tab label="Allgemein">
+        <div class="card-container">
+          <mat-card class="count-row">
+            <hop-odometer [countTo]="stateGamesCount$ | async"></hop-odometer>
+            <div>Spiele</div>
+          </mat-card>
+          <mat-card class="count-row">
+            <hop-odometer [countTo]="stateRoundsCount$ | async"></hop-odometer>
+            <div>Runden</div>
+          </mat-card>
+          <mat-card class="count-row">
+            <hop-odometer [countTo]="stateEventsWithPenalty$ | async"></hop-odometer>
+            <div>Strafen</div>
+          </mat-card>
+          <mat-card class="count-row">
+            <hop-odometer [countTo]="stateAverageRoundsPerGame$ | async" [precision]="1"></hop-odometer>
+            <div>Runden pro Spiel</div>
+          </mat-card>
+          <mat-card class="count-row">
+            <hop-odometer [countTo]="stateAveragePenaltyPerGame$ | async" [precision]="2" suffix="€"></hop-odometer>
+            <div>Strafen pro Spiel</div>
+          </mat-card>
+        </div>
+      </mat-tab>
+      <mat-tab label="Austragungsorte">
+        <div class="table-wrapper">
+          <table *ngIf="stateGameHostsTable$ | async as stateGameHostsTable; else loading" class="stats-table">
+            <tr>
+              <td>Name</td>
+              <td>Anzahl</td>
+            </tr>
+            <tr *ngFor="let item of stateGameHostsTable">
+              <td>{{item.name}}</td>
+              <td>{{item.count}}</td>
+            </tr>
+          </table>
+          <small class="hint">
+            <mat-icon>info</mat-icon>
+            <span>
+              Hinweis: Christian und Tobias waren zusätzlich je 1x Gastgeber im Sept./Okt. 2018.
+            </span>
+          </small>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>
@@ -74,14 +89,14 @@
     </ng-template>
     <div class="card-container">
       <mat-card class="count-row">
-        <ng-container *ngIf="stateMaxSchockAusStreak$ | async as stateMaxSchockAusStreak; else loading">
+        <ng-container *ngIf="stateMaxSchockAusStreak$ | async as stateMaxSchockAusStreak">
           <hop-odometer [countTo]="stateMaxSchockAusStreak.count"></hop-odometer>
           <div>
             Schock-Aus-Streak
-            <div>
+            <div *ngIf="stateMaxSchockAusStreak.count > 0">
               <small>
                 am
-                <a *ngIf="stateMaxSchockAusStreak.count > 0" [href]="'game-table/' + stateMaxSchockAusStreak.gameId">
+                <a [href]="'game-table/' + stateMaxSchockAusStreak.gameId">
                   {{ stateMaxSchockAusStreak.datetime | date:'dd.MM.yyyy' }}
                 </a>
               </small>
@@ -103,7 +118,7 @@
           <hop-odometer [countTo]="stateNoSchockAusStreak.overallMax.count"></hop-odometer>
           <div>
             Runden ohne <strong>Schock-Aus</strong>
-            <div>
+            <div *ngIf="stateNoSchockAusStreak.overallMax.name && stateNoSchockAusStreak.overallMax.to">
               <small>
                 von {{ stateNoSchockAusStreak.overallMax.name }} am {{ stateNoSchockAusStreak.overallMax.to | date:'dd.MM.yyyy' }}
               </small>
@@ -117,7 +132,7 @@
           <hop-odometer [countTo]="stateNoVerlorenStreak.overallMax.count"></hop-odometer>
           <div>
             Runden ohne <strong>Niederlage</strong>
-            <div>
+            <div *ngIf="stateNoVerlorenStreak.overallMax.name && stateNoVerlorenStreak.overallMax.to">
               <small>
                 von {{ stateNoVerlorenStreak.overallMax.name }} am {{ stateNoVerlorenStreak.overallMax.to | date:'dd.MM.yyyy' }}
               </small>
@@ -131,7 +146,7 @@
           <hop-odometer [countTo]="stateNo221Streak.overallMax.count"></hop-odometer>
           <div>
             Runden ohne <strong>2-2-1</strong>
-            <div>
+            <div *ngIf="stateNo221Streak.overallMax.name && stateNo221Streak.overallMax.to">
               <small>
                 von {{ stateNo221Streak.overallMax.name }} am {{ stateNo221Streak.overallMax.to | date:'dd.MM.yyyy' }}
               </small>
@@ -145,7 +160,7 @@
           <hop-odometer [countTo]="stateNoLustwurfStreak.overallMax.count"></hop-odometer>
           <div>
             Runden ohne <strong>Lustwurf</strong>
-            <div>
+            <div *ngIf="stateNoLustwurfStreak.overallMax.name && stateNoLustwurfStreak.overallMax.to">
               <small>
                 von {{ stateNoLustwurfStreak.overallMax.name }} am {{ stateNoLustwurfStreak.overallMax.to | date:'dd.MM.yyyy' }}
               </small>
@@ -162,14 +177,14 @@
     </ng-template>
     <div class="card-container">
       <mat-card class="count-row">
-        <ng-container *ngIf="stateMaxRoundsPerGame$ | async as stateMaxRoundsPerGame; else loading">
+        <ng-container *ngIf="stateMaxRoundsPerGame$ | async as stateMaxRoundsPerGame">
           <hop-odometer [countTo]="stateMaxRoundsPerGame.count"></hop-odometer>
           <div>
             Die meisten Runden pro Spiel
-            <div>
+            <div *ngIf="stateMaxRoundsPerGame.count > 0">
               <small>
                 am
-                <a *ngIf="stateMaxRoundsPerGame.count > 0" [href]="'game-table/' + stateMaxRoundsPerGame.gameId">
+                <a [href]="'game-table/' + stateMaxRoundsPerGame.gameId">
                   {{ stateMaxRoundsPerGame.datetime | date:'dd.MM.yyyy' }}
                 </a>
               </small>
@@ -182,10 +197,10 @@
           <hop-odometer [countTo]="stateMaxSchockAusPerGame.count"></hop-odometer>
           <div>
             Die meisten Schock-Aus
-            <div>
+            <div *ngIf="stateMaxSchockAusPerGame.count > 0">
               <small>
                 von {{ stateMaxSchockAusPerGame.name }} am
-                <a *ngIf="stateMaxSchockAusPerGame.count > 0" [href]="'game-table/' + stateMaxSchockAusPerGame.gameId">{{ stateMaxSchockAusPerGame.datetime | date:'dd.MM.yyyy' }}</a>
+                <a [href]="'game-table/' + stateMaxSchockAusPerGame.gameId">{{ stateMaxSchockAusPerGame.datetime | date:'dd.MM.yyyy' }}</a>
               </small>
             </div>
           </div>
@@ -196,10 +211,10 @@
           <hop-odometer [countTo]="stateMax221PerGame.count"></hop-odometer>
           <div>
             Die meisten 2-2-1
-            <div>
+            <div *ngIf="stateMax221PerGame.count > 0">
               <small>
                 von {{ stateMax221PerGame.name }} am
-                <a *ngIf="stateMax221PerGame.count > 0" [href]="'game-table/' + stateMax221PerGame.gameId">{{ stateMax221PerGame.datetime | date:'dd.MM.yyyy' }}</a>
+                <a [href]="'game-table/' + stateMax221PerGame.gameId">{{ stateMax221PerGame.datetime | date:'dd.MM.yyyy' }}</a>
               </small>
             </div>
           </div>
@@ -210,10 +225,10 @@
           <hop-odometer [countTo]="stateMaxLustwurfPerGame.count"></hop-odometer>
           <div>
             Die meisten Lustwürfe
-            <div>
+            <div *ngIf="stateMaxLustwurfPerGame.count > 0">
               <small>
                 von {{ stateMaxLustwurfPerGame.name }} am
-                <a *ngIf="stateMaxLustwurfPerGame.count > 0" [href]="'game-table/' + stateMaxLustwurfPerGame.gameId">{{ stateMaxLustwurfPerGame.datetime | date:'dd.MM.yyyy' }}</a>
+                <a [href]="'game-table/' + stateMaxLustwurfPerGame.gameId">{{ stateMaxLustwurfPerGame.datetime | date:'dd.MM.yyyy' }}</a>
               </small>
             </div>
           </div>
@@ -221,11 +236,36 @@
       </mat-card>
     </div>
   </mat-tab>
-  <mat-tab [disabled]="true">
+  <mat-tab>
     <ng-template mat-tab-label>
       <mat-icon>military_tech</mat-icon>
       Punkte
     </ng-template>
+    <form [formGroup]="pointsForm">
+      <mat-checkbox formControlName="skipPoints">Punkte überspringen</mat-checkbox>
+    </form>
+    <div class="table-wrapper">
+      <table *ngIf="statePointsTable$ | async as statePointsTable; else loading" class="stats-table ranking-table">
+        <tr>
+          <td>Platz</td>
+          <td>Spieler</td>
+          <td>Verl.</td>
+          <td>SA</td>
+          <td>Strafen</td>
+          <td>Summe</td>
+        </tr>
+        <ng-container *ngFor="let entry of statePointsTable">
+          <tr *ngFor="let item of entry.items">
+            <td><hop-badge [place]="entry.rank"></hop-badge></td>
+            <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
+            <td>{{item.verlorenSum}}</td>
+            <td>{{item.schockAusSum}}</td>
+            <td>{{item.cashSum}}</td>
+            <td>{{item.sum}}</td>
+          </tr>
+        </ng-container>
+      </table>
+    </div>
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>

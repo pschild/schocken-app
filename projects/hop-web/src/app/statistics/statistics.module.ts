@@ -4,8 +4,6 @@ import { StatisticsComponent } from './statistics.component';
 import { StatisticsRoutingModule } from './statistics-routing.module';
 import { HopBasicComponentsModule } from '@hop-basic-components';
 import { ReactiveFormsModule } from '@angular/forms';
-import { NgxsModule } from '@ngxs/store';
-import { StatisticsState } from './state/statistics.state';
 
 @NgModule({
   declarations: [StatisticsComponent],
@@ -13,8 +11,7 @@ import { StatisticsState } from './state/statistics.state';
     CommonModule,
     ReactiveFormsModule,
     StatisticsRoutingModule,
-    HopBasicComponentsModule,
-    NgxsModule.forFeature([StatisticsState])
+    HopBasicComponentsModule
   ]
 })
 export class StatisticsModule { }

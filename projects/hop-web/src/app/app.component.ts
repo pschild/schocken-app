@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngxs/store';
+import { StatisticsActions } from './statistics/state';
 
 @Component({
   selector: 'hop-root',
@@ -7,10 +9,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AppComponent implements OnInit {
 
-  constructor() {
+  constructor(
+    private store: Store
+  ) {
   }
 
   ngOnInit() {
+    this.store.dispatch(new StatisticsActions.Initialize());
   }
 
 }

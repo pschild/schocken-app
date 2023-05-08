@@ -18,20 +18,22 @@ import {
   RoundEventRepository,
   RoundRepository
 } from '@hop-backend-api';
-import { Action, NgxsOnInit, Selector, State, StateContext, StateToken, createSelector } from '@ngxs/store';
-import { maxBy, isEqual as lodashIsEqual, orderBy, groupBy } from 'lodash';
-import { tap } from 'rxjs/operators';
+import { Action, Selector, State, StateContext, StateToken, createSelector } from '@ngxs/store';
+import { maxBy, isEqual as lodashIsEqual, orderBy, groupBy, countBy } from 'lodash';
 import { StatisticsStateUtil } from './statistics-state.util';
 import { StatisticsActions } from './statistics.action';
-import { LUSTWURF_EVENT_TYPE_ID, SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID, ZWEI_ZWEI_EINS_EVENT_TYPE_ID } from '../model/event-type-ids';
+import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID } from '../model/event-type-ids';
 import { isEqual } from 'date-fns';
 import { Ranking, RankingUtil } from '../ranking.util';
 import { StreakUtil } from './streak.util';
+import { tap } from 'rxjs/operators';
 
 export interface StatisticsStateModel {
   from: Date;
   to: Date;
   activePlayersOnly: boolean;
+  completedGamesOnly: boolean;
+  gameIdFilter: string;
   chosenEventTypeIds: string[];
   games: GameDto[];
   gameEvents: GameEventDto[];
@@ -49,6 +51,8 @@ export const STATISTICS_STATE = new StateToken<StatisticsStateModel>('statistics
     from: new Date('2018-11-09'),
     to: new Date(),
     activePlayersOnly: true,
+    completedGamesOnly: true,
+    gameIdFilter: undefined,
     chosenEventTypeIds: [],
     games: [],
     gameEvents: [],
@@ -60,7 +64,7 @@ export const STATISTICS_STATE = new StateToken<StatisticsStateModel>('statistics
 })
 
 @Injectable()
-export class StatisticsState implements NgxsOnInit {
+export class StatisticsState {
 
   @Selector()
   static from(state: StatisticsStateModel): Date {
@@ -78,38 +82,48 @@ export class StatisticsState implements NgxsOnInit {
   }
 
   @Selector()
+  static completedGamesOnly(state: StatisticsStateModel): boolean {
+    return state.completedGamesOnly;
+  }
+
+  @Selector()
+  static gameIdFilter(state: StatisticsStateModel): string {
+    return state.gameIdFilter;
+  }
+
+  @Selector()
   static chosenEventTypeIds(state: StatisticsStateModel): string[] {
-    return state.chosenEventTypeIds;
+    return state.chosenEventTypeIds || [];
   }
 
   @Selector()
   static games(state: StatisticsStateModel): GameDto[] {
-    return state.games;
+    return state.games || [];
   }
 
   @Selector()
   static rounds(state: StatisticsStateModel): RoundDto[] {
-    return state.rounds;
+    return state.rounds || [];
   }
 
   @Selector()
   static gameEvents(state: StatisticsStateModel): GameEventDto[] {
-    return state.gameEvents;
+    return state.gameEvents || [];
   }
 
   @Selector()
   static roundEvents(state: StatisticsStateModel): RoundEventDto[] {
-    return state.roundEvents;
+    return state.roundEvents || [];
   }
 
   @Selector()
   static eventTypes(state: StatisticsStateModel): EventTypeDto[] {
-    return state.eventTypes;
+    return state.eventTypes || [];
   }
 
   @Selector()
   static players(state: StatisticsStateModel): PlayerDto[] {
-    return state.players;
+    return state.players || [];
   }
 
   @Selector([StatisticsState.eventTypes])
@@ -124,20 +138,33 @@ export class StatisticsState implements NgxsOnInit {
     ];
   }
 
-  @Selector([StatisticsState.games])
-  static latestGame(games: GameDto[]): GameDto {
-    const completedGames = games.filter(game => game.completed);
-    return maxBy(completedGames, game => game.datetime);
+  @Selector([StatisticsState.games, StatisticsState.completedGamesOnly])
+  static latestGame(games: GameDto[], completedGamesOnly: boolean): GameDto {
+    return maxBy(completedGamesOnly ? games.filter(game => game.completed) : games, game => game.datetime);
   }
 
-  @Selector([StatisticsState.games, StatisticsState.from, StatisticsState.to])
-  static filteredGames(games: GameDto[], from: Date, to: Date): GameDto[] {
-    return StatisticsStateUtil.filterByDates(games, from, to);
+  @Selector([
+    StatisticsState.games,
+    StatisticsState.from,
+    StatisticsState.to,
+    StatisticsState.completedGamesOnly,
+    StatisticsState.gameIdFilter
+  ])
+  static filteredGames(games: GameDto[], from: Date, to: Date, completedGamesOnly: boolean, gameIdFilter: string): GameDto[] {
+    const gameList = completedGamesOnly ? games.filter(game => game.completed) : games;
+    return gameIdFilter
+      ? gameList.filter(game => game._id === gameIdFilter)
+      : StatisticsStateUtil.filterByDates(gameList, from, to);
   }
 
   @Selector([StatisticsState.filteredGames])
   static filteredGamesCount(games: GameDto[]): number {
     return games.length;
+  }
+
+  @Selector([StatisticsState.filteredGames])
+  static gamePlaces(games: GameDto[]): string[] {
+    return games.map(game => game.place);
   }
 
   @Selector([StatisticsState.rounds, StatisticsState.filteredGames])
@@ -171,7 +198,8 @@ export class StatisticsState implements NgxsOnInit {
     const playerIds = players.map(player => player._id);
     return roundEvents
       .filter(event => roundIds.includes(event.roundId))
-      .filter(event => playerIds.includes(event.playerId));
+      .filter(event => playerIds.includes(event.playerId))
+      .map(event => ({ ...event, gameId: rounds.find(r => r._id === event.roundId)?.gameId }));
   }
 
   @Selector([StatisticsState.filteredGameEvents, StatisticsState.filteredRoundEvents])
@@ -196,6 +224,10 @@ export class StatisticsState implements NgxsOnInit {
   // ------------------------------------------------------------------------------------------------------------------------
   @Selector([StatisticsState.filteredPlayers, StatisticsState.filteredRounds])
   static roundCountByPlayer(players: PlayerDto[], rounds: RoundDto[]): { playerId: string; name: string; count: number }[] {
+    return StatisticsState.calcRoundCountByPlayer(players, rounds);
+  }
+
+  private static calcRoundCountByPlayer(players: PlayerDto[], rounds: RoundDto[]): { playerId: string; name: string; count: number }[] {
     const participations: ParticipationDto[][] = rounds.map((round: RoundDto) => round.attendeeList);
     const flatParticipations: ParticipationDto[] = [].concat.apply([], participations);
     const roundCounts = StatisticsStateUtil.customCountBy(flatParticipations, 'playerId');
@@ -249,7 +281,7 @@ export class StatisticsState implements NgxsOnInit {
         const roundEventPenalties = StatisticsStateUtil.calculateEventPenaltySum(eventsForGameRounds, eventTypes);
         return prev + roundEventPenalties;
       }, 0);
-    return gameSum / games.length;
+    return games.length ? gameSum / games.length : 0;
   }
 
   static maxEventTypeCountPerGame(eventTypeId: string) {
@@ -284,7 +316,7 @@ export class StatisticsState implements NgxsOnInit {
             }));
         });
         const flatList = [].concat.apply([], countsByGameAndPlayerId);
-        return maxBy(flatList, item => item.count);
+        return maxBy(flatList, item => item.count) || { gameId: undefined, name: undefined, datetime: undefined, count: 0 };
       }
     );
   }
@@ -314,7 +346,7 @@ export class StatisticsState implements NgxsOnInit {
       });
       return { gameId: item.gameId, datetime: games.find(game => game._id === item.gameId)?.datetime, count: max };
     });
-    return maxBy(maximaByGame, item => item.count);
+    return maxBy(maximaByGame, item => item.count) || { gameId: undefined, datetime: undefined, count: 0 };
   }
 
   @Selector([StatisticsState.filteredGames, StatisticsState.roundsGroupedByGameId()])
@@ -323,8 +355,10 @@ export class StatisticsState implements NgxsOnInit {
     roundsByGame: { gameId: string; rounds: RoundDto[]; }[]
   ): { gameId: string; datetime: Date; count: number; } {
     const maxCount = maxBy(roundsByGame, item => item.rounds.length);
-    const accordingGame = games.find(game => game._id === maxCount.gameId);
-    return { gameId: maxCount.gameId, datetime: accordingGame?.datetime, count: maxCount.rounds.length };
+    const accordingGame = maxCount ? games.find(game => game._id === maxCount.gameId) : null;
+    return maxCount
+      ? { gameId: maxCount.gameId, datetime: accordingGame?.datetime, count: maxCount.rounds.length }
+      : { gameId: undefined, datetime: undefined, count: 0 };
   }
 
   // ------------------------------------------------------------------------------------------------------------------------
@@ -362,23 +396,33 @@ export class StatisticsState implements NgxsOnInit {
         filteredEvents: EventDto[],
         roundCountsByPlayer: { playerId: string; name: string; count: number }[]
       ) => {
-        const eventsOfInterest = filteredEvents.filter(event => chosenEventTypeIds.includes(event.eventTypeId));
-        const eventCounts = StatisticsStateUtil.customCountBy(eventsOfInterest, 'playerId');
-        const result = players.map(player => {
-          const eventCount = eventCounts.find(item => item.playerId === player._id)?.count || 0;
-          const roundCountByPlayer = roundCountsByPlayer.find(item => item.playerId === player._id)?.count || 0;
-          const quote = (eventCount / roundCountByPlayer) || 0;
-          return { id: player._id, name: player.name, active: player.active, roundCount: roundCountByPlayer, eventCount, quote };
-        });
-
-        const participatedPlayers = result.filter(item => item.roundCount > 0);
-        const notParticipatedPlayers = result.filter(item => !item.roundCount);
-        return [
-          ...RankingUtil.sort(participatedPlayers, ['quote'], sortDirection),
-          RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
-        ];
+        return StatisticsState.calcEventCountsRanking(players, filteredEvents, roundCountsByPlayer, chosenEventTypeIds, sortDirection);
       }
     );
+  }
+
+  private static calcEventCountsRanking(
+    players: PlayerDto[],
+    filteredEvents: EventDto[],
+    roundCountsByPlayer: { playerId: string; name: string; count: number }[],
+    chosenEventTypeIds: string[],
+    sortDirection: 'asc'|'desc' = 'desc'
+  ): Ranking[] {
+    const eventsOfInterest = filteredEvents.filter(event => chosenEventTypeIds.includes(event.eventTypeId));
+    const eventCounts = StatisticsStateUtil.customCountBy(eventsOfInterest, 'playerId');
+    const result = players.map(player => {
+      const eventCount = eventCounts.find(item => item.playerId === player._id)?.count || 0;
+      const roundCountByPlayer = roundCountsByPlayer.find(item => item.playerId === player._id)?.count || 0;
+      const quote = (eventCount / roundCountByPlayer) || 0;
+      return { id: player._id, name: player.name, active: player.active, roundCount: roundCountByPlayer, eventCount, quote };
+    });
+
+    const participatedPlayers = result.filter(item => item.roundCount > 0);
+    const notParticipatedPlayers = result.filter(item => !item.roundCount);
+    return [
+      ...RankingUtil.sort(participatedPlayers, ['quote'], sortDirection),
+      RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
+    ];
   }
 
   @Selector([StatisticsState.filteredEvents, StatisticsState.eventTypes])
@@ -402,6 +446,16 @@ export class StatisticsState implements NgxsOnInit {
     eventTypes: EventTypeDto[],
     roundCountsByPlayer: { playerId: string; name: string; count: number }[]
   ): { playerTable: Ranking[]; overallSum: number; } {
+    return StatisticsState.calcCashCount(players, filteredEvents, eventTypes, roundCountsByPlayer);
+  }
+
+  private static calcCashCount(
+    players: PlayerDto[],
+    filteredEvents: EventDto[],
+    eventTypes: EventTypeDto[],
+    roundCountsByPlayer: { playerId: string; name: string; count: number }[],
+    direction: 'asc'|'desc' = 'desc'
+  ): { playerTable: Ranking[]; overallSum: number; } {
     const eventsByPlayer = StatisticsStateUtil.customGroupBy(filteredEvents, 'playerId');
     const playerTable = players.map(player => {
       const playerEvents = eventsByPlayer[player._id] || [];
@@ -416,6 +470,7 @@ export class StatisticsState implements NgxsOnInit {
       const sum = roundEventPenalties + gameEventPenalties;
       const roundCountByPlayer = roundCountsByPlayer.find(item => item.playerId === player._id)?.count;
       return {
+        id: player._id,
         name: player.name,
         active: player.active,
         roundEventPenalties,
@@ -428,7 +483,7 @@ export class StatisticsState implements NgxsOnInit {
     const playerTableWithQuote = playerTable.map(item => ({ ...item, quote: item.sum / overallSum }));
 
     return {
-      playerTable: RankingUtil.sort(playerTableWithQuote, ['sum']),
+      playerTable: RankingUtil.sort(playerTableWithQuote, ['sum'], direction),
       overallSum,
     };
   }
@@ -503,26 +558,153 @@ export class StatisticsState implements NgxsOnInit {
           players,
           eventTypeId
         );
-        return { ranking: RankingUtil.sort(result.list, ['count']), overallMax: result.overallMax };
+        return result
+          ? { ranking: RankingUtil.sort(result.list, ['count']), overallMax: result.overallMax }
+          : { ranking: [], overallMax: { playerId: undefined, name: undefined, to: undefined, count: 0 } };
       }
     );
   }
 
-  @Selector([
-    StatisticsState.eventCountsByPlayerTable([SCHOCK_AUS_EVENT_TYPE_ID]),
-    StatisticsState.eventCountsByPlayerTable([ZWEI_ZWEI_EINS_EVENT_TYPE_ID], 'asc'),
-    StatisticsState.eventCountsByPlayerTable([LUSTWURF_EVENT_TYPE_ID], 'asc'),
-    StatisticsState.eventCountsByPlayerTable([VERLOREN_EVENT_TYPE_ID], 'asc'),
-  ])
-  static xxx(
-    schockAus: Ranking[],
-    zze: Ranking[],
-    lustwuerfe: Ranking[],
-    verloren: Ranking[],
-  ): any {
-    const points = [5, 3, 2, 1];
-    console.log(zze);
-    return 42;
+  @Selector([StatisticsState.gamePlaces])
+  static gameHostsTable(places: string[]): { name: string; count: number; }[] {
+    const counts = countBy(places);
+    return orderBy(Object.keys(counts).map(name => ({ name, count: counts[name] })), 'count', 'desc');
+  }
+
+  static pointsTable(skipPoints: boolean) {
+    return createSelector(
+      [
+        StatisticsState.filteredPlayers,
+        StatisticsState.roundsGroupedByGameId(),
+        StatisticsState.filteredEvents,
+        StatisticsState.eventTypes,
+      ],
+      (
+        players: PlayerDto[],
+        roundsByGame: { gameId: string; rounds: RoundDto[]; }[],
+        events: EventDto[],
+        eventTypes: EventTypeDto[],
+      ) => {
+        const eventsByGame = StatisticsStateUtil.customGroupBy(events, 'gameId');
+        const pointsByGame = roundsByGame.map(item => {
+          if (!eventsByGame[item.gameId]) {
+            return null;
+          }
+
+          const roundCount = StatisticsState.calcRoundCountByPlayer(players, item.rounds);
+          const points = [1, 2, 3, 5];
+
+          // VERLOREN
+          const verlorenRanking = StatisticsState.calcEventCountsRanking(
+            players,
+            eventsByGame[item.gameId],
+            roundCount,
+            [VERLOREN_EVENT_TYPE_ID],
+            'asc'
+          );
+          const verlorenPoints = StatisticsState.skipPointsForEachPlayer(verlorenRanking, points);
+
+          // SCHOCK-AUS
+          const schockAusRanking = StatisticsState.calcEventCountsRanking(
+            players,
+            eventsByGame[item.gameId],
+            roundCount,
+            [SCHOCK_AUS_EVENT_TYPE_ID]
+          );
+          const schockAusPoints = StatisticsState.skipPointsForEachPlayer(schockAusRanking, points);
+
+          // CASH-COUNT
+          const cashRanking = StatisticsState.calcCashCount(
+            players,
+            eventsByGame[item.gameId],
+            eventTypes,
+            roundCount,
+            'asc'
+          );
+          const cashPoints = StatisticsState.skipPointsForEachPlayer(cashRanking.playerTable, points);
+
+          return {
+            gameId: item.gameId,
+            verlorenPoints,
+            schockAusPoints,
+            cashPoints,
+          };
+        });
+
+        console.log(pointsByGame);
+
+        const result = players.map(player => {
+          const points = pointsByGame.reduce((prev, curr) => {
+            const verlorenPoints = curr.verlorenPoints.find(p => p.id === player._id)?.points || 0;
+            const schockAusPoints = curr.schockAusPoints.find(p => p.id === player._id)?.points || 0;
+            const cashPoints = curr.cashPoints.find(p => p.id === player._id)?.points || 0;
+            return {
+              verlorenSum: prev.verlorenSum + verlorenPoints,
+              schockAusSum: prev.schockAusSum + schockAusPoints,
+              cashSum: prev.cashSum + cashPoints,
+              sum: prev.sum + verlorenPoints + schockAusPoints + cashPoints
+            };
+          }, { verlorenSum: 0, schockAusSum: 0, cashSum: 0, sum: 0 });
+          return { name: player.name, active: player.active, ...points };
+        });
+        return RankingUtil.sort(result, ['sum']);
+      }
+    );
+  }
+
+  /**
+   * 1. 5,             2. 3, 3. 2, 4. 1
+   * 1. 5, 1. 5,       2. 2, 3. 1, 4. 0
+   * 1. 5, 1. 5, 1. 5, 2. 1, 3. 0, 4. 0
+   */
+  private static skipPointsForEachPlayer(ranking: Ranking[], points: number[]): any {
+    const pointsCopy = [...points];
+    let currentPoints;
+    return [].concat.apply([], ranking
+      .filter(rankEntry => rankEntry.rank && rankEntry.rank > 0) // filter not-participated players
+      .map(rankEntry => {
+        currentPoints = undefined;
+        return rankEntry.items.map(player => {
+          const nextPoints = pointsCopy.pop();
+          if (!currentPoints) { currentPoints = nextPoints; }
+          return { id: player.id, name: player.name, points: currentPoints || 0 };
+        });
+      }));
+  }
+
+  /**
+   * 1. 5,             2. 3, 3. 2, 4. 1
+   * 1. 5, 1. 5,       2. 2, 3. 1, 4. 0
+   * 1. 5, 1. 5, 1. 5, 2. 2, 3. 1, 4. 0
+   */
+  private static skipPointsForEachPlayerAlternative(ranking: Ranking[], points: number[]): any {
+    const pointsCopy = [...points];
+    return [].concat.apply([], ranking
+      .filter(rankEntry => rankEntry.rank && rankEntry.rank > 0) // filter not-participated players
+      .map(rankEntry => {
+        const nextPoints = pointsCopy.pop();
+        if (rankEntry.items.length > 1) { pointsCopy.pop(); }
+        return rankEntry.items.map(player => {
+          return { id: player.id, name: player.name, points: nextPoints || 0 };
+        });
+      }));
+  }
+
+  /**
+   * 1. 5,             2. 3, 3. 2, 4. 1
+   * 1. 5, 1. 5,       2. 3, 3. 2, 4. 1
+   * 1. 5, 1. 5, 1. 5, 2. 3, 3. 2, 4. 1
+   */
+  private static noSkipPoints(ranking: Ranking[], points: number[]): any {
+    const pointsCopy = [...points];
+    return [].concat.apply([], ranking
+      .filter(rankEntry => rankEntry.rank && rankEntry.rank > 0) // filter not-participated players
+      .map(rankEntry => {
+        const nextPoints = pointsCopy.pop();
+        return rankEntry.items.map(player => {
+          return { id: player.id, name: player.name, points: nextPoints || 0 };
+        });
+      }));
   }
 
   constructor(
@@ -534,7 +716,8 @@ export class StatisticsState implements NgxsOnInit {
     private eventTypeRepository: EventTypeRepository,
   ) {}
 
-  ngxsOnInit(ctx: StateContext<StatisticsStateModel>): void {
+  @Action(StatisticsActions.Initialize)
+  initialize(ctx: StateContext<StatisticsStateModel>): void {
     // Strategie: Alle Daten in den State laden und dann lokal filtern/sortieren etc., da das performanter ist als in der DB zu filtern...
     this.gameRepository.getAll().pipe(
       tap(games => ctx.patchState({ games })),
@@ -562,13 +745,19 @@ export class StatisticsState implements NgxsOnInit {
   }
 
   @Action(StatisticsActions.RefreshFilter)
-  refreshFilter(ctx: StateContext<StatisticsStateModel>, { from, to, activePlayersOnly }: StatisticsActions.RefreshFilter) {
+  refreshFilter(
+    ctx: StateContext<StatisticsStateModel>,
+    { from, to, activePlayersOnly, completedGamesOnly }: StatisticsActions.RefreshFilter
+  ) {
     const state = ctx.getState();
     if (!isEqual(state.from, from) || !isEqual(state.to, to)) {
       ctx.patchState({ from, to });
     }
     if (state.activePlayersOnly !== activePlayersOnly) {
       ctx.patchState({ activePlayersOnly });
+    }
+    if (state.completedGamesOnly !== completedGamesOnly) {
+      ctx.patchState({ completedGamesOnly });
     }
   }
 

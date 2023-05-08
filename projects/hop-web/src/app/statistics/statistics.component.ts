@@ -48,10 +48,15 @@ export class StatisticsComponent implements OnInit {
     fromDate: [START_DATE_OF_STATISTICS],
     toDate: [new Date()],
     activePlayersOnly: true,
+    completedGamesOnly: true,
   });
 
   penaltyForm = this.fb.group({
     types: [[VERLOREN_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID]]
+  });
+
+  pointsForm = this.fb.group({
+    skipPoints: true
   });
 
   eventTypeQuickFilter = EventTypeQuickFilter;
@@ -70,6 +75,9 @@ export class StatisticsComponent implements OnInit {
 
   @Select(StatisticsState.averagePenaltyPerGame)
   stateAveragePenaltyPerGame$: Observable<number>;
+
+  @Select(StatisticsState.gameHostsTable)
+  stateGameHostsTable$: Observable<{ name: string; count: number; }[]>;
 
   @Select(StatisticsState.maxRoundsPerGame)
   stateMaxRoundsPerGame$: Observable<{ gameId: string; datetime: Date; count: number; }>;
@@ -124,6 +132,8 @@ export class StatisticsComponent implements OnInit {
   @Select(StatisticsState.streakByEventType(LUSTWURF_EVENT_TYPE_ID))
   stateNoLustwurfStreak$: Observable<StreakResult>;
 
+  statePointsTable$: Observable<any>;
+
   isMobile$: Observable<boolean>;
 
   constructor(
@@ -144,7 +154,8 @@ export class StatisticsComponent implements OnInit {
         new StatisticsActions.RefreshFilter(
           set(formValue.fromDate, { hours: 0, minutes: 0, seconds: 0 }),
           set(formValue.toDate, { hours: 23, minutes: 59, seconds: 59 }),
-          formValue.activePlayersOnly
+          formValue.activePlayersOnly,
+          formValue.completedGamesOnly,
         )
       );
     });
@@ -152,6 +163,11 @@ export class StatisticsComponent implements OnInit {
     this.stateEventCountsByPlayerTable$ = this.penaltyForm.valueChanges.pipe(
       startWith(this.penaltyForm.value),
       switchMap(value => this.store.select(StatisticsState.eventCountsByPlayerTable(value.types)))
+    );
+
+    this.statePointsTable$ = this.pointsForm.valueChanges.pipe(
+      startWith(this.pointsForm.value),
+      switchMap(value => this.store.select(StatisticsState.pointsTable(value.skipPoints)))
     );
 
     this.isMobile$ = this.breakpointObserver.observe([Breakpoints.Handset]).pipe(map(state => state.matches));

@@ -43,7 +43,7 @@ export namespace StatisticsStateUtil {
   export function calculateEventPenaltySum(events: EventDto[], eventTypes: EventTypeDto[]): number {
     return events
       .map(event => ({ ...event, eventType: StatisticsStateUtil.eventTypeByEvent(event, eventTypes) }))
-      .filter(event => event.eventType.penalty && event.eventType.penalty.unit === '€')
+      .filter(event => event.eventType && event.eventType.penalty && event.eventType.penalty.unit === '€')
       .reduce((prev, curr) => prev + (+curr.multiplicatorValue || 1) * curr.eventType.penalty.value, 0);
   }
 }
