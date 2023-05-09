@@ -4,7 +4,7 @@
 </button>
 
 <mat-accordion *ngIf="overviewList$ | async as overviewList">
-  <mat-expansion-panel *ngFor="let group of overviewList; let i = index" [expanded]="i === 0">
+  <mat-expansion-panel *ngFor="let group of overviewList" [expanded]="group.hasIncompleteGame">
     <mat-expansion-panel-header>
       <mat-panel-title>
         {{group.year}}

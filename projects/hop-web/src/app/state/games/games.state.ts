@@ -44,7 +44,7 @@ export class GamesState {
   static overviewList(
     gameGroups: { [year: number]: GameDto[] },
     roundGroups: { gameId: string; rounds: RoundDto[]; }[]
-  ): { year: number; games: (GameDto & { roundCount: number })[] }[] {
+  ): { year: number; hasIncompleteGame: boolean; games: (GameDto & { roundCount: number })[] }[] {
     return Object.entries(gameGroups)
       .sort(([year1, _], [year2, __]) => +year2 - +year1)
       .map(([year, games]) => ({ year: +year, games: orderBy(games, 'datetime', 'desc') }))
@@ -53,7 +53,8 @@ export class GamesState {
         games: item.games.map(game => ({
           ...game,
           roundCount: roundGroups.find(group => group.gameId === game._id)?.rounds.length || 0
-        }))
+        })),
+        hasIncompleteGame: item.games.some(game => !game.completed)
       }));
   }
 

@@ -12,7 +12,7 @@ import { GamesActions, GamesState } from '../state/games';
 export class HomeComponent implements OnInit {
 
   @Select(GamesState.overviewList)
-  overviewList$: Observable<{ year: number; games: (GameDto & { roundCount: number })[] }[]>;
+  overviewList$: Observable<{ year: number; hasIncompleteGame: boolean; games: (GameDto & { roundCount: number })[] }[]>;
 
   constructor(
     private store: Store,

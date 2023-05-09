@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {
-  EntityType,
   EventDto,
   EventTypeContext,
   EventTypeDto,
@@ -8,7 +7,6 @@ import {
   GameDto,
   GameEventDto,
   GameEventRepository,
-  ParticipationDto,
   PlayerDto,
   PlayerDtoUtils,
   PlayerRepository,
@@ -92,26 +90,31 @@ export class StatisticsState {
     return state.chosenEventTypeIds || [];
   }
 
+  // TODO: EventsState
   @Selector()
   static gameEvents(state: StatisticsStateModel): GameEventDto[] {
     return state.gameEvents || [];
   }
 
+  // TODO: EventsState
   @Selector()
   static roundEvents(state: StatisticsStateModel): RoundEventDto[] {
     return state.roundEvents || [];
   }
 
+  // TODO: EventTypesState
   @Selector()
   static eventTypes(state: StatisticsStateModel): EventTypeDto[] {
     return state.eventTypes || [];
   }
 
+  // TODO: PlayerState
   @Selector()
   static players(state: StatisticsStateModel): PlayerDto[] {
     return state.players || [];
   }
 
+  // TODO: EventTypesState
   @Selector([StatisticsState.eventTypes])
   static eventTypeGroups(eventTypes: EventTypeDto[]): { name: string; types: { id: string; description: string; }[] }[] {
     const transformedTypes = eventTypes.map(type => (
@@ -124,6 +127,7 @@ export class StatisticsState {
     ];
   }
 
+  // TODO: GamesState (?)
   @Selector([GamesState.games, StatisticsState.completedGamesOnly])
   static latestGame(games: GameDto[], completedGamesOnly: boolean): GameDto {
     return maxBy(completedGamesOnly ? games.filter(game => game.completed) : games, game => game.datetime);
@@ -210,20 +214,7 @@ export class StatisticsState {
   // ------------------------------------------------------------------------------------------------------------------------
   @Selector([StatisticsState.filteredPlayers, StatisticsState.filteredRounds])
   static roundCountByPlayer(players: PlayerDto[], rounds: RoundDto[]): { playerId: string; name: string; count: number }[] {
-    return StatisticsState.calcRoundCountByPlayer(players, rounds);
-  }
-
-  private static calcRoundCountByPlayer(players: PlayerDto[], rounds: RoundDto[]): { playerId: string; name: string; count: number }[] {
-    const participations: ParticipationDto[][] = rounds.map((round: RoundDto) => round.attendeeList);
-    const flatParticipations: ParticipationDto[] = [].concat.apply([], participations);
-    const roundCounts = StatisticsStateUtil.customCountBy(flatParticipations, 'playerId');
-    return players.map(player => {
-      return {
-        playerId: player._id,
-        name: player.name,
-        count: roundCounts.find(item => item.playerId === player._id)?.count || 0
-      };
-    });
+    return StatisticsStateUtil.roundCountByPlayer(players, rounds);
   }
 
   static roundsGroupedByGameId(ordered: boolean = false) {
@@ -382,33 +373,9 @@ export class StatisticsState {
         filteredEvents: EventDto[],
         roundCountsByPlayer: { playerId: string; name: string; count: number }[]
       ) => {
-        return StatisticsState.calcEventCountsRanking(players, filteredEvents, roundCountsByPlayer, chosenEventTypeIds, sortDirection);
+        return StatisticsStateUtil.eventCountsRanking(players, filteredEvents, roundCountsByPlayer, chosenEventTypeIds, sortDirection);
       }
     );
-  }
-
-  private static calcEventCountsRanking(
-    players: PlayerDto[],
-    filteredEvents: EventDto[],
-    roundCountsByPlayer: { playerId: string; name: string; count: number }[],
-    chosenEventTypeIds: string[],
-    sortDirection: 'asc'|'desc' = 'desc'
-  ): Ranking[] {
-    const eventsOfInterest = filteredEvents.filter(event => chosenEventTypeIds.includes(event.eventTypeId));
-    const eventCounts = StatisticsStateUtil.customCountBy(eventsOfInterest, 'playerId');
-    const result = players.map(player => {
-      const eventCount = eventCounts.find(item => item.playerId === player._id)?.count || 0;
-      const roundCountByPlayer = roundCountsByPlayer.find(item => item.playerId === player._id)?.count || 0;
-      const quote = (eventCount / roundCountByPlayer) || 0;
-      return { id: player._id, name: player.name, active: player.active, roundCount: roundCountByPlayer, eventCount, quote };
-    });
-
-    const participatedPlayers = result.filter(item => item.roundCount > 0);
-    const notParticipatedPlayers = result.filter(item => !item.roundCount);
-    return [
-      ...RankingUtil.sort(participatedPlayers, ['quote'], sortDirection),
-      RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
-    ];
   }
 
   @Selector([StatisticsState.filteredEvents, StatisticsState.eventTypes])
@@ -432,46 +399,7 @@ export class StatisticsState {
     eventTypes: EventTypeDto[],
     roundCountsByPlayer: { playerId: string; name: string; count: number }[]
   ): { playerTable: Ranking[]; overallSum: number; } {
-    return StatisticsState.calcCashCount(players, filteredEvents, eventTypes, roundCountsByPlayer);
-  }
-
-  private static calcCashCount(
-    players: PlayerDto[],
-    filteredEvents: EventDto[],
-    eventTypes: EventTypeDto[],
-    roundCountsByPlayer: { playerId: string; name: string; count: number }[],
-    direction: 'asc'|'desc' = 'desc'
-  ): { playerTable: Ranking[]; overallSum: number; } {
-    const eventsByPlayer = StatisticsStateUtil.customGroupBy(filteredEvents, 'playerId');
-    const playerTable = players.map(player => {
-      const playerEvents = eventsByPlayer[player._id] || [];
-      const roundEventPenalties = StatisticsStateUtil.calculateEventPenaltySum(
-        playerEvents.filter(event => event.type === EntityType.ROUND_EVENT),
-        eventTypes
-      );
-      const gameEventPenalties = StatisticsStateUtil.calculateEventPenaltySum(
-        playerEvents.filter(event => event.type === EntityType.GAME_EVENT),
-        eventTypes
-      );
-      const sum = roundEventPenalties + gameEventPenalties;
-      const roundCountByPlayer = roundCountsByPlayer.find(item => item.playerId === player._id)?.count;
-      return {
-        id: player._id,
-        name: player.name,
-        active: player.active,
-        roundEventPenalties,
-        gameEventPenalties,
-        sum,
-        cashPerRound: roundCountByPlayer ? roundEventPenalties / roundCountByPlayer : 0
-      };
-    });
-    const overallSum = playerTable.reduce((prev, curr) => prev + curr.sum, 0);
-    const playerTableWithQuote = playerTable.map(item => ({ ...item, quote: item.sum / overallSum }));
-
-    return {
-      playerTable: RankingUtil.sort(playerTableWithQuote, ['sum'], direction),
-      overallSum,
-    };
+    return StatisticsStateUtil.cashCount(players, filteredEvents, eventTypes, roundCountsByPlayer);
   }
 
   @Selector([StatisticsState.filteredPlayers, StatisticsState.filteredRoundEvents])
@@ -577,37 +505,37 @@ export class StatisticsState {
             return null;
           }
 
-          const roundCount = StatisticsState.calcRoundCountByPlayer(players, item.rounds);
+          const roundCount = StatisticsStateUtil.roundCountByPlayer(players, item.rounds);
           const points = [1, 2, 3, 5];
 
           // VERLOREN
-          const verlorenRanking = StatisticsState.calcEventCountsRanking(
+          const verlorenRanking = StatisticsStateUtil.eventCountsRanking(
             players,
             eventsByGame[item.gameId],
             roundCount,
             [VERLOREN_EVENT_TYPE_ID],
             'asc'
           );
-          const verlorenPoints = StatisticsState.skipPointsForEachPlayer(verlorenRanking, points);
+          const verlorenPoints = StatisticsStateUtil.skipPointsForEachPlayer(verlorenRanking, points);
 
           // SCHOCK-AUS
-          const schockAusRanking = StatisticsState.calcEventCountsRanking(
+          const schockAusRanking = StatisticsStateUtil.eventCountsRanking(
             players,
             eventsByGame[item.gameId],
             roundCount,
             [SCHOCK_AUS_EVENT_TYPE_ID]
           );
-          const schockAusPoints = StatisticsState.skipPointsForEachPlayer(schockAusRanking, points);
+          const schockAusPoints = StatisticsStateUtil.skipPointsForEachPlayer(schockAusRanking, points);
 
           // CASH-COUNT
-          const cashRanking = StatisticsState.calcCashCount(
+          const cashRanking = StatisticsStateUtil.cashCount(
             players,
             eventsByGame[item.gameId],
             eventTypes,
             roundCount,
             'asc'
           );
-          const cashPoints = StatisticsState.skipPointsForEachPlayer(cashRanking.playerTable, points);
+          const cashPoints = StatisticsStateUtil.skipPointsForEachPlayer(cashRanking.playerTable, points);
 
           return {
             gameId: item.gameId,
@@ -636,61 +564,6 @@ export class StatisticsState {
         return RankingUtil.sort(result, ['sum']);
       }
     );
-  }
-
-  /**
-   * 1. 5,             2. 3, 3. 2, 4. 1
-   * 1. 5, 1. 5,       2. 2, 3. 1, 4. 0
-   * 1. 5, 1. 5, 1. 5, 2. 1, 3. 0, 4. 0
-   */
-  private static skipPointsForEachPlayer(ranking: Ranking[], points: number[]): any {
-    const pointsCopy = [...points];
-    let currentPoints;
-    return [].concat.apply([], ranking
-      .filter(rankEntry => rankEntry.rank && rankEntry.rank > 0) // filter not-participated players
-      .map(rankEntry => {
-        currentPoints = undefined;
-        return rankEntry.items.map(player => {
-          const nextPoints = pointsCopy.pop();
-          if (!currentPoints) { currentPoints = nextPoints; }
-          return { id: player.id, name: player.name, points: currentPoints || 0 };
-        });
-      }));
-  }
-
-  /**
-   * 1. 5,             2. 3, 3. 2, 4. 1
-   * 1. 5, 1. 5,       2. 2, 3. 1, 4. 0
-   * 1. 5, 1. 5, 1. 5, 2. 2, 3. 1, 4. 0
-   */
-  private static skipPointsForEachPlayerAlternative(ranking: Ranking[], points: number[]): any {
-    const pointsCopy = [...points];
-    return [].concat.apply([], ranking
-      .filter(rankEntry => rankEntry.rank && rankEntry.rank > 0) // filter not-participated players
-      .map(rankEntry => {
-        const nextPoints = pointsCopy.pop();
-        if (rankEntry.items.length > 1) { pointsCopy.pop(); }
-        return rankEntry.items.map(player => {
-          return { id: player.id, name: player.name, points: nextPoints || 0 };
-        });
-      }));
-  }
-
-  /**
-   * 1. 5,             2. 3, 3. 2, 4. 1
-   * 1. 5, 1. 5,       2. 3, 3. 2, 4. 1
-   * 1. 5, 1. 5, 1. 5, 2. 3, 3. 2, 4. 1
-   */
-  private static noSkipPoints(ranking: Ranking[], points: number[]): any {
-    const pointsCopy = [...points];
-    return [].concat.apply([], ranking
-      .filter(rankEntry => rankEntry.rank && rankEntry.rank > 0) // filter not-participated players
-      .map(rankEntry => {
-        const nextPoints = pointsCopy.pop();
-        return rankEntry.items.map(player => {
-          return { id: player.id, name: player.name, points: nextPoints || 0 };
-        });
-      }));
   }
 
   constructor(
