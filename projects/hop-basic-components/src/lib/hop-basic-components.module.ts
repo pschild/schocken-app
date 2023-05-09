@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { MaterialModule } from './material/material.module';
 import { NavigationComponent } from './navigation/navigation.component';
 import { RouterModule } from '@angular/router';
-import { GameListComponent } from './game-list/game-list.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TableWrapperComponent } from './table-wrapper/table-wrapper.component';
 import { EventTypeListComponent } from './event-type-list/event-type-list.component';
@@ -23,11 +22,11 @@ import { StreakComponent } from './streak/streak.component';
 import { SoundBoardComponent } from './sound-board/sound-board.component';
 import { NgxsModule } from '@ngxs/store';
 import { SoundboardState } from './sound-board/state/soundboard.state';
+import { LiveIndicatorComponent } from './live-indicator/live-indicator.component';
 
 @NgModule({
   declarations: [
     NavigationComponent,
-    GameListComponent,
     TableWrapperComponent,
     EventTypeListComponent,
     SnackBarNotificationComponent,
@@ -44,7 +43,8 @@ import { SoundboardState } from './sound-board/state/soundboard.state';
     BadgeComponent,
     TrophyComponent,
     StreakComponent,
-    SoundBoardComponent
+    SoundBoardComponent,
+    LiveIndicatorComponent,
   ],
   imports: [
     MaterialModule,
@@ -56,7 +56,6 @@ import { SoundboardState } from './sound-board/state/soundboard.state';
   exports: [
     MaterialModule,
     NavigationComponent,
-    GameListComponent,
     TableWrapperComponent,
     EventTypeListComponent,
     SnowflakesComponent,
@@ -68,7 +67,8 @@ import { SoundboardState } from './sound-board/state/soundboard.state';
     BadgeComponent,
     TrophyComponent,
     StreakComponent,
-    SoundBoardComponent
+    SoundBoardComponent,
+    LiveIndicatorComponent,
   ]
 })
 export class HopBasicComponentsModule { }

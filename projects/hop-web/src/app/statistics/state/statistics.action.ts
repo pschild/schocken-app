@@ -22,4 +22,15 @@ export namespace StatisticsActions {
     constructor(public ids: string[]) {
     }
   }
+
+  export class RefreshGameIdFilter {
+    static readonly type = '[StatisticsActions] RefreshGameIdFilter';
+
+    constructor(public id: string) {
+    }
+  }
+
+  export class ResetGameIdFilter {
+    static readonly type = '[StatisticsActions] ResetGameIdFilter';
+  }
 }

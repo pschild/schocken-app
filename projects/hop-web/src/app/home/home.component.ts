@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { HomeDataProvider } from './home.data-provider';
 import { Observable } from 'rxjs';
-import { GameListItemVo } from '@hop-basic-components';
+import { Select, Store } from '@ngxs/store';
+import { GameDto } from '@hop-backend-api';
+import { GamesActions, GamesState } from '../state/games';
 
 @Component({
   selector: 'hop-home',
@@ -11,21 +11,18 @@ import { GameListItemVo } from '@hop-basic-components';
 })
 export class HomeComponent implements OnInit {
 
-  gameListItems$: Observable<GameListItemVo[]>;
+  @Select(GamesState.overviewList)
+  overviewList$: Observable<{ year: number; games: (GameDto & { roundCount: number })[] }[]>;
 
   constructor(
-    private router: Router,
-    private dataProvider: HomeDataProvider
+    private store: Store,
   ) { }
 
   ngOnInit() {
-    this.gameListItems$ = this.dataProvider.getGameList();
   }
 
   onNewGameClicked(): void {
-    this.dataProvider.createGame().subscribe((createdGameId: string) => {
-      this.router.navigate(['game-table', createdGameId]);
-    });
+    this.store.dispatch(new GamesActions.Create());
   }
 
 }

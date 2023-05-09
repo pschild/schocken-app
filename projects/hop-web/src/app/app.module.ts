@@ -17,8 +17,8 @@ import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 import { registerLocaleData } from '@angular/common';
 import localeDe from '@angular/common/locales/de';
 import { StatisticsState } from './statistics/state';
-// import { GameState } from './home/state';
-// import { RoundState } from './round/state';
+import { GamesState } from './state/games';
+import { RoundsState } from './state/rounds/rounds.state';
 
 registerLocaleData(localeDe, 'de');
 
@@ -29,7 +29,19 @@ registerLocaleData(localeDe, 'de');
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgxsModule.forRoot([StatisticsState], { selectorOptions: { injectContainerState: false, suppressErrors: false } }),
+    NgxsModule.forRoot(
+      [
+        GamesState,
+        RoundsState,
+        StatisticsState
+      ],
+      {
+        selectorOptions: {
+          injectContainerState: false,
+          suppressErrors: false
+        }
+      }
+    ),
     NgxsReduxDevtoolsPluginModule.forRoot({ disabled: environment.production }),
     HopBasicComponentsModule,
     BrowserAnimationsModule,

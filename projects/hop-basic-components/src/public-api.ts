@@ -15,10 +15,6 @@ export * from './lib/dialog/celebration-modal/celebration-modal.component';
 
 export * from './lib/odometer/odometer.component';
 
-export * from './lib/game-list/game-list.component';
-export * from './lib/game-list/mapper';
-export * from './lib/game-list/model';
-
 export * from './lib/event-list/event-list.component';
 export * from './lib/event-list/mapper';
 export * from './lib/event-list/model';
@@ -50,6 +46,8 @@ export * from './lib/dialog/event-type-list-modal/model';
 
 export * from './lib/dialog/all-player-selection-modal/all-player-selection-modal.component';
 export * from './lib/dialog/all-player-selection-modal/model';
+
+export * from './lib/live-indicator/live-indicator.component';
 
 /**
  * Services

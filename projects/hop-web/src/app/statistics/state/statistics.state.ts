@@ -8,7 +8,6 @@ import {
   GameDto,
   GameEventDto,
   GameEventRepository,
-  GameRepository,
   ParticipationDto,
   PlayerDto,
   PlayerDtoUtils,
@@ -16,7 +15,6 @@ import {
   RoundDto,
   RoundEventDto,
   RoundEventRepository,
-  RoundRepository
 } from '@hop-backend-api';
 import { Action, Selector, State, StateContext, StateToken, createSelector } from '@ngxs/store';
 import { maxBy, isEqual as lodashIsEqual, orderBy, groupBy, countBy } from 'lodash';
@@ -27,6 +25,8 @@ import { isEqual } from 'date-fns';
 import { Ranking, RankingUtil } from '../ranking.util';
 import { StreakUtil } from './streak.util';
 import { tap } from 'rxjs/operators';
+import { GamesState } from '../../state/games';
+import { RoundsState } from '../../state/rounds/rounds.state';
 
 export interface StatisticsStateModel {
   from: Date;
@@ -35,9 +35,7 @@ export interface StatisticsStateModel {
   completedGamesOnly: boolean;
   gameIdFilter: string;
   chosenEventTypeIds: string[];
-  games: GameDto[];
   gameEvents: GameEventDto[];
-  rounds: RoundDto[];
   roundEvents: RoundEventDto[];
   players: PlayerDto[];
   eventTypes: EventTypeDto[];
@@ -54,9 +52,7 @@ export const STATISTICS_STATE = new StateToken<StatisticsStateModel>('statistics
     completedGamesOnly: true,
     gameIdFilter: undefined,
     chosenEventTypeIds: [],
-    games: [],
     gameEvents: [],
-    rounds: [],
     roundEvents: [],
     players: [],
     eventTypes: [],
@@ -97,16 +93,6 @@ export class StatisticsState {
   }
 
   @Selector()
-  static games(state: StatisticsStateModel): GameDto[] {
-    return state.games || [];
-  }
-
-  @Selector()
-  static rounds(state: StatisticsStateModel): RoundDto[] {
-    return state.rounds || [];
-  }
-
-  @Selector()
   static gameEvents(state: StatisticsStateModel): GameEventDto[] {
     return state.gameEvents || [];
   }
@@ -138,13 +124,13 @@ export class StatisticsState {
     ];
   }
 
-  @Selector([StatisticsState.games, StatisticsState.completedGamesOnly])
+  @Selector([GamesState.games, StatisticsState.completedGamesOnly])
   static latestGame(games: GameDto[], completedGamesOnly: boolean): GameDto {
     return maxBy(completedGamesOnly ? games.filter(game => game.completed) : games, game => game.datetime);
   }
 
   @Selector([
-    StatisticsState.games,
+    GamesState.games,
     StatisticsState.from,
     StatisticsState.to,
     StatisticsState.completedGamesOnly,
@@ -167,7 +153,7 @@ export class StatisticsState {
     return games.map(game => game.place);
   }
 
-  @Selector([StatisticsState.rounds, StatisticsState.filteredGames])
+  @Selector([RoundsState.rounds, StatisticsState.filteredGames])
   static filteredRounds(rounds: RoundDto[], games: GameDto[]): RoundDto[] {
     const gameIds = games.map(game => game._id);
     return rounds.filter(round => gameIds.includes(round.gameId));
@@ -264,7 +250,7 @@ export class StatisticsState {
 
   @Selector([
     StatisticsState.filteredGames,
-    StatisticsState.roundsGroupedByGameId(),
+    RoundsState.groupedByGameId(),
     StatisticsState.filteredRoundEvents,
     StatisticsState.eventTypes
   ])
@@ -288,7 +274,7 @@ export class StatisticsState {
     return createSelector(
       [
         StatisticsState.filteredGames,
-        StatisticsState.roundsGroupedByGameId(),
+        RoundsState.groupedByGameId(),
         StatisticsState.filteredRoundEvents,
         StatisticsState.filteredPlayers
       ],
@@ -323,7 +309,7 @@ export class StatisticsState {
 
   @Selector([
     StatisticsState.filteredGames,
-    StatisticsState.roundsGroupedByGameId(true),
+    RoundsState.groupedByGameId(true),
     StatisticsState.filteredRoundEvents
   ])
   static maxSchockAusStreak(
@@ -565,7 +551,7 @@ export class StatisticsState {
     );
   }
 
-  @Selector([StatisticsState.gamePlaces])
+  @Selector([GamesState.gamePlaces])
   static gameHostsTable(places: string[]): { name: string; count: number; }[] {
     const counts = countBy(places);
     return orderBy(Object.keys(counts).map(name => ({ name, count: counts[name] })), 'count', 'desc');
@@ -708,8 +694,6 @@ export class StatisticsState {
   }
 
   constructor(
-    private gameRepository: GameRepository,
-    private roundRepository: RoundRepository,
     private gameEventRepository: GameEventRepository,
     private roundEventRepository: RoundEventRepository,
     private playerRepository: PlayerRepository,
@@ -718,15 +702,6 @@ export class StatisticsState {
 
   @Action(StatisticsActions.Initialize)
   initialize(ctx: StateContext<StatisticsStateModel>): void {
-    // Strategie: Alle Daten in den State laden und dann lokal filtern/sortieren etc., da das performanter ist als in der DB zu filtern...
-    this.gameRepository.getAll().pipe(
-      tap(games => ctx.patchState({ games })),
-    ).subscribe();
-
-    this.roundRepository.getAll().pipe(
-      tap(rounds => ctx.patchState({ rounds })),
-    ).subscribe();
-
     this.gameEventRepository.getAll().pipe(
       tap(gameEvents => ctx.patchState({ gameEvents })),
     ).subscribe();
@@ -759,6 +734,19 @@ export class StatisticsState {
     if (state.completedGamesOnly !== completedGamesOnly) {
       ctx.patchState({ completedGamesOnly });
     }
+  }
+
+  @Action(StatisticsActions.RefreshGameIdFilter)
+  refreshGameIdFilter(ctx: StateContext<StatisticsStateModel>, { id }: StatisticsActions.RefreshGameIdFilter) {
+    const state = ctx.getState();
+    if (state.gameIdFilter !== id) {
+      ctx.patchState({ gameIdFilter: id });
+    }
+  }
+
+  @Action(StatisticsActions.ResetGameIdFilter)
+  resetGameIdFilter(ctx: StateContext<StatisticsStateModel>) {
+    ctx.patchState({ gameIdFilter: undefined });
   }
 
   @Action(StatisticsActions.RefreshEventTypeFilter)

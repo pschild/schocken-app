@@ -2,4 +2,66 @@
   <mat-icon>add</mat-icon>
   Neues Spiel starten
 </button>
-<hop-game-list *ngIf="gameListItems$ | async as gameListItems" [gameListItems]="gameListItems"></hop-game-list>
+
+<mat-accordion *ngIf="overviewList$ | async as overviewList">
+  <mat-expansion-panel *ngFor="let group of overviewList; let i = index" [expanded]="i === 0">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{group.year}}
+      </mat-panel-title>
+      <mat-panel-description>
+        {{group.games.length}} Spiel(e)
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div *ngFor="let game of group.games" class="game-item-container">
+      <div>
+        <div>
+          <hop-live-indicator *ngIf="!game.completed"></hop-live-indicator>
+          <strong>{{ game.datetime | date:'dd.MM.yyyy' }}</strong>
+          <span *ngIf="game.place">&nbsp;{{ game.place }}</span>
+          <span *ngIf="game.placeDetail">&nbsp;({{ game.placeDetail }})</span>
+        </div>
+        <div>{{ game.roundCount }} Runde(n)</div>
+      </div>
+      <div class="game-action-button-container">
+        <button mat-stroked-button color="primary" [routerLink]="['/game-table', game._id]">
+          <mat-icon>table_chart</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <ng-container *ngIf="group.year === 2018">
+      <div class="game-item-container">
+        <div>
+          <div>
+            <strong>05.10.2018</strong>
+            <span>&nbsp;Tobias</span>
+          </div>
+          <div>ohne Wertung</div>
+        </div>
+        <div class="game-action-button-container">
+          <button mat-stroked-button color="primary" disabled>
+            <mat-icon>table_chart</mat-icon>
+          </button>
+        </div>
+      </div>
+    
+      <div class="game-item-container">
+        <div>
+          <div>
+            <strong>14.09.2018</strong>
+            <span>&nbsp;Christian</span>
+          </div>
+          <div>ohne Wertung</div>
+        </div>
+        <div class="game-action-button-container">
+          <button mat-stroked-button color="primary" disabled>
+            <mat-icon>table_chart</mat-icon>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+  </mat-expansion-panel>
+</mat-accordion>
