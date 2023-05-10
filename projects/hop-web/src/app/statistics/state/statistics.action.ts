@@ -1,9 +1,5 @@
 export namespace StatisticsActions {
 
-  export class Initialize {
-    static readonly type = '[StatisticsActions] Initialize';
-  }
-
   export class RefreshFilter {
     static readonly type = '[StatisticsActions] RefreshFilter';
 

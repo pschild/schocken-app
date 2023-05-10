@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { EventTypeManagementDataProvider } from '../event-type-management.data-provider';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, forkJoin } from 'rxjs';
-import { EventTypeTableItemVo } from './model/event-type-table-item.vo';
+import { Observable } from 'rxjs';
 import {
   ITableConfig,
   IColumnInterface,
@@ -11,9 +9,11 @@ import {
   DialogResult,
   IDialogResult
 } from '@hop-basic-components';
-import { filter, switchMap } from 'rxjs/operators';
-import { EventTypeContext } from '@hop-backend-api';
+import { filter, switchMap, tap } from 'rxjs/operators';
+import { EventTypeContext, EventTypeDto, EventTypeDtoUtils } from '@hop-backend-api';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { EventTypesActions, EventTypesState } from '../../../state/event-types';
+import { Select, Store } from '@ngxs/store';
 
 @Component({
   selector: 'hop-event-type-list',
@@ -22,8 +22,11 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 })
 export class EventTypeListComponent implements OnInit {
 
-  roundEventTypes$: Observable<EventTypeTableItemVo[]>;
-  gameEventTypes$: Observable<EventTypeTableItemVo[]>;
+  @Select(EventTypesState.byContext(EventTypeContext.ROUND))
+  roundEventTypes$: Observable<EventTypeDto[]>;
+
+  @Select(EventTypesState.byContext(EventTypeContext.GAME))
+  gameEventTypes$: Observable<EventTypeDto[]>;
 
   tableConfig: ITableConfig = {
     enablePaging: false,
@@ -35,19 +38,19 @@ export class EventTypeListComponent implements OnInit {
       columnDef: 'description',
       header: 'Name',
       isSearchable: true,
-      cellContent: (element: EventTypeTableItemVo) => `${element.description}`
+      cellContent: (element: EventTypeDto) => `${element.description}`
     },
     {
       columnDef: 'penaltyLabel',
       header: 'Strafe',
-      cellContent: (element: EventTypeTableItemVo) => `${element.penaltyLabel}`
+      cellContent: (element: EventTypeDto) => EventTypeDtoUtils.buildPenaltyLabel(element)
     },
     {
       columnDef: 'actions',
       header: '',
       cellActions: [
-        { icon: 'edit', fn: (element: EventTypeTableItemVo) => this.edit(element) },
-        { icon: 'delete', fn: (element: EventTypeTableItemVo) => this.remove(element) }
+        { icon: 'edit', fn: (element: EventTypeDto) => this.edit(element) },
+        { icon: 'delete', fn: (element: EventTypeDto) => this.remove(element) }
       ]
     }
   ];
@@ -55,14 +58,12 @@ export class EventTypeListComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private store: Store,
     private dialogService: DialogService,
     private snackBarNotificationService: SnackBarNotificationService,
-    private eventTypeManagementDataProvider: EventTypeManagementDataProvider
   ) { }
 
   ngOnInit() {
-    this.roundEventTypes$ = this.eventTypeManagementDataProvider.getAllByContext(EventTypeContext.ROUND);
-    this.gameEventTypes$ = this.eventTypeManagementDataProvider.getAllByContext(EventTypeContext.GAME);
   }
 
   showForm(): void {
@@ -74,29 +75,29 @@ export class EventTypeListComponent implements OnInit {
   }
 
   handleDropEvent(dragDropEvent: any): void {
-    forkJoin(
-      dragDropEvent.elements.map((element: EventTypeTableItemVo, index: number) => {
-        return this.eventTypeManagementDataProvider.update(element.id, { order: index }, true);
-      })
-    ).subscribe(_ => this.snackBarNotificationService.showMessage(`Reihenfolge aktualisiert`));
+    this.store.dispatch(
+      dragDropEvent.elements.map((element: EventTypeDto, index: number) =>
+        new EventTypesActions.Update(element._id, { order: index }, true)
+      )
+    ).pipe(
+      tap(() => this.snackBarNotificationService.showMessage(`Reihenfolge aktualisiert`))
+    ).subscribe();
   }
 
-  remove(eventType: EventTypeTableItemVo) {
+  remove(eventType: EventTypeDto) {
     this.dialogService.showYesNoDialog({
       title: '',
       message: `Soll das Ereignis ${eventType.description} wirklich gelöscht werden?`
     }).pipe(
       filter((dialogResult: IDialogResult) => dialogResult.result === DialogResult.YES),
-      switchMap((dialogResult: IDialogResult) => this.eventTypeManagementDataProvider.removeById(eventType.id))
+      switchMap((dialogResult: IDialogResult) => this.store.dispatch(new EventTypesActions.Remove(eventType._id)))
     ).subscribe((id: string) => {
       this.snackBarNotificationService.showMessage(`Ereignis ${eventType.description} wurde gelöscht.`);
-      this.roundEventTypes$ = this.eventTypeManagementDataProvider.getAllByContext(EventTypeContext.ROUND);
-      this.gameEventTypes$ = this.eventTypeManagementDataProvider.getAllByContext(EventTypeContext.GAME);
     });
   }
 
-  edit(eventType: EventTypeTableItemVo) {
-    this.router.navigate(['form', { eventTypeId: eventType.id }], { relativeTo: this.route });
+  edit(eventType: EventTypeDto) {
+    this.router.navigate(['form', { eventTypeId: eventType._id }], { relativeTo: this.route });
   }
 
 }

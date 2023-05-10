@@ -18,6 +18,7 @@ import { Ranking } from './ranking.util';
 import { StatisticsActions, StatisticsState } from './state';
 import { StreakResult } from './state/streak.util';
 import { StatisticsDataProvider } from './statistics.data-provider';
+import { EventTypesState } from '../state/event-types';
 
 const START_DATE_OF_STATISTICS = new Date('2018-11-09');
 
@@ -105,7 +106,7 @@ export class StatisticsComponent implements OnInit {
 
   stateEventCountsByPlayerTable$: Observable<Ranking[]>;
 
-  @Select(StatisticsState.eventTypeGroups)
+  @Select(EventTypesState.eventTypeGroups)
   eventTypeGroups$: Observable<{ name: string; types: { id: string; description: string; }[] }[]>;
 
   @Select(StatisticsState.eventCountsByPlayerTable([SCHOCK_AUS_EVENT_TYPE_ID]))

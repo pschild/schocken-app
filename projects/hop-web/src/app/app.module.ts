@@ -19,6 +19,9 @@ import localeDe from '@angular/common/locales/de';
 import { StatisticsState } from './statistics/state';
 import { GamesState } from './state/games';
 import { RoundsState } from './state/rounds/rounds.state';
+import { PlayersState } from './state/players';
+import { EventTypesState } from './state/event-types';
+import { EventsState } from './state/events';
 
 registerLocaleData(localeDe, 'de');
 
@@ -31,8 +34,11 @@ registerLocaleData(localeDe, 'de');
     AppRoutingModule,
     NgxsModule.forRoot(
       [
+        PlayersState,
+        EventTypesState,
         GamesState,
         RoundsState,
+        EventsState,
         StatisticsState
       ],
       {

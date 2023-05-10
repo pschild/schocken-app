@@ -5,6 +5,9 @@ export enum SortDirection {
   DESC = 'descending'
 }
 
+/**
+ * @deprecated
+ */
 @Injectable({
   providedIn: 'root'
 })

@@ -1,12 +1,12 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
   <mat-card>
     <mat-card-title>
-      <span *ngIf="form.get('id').value">Spieler bearbeiten</span>
-      <span *ngIf="!form.get('id').value">Neuer Spieler</span>
+      <span *ngIf="form.get('_id').value">Spieler bearbeiten</span>
+      <span *ngIf="!form.get('_id').value">Neuer Spieler</span>
     </mat-card-title>
     <mat-card-content>
       <div>
-        <input type="hidden" formControlName="id" readonly>
+        <input type="hidden" formControlName="_id" readonly>
 
         <mat-form-field>
           <input matInput placeholder="Name" formControlName="name" required>

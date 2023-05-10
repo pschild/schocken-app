@@ -1,30 +1,27 @@
 import { Injectable } from '@angular/core';
 import {
   EventDto,
-  EventTypeContext,
   EventTypeDto,
-  EventTypeRepository,
   GameDto,
   GameEventDto,
-  GameEventRepository,
   PlayerDto,
   PlayerDtoUtils,
-  PlayerRepository,
   RoundDto,
-  RoundEventDto,
-  RoundEventRepository,
+  RoundEventDto
 } from '@hop-backend-api';
 import { Action, Selector, State, StateContext, StateToken, createSelector } from '@ngxs/store';
-import { maxBy, isEqual as lodashIsEqual, orderBy, groupBy, countBy } from 'lodash';
+import { isEqual } from 'date-fns';
+import { countBy, isEqual as lodashIsEqual, maxBy, orderBy } from 'lodash';
+import { EventTypesState } from '../../state/event-types';
+import { EventsState } from '../../state/events';
+import { GamesState } from '../../state/games';
+import { PlayersState } from '../../state/players';
+import { RoundsState } from '../../state/rounds/rounds.state';
+import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID } from '../model/event-type-ids';
+import { Ranking, RankingUtil } from '../ranking.util';
 import { StatisticsStateUtil } from './statistics-state.util';
 import { StatisticsActions } from './statistics.action';
-import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID } from '../model/event-type-ids';
-import { isEqual } from 'date-fns';
-import { Ranking, RankingUtil } from '../ranking.util';
 import { StreakUtil } from './streak.util';
-import { tap } from 'rxjs/operators';
-import { GamesState } from '../../state/games';
-import { RoundsState } from '../../state/rounds/rounds.state';
 
 export interface StatisticsStateModel {
   from: Date;
@@ -33,10 +30,6 @@ export interface StatisticsStateModel {
   completedGamesOnly: boolean;
   gameIdFilter: string;
   chosenEventTypeIds: string[];
-  gameEvents: GameEventDto[];
-  roundEvents: RoundEventDto[];
-  players: PlayerDto[];
-  eventTypes: EventTypeDto[];
 }
 
 export const STATISTICS_STATE = new StateToken<StatisticsStateModel>('statistics');
@@ -50,10 +43,6 @@ export const STATISTICS_STATE = new StateToken<StatisticsStateModel>('statistics
     completedGamesOnly: true,
     gameIdFilter: undefined,
     chosenEventTypeIds: [],
-    gameEvents: [],
-    roundEvents: [],
-    players: [],
-    eventTypes: [],
   }
 })
 
@@ -88,43 +77,6 @@ export class StatisticsState {
   @Selector()
   static chosenEventTypeIds(state: StatisticsStateModel): string[] {
     return state.chosenEventTypeIds || [];
-  }
-
-  // TODO: EventsState
-  @Selector()
-  static gameEvents(state: StatisticsStateModel): GameEventDto[] {
-    return state.gameEvents || [];
-  }
-
-  // TODO: EventsState
-  @Selector()
-  static roundEvents(state: StatisticsStateModel): RoundEventDto[] {
-    return state.roundEvents || [];
-  }
-
-  // TODO: EventTypesState
-  @Selector()
-  static eventTypes(state: StatisticsStateModel): EventTypeDto[] {
-    return state.eventTypes || [];
-  }
-
-  // TODO: PlayerState
-  @Selector()
-  static players(state: StatisticsStateModel): PlayerDto[] {
-    return state.players || [];
-  }
-
-  // TODO: EventTypesState
-  @Selector([StatisticsState.eventTypes])
-  static eventTypeGroups(eventTypes: EventTypeDto[]): { name: string; types: { id: string; description: string; }[] }[] {
-    const transformedTypes = eventTypes.map(type => (
-      { id: type._id, description: type.description, context: type.context, order: type.order }
-    ));
-    const groupedTypes = groupBy(transformedTypes, 'context');
-    return [
-      { name: 'Rundenereignisse', types: orderBy(groupedTypes[EventTypeContext.ROUND], 'order') },
-      { name: 'Spielereignisse', types: orderBy(groupedTypes[EventTypeContext.GAME], 'order') }
-    ];
   }
 
   // TODO: GamesState (?)
@@ -173,7 +125,7 @@ export class StatisticsState {
     return rounds.length;
   }
 
-  @Selector([StatisticsState.gameEvents, StatisticsState.filteredGames, StatisticsState.filteredPlayers])
+  @Selector([EventsState.gameEvents, StatisticsState.filteredGames, StatisticsState.filteredPlayers])
   static filteredGameEvents(gameEvents: GameEventDto[], games: GameDto[], players: PlayerDto[]): GameEventDto[] {
     const gameIds = games.map(game => game._id);
     const playerIds = players.map(player => player._id);
@@ -182,7 +134,7 @@ export class StatisticsState {
       .filter(event => playerIds.includes(event.playerId));
   }
 
-  @Selector([StatisticsState.roundEvents, StatisticsState.filteredRounds, StatisticsState.filteredPlayers])
+  @Selector([EventsState.roundEvents, StatisticsState.filteredRounds, StatisticsState.filteredPlayers])
   static filteredRoundEvents(roundEvents: RoundEventDto[], rounds: RoundDto[], players: PlayerDto[]): RoundEventDto[] {
     const roundIds = rounds.map(round => round._id);
     const playerIds = players.map(player => player._id);
@@ -197,7 +149,7 @@ export class StatisticsState {
     return [...gameEvents, ...roundEvents];
   }
 
-  @Selector([StatisticsState.players, StatisticsState.activePlayersOnly])
+  @Selector([PlayersState.players, StatisticsState.activePlayersOnly])
   static filteredPlayers(players: PlayerDto[], activePlayersOnly: boolean): PlayerDto[] {
     return players.filter(player => player.active || !activePlayersOnly);
   }
@@ -243,7 +195,7 @@ export class StatisticsState {
     StatisticsState.filteredGames,
     RoundsState.groupedByGameId(),
     StatisticsState.filteredRoundEvents,
-    StatisticsState.eventTypes
+    EventTypesState.eventTypes
   ])
   static averagePenaltyPerGame(
     games: GameDto[],
@@ -378,7 +330,7 @@ export class StatisticsState {
     );
   }
 
-  @Selector([StatisticsState.filteredEvents, StatisticsState.eventTypes])
+  @Selector([StatisticsState.filteredEvents, EventTypesState.eventTypes])
   static eventCountTable(filteredEvents: EventDto[], eventTypes: EventTypeDto[]): { description: string; count: number; }[] {
     const eventCounts = StatisticsStateUtil.customCountBy(filteredEvents, 'eventTypeId');
     const result = eventCounts.map(item =>
@@ -390,7 +342,7 @@ export class StatisticsState {
   @Selector([
     StatisticsState.filteredPlayers,
     StatisticsState.filteredEvents,
-    StatisticsState.eventTypes,
+    EventTypesState.eventTypes,
     StatisticsState.roundCountByPlayer
   ])
   static cashTable(
@@ -479,7 +431,7 @@ export class StatisticsState {
     );
   }
 
-  @Selector([GamesState.gamePlaces])
+  @Selector([StatisticsState.gamePlaces])
   static gameHostsTable(places: string[]): { name: string; count: number; }[] {
     const counts = countBy(places);
     return orderBy(Object.keys(counts).map(name => ({ name, count: counts[name] })), 'count', 'desc');
@@ -491,7 +443,7 @@ export class StatisticsState {
         StatisticsState.filteredPlayers,
         StatisticsState.roundsGroupedByGameId(),
         StatisticsState.filteredEvents,
-        StatisticsState.eventTypes,
+        EventTypesState.eventTypes,
       ],
       (
         players: PlayerDto[],
@@ -548,7 +500,7 @@ export class StatisticsState {
         console.log(pointsByGame);
 
         const result = players.map(player => {
-          const points = pointsByGame.reduce((prev, curr) => {
+          const points = pointsByGame.filter(Boolean).reduce((prev, curr) => {
             const verlorenPoints = curr.verlorenPoints.find(p => p.id === player._id)?.points || 0;
             const schockAusPoints = curr.schockAusPoints.find(p => p.id === player._id)?.points || 0;
             const cashPoints = curr.cashPoints.find(p => p.id === player._id)?.points || 0;
@@ -564,32 +516,6 @@ export class StatisticsState {
         return RankingUtil.sort(result, ['sum']);
       }
     );
-  }
-
-  constructor(
-    private gameEventRepository: GameEventRepository,
-    private roundEventRepository: RoundEventRepository,
-    private playerRepository: PlayerRepository,
-    private eventTypeRepository: EventTypeRepository,
-  ) {}
-
-  @Action(StatisticsActions.Initialize)
-  initialize(ctx: StateContext<StatisticsStateModel>): void {
-    this.gameEventRepository.getAll().pipe(
-      tap(gameEvents => ctx.patchState({ gameEvents })),
-    ).subscribe();
-
-    this.roundEventRepository.getAll().pipe(
-      tap(roundEvents => ctx.patchState({ roundEvents })),
-    ).subscribe();
-
-    this.playerRepository.getAll().pipe(
-      tap(players => ctx.patchState({ players })),
-    ).subscribe();
-
-    this.eventTypeRepository.getAll().pipe(
-      tap(eventTypes => ctx.patchState({ eventTypes })),
-    ).subscribe();
   }
 
   @Action(StatisticsActions.RefreshFilter)

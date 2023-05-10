@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngxs/store';
-import { StatisticsActions } from './statistics/state';
 import { GamesActions } from './state/games';
 import { RoundsActions } from './state/rounds/rounds.action';
+import { PlayersActions } from './state/players';
+import { EventTypesActions } from './state/event-types';
+import { EventsActions } from './state/events';
 
 @Component({
   selector: 'hop-root',
@@ -18,9 +20,11 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.store.dispatch([
+      new PlayersActions.Initialize(),
+      new EventTypesActions.Initialize(),
       new GamesActions.Initialize(),
       new RoundsActions.Initialize(),
-      new StatisticsActions.Initialize()
+      new EventsActions.Initialize()
     ]).subscribe(() => console.log('Fully loaded!'));
   }
 
