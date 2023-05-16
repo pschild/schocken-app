@@ -9,6 +9,8 @@
             </mat-panel-title>
           </mat-expansion-panel-header>
 
+          <pre>{{pointsTable$ | async | json}}</pre>
+
           <div class="details-row">
             <div><strong>Beginn:</strong></div>
             <div>{{gameDetails.datetime | date:'dd.MM.yyyy HH:mm'}} Uhr</div>
@@ -38,6 +40,9 @@
             <div><strong>Gesamtsumme:</strong></div>
             <div>
               <hop-penalty-sum [events]="[gameEventsRow].concat(roundEventsRows) | getAllEvents"></hop-penalty-sum>
+            </div>
+            <div *ngIf="cashTable$ | async as cashTable">
+              {{cashTable.overallSum}}
             </div>
           </div>
           <div class="details-row">

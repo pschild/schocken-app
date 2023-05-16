@@ -35,6 +35,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { MatDateAdapterCustom } from './material-custom-date-adapter';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatBadgeModule } from '@angular/material/badge';
 
 const materialModules = [
   MatButtonModule,
@@ -71,7 +73,9 @@ const materialModules = [
   MatProgressSpinnerModule,
   MatBottomSheetModule,
   MatProgressSpinnerModule,
-  MatTooltipModule
+  MatTooltipModule,
+  MatStepperModule,
+  MatBadgeModule,
 ];
 
 @NgModule({

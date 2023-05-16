@@ -1,4 +1,4 @@
-import { EventDto } from '@hop-backend-api';
+import { EventDto, EventTypeTrigger, GameEventDto, RoundEventDto } from '@hop-backend-api';
 
 export namespace EventsActions {
 
@@ -6,20 +6,40 @@ export namespace EventsActions {
     static readonly type = '[EventsActions] Initialize';
   }
 
-  export class Create {
-    static readonly type = '[EventsActions] Create';
+  export class CreateGameEvent {
+    static readonly type = '[EventsActions] CreateGameEvent';
 
-    constructor(public data: Partial<EventDto>) {}
+    constructor(public data: {
+      eventTypeId: string;
+      multiplicatorValue?: number;
+      comment?: string;
+      trigger?: EventTypeTrigger;
+      playerId: string;
+      gameId: string;
+    }) {}
   }
 
-  export class Update {
-    static readonly type = '[EventsActions] Update';
+  export class RemoveGameEvent {
+    static readonly type = '[EventsActions] RemoveGameEvent';
 
-    constructor(public id: string, public data: Partial<EventDto>) {}
+    constructor(public id: string) {}
   }
 
-  export class Remove {
-    static readonly type = '[EventsActions] Remove';
+  export class CreateRoundEvent {
+    static readonly type = '[EventsActions] CreateRoundEvent';
+
+    constructor(public data: {
+      eventTypeId: string;
+      multiplicatorValue?: number;
+      comment?: string;
+      trigger?: EventTypeTrigger;
+      playerId: string;
+      roundId: string;
+    }) {}
+  }
+
+  export class RemoveRoundEvent {
+    static readonly type = '[EventsActions] RemoveRoundEvent';
 
     constructor(public id: string) {}
   }

@@ -1,0 +1,32 @@
+::ng-deep .mat-step-label {
+  width: 100%;
+
+  .mat-step-text-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+table {
+  width: 100%;
+  text-align: left;
+
+  td {
+    border-bottom: 1px solid #ddd;
+  }
+}
+
+.left-right {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.not-participated {
+  color: #999;
+}
+
+.inactive {
+  text-decoration: line-through
+}

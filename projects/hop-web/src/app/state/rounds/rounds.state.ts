@@ -3,10 +3,12 @@ import {
   RoundDto, RoundRepository
 } from '@hop-backend-api';
 import { Action, Selector, State, StateContext, StateToken, createSelector } from '@ngxs/store';
-import { tap } from 'rxjs/operators';
-import { RoundsActions } from './rounds.action';
-import { StatisticsStateUtil } from '../../statistics/state/statistics-state.util';
+import { insertItem, patch, updateItem } from '@ngxs/store/operators';
+import { orderBy, uniq } from 'lodash';
 import { Observable } from 'rxjs';
+import { map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { StatisticsStateUtil } from '../../statistics/state/statistics-state.util';
+import { RoundsActions } from './rounds.action';
 
 export interface RoundsStateModel {
   rounds: RoundDto[];
@@ -29,11 +31,23 @@ export class RoundsState {
     return state.rounds || [];
   }
 
-  static byGameId(gameId: string) {
+  static byGameId(gameId: string, ordered = false) {
     return createSelector(
       [RoundsState.rounds],
-      (rounds: RoundDto[]) =>
-        rounds.filter(round => round.gameId === gameId)
+      (rounds: RoundDto[]) => {
+        const filtered = rounds.filter(round => round.gameId === gameId);
+        return ordered ? orderBy(filtered, 'datetime') : filtered;
+      }
+    );
+  }
+
+  static uniqueAttendees(gameId: string) {
+    return createSelector(
+      [RoundsState.byGameId(gameId)],
+      (rounds: RoundDto[]): string[] =>
+        uniq([].concat.apply([], rounds.map(round =>
+          round.attendeeList.map(at => at.playerId))
+        ))
     );
   }
 
@@ -52,6 +66,37 @@ export class RoundsState {
   initialize(ctx: StateContext<RoundsStateModel>): Observable<RoundDto[]> {
     return this.roundRepository.getAll().pipe(
       tap(rounds => ctx.patchState({ rounds })),
+    );
+  }
+
+  @Action(RoundsActions.Create)
+  create(
+    ctx: StateContext<RoundsStateModel>,
+    { data }: RoundsActions.Create
+  ): Observable<RoundDto> {
+    return this.roundRepository.create(data).pipe(
+      mergeMap(roundId => this.roundRepository.get(roundId)),
+      tap(round => {
+        ctx.setState(patch({
+          rounds: insertItem(round)
+        }));
+      })
+    );
+  }
+
+  @Action(RoundsActions.Update)
+  update(
+    ctx: StateContext<RoundsStateModel>,
+    { id, data }: RoundsActions.Update
+  ): Observable<string> {
+    return this.roundRepository.update(id, data).pipe(
+      switchMap(() => this.roundRepository.get(id)),
+      tap(updatedRound => {
+        ctx.setState(patch({
+          rounds: updateItem((round: RoundDto) => round._id === id, updatedRound)
+        }));
+      }),
+      map(updatedRound => updatedRound._id)
     );
   }
 

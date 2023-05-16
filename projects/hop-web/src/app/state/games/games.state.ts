@@ -4,14 +4,14 @@ import {
   GameRepository,
   RoundDto
 } from '@hop-backend-api';
-import { Action, Selector, State, StateContext, StateToken } from '@ngxs/store';
+import { Action, Selector, State, StateContext, StateToken, createSelector } from '@ngxs/store';
 import { groupBy, maxBy, orderBy } from 'lodash';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { GamesActions } from './games.action';
 import { getYear } from 'date-fns';
 import { RoundsState } from '../rounds/rounds.state';
 import { Observable } from 'rxjs';
-import { insertItem, patch } from '@ngxs/store/operators';
+import { insertItem, patch, updateItem } from '@ngxs/store/operators';
 import { Router } from '@angular/router';
 
 export interface GamesStateModel {
@@ -33,6 +33,14 @@ export class GamesState {
   @Selector()
   static games(state: GamesStateModel): GameDto[] {
     return state.games || [];
+  }
+
+  static byId(id: string) {
+    return createSelector(
+      [GamesState.games],
+      (games: GameDto[]) =>
+      games.find(game => game._id === id)
+    );
   }
 
   @Selector([GamesState.games])
@@ -89,7 +97,24 @@ export class GamesState {
           games: insertItem(game)
         }));
       }),
-      tap(game => this.router.navigate(['game-table', game._id]))
+      // tap(game => this.router.navigate(['game-table', game._id]))
+      tap(game => this.router.navigate(['game', game._id]))
+    );
+  }
+
+  @Action(GamesActions.Update)
+  update(
+    ctx: StateContext<GamesStateModel>,
+    { id, data }: GamesActions.Update
+  ): Observable<string> {
+    return this.gameRepository.update(id, data).pipe(
+      switchMap(() => this.gameRepository.get(id)),
+      tap(updatedGame => {
+        ctx.setState(patch({
+          games: updateItem((game: GameDto) => game._id === id, updatedGame)
+        }));
+      }),
+      map(updatedGame => updatedGame._id)
     );
   }
 

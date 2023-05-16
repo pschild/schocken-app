@@ -7,7 +7,6 @@ import { GameTableDataProvider } from './game-table.data-provider';
 import { GameEventsRowVo } from './model/game-events-row.vo';
 import { RoundEventsRowVo } from './model/round-events-row.vo';
 import {
-  EventTypeItemVo,
   EventTypeListModalComponent,
   EventTypeListModalDialogResult,
   EventTypeListModalDialogData,
@@ -20,7 +19,9 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { GameDetailsVo } from './model/game-details.vo';
 import { FormControl } from '@angular/forms';
 import { HotkeysService } from '../core/service/hotkeys.service';
-import { Store } from '@ngxs/store';
+import { Select, Store } from '@ngxs/store';
+import { StatisticsActions, StatisticsState } from '../statistics/state';
+import { Ranking } from '../statistics/ranking.util';
 
 @Component({
   selector: 'hop-game-table',
@@ -30,12 +31,18 @@ import { Store } from '@ngxs/store';
 })
 export class GameTableComponent implements OnInit, OnDestroy {
 
+  @Select(StatisticsState.cashTable)
+  cashTable$: Observable<{ playerTable: Ranking[]; overallSum: number; }>;
+
+  @Select(StatisticsState.pointsTable(true))
+  pointsTable$: Observable<any>;
+
   gameId$: Observable<string>;
   gameDetails$: Observable<GameDetailsVo>;
   visiblePlayers$: Observable<PlayerDto[]>;
 
-  gameEventTypes$: Observable<EventTypeItemVo[]>;
-  roundEventTypes$: Observable<EventTypeItemVo[]>;
+  // gameEventTypes$: Observable<EventTypeItemVo[]>;
+  // roundEventTypes$: Observable<EventTypeItemVo[]>;
 
   gameEventsRow$: Observable<GameEventsRowVo>;
   roundEventsRows$: Observable<RoundEventsRowVo[]>;
@@ -69,8 +76,8 @@ export class GameTableComponent implements OnInit, OnDestroy {
         this.placeDetailFormControl.setValue(gameDetails.placeDetail);
       })
     );
-    this.gameEventTypes$ = this.dataProvider.getGameEventTypes();
-    this.roundEventTypes$ = this.dataProvider.getRoundEventTypes();
+    // this.gameEventTypes$ = this.dataProvider.getGameEventTypes();
+    // this.roundEventTypes$ = this.dataProvider.getRoundEventTypes();
     this.gameEventsRow$ = this.dataProvider.getGameEventsRow();
     this.roundEventsRows$ = this.dataProvider.getRoundEventsRows();
 
@@ -79,6 +86,7 @@ export class GameTableComponent implements OnInit, OnDestroy {
 
     this.gameId$ = this.route.params.pipe(map((params: Params) => params.gameId));
     this.gameId$.subscribe((gameId: string) => {
+      this.store.dispatch(new StatisticsActions.RefreshGameIdFilter(gameId));
       this.dataProvider.loadGameDetails(gameId);
       this.dataProvider.loadGameEventsRow(gameId);
       this.dataProvider.loadRoundEventsRows(gameId);
@@ -121,28 +129,28 @@ export class GameTableComponent implements OnInit, OnDestroy {
   }
 
   showGameEventTypeDialog(player: PlayerDto): void {
-    this.gameEventTypes$.pipe(
-      take(1),
-      withLatestFrom(this.gameId$),
-      map(([gameEventTypes, gameId]: [EventTypeItemVo[], string]) => this.showDialog(gameEventTypes, player, gameId, undefined)),
-      switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),
-      filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
-    ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
-      const { gameId, playerId, eventType } = dialogResult;
-      this.dataProvider.addGameEvent(gameId, playerId, eventType.id, eventType.multiplicatorValue, eventType.comment);
-    });
+    // this.gameEventTypes$.pipe(
+    //   take(1),
+    //   withLatestFrom(this.gameId$),
+    //   map(([gameEventTypes, gameId]: [EventTypeItemVo[], string]) => this.showDialog(gameEventTypes, player, gameId, undefined)),
+    //   switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),
+    //   filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
+    // ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
+    //   const { gameId, playerId, eventType } = dialogResult;
+    //   this.dataProvider.addGameEvent(gameId, playerId, eventType.id, eventType.multiplicatorValue, eventType.comment);
+    // });
   }
 
   showRoundEventTypeDialog(player: PlayerDto, roundId: string): void {
-    this.roundEventTypes$.pipe(
-      take(1),
-      map((roundEventTypes: EventTypeItemVo[]) => this.showDialog(roundEventTypes, player, undefined, roundId)),
-      switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),
-      filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
-    ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
-      const { playerId, eventType } = dialogResult;
-      this.dataProvider.addRoundEvent(roundId, playerId, eventType.id, eventType.multiplicatorValue, eventType.comment);
-    });
+    // this.roundEventTypes$.pipe(
+    //   take(1),
+    //   map((roundEventTypes: EventTypeItemVo[]) => this.showDialog(roundEventTypes, player, undefined, roundId)),
+    //   switchMap((dialogRef: MatDialogRef<EventTypeListModalComponent>) => dialogRef.afterClosed()),
+    //   filter((dialogResult: EventTypeListModalDialogResult) => !!dialogResult)
+    // ).subscribe((dialogResult: EventTypeListModalDialogResult) => {
+    //   const { playerId, eventType } = dialogResult;
+    //   this.dataProvider.addRoundEvent(roundId, playerId, eventType.id, eventType.multiplicatorValue, eventType.comment);
+    // });
   }
 
   toggleRowState(key: string | number): void {
@@ -187,16 +195,16 @@ export class GameTableComponent implements OnInit, OnDestroy {
     });
   }
 
-  private showDialog(
-    eventTypes: EventTypeItemVo[], player: PlayerDto, gameId: string, roundId: string
-  ): MatDialogRef<EventTypeListModalComponent> {
-    const dialogData: EventTypeListModalDialogData = { eventTypes, player, gameId, roundId };
-    return this.dialog.open(EventTypeListModalComponent, {
-      width: '500px',
-      maxWidth: '90%',
-      autoFocus: false,
-      data: dialogData
-    });
-  }
+  // private showDialog(
+  //   eventTypes: EventTypeItemVo[], player: PlayerDto, gameId: string, roundId: string
+  // ): MatDialogRef<EventTypeListModalComponent> {
+  //   const dialogData: EventTypeListModalDialogData = { eventTypes, player, gameId, roundId };
+  //   return this.dialog.open(EventTypeListModalComponent, {
+  //     width: '500px',
+  //     maxWidth: '90%',
+  //     autoFocus: false,
+  //     data: dialogData
+  //   });
+  // }
 
 }

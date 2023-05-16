@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { EventTypeItemVo } from '../../event-type-list/model/event-type-item.vo';
 import { EventTypeListModalDialogData, EventTypeListModalDialogResult } from './model';
+import { EventTypeDto } from '@hop-backend-api';
 
 @Component({
   selector: 'hop-event-type-list-modal',
@@ -18,7 +18,7 @@ export class EventTypeListModalComponent implements OnInit {
   ngOnInit() {
   }
 
-  onAddEvent(eventType: EventTypeItemVo): void {
+  onAddEvent(eventType: EventTypeDto): void {
     const dialogResult: EventTypeListModalDialogResult = {
       eventType,
       playerId: this.data.player._id,

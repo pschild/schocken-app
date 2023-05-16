@@ -49,6 +49,16 @@ export class EventTypesState {
   }
 
   @Selector([EventTypesState.eventTypes])
+  static gameEventTypes(eventTypes: EventTypeDto[]): EventTypeDto[] {
+    return orderBy(eventTypes.filter(eventType => eventType.context === EventTypeContext.GAME), 'order', 'asc');
+  }
+
+  @Selector([EventTypesState.eventTypes])
+  static roundEventTypes(eventTypes: EventTypeDto[]): EventTypeDto[] {
+    return orderBy(eventTypes.filter(eventType => eventType.context === EventTypeContext.ROUND), 'order', 'asc');
+  }
+
+  @Selector([EventTypesState.eventTypes])
   static eventTypeGroups(eventTypes: EventTypeDto[]): { name: string; types: { id: string; description: string; }[] }[] {
     const transformedTypes = eventTypes.map(type => (
       { id: type._id, description: type.description, context: type.context, order: type.order }

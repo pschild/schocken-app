@@ -1,7 +1,7 @@
-import { EventTypeItemVo } from '../../../event-type-list/model';
+import { EventTypeDto } from '@hop-backend-api';
 
 export interface EventTypeListModalDialogResult {
-  eventType: EventTypeItemVo;
+  eventType: EventTypeDto;
   playerId: string;
   gameId?: string;
   roundId?: string;

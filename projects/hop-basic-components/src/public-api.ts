@@ -27,8 +27,6 @@ export * from './lib/sound-board/sound-board.component';
 export * from './lib/streak/streak.component';
 
 export * from './lib/event-type-list/event-type-list.component';
-export * from './lib/event-type-list/mapper';
-export * from './lib/event-type-list/model';
 
 export * from './lib/penalty-sum/penalty-sum.component';
 export * from './lib/penalty-sum/model';

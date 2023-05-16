@@ -20,7 +20,7 @@ import {
 import { Observable, BehaviorSubject, of, zip, GroupedObservable, combineLatest } from 'rxjs';
 import { GameEventsRowVo } from './model/game-events-row.vo';
 import { map, tap, mergeMap, concatAll, toArray, groupBy, withLatestFrom, switchMap, concatMap, take } from 'rxjs/operators';
-import { EventTypeItemVo, EventTypeItemVoMapperService, PlayerEventVo, PlayerEventVoMapperService } from '@hop-basic-components';
+import { PlayerEventVo, PlayerEventVoMapperService } from '@hop-basic-components';
 import { GameEventsColumnVo } from './model/game-events-column.vo';
 import { GameEventsRowVoMapperService } from './mapper/game-events-row-vo-mapper.service';
 import { SortService, SortDirection } from '../core/service/sort.service';
@@ -60,7 +60,6 @@ export class GameTableDataProvider {
     private playerEventVoMapperService: PlayerEventVoMapperService,
     private gameEventsRowVoMapperService: GameEventsRowVoMapperService,
     private roundEventsRowVoMapperService: RoundEventsRowVoMapperService,
-    private eventTypeItemVoMapperService: EventTypeItemVoMapperService,
     private eventHandlerService: EventHandlerService,
     private statisticService: StatisticService,
     private sortService: SortService
@@ -95,21 +94,21 @@ export class GameTableDataProvider {
     return this.roundEventsRows$.asObservable();
   }
 
-  getGameEventTypes(): Observable<EventTypeItemVo[]> {
-    return this.allEventTypes$.asObservable().pipe(
-      map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(
-        eventTypes.filter((eventType: EventTypeDto) => eventType.context === EventTypeContext.GAME)
-      ))
-    );
-  }
+  // getGameEventTypes(): Observable<EventTypeItemVo[]> {
+  //   return this.allEventTypes$.asObservable().pipe(
+  //     map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(
+  //       eventTypes.filter((eventType: EventTypeDto) => eventType.context === EventTypeContext.GAME)
+  //     ))
+  //   );
+  // }
 
-  getRoundEventTypes(): Observable<EventTypeItemVo[]> {
-    return this.allEventTypes$.asObservable().pipe(
-      map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(
-        eventTypes.filter((eventType: EventTypeDto) => eventType.context === EventTypeContext.ROUND)
-      ))
-    );
-  }
+  // getRoundEventTypes(): Observable<EventTypeItemVo[]> {
+  //   return this.allEventTypes$.asObservable().pipe(
+  //     map((eventTypes: EventTypeDto[]) => this.eventTypeItemVoMapperService.mapToVos(
+  //       eventTypes.filter((eventType: EventTypeDto) => eventType.context === EventTypeContext.ROUND)
+  //     ))
+  //   );
+  // }
 
   loadGameDetails(gameId: string): void {
     console.log('%c🔎LOAD GAME DETAILS', 'color: #f00');

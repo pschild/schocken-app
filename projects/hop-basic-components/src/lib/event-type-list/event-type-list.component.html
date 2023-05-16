@@ -29,7 +29,7 @@
         [disabled]="disableButtons || (eventType.multiplicatorUnit && !eventType.multiplicatorValue)">
         <mat-icon>add</mat-icon>
         <span *ngIf="eventType.penalty">
-          {{eventType.penalty.value * eventType.multiplicatorValue | number:'1.2'}} {{eventType.penalty.unit}}
+          {{eventType.penalty.value * (eventType.multiplicatorValue || 1) | number:'1.2'}} {{eventType.penalty.unit}}
         </span>
       </button>
     </div>

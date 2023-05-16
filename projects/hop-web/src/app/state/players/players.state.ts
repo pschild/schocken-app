@@ -39,6 +39,19 @@ export class PlayersState {
     );
   }
 
+  static nameById(id: string) {
+    return createSelector(
+      [PlayersState.players],
+      (players: PlayerDto[]) =>
+        players.find(player => player._id === id)?.name
+    );
+  }
+
+  @Selector([PlayersState.players])
+  static activePlayers(players: PlayerDto[]): PlayerDto[] {
+    return players.filter(player => player.active);
+  }
+
   @Selector([PlayersState.players])
   static playerList(players: PlayerDto[]): PlayerDto[] {
     return orderBy(players, 'name', 'asc');
