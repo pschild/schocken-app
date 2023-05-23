@@ -539,13 +539,13 @@ export class StatisticsState {
   refreshGameIdFilter(ctx: StateContext<StatisticsStateModel>, { id }: StatisticsActions.RefreshGameIdFilter) {
     const state = ctx.getState();
     if (state.gameIdFilter !== id) {
-      ctx.patchState({ gameIdFilter: id });
+      ctx.patchState({ gameIdFilter: id, completedGamesOnly: false });
     }
   }
 
   @Action(StatisticsActions.ResetGameIdFilter)
   resetGameIdFilter(ctx: StateContext<StatisticsStateModel>) {
-    ctx.patchState({ gameIdFilter: undefined });
+    ctx.patchState({ gameIdFilter: undefined, completedGamesOnly: true });
   }
 
   @Action(StatisticsActions.RefreshEventTypeFilter)

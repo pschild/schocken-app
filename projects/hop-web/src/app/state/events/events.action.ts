@@ -1,4 +1,4 @@
-import { EventDto, EventTypeTrigger, GameEventDto, RoundEventDto } from '@hop-backend-api';
+import { EventTypeTrigger } from '@hop-backend-api';
 
 export namespace EventsActions {
 

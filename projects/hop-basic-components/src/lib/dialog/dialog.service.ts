@@ -5,6 +5,7 @@ import { OK_BUTTON_CONFIG, YES_NO_DIALOG_BUTTON_CONFIG, ABORT_SAVE_BUTTON_CONFIG
 import { DialogComponent } from './dialog.component';
 import { DialogIcons } from './dialog.enum';
 import { Observable } from 'rxjs';
+import { ComponentType } from '@angular/cdk/portal';
 
 @Injectable({
   providedIn: 'root'
@@ -53,5 +54,10 @@ export class DialogService {
       data: config
     });
     return dialogRef.afterClosed() as Observable<IDialogResult>;
+  }
+
+  openCustomDialog<T>(component: ComponentType<T>, config: any): Observable<any> {
+    const dialogRef = this.dialog.open(component, config);
+    return dialogRef.afterClosed();
   }
 }

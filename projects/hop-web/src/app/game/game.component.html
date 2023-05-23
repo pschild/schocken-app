@@ -21,9 +21,13 @@
     </ng-template>
     <mat-step>
       <ng-template matStepLabel>
-        Feststellungen
-        <div *ngFor="let penalty of data.penaltiesByGameId">
-          {{penalty.sum | number:'1.2'}} {{penalty.unit}}
+        <div>
+          Feststellungen
+        </div>
+        <div *ngIf="data.penaltiesByGameId && data.penaltiesByGameId.length else noPenalties" class="penaltiy-sum-container">
+          <div *ngFor="let penalty of data.penaltiesByGameId">
+            {{penalty.sum | number:'1.2'}} {{penalty.unit}}
+          </div>
         </div>
       </ng-template>
       <table>
@@ -31,7 +35,7 @@
           <td>
             <div class="left-right">
               <strong [ngClass]="{ 'inactive': !player.active }">{{player.name}}</strong>
-              <button mat-icon-button color="primary" (click)="addEvent(player)">
+              <button mat-icon-button color="primary" (click)="addGameEvent(player)">
                 <mat-icon>add</mat-icon>
               </button>
             </div>
@@ -67,19 +71,20 @@
             <mat-icon *ngFor="let i of [].constructor(data.schockAusCountByRoundIds[round._id])" svgIcon="schock_aus"></mat-icon>
           </ng-container>
         </div>
-        <ng-container *ngIf="data.penaltiesByRoundIds[round._id]">
+        <div *ngIf="data.penaltiesByRoundIds[round._id] else noPenalties" class="penaltiy-sum-container">
           <div *ngFor="let penalty of data.penaltiesByRoundIds[round._id]">
             {{penalty.sum | number:'1.2'}} {{penalty.unit}}
           </div>
-        </ng-container>
+        </div>
       </ng-template>
+      <!-- <button mat-button matStepperPrevious>zurück</button> -->
       <table>
         <tr *ngFor="let player of data.players">
           <td>
             <div class="left-right">
-              <mat-checkbox [checked]="round | isParticipating:player._id" (change)="participationChanged($event, round._id, player._id)"></mat-checkbox>
+              <mat-checkbox [checked]="round | isParticipating:player._id" (change)="changeParticipation($event, round._id, player._id)"></mat-checkbox>
               <strong [ngClass]="{ 'not-participated': !(round | isParticipating:player._id), 'inactive': !player.active }">{{player.name}}</strong>
-              <button *ngIf="round | isParticipating:player._id" mat-icon-button color="primary" (click)="addEvent(player, round._id)">
+              <button *ngIf="round | isParticipating:player._id" mat-icon-button color="primary" (click)="addRoundEvent(player, round._id)">
                 <mat-icon>add</mat-icon>
               </button>
             </div>
@@ -107,10 +112,7 @@
           </td>
         </tr>
       </table>
-      <div>
-        <button mat-button matStepperPrevious>zurück</button>
-        <button mat-button matStepperNext>weiter</button>
-      </div>
+      <!-- <button mat-button matStepperNext>weiter</button> -->
     </mat-step>
   </mat-vertical-stepper>
   <button mat-raised-button color="primary" (click)="startNewRound()" *ngIf="!data.game?.completed">
@@ -121,3 +123,5 @@
 <button mat-fab color="primary" style="position: fixed; bottom: 50px; right: 70px;">
   <mat-icon>bar_chart</mat-icon>
 </button>
+
+<ng-template #noPenalties>-</ng-template>

@@ -4,7 +4,6 @@ import {
 } from '@hop-backend-api';
 import { Action, Selector, State, StateContext, StateToken, createSelector } from '@ngxs/store';
 import { insertItem, patch, updateItem } from '@ngxs/store/operators';
-import { orderBy, uniq } from 'lodash';
 import { Observable } from 'rxjs';
 import { map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { StatisticsStateUtil } from '../../statistics/state/statistics-state.util';
@@ -29,26 +28,6 @@ export class RoundsState {
   @Selector()
   static rounds(state: RoundsStateModel): RoundDto[] {
     return state.rounds || [];
-  }
-
-  static byGameId(gameId: string, ordered = false) {
-    return createSelector(
-      [RoundsState.rounds],
-      (rounds: RoundDto[]) => {
-        const filtered = rounds.filter(round => round.gameId === gameId);
-        return ordered ? orderBy(filtered, 'datetime') : filtered;
-      }
-    );
-  }
-
-  static uniqueAttendees(gameId: string) {
-    return createSelector(
-      [RoundsState.byGameId(gameId)],
-      (rounds: RoundDto[]): string[] =>
-        uniq([].concat.apply([], rounds.map(round =>
-          round.attendeeList.map(at => at.playerId))
-        ))
-    );
   }
 
   static groupedByGameId(ordered: boolean = false) {

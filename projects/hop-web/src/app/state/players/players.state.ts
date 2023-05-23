@@ -49,7 +49,7 @@ export class PlayersState {
 
   @Selector([PlayersState.players])
   static activePlayers(players: PlayerDto[]): PlayerDto[] {
-    return players.filter(player => player.active);
+    return orderBy(players.filter(player => player.active), 'name', 'asc');
   }
 
   @Selector([PlayersState.players])
