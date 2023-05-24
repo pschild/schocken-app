@@ -112,14 +112,20 @@ export namespace StatisticsStateUtil {
         roundEventPenalties,
         gameEventPenalties,
         sum,
-        cashPerRound: roundCount ? roundEventPenalties / roundCount : 0
+        cashPerRound: roundCount ? roundEventPenalties / roundCount : 0,
+        roundCount,
       };
     });
     const overallSum = playerTable.reduce((prev, curr) => prev + curr.sum, 0);
     const playerTableWithQuote = playerTable.map(item => ({ ...item, quote: item.sum / overallSum }));
 
+    const participatedPlayers = playerTableWithQuote.filter(item => item.roundCount > 0);
+    const notParticipatedPlayers = playerTableWithQuote.filter(item => !item.roundCount);
     return {
-      playerTable: RankingUtil.sort(playerTableWithQuote, ['sum'], direction),
+      playerTable: [
+        ...RankingUtil.sort(participatedPlayers, ['sum'], direction),
+        RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
+      ],
       overallSum,
     };
   }

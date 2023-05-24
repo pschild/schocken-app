@@ -96,7 +96,7 @@
             <div *ngIf="stateMaxSchockAusStreak.count > 0">
               <small>
                 am
-                <a [href]="'game-table/' + stateMaxSchockAusStreak.gameId">
+                <a [href]="'game/' + stateMaxSchockAusStreak.gameId">
                   {{ stateMaxSchockAusStreak.datetime | date:'dd.MM.yyyy' }}
                 </a>
               </small>
@@ -184,7 +184,7 @@
             <div *ngIf="stateMaxRoundsPerGame.count > 0">
               <small>
                 am
-                <a [href]="'game-table/' + stateMaxRoundsPerGame.gameId">
+                <a [href]="'game/' + stateMaxRoundsPerGame.gameId">
                   {{ stateMaxRoundsPerGame.datetime | date:'dd.MM.yyyy' }}
                 </a>
               </small>
@@ -200,7 +200,7 @@
             <div *ngIf="stateMaxSchockAusPerGame.count > 0">
               <small>
                 von {{ stateMaxSchockAusPerGame.name }} am
-                <a [href]="'game-table/' + stateMaxSchockAusPerGame.gameId">{{ stateMaxSchockAusPerGame.datetime | date:'dd.MM.yyyy' }}</a>
+                <a [href]="'game/' + stateMaxSchockAusPerGame.gameId">{{ stateMaxSchockAusPerGame.datetime | date:'dd.MM.yyyy' }}</a>
               </small>
             </div>
           </div>
@@ -214,7 +214,7 @@
             <div *ngIf="stateMax221PerGame.count > 0">
               <small>
                 von {{ stateMax221PerGame.name }} am
-                <a [href]="'game-table/' + stateMax221PerGame.gameId">{{ stateMax221PerGame.datetime | date:'dd.MM.yyyy' }}</a>
+                <a [href]="'game/' + stateMax221PerGame.gameId">{{ stateMax221PerGame.datetime | date:'dd.MM.yyyy' }}</a>
               </small>
             </div>
           </div>
@@ -228,7 +228,7 @@
             <div *ngIf="stateMaxLustwurfPerGame.count > 0">
               <small>
                 von {{ stateMaxLustwurfPerGame.name }} am
-                <a [href]="'game-table/' + stateMaxLustwurfPerGame.gameId">{{ stateMaxLustwurfPerGame.datetime | date:'dd.MM.yyyy' }}</a>
+                <a [href]="'game/' + stateMaxLustwurfPerGame.gameId">{{ stateMaxLustwurfPerGame.datetime | date:'dd.MM.yyyy' }}</a>
               </small>
             </div>
           </div>
@@ -255,7 +255,7 @@
           <td>Summe</td>
         </tr>
         <ng-container *ngFor="let entry of statePointsTable">
-          <tr *ngFor="let item of entry.items">
+          <tr *ngFor="let item of entry.items" [ngClass]="{ 'not-participated': !item.roundCount }">
             <td><hop-badge [place]="entry.rank"></hop-badge></td>
             <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
             <td>{{item.verlorenSum}}</td>
@@ -281,7 +281,7 @@
           <td>Quote</td>
         </tr>
         <ng-container *ngFor="let entry of stateParticipationTable">
-          <tr *ngFor="let item of entry.items">
+          <tr *ngFor="let item of entry.items" [ngClass]="{ 'not-participated': !item.roundCount }">
             <td><hop-badge [place]="entry.rank"></hop-badge></td>
             <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
             <td>{{item.roundCount}}</td>
@@ -376,7 +376,7 @@
               <td>Anteil</td>
             </tr>
             <ng-container *ngFor="let entry of stateCashTable.playerTable">
-              <tr *ngFor="let item of entry.items">
+              <tr *ngFor="let item of entry.items" [ngClass]="{ 'not-participated': !item.roundCount }">
                 <td><hop-badge [place]="entry.rank"></hop-badge></td>
                 <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
                 <td>

@@ -491,29 +491,35 @@ export class StatisticsState {
 
           return {
             gameId: item.gameId,
+            roundCount,
             verlorenPoints,
             schockAusPoints,
             cashPoints,
           };
         });
 
-        console.log(pointsByGame);
-
         const result = players.map(player => {
           const points = pointsByGame.filter(Boolean).reduce((prev, curr) => {
             const verlorenPoints = curr.verlorenPoints.find(p => p.id === player._id)?.points || 0;
             const schockAusPoints = curr.schockAusPoints.find(p => p.id === player._id)?.points || 0;
             const cashPoints = curr.cashPoints.find(p => p.id === player._id)?.points || 0;
+            const roundCount = curr.roundCount.find(p => p.playerId === player._id)?.count || 0;
             return {
+              roundCount: prev.roundCount + roundCount,
               verlorenSum: prev.verlorenSum + verlorenPoints,
               schockAusSum: prev.schockAusSum + schockAusPoints,
               cashSum: prev.cashSum + cashPoints,
               sum: prev.sum + verlorenPoints + schockAusPoints + cashPoints
             };
-          }, { verlorenSum: 0, schockAusSum: 0, cashSum: 0, sum: 0 });
+          }, { roundCount: 0, verlorenSum: 0, schockAusSum: 0, cashSum: 0, sum: 0 });
           return { name: player.name, active: player.active, ...points };
         });
-        return RankingUtil.sort(result, ['sum']);
+        const participatedPlayers = result.filter(item => item.roundCount > 0);
+        const notParticipatedPlayers = result.filter(item => !item.roundCount);
+        return [
+          ...RankingUtil.sort(participatedPlayers, ['sum']),
+          RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
+        ];
       }
     );
   }
