@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, APP_INITIALIZER, Injector, ErrorHandler } from '@angular/core';
+import { NgModule, APP_INITIALIZER, Injector, ErrorHandler, DEFAULT_CURRENCY_CODE, LOCALE_ID } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -59,6 +59,14 @@ registerLocaleData(localeDe, 'de');
       useFactory: appInitializerFn,
       multi: true,
       deps: [PouchDbAdapter, Injector]
+    },
+    {
+      provide: DEFAULT_CURRENCY_CODE,
+      useValue: 'EUR'
+    },
+    {
+      provide: LOCALE_ID,
+      useValue: 'de-DE'
     },
     {
       provide: ENV,

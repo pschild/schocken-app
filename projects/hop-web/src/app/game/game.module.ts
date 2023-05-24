@@ -7,10 +7,12 @@ import { GameRoutingModule } from './game-routing.module';
 import { IsParticipatingPipe } from './is-participating.pipe';
 import { NgxsModule } from '@ngxs/store';
 import { ActiveGameState } from './state';
+import { PointsTableComponent } from './points-table/points-table.component';
 
 @NgModule({
   declarations: [
     GameComponent,
+    PointsTableComponent,
     IsParticipatingPipe,
   ],
   imports: [

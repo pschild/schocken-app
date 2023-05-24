@@ -137,6 +137,48 @@ export class StatisticsComponent implements OnInit {
 
   isMobile$: Observable<boolean>;
 
+  pointsTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Verl.', property: 'verlorenSum'},
+    {label: 'SA', property: 'schockAusSum'},
+    {label: 'Strafen', property: 'cashSum'},
+    {label: 'Summe', property: 'sum'}
+  ];
+
+  participationTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Runden', property: 'roundCount'},
+    {label: 'Quote', property: 'quote', type: 'percent'}
+  ];
+
+  eventCountsByPlayerTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Anzahl', property: 'eventCount'},
+    {label: 'Quote', property: 'quote', type: 'percent'}
+  ];
+
+  stateCashTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Rundenstrafen', property: 'roundEventPenalties', type: 'currency'},
+    {label: 'Feststellungen', property: 'gameEventPenalties', type: 'currency'},
+    {label: 'Summe', property: 'sum', type: 'currency'},
+    {label: '€/Rd.', property: 'cashPerRound', type: 'currency'},
+    {label: 'Anteil', property: 'quote', type: 'percent'}
+  ];
+
+  schockAusCountsByPlayerTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Schock-Aus', property: 'eventCount'},
+    {label: 'Quote', property: 'quote', type: 'relative-unit', unit: 'Runden'}
+  ];
+
+  schockAusEffectivenessTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Schock-Aus', property: 'schockAusCount'},
+    {label: 'Verursachte SA-Strafen', property: 'schockAusPenaltyCount'},
+    {label: 'Quote', property: 'quote', type: 'number'}
+  ];
+
   constructor(
     private fb: FormBuilder,
     private store: Store,
@@ -144,6 +186,10 @@ export class StatisticsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // this.store.select(StatisticsState.gamePlacesCount).subscribe(v => console.log('xxx', v));
+
+    this.store.dispatch(new StatisticsActions.ResetGameIdFilter());
+
     this.yearsSinceStartOfStats = range(getYear(START_DATE_OF_STATISTICS), getYear(new Date()) + 1);
 
     this.form.valueChanges.pipe(

@@ -13,6 +13,8 @@ import { HotkeysService } from '../core/service/hotkeys.service';
 import { Ranking } from '../statistics/ranking.util';
 import { StatisticsActions, StatisticsState } from '../statistics/state';
 import { ActiveGameActions, ActiveGameState } from './state';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { PointsTableComponent } from './points-table/points-table.component';
 
 @Component({
   selector: 'hop-game',
@@ -63,6 +65,7 @@ export class GameComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private snackBarNotificationService: SnackBarNotificationService,
     private hotkeys: HotkeysService,
+    private bottomSheet: MatBottomSheet,
     private store: Store,
     private actions$: Actions
   ) {
@@ -117,6 +120,10 @@ export class GameComponent implements OnInit, OnDestroy {
 
   changeParticipation({ checked }: MatCheckboxChange, roundId: string, playerId: string): void {
     this.store.dispatch(new ActiveGameActions.ChangeParticipation(playerId, roundId, checked));
+  }
+
+  openStatisticPreview(): void {
+    this.bottomSheet.open(PointsTableComponent);
   }
 
   ngOnDestroy(): void {

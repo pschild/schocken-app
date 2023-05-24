@@ -23,6 +23,7 @@ import { SoundBoardComponent } from './sound-board/sound-board.component';
 import { NgxsModule } from '@ngxs/store';
 import { SoundboardState } from './sound-board/state/soundboard.state';
 import { LiveIndicatorComponent } from './live-indicator/live-indicator.component';
+import { RankingTableComponent } from './ranking-table/ranking-table.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { LiveIndicatorComponent } from './live-indicator/live-indicator.componen
     StreakComponent,
     SoundBoardComponent,
     LiveIndicatorComponent,
+    RankingTableComponent,
   ],
   imports: [
     MaterialModule,
@@ -69,6 +71,7 @@ import { LiveIndicatorComponent } from './live-indicator/live-indicator.componen
     StreakComponent,
     SoundBoardComponent,
     LiveIndicatorComponent,
+    RankingTableComponent,
   ]
 })
 export class HopBasicComponentsModule { }

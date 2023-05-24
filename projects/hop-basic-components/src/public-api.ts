@@ -47,6 +47,8 @@ export * from './lib/dialog/all-player-selection-modal/model';
 
 export * from './lib/live-indicator/live-indicator.component';
 
+export * from './lib/ranking-table/ranking-table.component';
+
 /**
  * Services
  */

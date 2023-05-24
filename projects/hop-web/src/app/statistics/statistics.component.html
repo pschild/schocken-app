@@ -244,52 +244,22 @@
     <form [formGroup]="pointsForm">
       <mat-checkbox formControlName="skipPoints">Punkte überspringen</mat-checkbox>
     </form>
-    <div class="table-wrapper">
-      <table *ngIf="statePointsTable$ | async as statePointsTable; else loading" class="stats-table ranking-table">
-        <tr>
-          <td>Platz</td>
-          <td>Spieler</td>
-          <td>Verl.</td>
-          <td>SA</td>
-          <td>Strafen</td>
-          <td>Summe</td>
-        </tr>
-        <ng-container *ngFor="let entry of statePointsTable">
-          <tr *ngFor="let item of entry.items" [ngClass]="{ 'not-participated': !item.roundCount }">
-            <td><hop-badge [place]="entry.rank"></hop-badge></td>
-            <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
-            <td>{{item.verlorenSum}}</td>
-            <td>{{item.schockAusSum}}</td>
-            <td>{{item.cashSum}}</td>
-            <td>{{item.sum}}</td>
-          </tr>
-        </ng-container>
-      </table>
-    </div>
+    <hop-ranking-table
+      *ngIf="statePointsTable$ | async as statePointsTable; else loading"
+      [tableData]="statePointsTable"
+      [tableConfig]="pointsTableConfig"
+    ></hop-ranking-table>
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>
       <mat-icon>beenhere</mat-icon>
       Teilnahmen
     </ng-template>
-    <div class="table-wrapper">
-      <table *ngIf="stateParticipationTable$ | async as stateParticipationTable; else loading" class="stats-table ranking-table">
-        <tr>
-          <td>Platz</td>
-          <td>Spieler</td>
-          <td>Runden</td>
-          <td>Quote</td>
-        </tr>
-        <ng-container *ngFor="let entry of stateParticipationTable">
-          <tr *ngFor="let item of entry.items" [ngClass]="{ 'not-participated': !item.roundCount }">
-            <td><hop-badge [place]="entry.rank"></hop-badge></td>
-            <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
-            <td>{{item.roundCount}}</td>
-            <td>{{item.quote | percent:'1.1'}}</td>
-          </tr>
-        </ng-container>
-      </table>
-    </div>
+    <hop-ranking-table
+      *ngIf="stateParticipationTable$ | async as stateParticipationTable; else loading"
+      [tableData]="stateParticipationTable"
+      [tableConfig]="participationTableConfig"
+    ></hop-ranking-table>
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>
@@ -312,24 +282,11 @@
             </mat-form-field>
           </form>
         </ng-container>
-        <div class="table-wrapper">
-          <table *ngIf="stateEventCountsByPlayerTable$ | async as stateEventCountsByPlayerTable; else loading" class="stats-table ranking-table">
-            <tr>
-              <td>Platz</td>
-              <td>Spieler</td>
-              <td>Anzahl</td>
-              <td>Quote</td>
-            </tr>
-            <ng-container *ngFor="let entry of stateEventCountsByPlayerTable">
-              <tr *ngFor="let item of entry.items" [ngClass]="{ 'not-participated': !item.roundCount }">
-                <td><hop-badge [place]="entry.rank"></hop-badge></td>
-                <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
-                <td>{{item.eventCount}}</td>
-                <td>{{item.quote | percent:'1.1'}}</td>
-              </tr>
-            </ng-container>
-          </table>
-        </div>
+        <hop-ranking-table
+          *ngIf="stateEventCountsByPlayerTable$ | async as stateEventCountsByPlayerTable; else loading"
+          [tableData]="stateEventCountsByPlayerTable"
+          [tableConfig]="eventCountsByPlayerTableConfig"
+        ></hop-ranking-table>
       </mat-tab>
       <mat-tab label="Gesamt">
         <div class="table-wrapper">
@@ -364,39 +321,11 @@
           </mat-card>
         </div>
 
-        <div class="table-wrapper">
-          <table *ngIf="stateCashTable$ | async as stateCashTable; else loading" class="stats-table ranking-table">
-            <tr>
-              <td>Platz</td>
-              <td>Spieler</td>
-              <td>Rundenstrafen</td>
-              <td>Feststellungen</td>
-              <td>Summe</td>
-              <td>€/Rd.</td>
-              <td>Anteil</td>
-            </tr>
-            <ng-container *ngFor="let entry of stateCashTable.playerTable">
-              <tr *ngFor="let item of entry.items" [ngClass]="{ 'not-participated': !item.roundCount }">
-                <td><hop-badge [place]="entry.rank"></hop-badge></td>
-                <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
-                <td>
-                  <span *ngIf="item.roundEventPenalties > 0">{{item.roundEventPenalties | number:'1.2-2'}} €</span>
-                  <span *ngIf="item.roundEventPenalties === 0">-</span>
-                </td>
-                <td>
-                  <span *ngIf="item.gameEventPenalties > 0">{{item.gameEventPenalties | number:'1.2-2'}} €</span>
-                  <span *ngIf="item.gameEventPenalties === 0">-</span>
-                </td>
-                <td>
-                  <span *ngIf="item.sum > 0">{{item.sum | number:'1.2-2'}} €</span>
-                  <span *ngIf="item.sum === 0">-</span>
-                </td>
-                <td>{{item.cashPerRound | number:'1.2-2'}} €</td>
-                <td>{{item.quote | percent:'1.1'}}</td>
-              </tr>
-            </ng-container>
-          </table>
-        </div>
+        <hop-ranking-table
+          *ngIf="stateCashTable$ | async as stateCashTable; else loading"
+          [tableData]="stateCashTable.playerTable"
+          [tableConfig]="stateCashTableConfig"
+        ></hop-ranking-table>
       </mat-tab>
     </mat-tab-group>
   </mat-tab>
@@ -407,55 +336,25 @@
     </ng-template>
     <mat-tab-group color="accent">
       <mat-tab label="Schock-Aus">
-        <div class="table-wrapper">
-          <table *ngIf="stateSchockAusCountsByPlayerTable$ | async as stateSchockAusCountsByPlayerTable; else loading" class="stats-table ranking-table">
-            <tr>
-              <td>Platz</td>
-              <td>Spieler</td>
-              <td>Schock-Aus</td>
-              <td>Quote</td>
-            </tr>
-            <ng-container *ngFor="let entry of stateSchockAusCountsByPlayerTable">
-              <tr *ngFor="let item of entry.items" [ngClass]="{ 'not-participated': !item.roundCount }">
-                <td><hop-badge [place]="entry.rank"></hop-badge></td>
-                <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
-                <td>{{item.eventCount}}</td>
-                <td>
-                  <span *ngIf="item.quote">alle {{1 / item.quote | number:'1.1-1':'de'}} Runden</span>
-                  <span *ngIf="!item.quote">-</span>
-                </td>
-              </tr>
-            </ng-container>
-          </table>
-        </div>
+        <hop-ranking-table
+          *ngIf="stateSchockAusCountsByPlayerTable$ | async as schockAusCountsByPlayerTable; else loading"
+          [tableData]="schockAusCountsByPlayerTable"
+          [tableConfig]="schockAusCountsByPlayerTableConfig"
+        ></hop-ranking-table>
       </mat-tab>
       <mat-tab label="Effektivität">
-        <div class="table-wrapper">
-          <table *ngIf="stateSchockAusEffectivenessTable$ | async as stateSchockAusEffectivenessTable; else loading" class="stats-table ranking-table">
-            <tr>
-              <td>Platz</td>
-              <td>Spieler</td>
-              <td>Schock-Aus</td>
-              <td>Verursachte SA-Strafen</td>
-              <td>Quote</td>
-            </tr>
-            <ng-container *ngFor="let entry of stateSchockAusEffectivenessTable">
-              <tr *ngFor="let item of entry.items">
-                <td><hop-badge [place]="entry.rank"></hop-badge></td>
-                <td [ngClass]="{ 'inactive-player': !item.active }">{{item.name}}</td>
-                <td>{{item.schockAusCount}}</td>
-                <td>{{item.schockAusPenaltyCount}}</td>
-                <td>{{item.quote | number:'1.2-2':'de'}}</td>
-              </tr>
-            </ng-container>
-          </table>
+        <hop-ranking-table
+          *ngIf="stateSchockAusEffectivenessTable$ | async as schockAusEffectivenessTable; else loading"
+          [tableData]="schockAusEffectivenessTable"
+          [tableConfig]="schockAusEffectivenessTableConfig"
+        >
           <small class="hint">
             <mat-icon>info</mat-icon>
             <span>
               Hinweis: Gezählt werden nur Runden, die durch <strong>einen einzigen</strong> Schock-Aus beendet wurden.
             </span>
           </small>
-        </div>
+        </hop-ranking-table>
       </mat-tab>
     </mat-tab-group>
   </mat-tab>

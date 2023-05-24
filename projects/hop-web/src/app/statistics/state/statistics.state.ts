@@ -310,7 +310,13 @@ export class StatisticsState {
       const quote = roundCount / filteredRoundCount;
       return { name: player.name, active: player.active, roundCount, quote };
     });
-    return RankingUtil.sort(result, ['quote']);
+
+    const participatedPlayers = result.filter(item => item.roundCount > 0);
+    const notParticipatedPlayers = result.filter(item => !item.roundCount);
+    return [
+      ...RankingUtil.sort(participatedPlayers, ['quote']),
+      RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
+    ];
   }
 
   static eventCountsByPlayerTable(chosenEventTypeIds: string[], sortDirection: 'asc'|'desc' = 'desc') {
@@ -354,10 +360,11 @@ export class StatisticsState {
     return StatisticsStateUtil.cashCount(players, filteredEvents, eventTypes, roundCountsByPlayer);
   }
 
-  @Selector([StatisticsState.filteredPlayers, StatisticsState.filteredRoundEvents])
+  @Selector([StatisticsState.filteredPlayers, StatisticsState.filteredRoundEvents, StatisticsState.roundCountByPlayer])
   static schockAusEffectivenessTable(
     players: PlayerDto[],
-    roundEvents: RoundEventDto[]
+    roundEvents: RoundEventDto[],
+    roundCountsByPlayer: { playerId: string; name: string; count: number }[]
     ): Ranking[] {
     const roundEventsOfInterest = roundEvents
       .filter(event => [SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID].includes(event.eventTypeId))
@@ -407,11 +414,17 @@ export class StatisticsState {
         active: player.active,
         schockAusCount,
         schockAusPenaltyCount,
+        roundCount: roundCountsByPlayer.find(item => item.playerId === player._id)?.count || 0,
         quote: schockAusCount ? schockAusPenaltyCount / schockAusCount : 0,
       };
     });
 
-    return RankingUtil.sort(result, ['quote']);
+    const participatedPlayers = result.filter(item => item.roundCount > 0);
+    const notParticipatedPlayers = result.filter(item => !item.roundCount);
+    return [
+      ...RankingUtil.sort(participatedPlayers, ['quote']),
+      RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
+    ];
   }
 
   static streakByEventType(eventTypeId: string) {

@@ -1,0 +1,28 @@
+<mat-tab-group>
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>military_tech</mat-icon>
+      Punkte
+    </ng-template>
+    <hop-ranking-table
+      *ngIf="pointsTable$ | async as pointsTable; else loading"
+      [tableData]="pointsTable"
+      [tableConfig]="pointsTableConfig"
+    ></hop-ranking-table>
+  </mat-tab>
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon>euro</mat-icon>
+      Kasse
+    </ng-template>
+    <hop-ranking-table
+      *ngIf="cashTable$ | async as cashTable; else loading"
+      [tableData]="cashTable.playerTable"
+      [tableConfig]="cashTableConfig"
+    ></hop-ranking-table>
+  </mat-tab>
+</mat-tab-group>
+
+<ng-template #loading>
+  <mat-spinner [diameter]="20"></mat-spinner>
+</ng-template>
