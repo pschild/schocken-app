@@ -22,6 +22,7 @@ import { RoundsState } from './state/rounds/rounds.state';
 import { PlayersState } from './state/players';
 import { EventTypesState } from './state/event-types';
 import { EventsState } from './state/events';
+import { CelebrationState } from './state/celebration';
 
 registerLocaleData(localeDe, 'de');
 
@@ -39,7 +40,8 @@ registerLocaleData(localeDe, 'de');
         GamesState,
         RoundsState,
         EventsState,
-        StatisticsState
+        StatisticsState,
+        CelebrationState
       ],
       {
         selectorOptions: {

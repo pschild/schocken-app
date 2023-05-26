@@ -20,6 +20,18 @@ export namespace ActiveGameActions {
     constructor(public player: PlayerDto, public roundId: string) {}
   }
 
+  export class GameEventAdded {
+    static readonly type = '[ActiveGameActions] GameEventAdded';
+
+    constructor(public eventTypeId: string) {}
+  }
+
+  export class RoundEventAdded {
+    static readonly type = '[ActiveGameActions] RoundEventAdded';
+
+    constructor(public eventTypeId: string) {}
+  }
+
   export class RemoveGameEvent {
     static readonly type = '[ActiveGameActions] RemoveGameEvent';
 

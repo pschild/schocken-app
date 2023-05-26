@@ -6,7 +6,7 @@ import {
   RoundEventDto,
   RoundEventRepository
 } from '@hop-backend-api';
-import { Action, Selector, State, StateContext, StateToken } from '@ngxs/store';
+import { Action, Selector, State, StateContext, StateToken, createSelector } from '@ngxs/store';
 import { insertItem, patch, removeItem } from '@ngxs/store/operators';
 import { Observable, forkJoin } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
@@ -43,6 +43,14 @@ export class EventsState {
   @Selector([EventsState.gameEvents, EventsState.roundEvents])
   static events(gameEvents: GameEventDto[], roundEvents: RoundEventDto[]): EventDto[] {
     return [...gameEvents, ...roundEvents];
+  }
+
+  static countByEventTypeId(id: string) {
+    return createSelector(
+      [EventsState.events],
+      (events: EventDto[]) =>
+        events.filter(event => event.eventTypeId === id).length
+    );
   }
 
   constructor(

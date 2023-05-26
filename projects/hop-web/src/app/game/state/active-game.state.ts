@@ -12,7 +12,7 @@ import { AllPlayerSelectionModalComponent, DialogResult, DialogService, EventTyp
 import { Action, Selector, State, StateContext, StateToken, Store, createSelector } from '@ngxs/store';
 import { groupBy, orderBy, uniq } from 'lodash';
 import { EMPTY, Observable, of } from 'rxjs';
-import { filter, mergeMap } from 'rxjs/operators';
+import { filter, mergeMap, tap } from 'rxjs/operators';
 import { EventTypesState } from '../../state/event-types';
 import { EventUtil, EventsActions, EventsState } from '../../state/events';
 import { GamesActions, GamesState } from '../../state/games';
@@ -198,6 +198,7 @@ export class ActiveGameState {
           };
   
           return this.store.dispatch(new EventsActions.CreateGameEvent({ ...payload, gameId })).pipe(
+            mergeMap(() => this.store.dispatch(new ActiveGameActions.GameEventAdded(payload.eventTypeId))),
             mergeMap(() => this.verarbeiteTrigger(trigger, player))
           );
         })
@@ -237,6 +238,7 @@ export class ActiveGameState {
           };
   
           return this.store.dispatch(new EventsActions.CreateRoundEvent({ ...payload, roundId })).pipe(
+            mergeMap(() => this.store.dispatch(new ActiveGameActions.RoundEventAdded(payload.eventTypeId))),
             mergeMap(() => this.verarbeiteTrigger(trigger, player, roundId))
           );
         })
@@ -293,13 +295,15 @@ export class ActiveGameState {
         }
       ).pipe(
         filter(dialogResult => !!dialogResult),
-        mergeMap(dialogResult => {
+        tap(dialogResult => {
           const { selectedPlayerIds } = dialogResult;
-          return this.store.dispatch(
-            selectedPlayerIds.map(playerId =>
+          return selectedPlayerIds.forEach(playerId => {
+            this.store.dispatch(
               new EventsActions.CreateRoundEvent({ eventTypeId: SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, playerId, roundId })
-            )
-          );
+            ).pipe(
+              mergeMap(() => this.store.dispatch(new ActiveGameActions.RoundEventAdded(SCHOCK_AUS_STRAFE_EVENT_TYPE_ID)))
+            ).subscribe();
+          });
         })
       );
     });
