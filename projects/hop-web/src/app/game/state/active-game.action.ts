@@ -23,13 +23,13 @@ export namespace ActiveGameActions {
   export class GameEventAdded {
     static readonly type = '[ActiveGameActions] GameEventAdded';
 
-    constructor(public eventTypeId: string) {}
+    constructor(public eventTypeId: string, public addedCount = 1) {}
   }
 
   export class RoundEventAdded {
     static readonly type = '[ActiveGameActions] RoundEventAdded';
 
-    constructor(public eventTypeId: string) {}
+    constructor(public eventTypeId: string, public addedCount = 1) {}
   }
 
   export class RemoveGameEvent {

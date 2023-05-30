@@ -38,6 +38,19 @@ export namespace EventsActions {
     }) {}
   }
 
+  export class CreateRoundEvents {
+    static readonly type = '[EventsActions] CreateRoundEvents';
+
+    constructor(public data: {
+      eventTypeId: string;
+      multiplicatorValue?: number;
+      comment?: string;
+      trigger?: EventTypeTrigger;
+      playerId: string;
+      roundId: string;
+    }[]) {}
+  }
+
   export class RemoveRoundEvent {
     static readonly type = '[EventsActions] RemoveRoundEvent';
 

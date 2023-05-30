@@ -44,6 +44,11 @@ export class PouchDbAdapter {
     return this.instance.put(entity);
   }
 
+  createAll(entities: EntityDto[]): Promise<PutResponse[]> {
+    console.log(`%cCREATE_ALL ${entities.map(e => e._id)}`, 'color: #00f');
+    return this.instance.bulkDocs(entities);
+  }
+
   getAll<T>(key: string): Promise<GetResponse<T>> {
     console.log(`%cGET_ALL ${key}`, 'color: #00f');
     const rand = Math.random();

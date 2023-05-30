@@ -50,13 +50,14 @@ export class CelebrationState implements NgxsOnInit {
       mergeMap(action => {
         const eventCount = this.store.selectSnapshot(EventsState.countByEventTypeId(action.eventTypeId));
         const eventType = this.store.selectSnapshot(EventTypesState.byId(action.eventTypeId));
-        return this.checkEventCountsToCelebrate(eventCount, eventType.description);
+        return this.checkEventCountsToCelebrate(eventCount, eventType.description, action.addedCount);
       }),
     ).subscribe();
   }
 
-  private checkEventCountsToCelebrate(countValue: number, eventName: string): Observable<any> {
-    if (NUMBERS_TO_CELEBRATE.includes(countValue)) {
+  private checkEventCountsToCelebrate(countValue: number, eventName: string, addedCount = 1): Observable<any> {
+    const celebrationNumber = this.getCelebrationNumber(countValue, addedCount);
+    if (celebrationNumber >= 0) {
       return this.ngZone.run<Observable<any>>(() => {
         return this.dialogService.openCustomDialog(
           CelebrationModalComponent,
@@ -65,7 +66,7 @@ export class CelebrationState implements NgxsOnInit {
             width: '90%',
             autoFocus: false,
             data: {
-              countValue,
+              countValue: celebrationNumber,
               eventName
             }
           }
@@ -73,6 +74,15 @@ export class CelebrationState implements NgxsOnInit {
       });
     }
     return of(null);
+  }
+
+  private getCelebrationNumber(countValue: number, addedCount: number): number {
+    for (let i = countValue - addedCount; i <= countValue; i++) {
+      if (NUMBERS_TO_CELEBRATE.includes(i)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
 }

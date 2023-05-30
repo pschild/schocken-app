@@ -297,13 +297,15 @@ export class ActiveGameState {
         filter(dialogResult => !!dialogResult),
         tap(dialogResult => {
           const { selectedPlayerIds } = dialogResult;
-          return selectedPlayerIds.forEach(playerId => {
-            this.store.dispatch(
-              new EventsActions.CreateRoundEvent({ eventTypeId: SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, playerId, roundId })
-            ).pipe(
-              mergeMap(() => this.store.dispatch(new ActiveGameActions.RoundEventAdded(SCHOCK_AUS_STRAFE_EVENT_TYPE_ID)))
-            ).subscribe();
-          });
+          return this.store.dispatch(
+            new EventsActions.CreateRoundEvents(
+              selectedPlayerIds.map(playerId => ({ eventTypeId: SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, playerId, roundId }))
+            )
+          ).pipe(
+            mergeMap(() =>
+              this.store.dispatch(new ActiveGameActions.RoundEventAdded(SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, selectedPlayerIds.length))
+            )
+          ).subscribe();
         })
       );
     });

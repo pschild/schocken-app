@@ -15,6 +15,8 @@ import { StatisticsActions, StatisticsState } from '../statistics/state';
 import { ActiveGameActions, ActiveGameState } from './state';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { PointsTableComponent } from './points-table/points-table.component';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { StepperSelectionEvent } from '@angular/cdk/stepper';
 
 @Component({
   selector: 'hop-game',
@@ -61,13 +63,18 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject();
 
+  isMobile$: Observable<boolean>;
+
+  selectedRoundIndex = -1;
+
   constructor(
     private route: ActivatedRoute,
     private snackBarNotificationService: SnackBarNotificationService,
     private hotkeys: HotkeysService,
     private bottomSheet: MatBottomSheet,
     private store: Store,
-    private actions$: Actions
+    private actions$: Actions,
+    private breakpointObserver: BreakpointObserver
   ) {
   }
 
@@ -87,6 +94,12 @@ export class GameComponent implements OnInit, OnDestroy {
       tap(() => this.stepper.selectedIndex = this.stepper.steps.length - 1),
       takeUntil(this.destroy$)
     ).subscribe();
+
+    this.isMobile$ = this.breakpointObserver.observe([
+      Breakpoints.XSmall,
+      Breakpoints.Small,
+      // Breakpoints.Medium,
+    ]).pipe(map(state => state.matches));
 
     // this.game$.subscribe(console.log);
     // this.rounds$.subscribe(console.log);
@@ -129,6 +142,22 @@ export class GameComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  trackByRound(index, round): string {
+    return round._id;
+  }
+
+  trackByPlayer(index, player): string {
+    return player._id;
+  }
+
+  trackByRoundEvent(index, event): string {
+    return event.eventId;
+  }
+
+  selectionChange(event: StepperSelectionEvent): void {
+    this.selectedRoundIndex = event.selectedIndex;
   }
 
 }

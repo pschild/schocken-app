@@ -7,7 +7,7 @@ import {
   RoundEventRepository
 } from '@hop-backend-api';
 import { Action, Selector, State, StateContext, StateToken, createSelector } from '@ngxs/store';
-import { insertItem, patch, removeItem } from '@ngxs/store/operators';
+import { append, insertItem, patch, removeItem } from '@ngxs/store/operators';
 import { Observable, forkJoin } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 import { EventsActions } from './events.action';
@@ -108,6 +108,21 @@ export class EventsState {
       tap(event => {
         ctx.setState(patch({
           roundEvents: insertItem(event)
+        }));
+      })
+    );
+  }
+
+  @Action(EventsActions.CreateRoundEvents)
+  createRoundEvents(
+    ctx: StateContext<EventsStateModel>,
+    { data }: EventsActions.CreateRoundEvents
+  ): Observable<RoundEventDto[]> {
+    return this.roundEventRepository.createAll(data).pipe(
+      mergeMap(eventIds => forkJoin(eventIds.map(eventId => this.roundEventRepository.get(eventId)))),
+      tap(events => {
+        ctx.setState(patch({
+          roundEvents: append(events)
         }));
       })
     );
