@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Select } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { StatisticsState } from '../../statistics/state';
-import { Ranking } from '../../statistics/ranking.util';
+import { SCHOCK_AUS_EVENT_TYPE_ID } from '../../statistics/model/event-type-ids';
 
 @Component({
   selector: 'hop-points-table',
@@ -12,23 +12,19 @@ import { Ranking } from '../../statistics/ranking.util';
 })
 export class PointsTableComponent implements OnInit {
 
-  @Select(StatisticsState.pointsTable(false))
-  pointsTable$: Observable<any>;
+  @Select(StatisticsState.gameRankingTable)
+  gameRankingTable$: Observable<any>;
 
-  @Select(StatisticsState.cashTable)
-  cashTable$: Observable<{ playerTable: Ranking[]; overallSum: number; }>;
+  @Select(StatisticsState.maxSchockAusStreak)
+  maxSchockAusStreak$: Observable<{ gameId: string; datetime: Date; count: number; }>;
 
-  pointsTableConfig = [
+  @Select(StatisticsState.maxEventTypeCountPerGame(SCHOCK_AUS_EVENT_TYPE_ID))
+  maxSchockAusPerGame$: Observable<{ gameId: string; name: string; datetime: string; count: number; }[]>;
+
+  gameRankingTableConfig = [
     {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
-    {label: 'Verl.', property: 'verlorenSum'},
-    {label: 'SA', property: 'schockAusSum'},
-    {label: 'Strafen', property: 'cashSum'},
-    {label: 'Summe', property: 'sum'}
-  ];
-
-  cashTableConfig = [
-    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
-    {label: 'Summe', property: 'sum', type: 'currency'},
+    {label: 'Punkte', property: 'pointsSum'},
+    {label: 'Summe', property: 'cashSum', type: 'currency'},
     {label: '€/Rd.', property: 'cashPerRound', type: 'currency'},
   ];
 

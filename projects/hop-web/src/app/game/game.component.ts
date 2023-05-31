@@ -160,4 +160,12 @@ export class GameComponent implements OnInit, OnDestroy {
     this.selectedRoundIndex = event.selectedIndex;
   }
 
+  onUpdatePlace(event: { place: string; placeDetail: string; }): void {
+    this.store.dispatch(new ActiveGameActions.UpdateGame({ place: event.place, placeDetail: event.placeDetail }));
+  }
+
+  onUpdateCompleteStatus(completed: boolean): void {
+    this.store.dispatch(new ActiveGameActions.UpdateGame({ completed }));
+  }
+
 }

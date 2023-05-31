@@ -1,0 +1,11 @@
+.details-row {
+  display: flex;
+  align-items: center;
+  & > div:first-child {
+    width: 110px;
+  }
+
+  button {
+    margin: 0 10px;
+  }
+}

@@ -34,7 +34,7 @@ export class GameTableComponent implements OnInit, OnDestroy {
   @Select(StatisticsState.cashTable)
   cashTable$: Observable<{ playerTable: Ranking[]; overallSum: number; }>;
 
-  @Select(StatisticsState.pointsTable(true))
+  @Select(StatisticsState.pointsTable)
   pointsTable$: Observable<any>;
 
   gameId$: Observable<string>;

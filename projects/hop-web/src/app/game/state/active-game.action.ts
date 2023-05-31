@@ -1,4 +1,4 @@
-import { PlayerDto } from '@hop-backend-api';
+import { GameDto, PlayerDto } from '@hop-backend-api';
 
 export namespace ActiveGameActions {
 
@@ -52,5 +52,11 @@ export namespace ActiveGameActions {
     static readonly type = '[ActiveGameActions] ChangeParticipation';
 
     constructor(public playerId: string, public roundId: string, public isParticipating: boolean) {}
+  }
+
+  export class UpdateGame {
+    static readonly type = '[ActiveGameActions] UpdateGame';
+
+    constructor(public data: Partial<GameDto>) {}
   }
 }

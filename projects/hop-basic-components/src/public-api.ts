@@ -49,6 +49,8 @@ export * from './lib/live-indicator/live-indicator.component';
 
 export * from './lib/ranking-table/ranking-table.component';
 
+export * from './lib/game-details/game-details.component';
+
 /**
  * Services
  */

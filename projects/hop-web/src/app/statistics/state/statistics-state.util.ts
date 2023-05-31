@@ -89,9 +89,8 @@ export namespace StatisticsStateUtil {
     players: PlayerDto[],
     filteredEvents: EventDto[],
     eventTypes: EventTypeDto[],
-    roundCountsByPlayer: { playerId: string; name: string; count: number }[],
-    direction: 'asc'|'desc' = 'desc'
-  ): { playerTable: Ranking[]; overallSum: number; } {
+    roundCountsByPlayer: { playerId: string; name: string; count: number }[]
+  ): { playerTable: any[], overallSum: number; } {
     const eventsByPlayer = StatisticsStateUtil.customGroupBy(filteredEvents, 'playerId');
     const playerTable = players.map(player => {
       const playerEvents = eventsByPlayer[player._id] || [];
@@ -117,16 +116,30 @@ export namespace StatisticsStateUtil {
       };
     });
     const overallSum = playerTable.reduce((prev, curr) => prev + curr.sum, 0);
-    const playerTableWithQuote = playerTable.map(item => ({ ...item, quote: item.sum / overallSum }));
+    return {
+      playerTable: playerTable.map(item => ({ ...item, quote: item.sum / overallSum })),
+      overallSum,
+    };
+  }
 
-    const participatedPlayers = playerTableWithQuote.filter(item => item.roundCount > 0);
-    const notParticipatedPlayers = playerTableWithQuote.filter(item => !item.roundCount);
+  export function cashCountRanking(
+    players: PlayerDto[],
+    filteredEvents: EventDto[],
+    eventTypes: EventTypeDto[],
+    roundCountsByPlayer: { playerId: string; name: string; count: number }[],
+    direction: 'asc'|'desc' = 'desc'
+  ): { playerTable: Ranking[]; overallSum: number; } {
+    const cashCount = StatisticsStateUtil.cashCount(players, filteredEvents, eventTypes, roundCountsByPlayer);
+    const playerTable = cashCount.playerTable;
+
+    const participatedPlayers = playerTable.filter(item => item.roundCount > 0);
+    const notParticipatedPlayers = playerTable.filter(item => !item.roundCount);
     return {
       playerTable: [
         ...RankingUtil.sort(participatedPlayers, ['sum'], direction),
         RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
       ],
-      overallSum,
+      overallSum: cashCount.overallSum,
     };
   }
 

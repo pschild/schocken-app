@@ -2,6 +2,12 @@
   <mat-sidenav-container style="height: 100%;" [hasBackdrop]="false">
     <mat-sidenav style="background: transparent" #drawer mode="side" position="end" [fixedInViewport]="true" fixedTopGap="80" [opened]="!(isMobile$ | async)">
       <div style="padding: 16px;">
+        <div style="display: flex; justify-content: flex-end;">
+          <button mat-icon-button (click)="drawer.close()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <h2 *ngIf="cashCountRanking$ | async as cashCountRanking">{{cashCountRanking.overallSum | number:'1.2'}}€</h2>
         <hop-points-table style="min-width: auto"></hop-points-table>
       </div>
     </mat-sidenav>
@@ -16,9 +22,13 @@
         penaltiesByRoundIds: (penaltiesByRoundIds$ | async),
         schockAusCountByRoundIds: (schockAusCountByRoundIds$ | async)
       } as data" style="padding: 16px;">
-        <button mat-raised-button (click)="drawer.toggle()">Toggle drawer</button>
-        <hop-live-indicator *ngIf="!data.game?.completed"></hop-live-indicator>
-        <h2 *ngIf="cashCountRanking$ | async as cashCountRanking">{{cashCountRanking.overallSum | number:'1.2'}}€</h2>
+        <hop-game-details
+          *ngIf="data.game"
+          [game]="data.game"
+          [players]="data.players"
+          (onUpdatePlace)="onUpdatePlace($event)"
+          (onUpdateCompleteStatus)="onUpdateCompleteStatus($event)"
+        ></hop-game-details>
         <mat-vertical-stepper #stepper (selectionChange)="selectionChange($event)">
           <ng-template matStepperIcon="edit" let-index="index">
             <span *ngIf="index > 0">{{index}}</span>
@@ -130,6 +140,10 @@
         </button>
       
         <button *ngIf="(isMobile$ | async) === true" mat-fab color="primary" style="position: fixed; bottom: 50px; right: 70px;" (click)="openStatisticPreview()">
+          <mat-icon>bar_chart</mat-icon>
+        </button>
+
+        <button *ngIf="(isMobile$ | async) === false && !drawer.opened" mat-fab color="primary" style="position: fixed; bottom: 50px; right: 70px;" (click)="drawer.open()">
           <mat-icon>bar_chart</mat-icon>
         </button>
       </div>

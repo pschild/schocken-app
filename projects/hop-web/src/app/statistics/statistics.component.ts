@@ -56,10 +56,6 @@ export class StatisticsComponent implements OnInit {
     types: [[VERLOREN_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID]]
   });
 
-  pointsForm = this.fb.group({
-    skipPoints: true
-  });
-
   eventTypeQuickFilter = EventTypeQuickFilter;
 
   @Select(StatisticsState.latestGame)
@@ -84,13 +80,13 @@ export class StatisticsComponent implements OnInit {
   stateMaxRoundsPerGame$: Observable<{ gameId: string; datetime: Date; count: number; }>;
 
   @Select(StatisticsState.maxEventTypeCountPerGame(SCHOCK_AUS_EVENT_TYPE_ID))
-  stateMaxSchockAusPerGame$: Observable<{ gameId: string; name: string; datetime: string; count: number; }>;
+  stateMaxSchockAusPerGame$: Observable<{ gameId: string; name: string; datetime: string; count: number; }[]>;
 
   @Select(StatisticsState.maxEventTypeCountPerGame(ZWEI_ZWEI_EINS_EVENT_TYPE_ID))
-  stateMax221PerGame$: Observable<{ gameId: string; name: string; datetime: string; count: number; }>;
+  stateMax221PerGame$: Observable<{ gameId: string; name: string; datetime: string; count: number; }[]>;
 
   @Select(StatisticsState.maxEventTypeCountPerGame(LUSTWURF_EVENT_TYPE_ID))
-  stateMaxLustwurfPerGame$: Observable<{ gameId: string; name: string; datetime: string; count: number; }>;
+  stateMaxLustwurfPerGame$: Observable<{ gameId: string; name: string; datetime: string; count: number; }[]>;
 
   @Select(StatisticsState.maxSchockAusStreak)
   stateMaxSchockAusStreak$: Observable<{ gameId: string; datetime: Date; count: number; }>;
@@ -133,7 +129,8 @@ export class StatisticsComponent implements OnInit {
   @Select(StatisticsState.streakByEventType(LUSTWURF_EVENT_TYPE_ID))
   stateNoLustwurfStreak$: Observable<StreakResult>;
 
-  statePointsTable$: Observable<any>;
+  @Select(StatisticsState.pointsTable)
+  statePointsTable$: Observable<Ranking[]>;
 
   isMobile$: Observable<boolean>;
 
@@ -210,11 +207,6 @@ export class StatisticsComponent implements OnInit {
     this.stateEventCountsByPlayerTable$ = this.penaltyForm.valueChanges.pipe(
       startWith(this.penaltyForm.value),
       switchMap(value => this.store.select(StatisticsState.eventCountsByPlayerTable(value.types)))
-    );
-
-    this.statePointsTable$ = this.pointsForm.valueChanges.pipe(
-      startWith(this.pointsForm.value),
-      switchMap(value => this.store.select(StatisticsState.pointsTable(value.skipPoints)))
     );
 
     this.isMobile$ = this.breakpointObserver.observe([Breakpoints.Handset]).pipe(map(state => state.matches));

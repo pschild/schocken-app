@@ -360,4 +360,12 @@ export class ActiveGameState {
     return this.store.dispatch(new RoundsActions.Update(roundId, { attendeeList }));
   }
 
+  @Action(ActiveGameActions.UpdateGame)
+  updateGame(
+    ctx: StateContext<ActiveGameStateModel>,
+    { data }: ActiveGameActions.UpdateGame
+  ): Observable<any> {
+    return this.store.dispatch(new GamesActions.Update(ctx.getState().gameId, data));
+  }
+
 }

@@ -2,3 +2,34 @@
   display: block;
   min-width: 80vw;
 }
+
+$cards-margin: 10px;
+
+.card-container {
+  text-align: center;
+
+  mat-card {
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin: $cards-margin;
+    box-sizing: border-box;
+  }
+
+  .count-row {
+    display: inline-flex;
+    text-align: center;
+    height: 150px;
+    width: calc(100% - #{2 * $cards-margin});
+
+    hop-odometer {
+      font-size: 40px;
+    }
+
+    button[mat-icon-button] {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+}

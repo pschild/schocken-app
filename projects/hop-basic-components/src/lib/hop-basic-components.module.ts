@@ -24,6 +24,7 @@ import { NgxsModule } from '@ngxs/store';
 import { SoundboardState } from './sound-board/state/soundboard.state';
 import { LiveIndicatorComponent } from './live-indicator/live-indicator.component';
 import { RankingTableComponent } from './ranking-table/ranking-table.component';
+import { GameDetailsComponent } from './game-details/game-details.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { RankingTableComponent } from './ranking-table/ranking-table.component';
     SoundBoardComponent,
     LiveIndicatorComponent,
     RankingTableComponent,
+    GameDetailsComponent,
   ],
   imports: [
     MaterialModule,
@@ -72,6 +74,7 @@ import { RankingTableComponent } from './ranking-table/ranking-table.component';
     SoundBoardComponent,
     LiveIndicatorComponent,
     RankingTableComponent,
+    GameDetailsComponent,
   ]
 })
 export class HopBasicComponentsModule { }

@@ -245,7 +245,8 @@ export class StatisticsState {
             }));
         });
         const flatList = [].concat.apply([], countsByGameAndPlayerId);
-        return maxBy(flatList, item => item.count) || { gameId: undefined, name: undefined, datetime: undefined, count: 0 };
+        const maximumCount = flatList.map(i => i.count).reduce((prev, curr) => curr < prev ? prev : curr, -1);
+        return flatList.filter(item => item.count === maximumCount)
       }
     );
   }
@@ -351,13 +352,28 @@ export class StatisticsState {
     EventTypesState.eventTypes,
     StatisticsState.roundCountByPlayer
   ])
-  static cashTable(
+  static cashCountByPlayer(
     players: PlayerDto[],
     filteredEvents: EventDto[],
     eventTypes: EventTypeDto[],
     roundCountsByPlayer: { playerId: string; name: string; count: number }[]
-  ): { playerTable: Ranking[]; overallSum: number; } {
+  ): any {
     return StatisticsStateUtil.cashCount(players, filteredEvents, eventTypes, roundCountsByPlayer);
+  }
+
+  @Selector([StatisticsState.cashCountByPlayer])
+  static cashTable(cashCountByPlayer: any): { playerTable: Ranking[]; overallSum: number; } {
+    const playerTable = cashCountByPlayer.playerTable;
+
+    const participatedPlayers = playerTable.filter(item => item.roundCount > 0);
+    const notParticipatedPlayers = playerTable.filter(item => !item.roundCount);
+    return {
+      playerTable: [
+        ...RankingUtil.sort(participatedPlayers, ['sum']),
+        RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
+      ],
+      overallSum: cashCountByPlayer.overallSum,
+    };
   }
 
   @Selector([StatisticsState.filteredPlayers, StatisticsState.filteredRoundEvents, StatisticsState.roundCountByPlayer])
@@ -450,91 +466,114 @@ export class StatisticsState {
     return orderBy(Object.keys(counts).map(name => ({ name, count: counts[name] })), 'count', 'desc');
   }
 
-  static pointsTable(skipPoints: boolean) {
-    return createSelector(
-      [
-        StatisticsState.filteredPlayers,
-        StatisticsState.roundsGroupedByGameId(),
-        StatisticsState.filteredEvents,
-        EventTypesState.eventTypes,
-      ],
-      (
-        players: PlayerDto[],
-        roundsByGame: { gameId: string; rounds: RoundDto[]; }[],
-        events: EventDto[],
-        eventTypes: EventTypeDto[],
-      ) => {
-        const eventsByGame = StatisticsStateUtil.customGroupBy(events, 'gameId');
-        const pointsByGame = roundsByGame.map(item => {
-          if (!eventsByGame[item.gameId]) {
-            return null;
-          }
-
-          const roundCount = StatisticsStateUtil.roundCountByPlayer(players, item.rounds);
-          const points = [1, 2, 3, 5];
-
-          // VERLOREN
-          const verlorenRanking = StatisticsStateUtil.eventCountsRanking(
-            players,
-            eventsByGame[item.gameId],
-            roundCount,
-            [VERLOREN_EVENT_TYPE_ID],
-            'asc'
-          );
-          const verlorenPoints = StatisticsStateUtil.skipPointsForEachPlayer(verlorenRanking, points);
-
-          // SCHOCK-AUS
-          const schockAusRanking = StatisticsStateUtil.eventCountsRanking(
-            players,
-            eventsByGame[item.gameId],
-            roundCount,
-            [SCHOCK_AUS_EVENT_TYPE_ID]
-          );
-          const schockAusPoints = StatisticsStateUtil.skipPointsForEachPlayer(schockAusRanking, points);
-
-          // CASH-COUNT
-          const cashRanking = StatisticsStateUtil.cashCount(
-            players,
-            eventsByGame[item.gameId],
-            eventTypes,
-            roundCount,
-            'asc'
-          );
-          const cashPoints = StatisticsStateUtil.skipPointsForEachPlayer(cashRanking.playerTable, points);
-
-          return {
-            gameId: item.gameId,
-            roundCount,
-            verlorenPoints,
-            schockAusPoints,
-            cashPoints,
-          };
-        });
-
-        const result = players.map(player => {
-          const points = pointsByGame.filter(Boolean).reduce((prev, curr) => {
-            const verlorenPoints = curr.verlorenPoints.find(p => p.id === player._id)?.points || 0;
-            const schockAusPoints = curr.schockAusPoints.find(p => p.id === player._id)?.points || 0;
-            const cashPoints = curr.cashPoints.find(p => p.id === player._id)?.points || 0;
-            const roundCount = curr.roundCount.find(p => p.playerId === player._id)?.count || 0;
-            return {
-              roundCount: prev.roundCount + roundCount,
-              verlorenSum: prev.verlorenSum + verlorenPoints,
-              schockAusSum: prev.schockAusSum + schockAusPoints,
-              cashSum: prev.cashSum + cashPoints,
-              sum: prev.sum + verlorenPoints + schockAusPoints + cashPoints
-            };
-          }, { roundCount: 0, verlorenSum: 0, schockAusSum: 0, cashSum: 0, sum: 0 });
-          return { name: player.name, active: player.active, ...points };
-        });
-        const participatedPlayers = result.filter(item => item.roundCount > 0);
-        const notParticipatedPlayers = result.filter(item => !item.roundCount);
-        return [
-          ...RankingUtil.sort(participatedPlayers, ['sum']),
-          RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
-        ];
+  @Selector([
+    StatisticsState.filteredPlayers,
+    StatisticsState.roundsGroupedByGameId(),
+    StatisticsState.filteredEvents,
+    EventTypesState.eventTypes
+  ])
+  static pointsByPlayer(
+    players: PlayerDto[],
+    roundsByGame: { gameId: string; rounds: RoundDto[]; }[],
+    events: EventDto[],
+    eventTypes: EventTypeDto[],
+  ): any[] {
+    const eventsByGame = StatisticsStateUtil.customGroupBy(events, 'gameId');
+    const pointsByGame = roundsByGame.map(item => {
+      if (!eventsByGame[item.gameId]) {
+        return null;
       }
-    );
+
+      const roundCount = StatisticsStateUtil.roundCountByPlayer(players, item.rounds);
+      const points = [1, 2, 3, 5];
+
+      // VERLOREN
+      const verlorenRanking = StatisticsStateUtil.eventCountsRanking(
+        players,
+        eventsByGame[item.gameId],
+        roundCount,
+        [VERLOREN_EVENT_TYPE_ID],
+        'asc'
+      );
+      const verlorenPoints = StatisticsStateUtil.skipPointsForEachPlayer(verlorenRanking, points);
+
+      // SCHOCK-AUS
+      const schockAusRanking = StatisticsStateUtil.eventCountsRanking(
+        players,
+        eventsByGame[item.gameId],
+        roundCount,
+        [SCHOCK_AUS_EVENT_TYPE_ID]
+      );
+      const schockAusPoints = StatisticsStateUtil.skipPointsForEachPlayer(schockAusRanking, points);
+
+      // CASH-COUNT
+      const cashRanking = StatisticsStateUtil.cashCountRanking(
+        players,
+        eventsByGame[item.gameId],
+        eventTypes,
+        roundCount,
+        'asc'
+      );
+      const cashPoints = StatisticsStateUtil.skipPointsForEachPlayer(cashRanking.playerTable, points);
+
+      return {
+        gameId: item.gameId,
+        roundCount,
+        verlorenPoints,
+        schockAusPoints,
+        cashPoints,
+      };
+    });
+
+    return players.map(player => {
+      const points = pointsByGame.filter(Boolean).reduce((prev, curr) => {
+        const verlorenPoints = curr.verlorenPoints.find(p => p.id === player._id)?.points || 0;
+        const schockAusPoints = curr.schockAusPoints.find(p => p.id === player._id)?.points || 0;
+        const cashPoints = curr.cashPoints.find(p => p.id === player._id)?.points || 0;
+        const roundCount = curr.roundCount.find(p => p.playerId === player._id)?.count || 0;
+        return {
+          roundCount: prev.roundCount + roundCount,
+          verlorenSum: prev.verlorenSum + verlorenPoints,
+          schockAusSum: prev.schockAusSum + schockAusPoints,
+          cashSum: prev.cashSum + cashPoints,
+          sum: prev.sum + verlorenPoints + schockAusPoints + cashPoints
+        };
+      }, { roundCount: 0, verlorenSum: 0, schockAusSum: 0, cashSum: 0, sum: 0 });
+      return { id: player._id, name: player.name, active: player.active, ...points };
+    });
+  }
+
+  @Selector([StatisticsState.pointsByPlayer])
+  static pointsTable(pointsByPlayer: any[]): Ranking[] {
+    const participatedPlayers = pointsByPlayer.filter(item => item.roundCount > 0);
+    const notParticipatedPlayers = pointsByPlayer.filter(item => !item.roundCount);
+    return [
+      ...RankingUtil.sort(participatedPlayers, ['sum']),
+      RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
+    ];
+  }
+
+  @Selector([StatisticsState.cashCountByPlayer, StatisticsState.pointsByPlayer])
+  static gameRankingTable(cashCountByPlayer: any, pointsByPlayer: any[]): Ranking[] {
+    const list = cashCountByPlayer.playerTable.map(cashItem => {
+      const pointsEntry = pointsByPlayer.find(pointsItem => pointsItem.id === cashItem.id);
+      return {
+        id: cashItem.id,
+        name: cashItem.name,
+        active: cashItem.active,
+        cashSum: cashItem.sum,
+        cashPerRound: cashItem.cashPerRound,
+        pointsSum: pointsEntry?.sum || 0,
+        roundCount: cashItem.roundCount,
+      };
+    });
+
+    const participatedPlayers = list.filter(item => item.roundCount > 0);
+    const notParticipatedPlayers = list.filter(item => !item.roundCount);
+    return [
+      ...RankingUtil.sort(participatedPlayers, ['pointsSum']),
+      RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
+    ];
   }
 
   @Action(StatisticsActions.RefreshFilter)
