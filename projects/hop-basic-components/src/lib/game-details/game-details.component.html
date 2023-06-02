@@ -6,7 +6,7 @@
 <div class="details-row">
   <div><strong>Ort:</strong></div>
   <div>
-    <mat-form-field>
+    <mat-form-field style="padding-right: 10px">
       <mat-select [formControl]="placeSelectFormControl">
         <mat-option *ngFor="let place of possiblePlaces" [value]="place">
           {{place}}
@@ -14,7 +14,7 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field *ngIf="placeSelectFormControl.value === 'Auswärts'" style="padding-left: 10px">
+    <mat-form-field *ngIf="placeSelectFormControl.value === 'Auswärts'">
       <input matInput placeholder="Wo genau?" [formControl]="placeDetailFormControl">
     </mat-form-field>
 
@@ -22,7 +22,9 @@
       <mat-icon>check</mat-icon>
     </button>
 
-    <small>Urspr.: {{game.place}}</small>
+    <div>
+      <small>Urspr.: {{game.place}}</small>
+    </div>
   </div>
 </div>
 
@@ -31,18 +33,21 @@
   <div>
     <div *ngIf="game.completed">
       <span>abgeschlossen</span>
-      <button mat-raised-button color="primary" (click)="updateCompletedStatus(false)">
-        <mat-icon>edit</mat-icon>
-        Spiel bearbeiten
-      </button>
     </div>
     <div *ngIf="!game.completed">
       <span>laufend</span>
       <hop-live-indicator *ngIf="!game.completed"></hop-live-indicator>
-      <button mat-raised-button color="primary" (click)="updateCompletedStatus(true)">
-        <mat-icon>check</mat-icon>
-        Spiel abschließen
-      </button>
     </div>
   </div>
+</div>
+
+<div class="details-row">
+  <button *ngIf="game.completed" mat-raised-button color="primary" (click)="updateCompletedStatus(false)">
+    <mat-icon>edit</mat-icon>
+    Spiel bearbeiten
+  </button>
+  <button *ngIf="!game.completed" mat-raised-button color="primary" (click)="updateCompletedStatus(true)">
+    <mat-icon>check</mat-icon>
+    Spiel abschließen
+  </button>
 </div>

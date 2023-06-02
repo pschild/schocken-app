@@ -3,6 +3,7 @@ import { Select } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { StatisticsState } from '../../statistics/state';
 import { SCHOCK_AUS_EVENT_TYPE_ID } from '../../statistics/model/event-type-ids';
+import { Ranking } from '../../statistics/ranking.util';
 
 @Component({
   selector: 'hop-points-table',
@@ -11,6 +12,9 @@ import { SCHOCK_AUS_EVENT_TYPE_ID } from '../../statistics/model/event-type-ids'
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PointsTableComponent implements OnInit {
+
+  @Select(StatisticsState.cashTable)
+  cashCountRanking$: Observable<{ playerTable: Ranking[]; overallSum: number; }>;
 
   @Select(StatisticsState.gameRankingTable)
   gameRankingTable$: Observable<any>;

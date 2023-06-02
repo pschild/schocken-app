@@ -56,9 +56,6 @@ export class GameComponent implements OnInit, OnDestroy {
   @Select(ActiveGameState.schockAusCounts)
   schockAusCountByRoundIds$: Observable<any>;
 
-  @Select(StatisticsState.cashTable)
-  cashCountRanking$: Observable<{ playerTable: Ranking[]; overallSum: number; }>;
-
   @ViewChild('stepper') private stepper: MatStepper;
 
   private destroy$ = new Subject();

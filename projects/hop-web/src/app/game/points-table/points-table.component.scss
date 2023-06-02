@@ -1,11 +1,15 @@
 :host {
   display: block;
   min-width: 80vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 $cards-margin: 10px;
 
 .card-container {
+  max-width: 340px;
   text-align: center;
 
   mat-card {

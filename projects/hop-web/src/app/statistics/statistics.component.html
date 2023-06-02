@@ -317,9 +317,9 @@
               <hop-odometer [countTo]="stateCashTable.overallSum" [precision]="2" [suffix]="'€'"></hop-odometer>
               <div>Bußgelder</div>
             </ng-container>
-            <button mat-icon-button (click)="tooltipSAStreak.show()">
+            <button mat-icon-button (click)="tooltipCash.show()">
               <mat-icon
-                #tooltipSAStreak="matTooltip"
+                #tooltipCash="matTooltip"
                 matTooltip="exkl. Monatsbeiträge"
                 [matTooltipPosition]="'right'"
                 (mouseenter)="$event.stopImmediatePropagation()"

@@ -7,7 +7,6 @@
             <mat-icon>close</mat-icon>
           </button>
         </div>
-        <h2 *ngIf="cashCountRanking$ | async as cashCountRanking">{{cashCountRanking.overallSum | number:'1.2'}}€</h2>
         <hop-points-table style="min-width: auto"></hop-points-table>
       </div>
     </mat-sidenav>
@@ -43,94 +42,103 @@
               <div>
                 Feststellungen
               </div>
-              <div *ngIf="data.penaltiesByGameId && data.penaltiesByGameId.length else noPenalties" class="penaltiy-sum-container">
-                <div *ngFor="let penalty of data.penaltiesByGameId">
-                  {{penalty.sum | number:'1.2'}} {{penalty.unit}}
-                </div>
+              <div *ngIf="data.penaltiesByGameId && data.penaltiesByGameId.length else noPenalties" class="penalty-sum-container">
+                <h3>
+                  <span *ngFor="let penalty of data.penaltiesByGameId; let isLast = last">
+                    {{penalty.sum | number:'1.2'}} {{penalty.unit}}{{isLast ? '' : ' / '}}
+                  </span>
+                </h3>
               </div>
             </ng-template>
-            <table>
-              <tr *ngFor="let player of data.players">
-                <td>
-                  <div class="left-right">
-                    <strong [ngClass]="{ 'inactive': !player.active }">{{player.name}}</strong>
-                    <button mat-icon-button color="primary" (click)="addGameEvent(player)">
-                      <mat-icon>add</mat-icon>
-                    </button>
-                  </div>
-                </td>
-                <td>
-                  <ng-container *ngIf="data.gameEvents[player._id]">
-                    <div *ngFor="let event of data.gameEvents[player._id].events" class="left-right">
-                      <div>
-                        {{event.description}}
-                        {{event.penalty | number:'1.2'}}
-                        {{event.unit}}
-                      </div>
-                      <button mat-icon-button color="warn" (click)="removeGameEvent(event.eventId)">
-                        <mat-icon>close</mat-icon>
+            <div style="overflow-x: auto;">
+              <table>
+                <tr *ngFor="let player of data.players">
+                  <td>
+                    <div class="left-right">
+                      <strong [ngClass]="{ 'inactive': !player.active }">{{player.name}}</strong>
+                      <button mat-icon-button color="primary" (click)="addGameEvent(player)">
+                        <mat-icon>add</mat-icon>
                       </button>
                     </div>
-                  </ng-container>
-                </td>
-                <td>
-                  <ng-container *ngIf="data.gameEvents[player._id]">
-                    <div *ngFor="let penalty of data.gameEvents[player._id].penalties">
-                      {{penalty.sum | number:'1.2'}} {{penalty.unit}}
-                    </div>
-                  </ng-container>
-                </td>
-              </tr>
-            </table>
+                  </td>
+                  <td>
+                    <ng-container *ngIf="data.gameEvents[player._id]">
+                      <div *ngFor="let event of data.gameEvents[player._id].events" class="left-right">
+                        <div>
+                          {{event.description}}
+                          {{event.penalty | number:'1.2'}}
+                          {{event.unit}}
+                        </div>
+                        <button mat-icon-button color="warn" (click)="removeGameEvent(event.eventId)">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    </ng-container>
+                  </td>
+                  <td>
+                    <ng-container *ngIf="data.gameEvents[player._id]">
+                      <div *ngFor="let penalty of data.gameEvents[player._id].penalties">
+                        {{penalty.sum | number:'1.2'}} {{penalty.unit}}
+                      </div>
+                    </ng-container>
+                  </td>
+                </tr>
+              </table>
+            </div>
           </mat-step>
           <mat-step *ngFor="let round of data.rounds; trackBy: trackByRound; let idx = index" [state]="round._id" completed="true">
             <ng-template matStepLabel>
               <div>
                 <ng-container *ngIf="data.schockAusCountByRoundIds[round._id]">
-                  <mat-icon *ngFor="let i of [].constructor(data.schockAusCountByRoundIds[round._id])" svgIcon="schock_aus"></mat-icon>
+                  <mat-icon style="margin: 10px 0;" [matBadge]="data.schockAusCountByRoundIds[round._id]" matBadgeColor="warn" matBadgeSize="small" [matBadgeHidden]="data.schockAusCountByRoundIds[round._id] === 1" svgIcon="schock_aus"></mat-icon>
                 </ng-container>
               </div>
-              <div *ngIf="data.penaltiesByRoundIds[round._id] else noPenalties" class="penaltiy-sum-container">
-                <div *ngFor="let penalty of data.penaltiesByRoundIds[round._id]">
-                  {{penalty.sum | number:'1.2'}} {{penalty.unit}}
-                </div>
+              <div *ngIf="data.penaltiesByRoundIds[round._id] && data.penaltiesByRoundIds[round._id].length else noPenalties" class="penalty-sum-container">
+                <h3>
+                  <span *ngFor="let penalty of data.penaltiesByRoundIds[round._id]; let isLast = last">
+                    {{penalty.sum | number:'1.2'}} {{penalty.unit}}{{isLast ? '' : ' / '}}
+                  </span>
+                </h3>
               </div>
             </ng-template>
             <!-- <button mat-button matStepperPrevious>zurück</button> -->
-            <table *ngIf="idx + 1 === selectedRoundIndex">
-              <tr *ngFor="let player of data.players; trackBy: trackByPlayer">
-                <td>
-                  <div class="left-right">
-                    <mat-checkbox [checked]="round | isParticipating:player._id" (change)="changeParticipation($event, round._id, player._id)"></mat-checkbox>
-                    <strong [ngClass]="{ 'not-participated': !(round | isParticipating:player._id), 'inactive': !player.active }">{{player.name}}</strong>
-                    <button *ngIf="round | isParticipating:player._id" mat-icon-button color="primary" (click)="addRoundEvent(player, round._id)">
-                      <mat-icon>add</mat-icon>
-                    </button>
-                  </div>
-                </td>
-                <td>
-                  <div *ngIf="data.roundEvents[player._id] && data.roundEvents[player._id][round._id]">
-                    <div *ngFor="let event of data.roundEvents[player._id][round._id].events; trackBy: trackByRoundEvent" class="left-right">
-                      <div>
-                        {{event.description}}
-                        {{event.penalty | number:'1.2'}}
-                        {{event.unit}}
-                      </div>
-                      <button mat-icon-button color="warn" (click)="removeRoundEvent(event.eventId)">
-                        <mat-icon>close</mat-icon>
+            <div style="overflow-x: auto;">
+              <table *ngIf="idx + 1 === selectedRoundIndex">
+                <tr *ngFor="let player of data.players; trackBy: trackByPlayer">
+                  <td>
+                    <div class="left-right">
+                      <mat-checkbox [checked]="round | isParticipating:player._id" (change)="changeParticipation($event, round._id, player._id)">
+                        <strong [ngClass]="{ 'not-participated': !(round | isParticipating:player._id), 'inactive': !player.active }">{{player.name}}</strong>
+                      </mat-checkbox>
+                      <button *ngIf="round | isParticipating:player._id" mat-icon-button color="primary" (click)="addRoundEvent(player, round._id)">
+                        <mat-icon>add</mat-icon>
                       </button>
                     </div>
-                  </div>
-                </td>
-                <td>
-                  <ng-container *ngIf="data.roundEvents[player._id] && data.roundEvents[player._id][round._id]">
-                    <div *ngFor="let penalty of data.roundEvents[player._id][round._id].penalties">
-                      {{penalty.sum | number:'1.2'}} {{penalty.unit}}
+                  </td>
+                  <td>
+                    <div *ngIf="data.roundEvents[player._id] && data.roundEvents[player._id][round._id]">
+                      <div *ngFor="let event of data.roundEvents[player._id][round._id].events; trackBy: trackByRoundEvent" class="left-right">
+                        <div>
+                          {{event.description}}
+                          {{event.penalty | number:'1.2'}}
+                          {{event.unit}}
+                        </div>
+                        <button mat-icon-button color="warn" (click)="removeRoundEvent(event.eventId)">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
                     </div>
-                  </ng-container>
-                </td>
-              </tr>
-            </table>
+                  </td>
+                  <td>
+                    <ng-container *ngIf="data.roundEvents[player._id] && data.roundEvents[player._id][round._id]">
+                      <div *ngFor="let penalty of data.roundEvents[player._id][round._id].penalties">
+                        {{penalty.sum | number:'1.2'}} {{penalty.unit}}
+                      </div>
+                    </ng-container>
+                  </td>
+                </tr>
+              </table>
+            </div>
             <!-- <button mat-button matStepperNext>weiter</button> -->
           </mat-step>
         </mat-vertical-stepper>
@@ -139,11 +147,11 @@
           Neue Runde
         </button>
       
-        <button *ngIf="(isMobile$ | async) === true" mat-fab color="primary" style="position: fixed; bottom: 50px; right: 70px;" (click)="openStatisticPreview()">
+        <button *ngIf="(isMobile$ | async) === true" mat-fab color="primary" style="position: fixed; bottom: 20px; right: 40px;" (click)="openStatisticPreview()">
           <mat-icon>bar_chart</mat-icon>
         </button>
 
-        <button *ngIf="(isMobile$ | async) === false && !drawer.opened" mat-fab color="primary" style="position: fixed; bottom: 50px; right: 70px;" (click)="drawer.open()">
+        <button *ngIf="(isMobile$ | async) === false && !drawer.opened" mat-fab color="primary" style="position: fixed; bottom: 20px; right: 40px;" (click)="drawer.open()">
           <mat-icon>bar_chart</mat-icon>
         </button>
       </div>

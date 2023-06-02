@@ -569,11 +569,7 @@ export class StatisticsState {
     });
 
     const participatedPlayers = list.filter(item => item.roundCount > 0);
-    const notParticipatedPlayers = list.filter(item => !item.roundCount);
-    return [
-      ...RankingUtil.sort(participatedPlayers, ['pointsSum']),
-      RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
-    ];
+    return RankingUtil.sort(participatedPlayers, ['pointsSum']);
   }
 
   @Action(StatisticsActions.RefreshFilter)

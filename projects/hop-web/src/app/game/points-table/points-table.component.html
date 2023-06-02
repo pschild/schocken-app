@@ -6,6 +6,22 @@
 
 <div class="card-container">
   <mat-card class="count-row">
+    <ng-container *ngIf="cashCountRanking$ | async as cashCountRanking; else loading">
+      <hop-odometer [countTo]="cashCountRanking.overallSum" [precision]="2" [suffix]="'€'"></hop-odometer>
+      <div>Bußgelder</div>
+    </ng-container>
+    <button mat-icon-button (click)="tooltipCash.show()">
+      <mat-icon
+        #tooltipCash="matTooltip"
+        matTooltip="exkl. Monatsbeiträge"
+        [matTooltipPosition]="'right'"
+        (mouseenter)="$event.stopImmediatePropagation()"
+        (mouseleave)="$event.stopImmediatePropagation()"
+      >info</mat-icon>
+    </button>
+  </mat-card>
+
+  <mat-card class="count-row">
     <ng-container *ngIf="maxSchockAusStreak$ | async as maxSchockAusStreak">
       <hop-odometer [countTo]="maxSchockAusStreak.count"></hop-odometer>
       <div>Schock-Aus-Streak</div>
