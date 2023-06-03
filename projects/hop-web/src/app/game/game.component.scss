@@ -28,16 +28,22 @@ table {
     td:first-child {
       width: 150px;
       padding-left: 5px;
+      vertical-align: top;
+      line-height: 40px;
     }
 
     td:nth-child(2) {
       font-size: 12px;
+      vertical-align: top;
+      line-height: 40px;
     }
 
     td:last-child {
       width: 90px;
       text-align: right;
       padding-right: 5px;
+      vertical-align: top;
+      line-height: 40px;
     }
   }
 }

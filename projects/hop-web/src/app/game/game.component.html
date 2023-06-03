@@ -65,9 +65,8 @@
                     <ng-container *ngIf="data.gameEvents[player._id]">
                       <div *ngFor="let event of data.gameEvents[player._id].events" class="left-right">
                         <div>
+                          <strong>{{event.penalty | number:'1.2'}} {{event.unit}}</strong>
                           {{event.description}}
-                          {{event.penalty | number:'1.2'}}
-                          {{event.unit}}
                         </div>
                         <button mat-icon-button color="warn" (click)="removeGameEvent(event.eventId)">
                           <mat-icon>close</mat-icon>
@@ -119,9 +118,8 @@
                     <div *ngIf="data.roundEvents[player._id] && data.roundEvents[player._id][round._id]">
                       <div *ngFor="let event of data.roundEvents[player._id][round._id].events; trackBy: trackByRoundEvent" class="left-right">
                         <div>
+                          <strong>{{event.penalty | number:'1.2'}} {{event.unit}}</strong>
                           {{event.description}}
-                          {{event.penalty | number:'1.2'}}
-                          {{event.unit}}
                         </div>
                         <button mat-icon-button color="warn" (click)="removeRoundEvent(event.eventId)">
                           <mat-icon>close</mat-icon>

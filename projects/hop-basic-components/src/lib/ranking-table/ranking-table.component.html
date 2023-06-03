@@ -1,5 +1,5 @@
 <div class="table-wrapper">
-  <table class="stats-table ranking-table">
+  <table *ngIf="tableData.length > 0; else noData" class="stats-table ranking-table">
     <tr>
       <td>Platz</td>
       <td *ngFor="let configItem of tableConfig">{{configItem.label}}</td>
@@ -45,3 +45,4 @@
 </div>
 
 <ng-template #zero>-</ng-template>
+<ng-template #noData>Keine Daten vorhanden</ng-template>
