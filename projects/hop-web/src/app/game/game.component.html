@@ -64,9 +64,12 @@
                   <td>
                     <ng-container *ngIf="data.gameEvents[player._id]">
                       <div *ngFor="let event of data.gameEvents[player._id].events" class="left-right">
-                        <div>
+                        <div style="display: flex; align-items: center;">
                           <strong>{{event.penalty | number:'1.2'}} {{event.unit}}</strong>
-                          {{event.description}}
+                          <span style="margin-left: 10px;">{{event.description}}</span>
+                          <ng-container *ngIf="event.comment">
+                            <mat-icon [matTooltip]="event.comment" style="margin-left: 10px;">comment</mat-icon>
+                          </ng-container>
                         </div>
                         <button mat-icon-button color="warn" (click)="removeGameEvent(event.eventId)">
                           <mat-icon>close</mat-icon>
@@ -117,9 +120,12 @@
                   <td>
                     <div *ngIf="data.roundEvents[player._id] && data.roundEvents[player._id][round._id]">
                       <div *ngFor="let event of data.roundEvents[player._id][round._id].events; trackBy: trackByRoundEvent" class="left-right">
-                        <div>
+                        <div style="display: flex; align-items: center;">
                           <strong>{{event.penalty | number:'1.2'}} {{event.unit}}</strong>
-                          {{event.description}}
+                          <span style="margin-left: 10px;">{{event.description}}</span>
+                          <ng-container *ngIf="event.comment">
+                            <mat-icon [matTooltip]="event.comment" style="margin-left: 10px;">comment</mat-icon>
+                          </ng-container>
                         </div>
                         <button mat-icon-button color="warn" (click)="removeRoundEvent(event.eventId)">
                           <mat-icon>close</mat-icon>
