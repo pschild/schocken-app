@@ -139,8 +139,8 @@ $dice-width: 20px;
 
   .face {
     .dot {
-      width: $dice-width / 4;
-      height: $dice-width / 4;
+      width: calc($dice-width / 4);
+      height: calc($dice-width / 4);
       background: $col-1;
       border-radius: 50%;
     }

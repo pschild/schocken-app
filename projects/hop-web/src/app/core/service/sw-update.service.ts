@@ -1,8 +1,8 @@
-import { Injectable, ApplicationRef } from '@angular/core';
-import { SwUpdate, UpdateAvailableEvent, UpdateActivatedEvent } from '@angular/service-worker';
-import { first, take, tap, concatMap, switchMap, filter } from 'rxjs/operators';
-import { interval, concat, from } from 'rxjs';
-import { DialogService, IDialogResult, DialogResult } from '@hop-basic-components';
+import { ApplicationRef, Injectable } from '@angular/core';
+import { SwUpdate, VersionEvent, VersionReadyEvent } from '@angular/service-worker';
+import { DialogResult, DialogService, IDialogResult } from '@hop-basic-components';
+import { concat, from, interval } from 'rxjs';
+import { concatMap, filter, first, switchMap, take, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface VersionInfo {
@@ -20,14 +20,25 @@ export class SwUpdateService {
     private updates: SwUpdate,
     dialogService: DialogService
   ) {
-    updates.available.pipe(
+    updates.versionUpdates.pipe(
       take(1),
-      tap((event: UpdateAvailableEvent) => {
-        console.log('current version is', event.current);
-        console.log('available version is', event.available);
+      tap((event: VersionEvent) => {
+        switch (event.type) {
+          case 'VERSION_DETECTED':
+            console.log(`Downloading new app version: ${event.version.hash}`);
+            break;
+          case 'VERSION_READY':
+            console.log(`Current app version: ${event.currentVersion.hash}`);
+            console.log(`New app version ready for use: ${event.latestVersion.hash}`);
+            break;
+          case 'VERSION_INSTALLATION_FAILED':
+            console.log(`Failed to install app version '${event.version.hash}': ${event.error}`);
+            break;
+        }
       }),
-      concatMap((event: UpdateAvailableEvent) => {
-        const versionInfo = event.available.appData as VersionInfo;
+      filter((event: VersionEvent) => event.type === 'VERSION_READY'),
+      concatMap((event: VersionReadyEvent) => {
+        const versionInfo = event.latestVersion.appData as VersionInfo;
         return dialogService.showYesNoDialog({
           title: `Update verfügbar`,
           message: `Ein Update auf Version ${versionInfo.version} ist verfügbar. Update jetzt installieren?`
@@ -37,10 +48,9 @@ export class SwUpdateService {
       switchMap((dialogResult: IDialogResult) => from(updates.activateUpdate()))
     ).subscribe(_ => document.location.reload());
 
-    updates.activated.subscribe((event: UpdateActivatedEvent) => {
-      console.log('old version was', event.previous);
-      console.log('new version is', event.current);
-    });
+    // updates.activateUpdate().then((success: boolean) => {
+    //   console.log('activateUpdate successful?', success);
+    // });
 
     // Allow the app to stabilize first, before starting polling for updates with `interval()`.
     const appIsStable$ = appRef.isStable.pipe(first(isStable => isStable === true));
@@ -53,12 +63,12 @@ export class SwUpdateService {
     });
   }
 
-  checkForUpdate(): Promise<void> {
+  checkForUpdate(): Promise<boolean> {
     // use update mechanics only in prod mode
     if (environment.production) {
       return this.updates.checkForUpdate();
     }
-    return Promise.resolve();
+    return Promise.resolve(false);
   }
 
 }
