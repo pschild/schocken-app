@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @import '../../../../hop-web/src/styles/variables';
 
 .sidenav-container {
@@ -22,7 +23,7 @@
 
       &.active {
         background-color: #ddd;
-        border-color: mat-color($hop-palette-primary);
+        border-color: mat.get-color-from-palette($hop-palette-primary);
         transition: border .5s ease-in-out;
       }
     }

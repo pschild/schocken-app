@@ -1,4 +1,4 @@
-@import '~@angular/material/theming';
+@use '~@angular/material' as mat;
 
 $hop-primary: (
     50: #E7EFE4,
@@ -16,19 +16,19 @@ $hop-primary: (
     A400: #40FF17,
     A700: #2DFC00,
     contrast: (
-        50: $black-87-opacity,
-        100: $black-87-opacity,
-        200: $black-87-opacity,
-        300: $black-87-opacity,
-        400: $black-87-opacity,
+        50: rgba(black, 0.87),
+        100: rgba(black, 0.87),
+        200: rgba(black, 0.87),
+        300: rgba(black, 0.87),
+        400: rgba(black, 0.87),
         500: white,
         600: white,
         700: white,
         800: white,
         900: white,
-        A100: $black-87-opacity,
-        A200: $black-87-opacity,
-        A400: $black-87-opacity,
+        A100: rgba(black, 0.87),
+        A200: rgba(black, 0.87),
+        A400: rgba(black, 0.87),
         A700: white,
     )
 );
@@ -49,19 +49,19 @@ $hop-accent: (
     A400: #FFE2AF,
     A700: #FFD896,
     contrast: (
-        50: $black-87-opacity,
-        100: $black-87-opacity,
-        200: $black-87-opacity,
-        300: $black-87-opacity,
-        400: $black-87-opacity,
+        50: rgba(black, 0.87),
+        100: rgba(black, 0.87),
+        200: rgba(black, 0.87),
+        300: rgba(black, 0.87),
+        400: rgba(black, 0.87),
         500: white,
         600: white,
         700: white,
         800: white,
         900: white,
-        A100: $black-87-opacity,
-        A200: $black-87-opacity,
-        A400: $black-87-opacity,
+        A100: rgba(black, 0.87),
+        A200: rgba(black, 0.87),
+        A400: rgba(black, 0.87),
         A700: white,
     )
 );
@@ -82,27 +82,27 @@ $hop-warn: (
     A400: #FF7171,
     A700: #FF5858,
     contrast: (
-        50: $black-87-opacity,
-        100: $black-87-opacity,
-        200: $black-87-opacity,
-        300: $black-87-opacity,
-        400: $black-87-opacity,
+        50: rgba(black, 0.87),
+        100: rgba(black, 0.87),
+        200: rgba(black, 0.87),
+        300: rgba(black, 0.87),
+        400: rgba(black, 0.87),
         500: white,
         600: white,
         700: white,
         800: white,
         900: white,
-        A100: $black-87-opacity,
-        A200: $black-87-opacity,
-        A400: $black-87-opacity,
+        A100: rgba(black, 0.87),
+        A200: rgba(black, 0.87),
+        A400: rgba(black, 0.87),
         A700: white,
     )
 );
 
 // mandatory stuff for theming
-$hop-palette-primary: mat-palette($hop-primary);
-$hop-palette-accent: mat-palette($hop-accent);
-$hop-palette-warn: mat-palette($hop-warn);
+$hop-palette-primary: mat.define-palette($hop-primary);
+$hop-palette-accent: mat.define-palette($hop-accent);
+$hop-palette-warn: mat.define-palette($hop-warn);
 
 // include the custom theme components into a theme object
-$hop-theme: mat-light-theme($hop-palette-primary, $hop-palette-accent, $hop-palette-warn);
+$hop-theme: mat.define-light-theme($hop-palette-primary, $hop-palette-accent, $hop-palette-warn);
