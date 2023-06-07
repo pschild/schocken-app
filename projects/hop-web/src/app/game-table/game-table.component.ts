@@ -17,11 +17,11 @@ import {
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { GameDetailsVo } from './model/game-details.vo';
-import { FormControl } from '@angular/forms';
 import { HotkeysService } from '../core/service/hotkeys.service';
 import { Select, Store } from '@ngxs/store';
 import { StatisticsActions, StatisticsState } from '../statistics/state';
 import { Ranking } from '../statistics/ranking.util';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'hop-game-table',
@@ -49,8 +49,8 @@ export class GameTableComponent implements OnInit, OnDestroy {
 
   visibleRowIndexes: boolean[] = [];
 
-  placeSelectFormControl = new FormControl('');
-  placeDetailFormControl = new FormControl('');
+  placeSelectFormControl = new FormControl<string>('');
+  placeDetailFormControl = new FormControl<string>('');
 
   possiblePlaces$: Observable<string[]>;
 

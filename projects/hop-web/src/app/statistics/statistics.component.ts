@@ -1,6 +1,6 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { GameDto } from '@hop-backend-api';
 import { Select, Store } from '@ngxs/store';
 import { add, getYear, isAfter, isBefore, set } from 'date-fns';
@@ -177,7 +177,7 @@ export class StatisticsComponent implements OnInit {
   ];
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private store: Store,
     private breakpointObserver: BreakpointObserver
   ) { }

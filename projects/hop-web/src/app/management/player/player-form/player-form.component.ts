@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { filter, switchMap, tap } from 'rxjs/operators';
-import { Validators, FormBuilder } from '@angular/forms';
+import { Validators, UntypedFormBuilder } from '@angular/forms';
 import { Store } from '@ngxs/store';
 import { PlayersActions, PlayersState } from '../../../state/players';
 import { PlayerDto } from '@hop-backend-api';
@@ -23,7 +23,7 @@ export class PlayerFormComponent implements OnInit {
     private router: Router,
     private store: Store,
     private route: ActivatedRoute,
-    private fb: FormBuilder
+    private fb: UntypedFormBuilder
   ) { }
 
   ngOnInit() {

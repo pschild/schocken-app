@@ -15,8 +15,8 @@ export class GameDetailsComponent implements OnInit {
   @Output() onUpdatePlace = new EventEmitter();
   @Output() onUpdateCompleteStatus = new EventEmitter();
 
-  placeSelectFormControl = new FormControl('');
-  placeDetailFormControl = new FormControl('');
+  placeSelectFormControl = new FormControl<string>('');
+  placeDetailFormControl = new FormControl<string>('');
 
   possiblePlaces: string[];
 

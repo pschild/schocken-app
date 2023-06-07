@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EventTypeHistoryItem, EventTypeContext, EventTypeTrigger, EventTypeDto } from '@hop-backend-api';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { filter, switchMap, tap } from 'rxjs/operators';
 import { EventTypesActions, EventTypesState } from '../../../state/event-types';
 import { Store } from '@ngxs/store';
@@ -35,7 +35,7 @@ export class EventTypeFormComponent implements OnInit {
     private router: Router,
     private store: Store,
     private route: ActivatedRoute,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
   ) { }
 
   ngOnInit() {
