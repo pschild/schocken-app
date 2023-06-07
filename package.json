@@ -49,7 +49,7 @@
     "dexie": "^3.0.3",
     "howler": "^2.2.3",
     "lodash": "^4.17.20",
-    "ng2-pdf-viewer": "^6.4.0",
+    "ng2-pdf-viewer": "^9.1.5",
     "pouchdb": "^7.1.1",
     "pouchdb-browser": "^7.1.1",
     "rollbar": "^2.14.4",
