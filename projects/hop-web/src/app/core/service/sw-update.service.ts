@@ -21,7 +21,7 @@ export class SwUpdateService {
     dialogService: DialogService
   ) {
     updates.versionUpdates.pipe(
-      tap((event: VersionEvent) => console.log('received event', event.type)),
+      // tap((event: VersionEvent) => console.log('received event', event.type)),
       // take(1),
       tap((event: VersionEvent) => {
         switch (event.type) {
@@ -49,10 +49,6 @@ export class SwUpdateService {
       switchMap((dialogResult: IDialogResult) => from(updates.activateUpdate()))
     ).subscribe(_ => document.location.reload());
 
-    // updates.activateUpdate().then((success: boolean) => {
-    //   console.log('activateUpdate successful?', success);
-    // });
-
     // Allow the app to stabilize first, before starting polling for updates with `interval()`.
     const appIsStable$ = appRef.isStable.pipe(first(isStable => isStable === true));
     const interval$ = interval(30 * 1000);
@@ -67,15 +63,8 @@ export class SwUpdateService {
   checkForUpdate(): Promise<boolean> {
     // use update mechanics only in prod mode
     if (environment.production) {
-      return this.updates.checkForUpdate().then(r => {
-        console.log('checkForUpdate response', r);
-        return r;
-      }).catch(e => {
-        console.log('checkForUpdate error', e);
-        return false;
-      });
+      return this.updates.checkForUpdate();
     }
-    console.log('no production, return resolve(false)');
     return Promise.resolve(false);
   }
 
