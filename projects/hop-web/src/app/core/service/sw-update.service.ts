@@ -22,7 +22,7 @@ export class SwUpdateService {
   ) {
     updates.versionUpdates.pipe(
       tap((event: VersionEvent) => console.log('received event', event.type)),
-      take(1),
+      // take(1),
       tap((event: VersionEvent) => {
         switch (event.type) {
           case 'VERSION_DETECTED':
