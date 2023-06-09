@@ -21,6 +21,7 @@ export class SwUpdateService {
     dialogService: DialogService
   ) {
     updates.versionUpdates.pipe(
+      tap((event: VersionEvent) => console.log('received event', event.type)),
       take(1),
       tap((event: VersionEvent) => {
         switch (event.type) {
@@ -66,8 +67,15 @@ export class SwUpdateService {
   checkForUpdate(): Promise<boolean> {
     // use update mechanics only in prod mode
     if (environment.production) {
-      return this.updates.checkForUpdate();
+      return this.updates.checkForUpdate().then(r => {
+        console.log('checkForUpdate response', r);
+        return r;
+      }).catch(e => {
+        console.log('checkForUpdate error', e);
+        return false;
+      });
     }
+    console.log('no production, return resolve(false)');
     return Promise.resolve(false);
   }
 
