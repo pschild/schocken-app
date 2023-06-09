@@ -1,17 +1,18 @@
 .form-row {
   margin: 15px 0;
 
+  mat-form-field {
+    min-width: 300px;
+  }
+
   .penalty-info-container {
     display: flex;
     align-items: center;
   }
 
-  mat-radio-button {
-    margin-left: 15px;
-  }
-
   .short-form-field {
-    max-width: 100px;
+    min-width: 110px;
+    width: 110px;
     margin-right: 10px;
     margin-top: 10px;
   }

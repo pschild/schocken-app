@@ -19,7 +19,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .mat-dialog-error {
-  .mat-dialog-title {
+  .mat-mdc-dialog-title {
     color: #900;
   }
 }
@@ -35,6 +35,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   .info-text {
     margin-left: 10px;
   }
+}
+
+.fit-content {
+  width: fit-content !important;
 }
 
 @import './styles/schocken-app-theme';

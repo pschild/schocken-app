@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatStepper } from '@angular/material/stepper';
 import { ActivatedRoute, Params } from '@angular/router';
 import { GameDto, PlayerDto, RoundDto } from '@hop-backend-api';
@@ -17,6 +16,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { PointsTableComponent } from './points-table/points-table.component';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'hop-game',

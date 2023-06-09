@@ -5,9 +5,9 @@ import { Observable } from 'rxjs';
 import { filter, switchMap, tap } from 'rxjs/operators';
 import { IDialogResult, DialogResult, SnackBarNotificationService, DialogService } from '@hop-basic-components';
 import { ImportExportService, ImportData } from '../core/service/import-export/import-export.service';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { SyncService } from '@hop-basic-components';
 import { environment } from '../../environments/environment';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'hop-administration',

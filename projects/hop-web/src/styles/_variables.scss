@@ -105,4 +105,13 @@ $hop-palette-accent: mat.define-palette($hop-accent);
 $hop-palette-warn: mat.define-palette($hop-warn);
 
 // include the custom theme components into a theme object
-$hop-theme: mat.define-light-theme($hop-palette-primary, $hop-palette-accent, $hop-palette-warn);
+// $hop-theme: mat.define-light-theme($hop-palette-primary, $hop-palette-accent, $hop-palette-warn);
+$hop-theme: mat.define-light-theme((
+    color: (
+      primary: $hop-palette-primary,
+      accent: $hop-palette-accent,
+      warn: $hop-palette-warn,
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+   ));

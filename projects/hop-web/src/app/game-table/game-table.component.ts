@@ -14,14 +14,14 @@ import {
   SoundboardActions,
   SoundboardState
 } from '@hop-basic-components';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { GameDetailsVo } from './model/game-details.vo';
 import { HotkeysService } from '../core/service/hotkeys.service';
 import { Select, Store } from '@ngxs/store';
 import { StatisticsActions, StatisticsState } from '../statistics/state';
 import { Ranking } from '../statistics/ranking.util';
 import { FormControl } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'hop-game-table',

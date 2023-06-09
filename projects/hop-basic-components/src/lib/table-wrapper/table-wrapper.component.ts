@@ -1,10 +1,10 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges, ViewChild, Output, EventEmitter } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
 import { IColumnInterface } from './IColumnDefinition';
 import { ITableConfig } from './ITableConfig';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'hop-table-wrapper',

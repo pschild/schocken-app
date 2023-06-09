@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { CelebrationModalComponent } from '@hop-basic-components';
-import { MatDialog } from '@angular/material/dialog';
 import {
   EventDto,
   EventTypeContext,
@@ -11,6 +10,7 @@ import {
   RoundEventRepository,
   RoundRepository
 } from '@hop-backend-api';
+import { MatDialog } from '@angular/material/dialog';
 
 @Injectable({
   providedIn: 'root'

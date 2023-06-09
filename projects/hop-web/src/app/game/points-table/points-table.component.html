@@ -5,7 +5,7 @@
 ></hop-ranking-table>
 
 <div class="card-container">
-  <mat-card class="count-row">
+  <mat-card appearance="outlined" class="count-row">
     <ng-container *ngIf="cashCountRanking$ | async as cashCountRanking; else loading">
       <hop-odometer [countTo]="cashCountRanking.overallSum" [precision]="2" [suffix]="'€'"></hop-odometer>
       <div>Bußgelder</div>
@@ -21,7 +21,7 @@
     </button>
   </mat-card>
 
-  <mat-card class="count-row">
+  <mat-card appearance="outlined" class="count-row">
     <ng-container *ngIf="maxSchockAusStreak$ | async as maxSchockAusStreak">
       <hop-odometer [countTo]="maxSchockAusStreak.count"></hop-odometer>
       <div>Schock-Aus-Streak</div>
@@ -37,7 +37,7 @@
     </ng-container>
   </mat-card>
 
-  <mat-card class="count-row">
+  <mat-card appearance="outlined" class="count-row">
     <ng-container *ngIf="maxSchockAusPerGame$ | async as maxSchockAusPerGame; else loading">
       <hop-odometer [countTo]="maxSchockAusPerGame[0]?.count"></hop-odometer>
       <div>

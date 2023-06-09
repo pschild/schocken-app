@@ -92,7 +92,7 @@ export class EventsState {
     return this.gameEventRepository.removeById(id).pipe(
       tap(() => {
         ctx.setState(patch({
-          gameEvents: removeItem((event: EventDto) => event._id === id)
+          gameEvents: removeItem<GameEventDto>((event: EventDto) => event._id === id)
         }));
       })
     );
@@ -136,7 +136,7 @@ export class EventsState {
     return this.roundEventRepository.removeById(id).pipe(
       tap(() => {
         ctx.setState(patch({
-          roundEvents: removeItem((event: EventDto) => event._id === id)
+          roundEvents: removeItem<RoundEventDto>((event: EventDto) => event._id === id)
         }));
       })
     );

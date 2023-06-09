@@ -11,9 +11,9 @@ import {
 } from '@hop-basic-components';
 import { filter, switchMap, tap } from 'rxjs/operators';
 import { EventTypeContext, EventTypeDto, EventTypeDtoUtils } from '@hop-backend-api';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { EventTypesActions, EventTypesState } from '../../../state/event-types';
 import { Select, Store } from '@ngxs/store';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'hop-event-type-list',

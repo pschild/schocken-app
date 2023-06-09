@@ -1,9 +1,11 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <mat-card>
-    <mat-card-title>
-      <span *ngIf="form.get('_id').value">Ereignis bearbeiten</span>
-      <span *ngIf="!form.get('_id').value">Neues Ereignis</span>
-    </mat-card-title>
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>
+        <span *ngIf="form.get('_id').value">Ereignis bearbeiten</span>
+        <span *ngIf="!form.get('_id').value">Neues Ereignis</span>
+      </mat-card-title>
+    </mat-card-header>
     <mat-card-content>
 
       <div>
@@ -29,27 +31,30 @@
 
         <div class="form-row">
           <mat-checkbox formControlName="hasPenalty">Ereignis ist eine Strafe</mat-checkbox>
-          <mat-card *ngIf="form.get('hasPenalty').value">
-            <div>
-              <mat-form-field class="short-form-field">
-                <input matInput placeholder="Betrag" type="number" formControlName="penaltyValue">
-              </mat-form-field>
-              <mat-form-field class="short-form-field">
-                <mat-select formControlName="penaltyUnit">
-                  <mat-option value="€">€</mat-option>
-                  <mat-option value="Kiste(n)">Kiste(n)</mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
-            <div>
-              <mat-form-field hintLabel="Bsp.: Woche, Monat, Augenzahl, ...">
-                <input matInput placeholder="Multiplikator" formControlName="multiplicatorUnit">
-              </mat-form-field>
-            </div>
-            <div *ngIf="form.value.penaltyValue && form.value.penaltyUnit && form.value.multiplicatorUnit" class="penalty-info-container">
-              <mat-icon>info</mat-icon>
-              <span>Zusammenfassung: {{form.value.penaltyValue | number:'1.2'}} {{form.value.penaltyUnit}} pro {{form.value.multiplicatorUnit}}</span>
-            </div>
+          <mat-card appearance="outlined" *ngIf="form.get('hasPenalty').value">
+            <mat-card-content>
+              <div>
+                <mat-form-field class="short-form-field">
+                  <input matInput placeholder="Betrag" type="number" formControlName="penaltyValue">
+                </mat-form-field>
+                <mat-form-field class="short-form-field">
+                  <mat-select formControlName="penaltyUnit">
+                    <mat-option value="€">€</mat-option>
+                    <mat-option value="Kiste(n)">Kiste(n)</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div>
+                <mat-form-field>
+                  <input matInput placeholder="Multiplikator" formControlName="multiplicatorUnit">
+                  <mat-hint>Bsp.: Woche, Monat, Augenzahl, ...</mat-hint>
+                </mat-form-field>
+              </div>
+              <div *ngIf="form.value.penaltyValue && form.value.penaltyUnit && form.value.multiplicatorUnit" class="penalty-info-container">
+                <mat-icon>info</mat-icon>
+                <span>Zusammenfassung: {{form.value.penaltyValue | number:'1.2'}} {{form.value.penaltyUnit}} pro {{form.value.multiplicatorUnit}}</span>
+              </div>
+            </mat-card-content>
           </mat-card>
         </div>
 
@@ -73,31 +78,26 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
 
-            <mat-list>
-              <mat-list-item *ngFor="let entry of history">
-                <h3 matLine>
-                  <div>Name: {{entry.eventType.description}}</div>
-                  <div *ngIf="entry.eventType.penalty as penalty">
-                    Strafe: {{penalty.value | number:'1.2'}} {{penalty.unit}}
-                    <span *ngIf="entry.eventType.multiplicatorUnit as multiplicatorUnit">
-                      pro {{multiplicatorUnit}}
-                    </span>
-                  </div>
-                  <div *ngIf="!entry.eventType.penalty">
-                    Strafe: keine
-                  </div>
-                </h3>
-                <p matLine>
-                  <span>gültig ab {{entry.validFrom | date:'dd.MM.yyyy HH:mm:ss'}} Uhr</span>
-                </p>
-              </mat-list-item>
-            </mat-list>
+            <div *ngFor="let entry of history">
+              <div>Name: {{entry.eventType.description}}</div>
+              <div *ngIf="entry.eventType.penalty as penalty">
+                Strafe: {{penalty.value | number:'1.2'}} {{penalty.unit}}
+                <span *ngIf="entry.eventType.multiplicatorUnit as multiplicatorUnit">
+                  pro {{multiplicatorUnit}}
+                </span>
+              </div>
+              <div *ngIf="!entry.eventType.penalty">
+                Strafe: keine
+              </div>
+              <small>gültig ab {{entry.validFrom | date:'dd.MM.yyyy HH:mm:ss'}} Uhr</small>
+              <mat-divider></mat-divider>
+            </div>
           </mat-expansion-panel>
         </div>
       </div>
 
     </mat-card-content>
-    <mat-card-actions>
+    <mat-card-actions align="end">
       <div>
         <button mat-button (click)="navigateBack()">Abbrechen</button>
         <button type="submit" mat-raised-button color="primary" [disabled]="!form.valid">Speichern</button>

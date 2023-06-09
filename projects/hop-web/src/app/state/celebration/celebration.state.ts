@@ -62,8 +62,6 @@ export class CelebrationState implements NgxsOnInit {
         return this.dialogService.openCustomDialog(
           CelebrationModalComponent,
           {
-            height: '80%',
-            width: '90%',
             autoFocus: false,
             data: {
               countValue: celebrationNumber,

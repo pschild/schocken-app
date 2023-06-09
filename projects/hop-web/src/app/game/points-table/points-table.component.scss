@@ -25,6 +25,7 @@ $cards-margin: 10px;
     text-align: center;
     height: 150px;
     width: calc(100% - #{2 * $cards-margin});
+    padding: 16px;
 
     hop-odometer {
       font-size: 40px;

@@ -35,26 +35,26 @@
       <mat-icon>casino</mat-icon>
       Spiele & Runden
     </ng-template>
-    <mat-tab-group color="accent">
+    <mat-tab-group color="accent" mat-stretch-tabs="false" mat-align-tabs="start">
       <mat-tab label="Allgemein">
         <div class="card-container">
-          <mat-card class="count-row">
+          <mat-card appearance="outlined" class="count-row">
             <hop-odometer [countTo]="stateGamesCount$ | async"></hop-odometer>
             <div>Spiele</div>
           </mat-card>
-          <mat-card class="count-row">
+          <mat-card appearance="outlined" class="count-row">
             <hop-odometer [countTo]="stateRoundsCount$ | async"></hop-odometer>
             <div>Runden</div>
           </mat-card>
-          <mat-card class="count-row">
+          <mat-card appearance="outlined" class="count-row">
             <hop-odometer [countTo]="stateEventsWithPenalty$ | async"></hop-odometer>
             <div>Strafen</div>
           </mat-card>
-          <mat-card class="count-row">
+          <mat-card appearance="outlined" class="count-row">
             <hop-odometer [countTo]="stateAverageRoundsPerGame$ | async" [precision]="1"></hop-odometer>
             <div>Runden pro Spiel</div>
           </mat-card>
-          <mat-card class="count-row">
+          <mat-card appearance="outlined" class="count-row">
             <hop-odometer [countTo]="stateAveragePenaltyPerGame$ | async" [precision]="2" suffix="€"></hop-odometer>
             <div>Strafen pro Spiel</div>
           </mat-card>
@@ -88,7 +88,7 @@
       Streaks
     </ng-template>
     <div class="card-container">
-      <mat-card class="count-row">
+      <mat-card appearance="outlined" class="count-row">
         <ng-container *ngIf="stateMaxSchockAusStreak$ | async as stateMaxSchockAusStreak">
           <hop-odometer [countTo]="stateMaxSchockAusStreak.count"></hop-odometer>
           <div>
@@ -113,7 +113,7 @@
           </button>
         </ng-container>
       </mat-card>
-      <mat-card class="count-row">
+      <mat-card appearance="outlined" class="count-row">
         <ng-container *ngIf="stateNoSchockAusStreak$ | async as stateNoSchockAusStreak; else loading">
           <hop-odometer [countTo]="stateNoSchockAusStreak.overallMax.count"></hop-odometer>
           <div>
@@ -127,7 +127,7 @@
         </ng-container>
       </mat-card>
 
-      <mat-card class="count-row">
+      <mat-card appearance="outlined" class="count-row">
         <ng-container *ngIf="stateNoVerlorenStreak$ | async as stateNoVerlorenStreak; else loading">
           <hop-odometer [countTo]="stateNoVerlorenStreak.overallMax.count"></hop-odometer>
           <div>
@@ -141,7 +141,7 @@
         </ng-container>
       </mat-card>
 
-      <mat-card class="count-row">
+      <mat-card appearance="outlined" class="count-row">
         <ng-container *ngIf="stateNo221Streak$ | async as stateNo221Streak; else loading">
           <hop-odometer [countTo]="stateNo221Streak.overallMax.count"></hop-odometer>
           <div>
@@ -155,7 +155,7 @@
         </ng-container>
       </mat-card>
 
-      <mat-card class="count-row">
+      <mat-card appearance="outlined" class="count-row">
         <ng-container *ngIf="stateNoLustwurfStreak$ | async as stateNoLustwurfStreak; else loading">
           <hop-odometer [countTo]="stateNoLustwurfStreak.overallMax.count"></hop-odometer>
           <div>
@@ -176,7 +176,7 @@
       Rekorde
     </ng-template>
     <div class="card-container">
-      <mat-card class="count-row">
+      <mat-card appearance="outlined" class="count-row">
         <ng-container *ngIf="stateMaxRoundsPerGame$ | async as stateMaxRoundsPerGame">
           <hop-odometer [countTo]="stateMaxRoundsPerGame.count"></hop-odometer>
           <div>
@@ -192,7 +192,7 @@
           </div>
         </ng-container>
       </mat-card>
-      <mat-card class="count-row">
+      <mat-card appearance="outlined" class="count-row">
         <ng-container *ngIf="stateMaxSchockAusPerGame$ | async as stateMaxSchockAusPerGame; else loading">
           <hop-odometer [countTo]="stateMaxSchockAusPerGame[0]?.count"></hop-odometer>
           <div>
@@ -210,7 +210,7 @@
           </div>
         </ng-container>
       </mat-card>
-      <mat-card class="count-row">
+      <mat-card appearance="outlined" class="count-row">
         <ng-container *ngIf="stateMax221PerGame$ | async as stateMax221PerGame; else loading">
           <hop-odometer [countTo]="stateMax221PerGame[0]?.count"></hop-odometer>
           <div>
@@ -227,7 +227,7 @@
           </div>
         </ng-container>
       </mat-card>
-      <mat-card class="count-row">
+      <mat-card appearance="outlined" class="count-row">
         <ng-container *ngIf="stateMaxLustwurfPerGame$ | async as stateMaxLustwurfPerGame; else loading">
           <hop-odometer [countTo]="stateMaxLustwurfPerGame[0]?.count"></hop-odometer>
           <div>
@@ -274,7 +274,7 @@
       <mat-icon>gavel</mat-icon>
       Strafen
     </ng-template>
-    <mat-tab-group color="accent">
+    <mat-tab-group color="accent" mat-stretch-tabs="false" mat-align-tabs="start">
       <mat-tab label="pro Spieler">
         <ng-container *ngIf="eventTypeGroups$ | async as eventTypeGroups">
           <form [formGroup]="penaltyForm" style="padding-top: 20px;">
@@ -312,7 +312,7 @@
       </mat-tab>
       <mat-tab label="Kasse">
         <div class="card-container">
-          <mat-card class="count-row">
+          <mat-card appearance="outlined" class="count-row">
             <ng-container *ngIf="stateCashTable$ | async as stateCashTable; else loading">
               <hop-odometer [countTo]="stateCashTable.overallSum" [precision]="2" [suffix]="'€'"></hop-odometer>
               <div>Bußgelder</div>
@@ -342,7 +342,7 @@
       <mat-icon svgIcon="schock_aus"></mat-icon>
       Schock-Aus
     </ng-template>
-    <mat-tab-group color="accent">
+    <mat-tab-group color="accent" mat-stretch-tabs="false" mat-align-tabs="start">
       <mat-tab label="Schock-Aus">
         <hop-ranking-table
           *ngIf="stateSchockAusCountsByPlayerTable$ | async as schockAusCountsByPlayerTable; else loading"

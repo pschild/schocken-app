@@ -176,7 +176,6 @@ export class ActiveGameState {
         EventTypeListModalComponent,
         {
           width: '500px',
-          maxWidth: '90%',
           autoFocus: false,
           data: {
             eventTypes: this.store.selectSnapshot(EventTypesState.gameEventTypes),
@@ -216,7 +215,6 @@ export class ActiveGameState {
         EventTypeListModalComponent,
         {
           width: '500px',
-          maxWidth: '90%',
           autoFocus: false,
           data: {
             eventTypes: this.store.selectSnapshot(EventTypesState.roundEventTypes),
