@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { GameDto, PlayerDto } from '@hop-backend-api';
 
@@ -7,7 +7,7 @@ import { GameDto, PlayerDto } from '@hop-backend-api';
   templateUrl: './game-details.component.html',
   styleUrls: ['./game-details.component.scss']
 })
-export class GameDetailsComponent implements OnInit {
+export class GameDetailsComponent implements OnInit, OnChanges {
 
   @Input() game: GameDto;
   @Input() players: PlayerDto[];
@@ -33,6 +33,18 @@ export class GameDetailsComponent implements OnInit {
     this.placeDetailFormControl.setValue(this.game.placeDetail);
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.game) {
+      if (changes.game.currentValue.completed) {
+        this.placeSelectFormControl.disable();
+        this.placeDetailFormControl.disable();
+      } else {
+        this.placeSelectFormControl.enable();
+        this.placeDetailFormControl.enable();
+      }
+    }
+  }
+
   updatePlace(): void {
     this.onUpdatePlace.emit({
       place: this.placeSelectFormControl.value,
@@ -41,6 +53,7 @@ export class GameDetailsComponent implements OnInit {
         : undefined
     });
     this.placeSelectFormControl.markAsPristine();
+    this.placeDetailFormControl.markAsPristine();
   }
 
   updateCompletedStatus(completedStatus: boolean): void {

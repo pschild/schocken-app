@@ -56,7 +56,7 @@
                   <td>
                     <div class="left-right">
                       <strong [ngClass]="{ 'inactive': !player.active }">{{player.name}}</strong>
-                      <button mat-icon-button color="primary" (click)="addGameEvent(player)">
+                      <button mat-icon-button *ngIf="!data.game?.completed" color="primary" (click)="addGameEvent(player)">
                         <mat-icon>add</mat-icon>
                       </button>
                     </div>
@@ -71,7 +71,7 @@
                             <mat-icon [matTooltip]="event.comment" style="margin-left: 10px;">comment</mat-icon>
                           </ng-container>
                         </div>
-                        <button mat-icon-button color="warn" (click)="removeGameEvent(event.eventId)">
+                        <button mat-icon-button *ngIf="!data.game?.completed" color="warn" (click)="removeGameEvent(event.eventId)">
                           <mat-icon>close</mat-icon>
                         </button>
                       </div>
@@ -109,10 +109,10 @@
                 <tr *ngFor="let player of data.players; trackBy: trackByPlayer">
                   <td>
                     <div class="left-right">
-                      <mat-checkbox [checked]="round | isParticipating:player._id" (change)="changeParticipation($event, round._id, player._id)">
+                      <mat-checkbox [checked]="round | isParticipating:player._id" (change)="changeParticipation($event, round._id, player._id)" [disabled]="data.game?.completed">
                         <strong [ngClass]="{ 'not-participated': !(round | isParticipating:player._id), 'inactive': !player.active }">{{player.name}}</strong>
                       </mat-checkbox>
-                      <button *ngIf="round | isParticipating:player._id" mat-icon-button color="primary" (click)="addRoundEvent(player, round._id)">
+                      <button *ngIf="(round | isParticipating:player._id) && !data.game?.completed" mat-icon-button color="primary" (click)="addRoundEvent(player, round._id)">
                         <mat-icon>add</mat-icon>
                       </button>
                     </div>
@@ -127,7 +127,7 @@
                             <mat-icon [matTooltip]="event.comment" style="margin-left: 10px;">comment</mat-icon>
                           </ng-container>
                         </div>
-                        <button mat-icon-button color="warn" (click)="removeRoundEvent(event.eventId)">
+                        <button mat-icon-button *ngIf="!data.game?.completed" color="warn" (click)="removeRoundEvent(event.eventId)">
                           <mat-icon>close</mat-icon>
                         </button>
                       </div>

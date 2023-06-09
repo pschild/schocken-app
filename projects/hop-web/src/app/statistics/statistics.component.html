@@ -84,168 +84,168 @@
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>
-      <mat-icon>insights</mat-icon>
-      Streaks
-    </ng-template>
-    <div class="card-container">
-      <mat-card appearance="outlined" class="count-row">
-        <ng-container *ngIf="stateMaxSchockAusStreak$ | async as stateMaxSchockAusStreak">
-          <hop-odometer [countTo]="stateMaxSchockAusStreak.count"></hop-odometer>
-          <div>
-            Schock-Aus-Streak
-            <div *ngIf="stateMaxSchockAusStreak.count > 0">
-              <small>
-                am
-                <a [href]="'game/' + stateMaxSchockAusStreak.gameId">
-                  {{ stateMaxSchockAusStreak.datetime | date:'dd.MM.yyyy' }}
-                </a>
-              </small>
-            </div>
-          </div>
-          <button mat-icon-button (click)="tooltipSAStreak.show()">
-            <mat-icon
-              #tooltipSAStreak="matTooltip"
-              matTooltip="aufeinanderfolgende Runden mit mind. 1x Schock-Aus"
-              [matTooltipPosition]="'right'"
-              (mouseenter)="$event.stopImmediatePropagation()"
-              (mouseleave)="$event.stopImmediatePropagation()"
-            >info</mat-icon>
-          </button>
-        </ng-container>
-      </mat-card>
-      <mat-card appearance="outlined" class="count-row">
-        <ng-container *ngIf="stateNoSchockAusStreak$ | async as stateNoSchockAusStreak; else loading">
-          <hop-odometer [countTo]="stateNoSchockAusStreak.overallMax.count"></hop-odometer>
-          <div>
-            Runden ohne <strong>Schock-Aus</strong>
-            <div *ngIf="stateNoSchockAusStreak.overallMax.name && stateNoSchockAusStreak.overallMax.to">
-              <small>
-                von {{ stateNoSchockAusStreak.overallMax.name }} am {{ stateNoSchockAusStreak.overallMax.to | date:'dd.MM.yyyy' }}
-              </small>
-            </div>
-          </div>
-        </ng-container>
-      </mat-card>
-
-      <mat-card appearance="outlined" class="count-row">
-        <ng-container *ngIf="stateNoVerlorenStreak$ | async as stateNoVerlorenStreak; else loading">
-          <hop-odometer [countTo]="stateNoVerlorenStreak.overallMax.count"></hop-odometer>
-          <div>
-            Runden ohne <strong>Niederlage</strong>
-            <div *ngIf="stateNoVerlorenStreak.overallMax.name && stateNoVerlorenStreak.overallMax.to">
-              <small>
-                von {{ stateNoVerlorenStreak.overallMax.name }} am {{ stateNoVerlorenStreak.overallMax.to | date:'dd.MM.yyyy' }}
-              </small>
-            </div>
-          </div>
-        </ng-container>
-      </mat-card>
-
-      <mat-card appearance="outlined" class="count-row">
-        <ng-container *ngIf="stateNo221Streak$ | async as stateNo221Streak; else loading">
-          <hop-odometer [countTo]="stateNo221Streak.overallMax.count"></hop-odometer>
-          <div>
-            Runden ohne <strong>2-2-1</strong>
-            <div *ngIf="stateNo221Streak.overallMax.name && stateNo221Streak.overallMax.to">
-              <small>
-                von {{ stateNo221Streak.overallMax.name }} am {{ stateNo221Streak.overallMax.to | date:'dd.MM.yyyy' }}
-              </small>
-            </div>
-          </div>
-        </ng-container>
-      </mat-card>
-
-      <mat-card appearance="outlined" class="count-row">
-        <ng-container *ngIf="stateNoLustwurfStreak$ | async as stateNoLustwurfStreak; else loading">
-          <hop-odometer [countTo]="stateNoLustwurfStreak.overallMax.count"></hop-odometer>
-          <div>
-            Runden ohne <strong>Lustwurf</strong>
-            <div *ngIf="stateNoLustwurfStreak.overallMax.name && stateNoLustwurfStreak.overallMax.to">
-              <small>
-                von {{ stateNoLustwurfStreak.overallMax.name }} am {{ stateNoLustwurfStreak.overallMax.to | date:'dd.MM.yyyy' }}
-              </small>
-            </div>
-          </div>
-        </ng-container>
-      </mat-card>
-    </div>
-  </mat-tab>
-  <mat-tab>
-    <ng-template mat-tab-label>
       <mat-icon>star</mat-icon>
       Rekorde
     </ng-template>
-    <div class="card-container">
-      <mat-card appearance="outlined" class="count-row">
-        <ng-container *ngIf="stateMaxRoundsPerGame$ | async as stateMaxRoundsPerGame">
-          <hop-odometer [countTo]="stateMaxRoundsPerGame.count"></hop-odometer>
-          <div>
-            Die meisten Runden pro Spiel
-            <div *ngIf="stateMaxRoundsPerGame.count > 0">
-              <small>
-                am
-                <a [href]="'game/' + stateMaxRoundsPerGame.gameId">
-                  {{ stateMaxRoundsPerGame.datetime | date:'dd.MM.yyyy' }}
-                </a>
-              </small>
-            </div>
-          </div>
-        </ng-container>
-      </mat-card>
-      <mat-card appearance="outlined" class="count-row">
-        <ng-container *ngIf="stateMaxSchockAusPerGame$ | async as stateMaxSchockAusPerGame; else loading">
-          <hop-odometer [countTo]="stateMaxSchockAusPerGame[0]?.count"></hop-odometer>
-          <div>
-            Die meisten Schock-Aus
-            <div *ngIf="stateMaxSchockAusPerGame[0]">
-              <small>
-                von
-                <span *ngFor="let item of stateMaxSchockAusPerGame; let isLast = last">
-                  {{item.name}}
-                  <a [href]="'game/' + item.gameId">({{item.datetime | date:'MM/yyyy'}})</a>
-                  {{isLast ? '' : ', '}}
-                </span>
-              </small>
-            </div>
-          </div>
-        </ng-container>
-      </mat-card>
-      <mat-card appearance="outlined" class="count-row">
-        <ng-container *ngIf="stateMax221PerGame$ | async as stateMax221PerGame; else loading">
-          <hop-odometer [countTo]="stateMax221PerGame[0]?.count"></hop-odometer>
-          <div>
-            Die meisten 2-2-1
-            <div *ngIf="stateMax221PerGame[0]">
-              <small>
-                <span *ngFor="let item of stateMax221PerGame; let isLast = last">
-                  {{item.name}}
-                  <a [href]="'game/' + item.gameId">({{item.datetime | date:'MM/yyyy'}})</a>
-                  {{isLast ? '' : ', '}}
-                </span>
-              </small>
-            </div>
-          </div>
-        </ng-container>
-      </mat-card>
-      <mat-card appearance="outlined" class="count-row">
-        <ng-container *ngIf="stateMaxLustwurfPerGame$ | async as stateMaxLustwurfPerGame; else loading">
-          <hop-odometer [countTo]="stateMaxLustwurfPerGame[0]?.count"></hop-odometer>
-          <div>
-            Die meisten Lustwürfe
-            <div *ngIf="stateMaxLustwurfPerGame[0]">
-              <small>
-                von
-                <span *ngFor="let item of stateMaxLustwurfPerGame; let isLast = last">
-                  {{item.name}}
-                  <a [href]="'game/' + item.gameId">({{item.datetime | date:'MM/yyyy'}})</a>
-                  {{isLast ? '' : ', '}}
-                </span>
-              </small>
-            </div>
-          </div>
-        </ng-container>
-      </mat-card>
-    </div>
+    <mat-tab-group color="accent" mat-stretch-tabs="false" mat-align-tabs="start">
+      <mat-tab label="Spielübergreifend">
+        <div class="card-container">
+          <mat-card appearance="outlined" class="count-row">
+            <ng-container *ngIf="stateNoSchockAusStreak$ | async as stateNoSchockAusStreak; else loading">
+              <hop-odometer [countTo]="stateNoSchockAusStreak.overallMax.count"></hop-odometer>
+              <div>
+                Runden ohne <strong>Schock-Aus</strong>
+                <div *ngIf="stateNoSchockAusStreak.overallMax.name && stateNoSchockAusStreak.overallMax.to">
+                  <small>
+                    von {{ stateNoSchockAusStreak.overallMax.name }} am {{ stateNoSchockAusStreak.overallMax.to | date:'dd.MM.yyyy' }}
+                  </small>
+                </div>
+              </div>
+            </ng-container>
+          </mat-card>
+    
+          <mat-card appearance="outlined" class="count-row">
+            <ng-container *ngIf="stateNoVerlorenStreak$ | async as stateNoVerlorenStreak; else loading">
+              <hop-odometer [countTo]="stateNoVerlorenStreak.overallMax.count"></hop-odometer>
+              <div>
+                Runden ohne <strong>Niederlage</strong>
+                <div *ngIf="stateNoVerlorenStreak.overallMax.name && stateNoVerlorenStreak.overallMax.to">
+                  <small>
+                    von {{ stateNoVerlorenStreak.overallMax.name }} am {{ stateNoVerlorenStreak.overallMax.to | date:'dd.MM.yyyy' }}
+                  </small>
+                </div>
+              </div>
+            </ng-container>
+          </mat-card>
+    
+          <mat-card appearance="outlined" class="count-row">
+            <ng-container *ngIf="stateNo221Streak$ | async as stateNo221Streak; else loading">
+              <hop-odometer [countTo]="stateNo221Streak.overallMax.count"></hop-odometer>
+              <div>
+                Runden ohne <strong>2-2-1</strong>
+                <div *ngIf="stateNo221Streak.overallMax.name && stateNo221Streak.overallMax.to">
+                  <small>
+                    von {{ stateNo221Streak.overallMax.name }} am {{ stateNo221Streak.overallMax.to | date:'dd.MM.yyyy' }}
+                  </small>
+                </div>
+              </div>
+            </ng-container>
+          </mat-card>
+    
+          <mat-card appearance="outlined" class="count-row">
+            <ng-container *ngIf="stateNoLustwurfStreak$ | async as stateNoLustwurfStreak; else loading">
+              <hop-odometer [countTo]="stateNoLustwurfStreak.overallMax.count"></hop-odometer>
+              <div>
+                Runden ohne <strong>Lustwurf</strong>
+                <div *ngIf="stateNoLustwurfStreak.overallMax.name && stateNoLustwurfStreak.overallMax.to">
+                  <small>
+                    von {{ stateNoLustwurfStreak.overallMax.name }} am {{ stateNoLustwurfStreak.overallMax.to | date:'dd.MM.yyyy' }}
+                  </small>
+                </div>
+              </div>
+            </ng-container>
+          </mat-card>
+        </div>
+      </mat-tab>
+      <mat-tab label="pro Spiel">
+        <div class="card-container">
+          <mat-card appearance="outlined" class="count-row">
+            <ng-container *ngIf="stateMaxSchockAusStreak$ | async as stateMaxSchockAusStreak">
+              <hop-odometer [countTo]="stateMaxSchockAusStreak.count"></hop-odometer>
+              <div>
+                Schock-Aus-Streak
+                <div *ngIf="stateMaxSchockAusStreak.count > 0">
+                  <small>
+                    am
+                    <a [href]="'game/' + stateMaxSchockAusStreak.gameId">
+                      {{ stateMaxSchockAusStreak.datetime | date:'dd.MM.yyyy' }}
+                    </a>
+                  </small>
+                </div>
+              </div>
+              <button mat-icon-button (click)="tooltipSAStreak.show()">
+                <mat-icon
+                  #tooltipSAStreak="matTooltip"
+                  matTooltip="aufeinanderfolgende Runden mit mind. 1x Schock-Aus"
+                  [matTooltipPosition]="'right'"
+                  (mouseenter)="$event.stopImmediatePropagation()"
+                  (mouseleave)="$event.stopImmediatePropagation()"
+                >info</mat-icon>
+              </button>
+            </ng-container>
+          </mat-card>
+          <mat-card appearance="outlined" class="count-row">
+            <ng-container *ngIf="stateMaxRoundsPerGame$ | async as stateMaxRoundsPerGame">
+              <hop-odometer [countTo]="stateMaxRoundsPerGame.count"></hop-odometer>
+              <div>
+                Die meisten Runden
+                <div *ngIf="stateMaxRoundsPerGame.count > 0">
+                  <small>
+                    am
+                    <a [href]="'game/' + stateMaxRoundsPerGame.gameId">
+                      {{ stateMaxRoundsPerGame.datetime | date:'dd.MM.yyyy' }}
+                    </a>
+                  </small>
+                </div>
+              </div>
+            </ng-container>
+          </mat-card>
+          <mat-card appearance="outlined" class="count-row">
+            <ng-container *ngIf="stateMaxSchockAusPerGame$ | async as stateMaxSchockAusPerGame; else loading">
+              <hop-odometer [countTo]="stateMaxSchockAusPerGame[0]?.count"></hop-odometer>
+              <div>
+                Die meisten Schock-Aus
+                <div *ngIf="stateMaxSchockAusPerGame[0]">
+                  <small>
+                    von
+                    <span *ngFor="let item of stateMaxSchockAusPerGame; let isLast = last">
+                      {{item.name}}
+                      <a [href]="'game/' + item.gameId">({{item.datetime | date:'MM/yyyy'}})</a>
+                      {{isLast ? '' : ', '}}
+                    </span>
+                  </small>
+                </div>
+              </div>
+            </ng-container>
+          </mat-card>
+          <mat-card appearance="outlined" class="count-row">
+            <ng-container *ngIf="stateMax221PerGame$ | async as stateMax221PerGame; else loading">
+              <hop-odometer [countTo]="stateMax221PerGame[0]?.count"></hop-odometer>
+              <div>
+                Die meisten 2-2-1
+                <div *ngIf="stateMax221PerGame[0]">
+                  <small>
+                    <span *ngFor="let item of stateMax221PerGame; let isLast = last">
+                      {{item.name}}
+                      <a [href]="'game/' + item.gameId">({{item.datetime | date:'MM/yyyy'}})</a>
+                      {{isLast ? '' : ', '}}
+                    </span>
+                  </small>
+                </div>
+              </div>
+            </ng-container>
+          </mat-card>
+          <mat-card appearance="outlined" class="count-row">
+            <ng-container *ngIf="stateMaxLustwurfPerGame$ | async as stateMaxLustwurfPerGame; else loading">
+              <hop-odometer [countTo]="stateMaxLustwurfPerGame[0]?.count"></hop-odometer>
+              <div>
+                Die meisten Lustwürfe
+                <div *ngIf="stateMaxLustwurfPerGame[0]">
+                  <small>
+                    von
+                    <span *ngFor="let item of stateMaxLustwurfPerGame; let isLast = last">
+                      {{item.name}}
+                      <a [href]="'game/' + item.gameId">({{item.datetime | date:'MM/yyyy'}})</a>
+                      {{isLast ? '' : ', '}}
+                    </span>
+                  </small>
+                </div>
+              </div>
+            </ng-container>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>

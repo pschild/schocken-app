@@ -120,8 +120,12 @@ $cards-margin: 10px;
 
 .datepicker-row {
   mat-form-field {
-    max-width: 35%;
+    width: 35%;
     margin-right: 10px;
+
+    @media (max-width: 500px) {
+      width: 100%;
+    }
   }
 }
 

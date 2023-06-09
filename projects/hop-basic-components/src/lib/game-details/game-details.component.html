@@ -18,7 +18,7 @@
       <input matInput placeholder="Wo genau?" [formControl]="placeDetailFormControl">
     </mat-form-field>
 
-    <button mat-icon-button color="primary" *ngIf="!placeSelectFormControl.pristine" (click)="updatePlace()">
+    <button mat-icon-button color="primary" *ngIf="(!placeSelectFormControl.pristine || !placeDetailFormControl.pristine) && !game.completed" (click)="updatePlace()">
       <mat-icon>check</mat-icon>
     </button>
 
