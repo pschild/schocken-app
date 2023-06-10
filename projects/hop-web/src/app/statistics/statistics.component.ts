@@ -129,6 +129,9 @@ export class StatisticsComponent implements OnInit {
   @Select(StatisticsState.streakByEventType(LUSTWURF_EVENT_TYPE_ID))
   stateNoLustwurfStreak$: Observable<StreakResult>;
 
+  @Select(StatisticsState.penaltyStreak)
+  penaltyStreak$: Observable<any>;
+
   @Select(StatisticsState.pointsTable)
   statePointsTable$: Observable<Ranking[]>;
 

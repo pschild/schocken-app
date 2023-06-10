@@ -145,6 +145,31 @@
               </div>
             </ng-container>
           </mat-card>
+
+          <ng-container *ngIf="penaltyStreak$ | async as penaltyStreak">
+            <mat-card appearance="outlined" class="count-row">
+              <hop-odometer [countTo]="penaltyStreak.withoutPenaltyOverallMax.count"></hop-odometer>
+              <div>
+                Runden <strong>ohne</strong> Strafe
+                <div *ngIf="penaltyStreak.withoutPenaltyOverallMax.name && penaltyStreak.withoutPenaltyOverallMax.to">
+                  <small>
+                    von {{ penaltyStreak.withoutPenaltyOverallMax.name }} am {{ penaltyStreak.withoutPenaltyOverallMax.to | date:'dd.MM.yyyy' }}
+                  </small>
+                </div>
+              </div>
+            </mat-card>
+            <mat-card appearance="outlined" class="count-row">
+              <hop-odometer [countTo]="penaltyStreak.withPenaltyOverallMax.count"></hop-odometer>
+              <div>
+                Runden <strong>mit mind. 1</strong> Strafe
+                <div *ngIf="penaltyStreak.withPenaltyOverallMax.name && penaltyStreak.withPenaltyOverallMax.to">
+                  <small>
+                    von {{ penaltyStreak.withPenaltyOverallMax.name }} am {{ penaltyStreak.withPenaltyOverallMax.to | date:'dd.MM.yyyy' }}
+                  </small>
+                </div>
+              </div>
+            </mat-card>
+          </ng-container>
         </div>
       </mat-tab>
       <mat-tab label="pro Spiel">

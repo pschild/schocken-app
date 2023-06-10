@@ -460,6 +460,11 @@ export class StatisticsState {
     );
   }
 
+  @Selector([StatisticsState.filteredRoundsSorted, StatisticsState.filteredRoundEvents, EventTypesState.eventTypes, StatisticsState.filteredPlayers])
+  static penaltyStreak(orderedRounds: RoundDto[], filteredEvents: RoundEventDto[], eventTypes: EventTypeDto[], players: PlayerDto[]): any {
+    return StreakUtil.calculatePenaltyStreak(orderedRounds, filteredEvents, eventTypes, players);
+  }
+
   @Selector([StatisticsState.gamePlaces])
   static gameHostsTable(places: string[]): { name: string; count: number; }[] {
     const counts = countBy(places);
