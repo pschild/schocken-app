@@ -55,7 +55,7 @@
             <div>Runden pro Spiel</div>
           </mat-card>
           <mat-card appearance="outlined" class="count-row">
-            <hop-odometer [countTo]="stateAveragePenaltyPerGame$ | async" [precision]="2" suffix="€"></hop-odometer>
+            <hop-odometer [countTo]="stateAveragePenaltyPerGame$ | async" type="currency"></hop-odometer>
             <div>Strafen pro Spiel</div>
           </mat-card>
         </div>
@@ -171,6 +171,12 @@
             </mat-card>
           </ng-container>
         </div>
+        <small class="hint">
+          <mat-icon>info</mat-icon>
+          <span>
+            Die Werte geben an, in wie vielen <i>aufeinanderfolgenden spielübergreifenden Runden</i> das jeweilige Ereignis (nicht) stattfand.
+          </span>
+        </small>
       </mat-tab>
       <mat-tab label="pro Spiel">
         <div class="card-container">
@@ -339,7 +345,7 @@
         <div class="card-container">
           <mat-card appearance="outlined" class="count-row">
             <ng-container *ngIf="stateCashTable$ | async as stateCashTable; else loading">
-              <hop-odometer [countTo]="stateCashTable.overallSum" [precision]="2" [suffix]="'€'"></hop-odometer>
+              <hop-odometer [countTo]="stateCashTable.overallSum" type="currency"></hop-odometer>
               <div>Bußgelder</div>
             </ng-container>
             <button mat-icon-button (click)="tooltipCash.show()">

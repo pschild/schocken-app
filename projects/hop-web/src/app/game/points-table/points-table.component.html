@@ -7,7 +7,7 @@
 <div class="card-container">
   <mat-card appearance="outlined" class="count-row">
     <ng-container *ngIf="cashCountRanking$ | async as cashCountRanking; else loading">
-      <hop-odometer [countTo]="cashCountRanking.overallSum" [precision]="2" [suffix]="'€'"></hop-odometer>
+      <hop-odometer [countTo]="cashCountRanking.overallSum" type="currency"></hop-odometer>
       <div>Bußgelder</div>
     </ng-container>
     <button mat-icon-button (click)="tooltipCash.show()">

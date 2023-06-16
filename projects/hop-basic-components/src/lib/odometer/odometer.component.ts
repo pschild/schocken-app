@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { Observable, Subject, timer } from 'rxjs';
-import { endWith, map, startWith, switchMap, takeWhile } from 'rxjs/operators';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { BehaviorSubject, Observable, ReplaySubject, timer } from 'rxjs';
+import { map, switchMap, takeWhile, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'hop-odometer',
@@ -9,38 +9,40 @@ import { endWith, map, startWith, switchMap, takeWhile } from 'rxjs/operators';
 })
 export class OdometerComponent implements OnInit, OnChanges {
 
-  private COUNT_INTERVAL_MS = 10;
+  private COUNT_INTERVAL_MS = 50;
   private DURATION = 500;
 
-  value$: Observable<string>;
-
-  trigger = new Subject();
-
   @Input() countTo: number;
-  @Input() precision = 0;
-  @Input() suffix: string;
+  @Input() precision: number = 0;
+  @Input() type: 'number' | 'currency' = 'number';
+
+  targetValue$: ReplaySubject<number> = new ReplaySubject(1);
+  currentValue$: Observable<string>;
+  tempValue$: BehaviorSubject<number> = new BehaviorSubject(0);
+
+  get precisionExpr(): string {
+    return '1.' + this.precision;
+  }
 
   constructor() { }
 
   ngOnInit(): void {
-    const timer$ = timer(0, this.COUNT_INTERVAL_MS).pipe(
-      map((currentValue: number) => {
-        return currentValue * (this.countTo / (this.DURATION / this.COUNT_INTERVAL_MS));
-      }),
-      takeWhile((currentValue: number) => currentValue <= this.countTo, true)
-    );
-
-    this.value$ = this.trigger.asObservable().pipe(
-      startWith(0),
-      switchMap(() => timer$.pipe(endWith(this.countTo))),
-      map((value: number) => value.toFixed(this.precision))
+    this.currentValue$ = this.targetValue$.pipe(
+      switchMap(targetValue => timer(0, this.COUNT_INTERVAL_MS).pipe(
+        map(timerValue => this.tempValue$.value + timerValue * ((targetValue - this.tempValue$.value) / (this.DURATION / this.COUNT_INTERVAL_MS))),
+        takeWhile(currentValue => currentValue !== targetValue, true),
+        tap(v => this.tempValue$.next(v)),
+        map(currentValue => this.type === 'currency' ? currentValue.toFixed(2) : currentValue.toFixed(this.precision)),
+      )),
     );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.countTo.currentValue >= 0) {
-      this.countTo = +changes.countTo.currentValue;
-      this.trigger.next();
+    if (
+      typeof changes.countTo.currentValue !== 'undefined'
+      && !isNaN(changes.countTo.currentValue)
+    ) {
+      this.targetValue$.next(+changes.countTo.currentValue);
     }
   }
 

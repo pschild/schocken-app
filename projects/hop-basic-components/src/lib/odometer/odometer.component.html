@@ -1,4 +1,7 @@
-<span>{{value$ | async}}{{suffix}}</span>
+<ng-container [ngSwitch]="type">
+  <span *ngSwitchCase="'number'">{{currentValue$ | async | number:precisionExpr}}</span>
+  <span *ngSwitchCase="'currency'">{{currentValue$ | async | currency}}</span>
+</ng-container>
 <!-- <div>
-  <small style="font-size: 12px">({{countTo.toFixed(precision)}}{{suffix}})</small>
+  <small style="font-size: 12px">({{countTo?.toFixed(2)}})</small>
 </div> -->

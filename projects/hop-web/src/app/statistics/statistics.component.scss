@@ -1,5 +1,12 @@
 $cards-margin: 10px;
 
+.hint {
+  display: flex;
+  margin: 10px 0;
+  align-items: center;
+  color: #888;
+}
+
 .card-container {
   text-align: center;
 
@@ -70,12 +77,6 @@ $cards-margin: 10px;
 .table-wrapper {
   max-width: 100%;
   overflow: auto;
-
-  .hint {
-    display: flex;
-    align-items: center;
-    color: #888;
-  }
 
   .stats-table {
     tr:first-child {
