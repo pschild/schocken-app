@@ -5,6 +5,10 @@ $cards-margin: 10px;
   margin: 10px 0;
   align-items: center;
   color: #888;
+
+  mat-icon {
+    min-width: 30px;
+  }
 }
 
 .card-container {

@@ -283,11 +283,55 @@
       <mat-icon>military_tech</mat-icon>
       Punkte
     </ng-template>
+    <form [formGroup]="pointsForm" style="padding-top: 20px;">
+      <mat-form-field style="width: 350px;">
+        <mat-label>Punktevergabe</mat-label>
+        <mat-select formControlName="type">
+          <mat-option value="SKIP">Punkte überspringen</mat-option>
+          <mat-option value="SKIP_SINGLE">1 Punkt überspringen</mat-option>
+          <mat-option value="NO_SKIP">Punkte nicht überspringen</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+    <ng-container [ngSwitch]="pointsForm.get('type').value">
+      <small class="hint">
+        <mat-icon>info</mat-icon>
+        <span>
+          Punkteskala: 5, 3, 2, 1
+        </span>
+      </small>
+      <small class="hint">
+        <mat-icon>info</mat-icon>
+        <span *ngSwitchCase="'SKIP'">
+          Für jede mehrfach belegte Platzierung wird die entsprechende Anzahl auf der Punkteskala übersprungen.<br/>
+          Beispiel: Bei 3 ersten Plätzen bekommen diese je 5 Punkte, ein 2. Platz nur noch 1 Punkt (3 + 2 Punkte entfallen), die folgenden Plätze 0 Punkte.
+        </span>
+        <span *ngSwitchCase="'SKIP_SINGLE'">
+          Für jede mehrfach belegte Platzierung wird <u>ein</u> Schritt auf der Punkteskala übersprungen.<br/>
+          Beispiel: Bei 3 ersten Plätzen bekommen diese je 5 Punkte, ein 2. Platz nur noch 2 Punkte (3 Punkte entfallen), ein 3. Platz 1 Punkt, die folgenden Plätze 0 Punkte.
+        </span>
+        <span *ngSwitchCase="'NO_SKIP'">
+          Für jede mehrfach belegte Platzierung werden <u>keine</u> Schritte auf der Punkteskala übersprungen.<br/>
+          Beispiel: Bei 3 ersten Plätzen bekommen diese je 5 Punkte, ein 2. Platz 3 Punkte, ein 3. Platz 2 Punkte, ein 4. Platz 1 Punkt, die folgenden Plätze 0 Punkte.
+        </span>
+      </small>
+  </ng-container>
     <hop-ranking-table
       *ngIf="statePointsTable$ | async as statePointsTable; else loading"
       [tableData]="statePointsTable"
       [tableConfig]="pointsTableConfig"
-    ></hop-ranking-table>
+    >
+    <small class="hint">
+      <mat-icon>info</mat-icon>
+      <span>
+        Verl.: Höchstpunktzahl für die <strong>wenigsten</strong> Niederlagen pro gespielten Runden.<br/>
+        221: Höchstpunktzahl für die <strong>wenigsten</strong> 221 pro gespielten Runden.<br/>
+        SA: Höchstpunktzahl für die <strong>meisten</strong> Schock-Aus pro gespielten Runden.<br/>
+        Strafen: Höchstpunktzahl für die <strong>wenigsten</strong> € pro gespielten Runden (inkl. Feststellungen).<br/>
+        Lustwürfe: Ein <strong>Minuspunkt</strong> pro Lustwurf.
+      </span>
+    </small>
+  </hop-ranking-table>
   </mat-tab>
   <mat-tab>
     <ng-template mat-tab-label>

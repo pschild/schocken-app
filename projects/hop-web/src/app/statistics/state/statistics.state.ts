@@ -17,7 +17,7 @@ import { EventsState } from '../../state/events';
 import { GamesState } from '../../state/games';
 import { PlayersState } from '../../state/players';
 import { RoundsState } from '../../state/rounds/rounds.state';
-import { SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID } from '../model/event-type-ids';
+import { LUSTWURF_EVENT_TYPE_ID, SCHOCK_AUS_EVENT_TYPE_ID, SCHOCK_AUS_STRAFE_EVENT_TYPE_ID, VERLOREN_EVENT_TYPE_ID, ZWEI_ZWEI_EINS_EVENT_TYPE_ID } from '../model/event-type-ids';
 import { Ranking, RankingUtil } from '../ranking.util';
 import { StatisticsStateUtil } from './statistics-state.util';
 import { StatisticsActions } from './statistics.action';
@@ -30,6 +30,7 @@ export interface StatisticsStateModel {
   completedGamesOnly: boolean;
   gameIdFilter: string;
   chosenEventTypeIds: string[];
+  scoringType: any;
 }
 
 export const STATISTICS_STATE = new StateToken<StatisticsStateModel>('statistics');
@@ -43,6 +44,7 @@ export const STATISTICS_STATE = new StateToken<StatisticsStateModel>('statistics
     completedGamesOnly: true,
     gameIdFilter: undefined,
     chosenEventTypeIds: [],
+    scoringType: 'SKIP'
   }
 })
 
@@ -77,6 +79,11 @@ export class StatisticsState {
   @Selector()
   static chosenEventTypeIds(state: StatisticsStateModel): string[] {
     return state.chosenEventTypeIds || [];
+  }
+
+  @Selector()
+  static scoringType(state: StatisticsStateModel): any {
+    return state.scoringType;
   }
 
   // TODO: GamesState (?)
@@ -369,7 +376,7 @@ export class StatisticsState {
     const notParticipatedPlayers = playerTable.filter(item => !item.roundCount);
     return {
       playerTable: [
-        ...RankingUtil.sort(participatedPlayers, ['sum']),
+        ...RankingUtil.sort(participatedPlayers, ['cashPerRound'], 'asc'),
         RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
       ],
       overallSum: cashCountByPlayer.overallSum,
@@ -475,13 +482,15 @@ export class StatisticsState {
     StatisticsState.filteredPlayers,
     StatisticsState.roundsGroupedByGameId(),
     StatisticsState.filteredEvents,
-    EventTypesState.eventTypes
+    EventTypesState.eventTypes,
+    StatisticsState.scoringType
   ])
   static pointsByPlayer(
     players: PlayerDto[],
     roundsByGame: { gameId: string; rounds: RoundDto[]; }[],
     events: EventDto[],
     eventTypes: EventTypeDto[],
+    scoringType: any
   ): any[] {
     const eventsByGame = StatisticsStateUtil.customGroupBy(events, 'gameId');
     const pointsByGame = roundsByGame.map(item => {
@@ -500,7 +509,17 @@ export class StatisticsState {
         [VERLOREN_EVENT_TYPE_ID],
         'asc'
       );
-      const verlorenPoints = StatisticsStateUtil.skipPointsForEachPlayer(verlorenRanking, points);
+      const verlorenPoints = StatisticsStateUtil.calculatePoints(verlorenRanking, points, scoringType);
+
+      // 2-2-1
+      const zweiZweiEinsRanking = StatisticsStateUtil.eventCountsRanking(
+        players,
+        eventsByGame[item.gameId],
+        roundCount,
+        [ZWEI_ZWEI_EINS_EVENT_TYPE_ID],
+        'asc'
+      );
+      const zweiZweiEinsPoints = StatisticsStateUtil.calculatePoints(zweiZweiEinsRanking, points, scoringType);
 
       // SCHOCK-AUS
       const schockAusRanking = StatisticsStateUtil.eventCountsRanking(
@@ -509,7 +528,7 @@ export class StatisticsState {
         roundCount,
         [SCHOCK_AUS_EVENT_TYPE_ID]
       );
-      const schockAusPoints = StatisticsStateUtil.skipPointsForEachPlayer(schockAusRanking, points);
+      const schockAusPoints = StatisticsStateUtil.calculatePoints(schockAusRanking, points, scoringType);
 
       // CASH-COUNT
       const cashRanking = StatisticsStateUtil.cashCountRanking(
@@ -519,31 +538,44 @@ export class StatisticsState {
         roundCount,
         'asc'
       );
-      const cashPoints = StatisticsStateUtil.skipPointsForEachPlayer(cashRanking.playerTable, points);
+      const cashPoints = StatisticsStateUtil.calculatePoints(cashRanking.playerTable, points, scoringType);
+
+      const lustwuerfe = StatisticsStateUtil.eventCounts(
+        players,
+        eventsByGame[item.gameId],
+        roundCount,
+        [LUSTWURF_EVENT_TYPE_ID]
+      );
 
       return {
         gameId: item.gameId,
         roundCount,
         verlorenPoints,
+        zweiZweiEinsPoints,
         schockAusPoints,
         cashPoints,
+        lustwuerfe,
       };
     });
 
     return players.map(player => {
       const points = pointsByGame.filter(Boolean).reduce((prev, curr) => {
         const verlorenPoints = curr.verlorenPoints.find(p => p.id === player._id)?.points || 0;
+        const zweiZweiEinsPoints = curr.zweiZweiEinsPoints.find(p => p.id === player._id)?.points || 0;
         const schockAusPoints = curr.schockAusPoints.find(p => p.id === player._id)?.points || 0;
         const cashPoints = curr.cashPoints.find(p => p.id === player._id)?.points || 0;
+        const lustwuerfe = curr.lustwuerfe.find(p => p.id === player._id)?.eventCount || 0;
         const roundCount = curr.roundCount.find(p => p.playerId === player._id)?.count || 0;
         return {
           roundCount: prev.roundCount + roundCount,
           verlorenSum: prev.verlorenSum + verlorenPoints,
+          zweiZweiEinsSum: prev.zweiZweiEinsSum + zweiZweiEinsPoints,
           schockAusSum: prev.schockAusSum + schockAusPoints,
           cashSum: prev.cashSum + cashPoints,
-          sum: prev.sum + verlorenPoints + schockAusPoints + cashPoints
+          lustwuerfeSum: prev.lustwuerfeSum - lustwuerfe,
+          sum: prev.sum + verlorenPoints + zweiZweiEinsPoints + schockAusPoints + cashPoints - lustwuerfe
         };
-      }, { roundCount: 0, verlorenSum: 0, schockAusSum: 0, cashSum: 0, sum: 0 });
+      }, { roundCount: 0, verlorenSum: 0, zweiZweiEinsSum:0, schockAusSum: 0, cashSum: 0, lustwuerfeSum: 0, sum: 0 });
       return { id: player._id, name: player.name, active: player.active, ...points };
     });
   }
@@ -612,6 +644,14 @@ export class StatisticsState {
     const state = ctx.getState();
     if (!lodashIsEqual(state.chosenEventTypeIds, ids)) {
       ctx.patchState({ chosenEventTypeIds: ids });
+    }
+  }
+
+  @Action(StatisticsActions.RefreshScoringType)
+  refreshScoringType(ctx: StateContext<StatisticsStateModel>, { type }: StatisticsActions.RefreshScoringType) {
+    const state = ctx.getState();
+    if (state.scoringType !== type) {
+      ctx.patchState({ scoringType: type });
     }
   }
 

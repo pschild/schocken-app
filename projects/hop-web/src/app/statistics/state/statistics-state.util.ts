@@ -60,6 +60,22 @@ export namespace StatisticsStateUtil {
       };
     });
   }
+  
+  export function eventCounts(
+    players: PlayerDto[],
+    filteredEvents: EventDto[],
+    roundCountsByPlayer: { playerId: string; name: string; count: number }[],
+    chosenEventTypeIds: string[]
+  ): { id: string; name: string; active: boolean; roundCount: number; eventCount: number; quote: number; }[] {
+    const eventsOfInterest = filteredEvents.filter(event => chosenEventTypeIds.includes(event.eventTypeId));
+    const eventCounts = StatisticsStateUtil.customCountBy(eventsOfInterest, 'playerId');
+    return players.map(player => {
+      const eventCount = eventCounts.find(item => item.playerId === player._id)?.count || 0;
+      const roundCount = roundCountsByPlayer.find(item => item.playerId === player._id)?.count || 0;
+      const quote = (eventCount / roundCount) || 0;
+      return { id: player._id, name: player.name, active: player.active, roundCount, eventCount, quote };
+    });
+  }
 
   export function eventCountsRanking(
     players: PlayerDto[],
@@ -68,17 +84,10 @@ export namespace StatisticsStateUtil {
     chosenEventTypeIds: string[],
     sortDirection: 'asc'|'desc' = 'desc'
   ): Ranking[] {
-    const eventsOfInterest = filteredEvents.filter(event => chosenEventTypeIds.includes(event.eventTypeId));
-    const eventCounts = StatisticsStateUtil.customCountBy(eventsOfInterest, 'playerId');
-    const result = players.map(player => {
-      const eventCount = eventCounts.find(item => item.playerId === player._id)?.count || 0;
-      const roundCount = roundCountsByPlayer.find(item => item.playerId === player._id)?.count || 0;
-      const quote = (eventCount / roundCount) || 0;
-      return { id: player._id, name: player.name, active: player.active, roundCount, eventCount, quote };
-    });
+    const eventCounts = StatisticsStateUtil.eventCounts(players, filteredEvents, roundCountsByPlayer, chosenEventTypeIds);
 
-    const participatedPlayers = result.filter(item => item.roundCount > 0);
-    const notParticipatedPlayers = result.filter(item => !item.roundCount);
+    const participatedPlayers = eventCounts.filter(item => item.roundCount > 0);
+    const notParticipatedPlayers = eventCounts.filter(item => !item.roundCount);
     return [
       ...RankingUtil.sort(participatedPlayers, ['quote'], sortDirection),
       RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
@@ -111,7 +120,7 @@ export namespace StatisticsStateUtil {
         roundEventPenalties,
         gameEventPenalties,
         sum,
-        cashPerRound: roundCount ? roundEventPenalties / roundCount : 0,
+        cashPerRound: roundCount ? (roundEventPenalties + gameEventPenalties) / roundCount : 0, // TODO: gameEventPenalties wieder rausnehmen?!
         roundCount,
       };
     });
@@ -136,11 +145,20 @@ export namespace StatisticsStateUtil {
     const notParticipatedPlayers = playerTable.filter(item => !item.roundCount);
     return {
       playerTable: [
-        ...RankingUtil.sort(participatedPlayers, ['sum'], direction),
+        ...RankingUtil.sort(participatedPlayers, ['cashPerRound'], direction),
         RankingUtil.createNotParticipatedItems(notParticipatedPlayers)
       ],
       overallSum: cashCount.overallSum,
     };
+  }
+
+  export function calculatePoints(ranking: Ranking[], points: number[], scoringType: any): any {
+    return scoringType === 'SKIP'
+      ? StatisticsStateUtil.skipPointsForEachPlayer(ranking, points)
+      : scoringType === 'NO_SKIP'
+      ? StatisticsStateUtil.noSkipPoints(ranking, points)
+      : StatisticsStateUtil.skipPointsForEachPlayerAlternative(ranking, points)
+    ;
   }
 
   /**

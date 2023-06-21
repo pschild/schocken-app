@@ -26,6 +26,15 @@ export namespace StatisticsActions {
     }
   }
 
+  export class RefreshScoringType {
+    static readonly type = '[StatisticsActions] RefreshScoringType';
+
+    constructor(
+      public type: any
+    ) {
+    }
+  }
+
   export class ResetGameIdFilter {
     static readonly type = '[StatisticsActions] ResetGameIdFilter';
   }

@@ -31,6 +31,12 @@ enum EventTypeQuickFilter {
   SCHOCK_AUS_STRAFE = 'SCHOCK_AUS_STRAFE'
 }
 
+enum ScoringType {
+  SKIP = 'SKIP',
+  SKIP_SINGLE = 'SKIP_SINGLE',
+  NO_SKIP = 'NO_SKIP',
+}
+
 @Component({
   selector: 'hop-statistics',
   templateUrl: './statistics.component.html',
@@ -54,6 +60,10 @@ export class StatisticsComponent implements OnInit {
 
   penaltyForm = this.fb.group({
     types: [[VERLOREN_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID]]
+  });
+
+  pointsForm = this.fb.group({
+    type: [ScoringType.SKIP]
   });
 
   eventTypeQuickFilter = EventTypeQuickFilter;
@@ -140,8 +150,10 @@ export class StatisticsComponent implements OnInit {
   pointsTableConfig = [
     {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
     {label: 'Verl.', property: 'verlorenSum'},
+    {label: '221', property: 'zweiZweiEinsSum'},
     {label: 'SA', property: 'schockAusSum'},
     {label: 'Strafen', property: 'cashSum'},
+    {label: 'Lustwürfe', property: 'lustwuerfeSum'},
     {label: 'Summe', property: 'sum'}
   ];
 
@@ -211,6 +223,14 @@ export class StatisticsComponent implements OnInit {
       startWith(this.penaltyForm.value),
       switchMap(value => this.store.select(StatisticsState.eventCountsByPlayerTable(value.types)))
     );
+
+    this.pointsForm.valueChanges.pipe(
+      startWith(this.pointsForm.value),
+    ).subscribe(formValue => {
+      this.store.dispatch(
+        new StatisticsActions.RefreshScoringType(formValue.type)
+      );
+    });
 
     this.isMobile$ = this.breakpointObserver.observe([Breakpoints.Handset]).pipe(map(state => state.matches));
   }

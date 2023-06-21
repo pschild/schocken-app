@@ -6,6 +6,10 @@
     display: flex;
     align-items: center;
     color: #888;
+
+    mat-icon {
+      min-width: 30px;
+    }
   }
 
   .stats-table {
