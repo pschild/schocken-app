@@ -75,7 +75,7 @@ export class CelebrationState implements NgxsOnInit {
   }
 
   private getCelebrationNumber(countValue: number, addedCount: number): number {
-    for (let i = countValue - addedCount; i <= countValue; i++) {
+    for (let i = countValue - addedCount + 1; i <= countValue; i++) {
       if (NUMBERS_TO_CELEBRATE.includes(i)) {
         return i;
       }
