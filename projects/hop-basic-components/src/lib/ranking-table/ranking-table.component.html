@@ -1,0 +1,48 @@
+<div class="table-wrapper">
+  <table *ngIf="tableData.length > 0; else noData" class="stats-table ranking-table">
+    <tr>
+      <td>Platz</td>
+      <td *ngFor="let configItem of tableConfig">{{configItem.label}}</td>
+    </tr>
+    <ng-container *ngFor="let entry of tableData">
+      <tr *ngFor="let dataItem of entry.items" [ngClass]="{ 'not-participated': !entry.rank }">
+        <td><hop-badge [place]="entry.rank"></hop-badge></td>
+        <td
+          *ngFor="let configItem of tableConfig"
+          [ngClass]="{ 'inactive': configItem.inactiveFn && configItem.inactiveFn(dataItem) }"
+        >
+          <ng-container [ngSwitch]="configItem.type">
+            <div *ngSwitchCase="'number'">
+              {{dataItem[configItem.property] | number:'1.2-2'}}
+            </div>
+            <div *ngSwitchCase="'percent'">
+              {{dataItem[configItem.property] | percent:'1.1'}}
+            </div>
+            <div *ngSwitchCase="'relative-unit'">
+              <ng-container *ngIf="!configItem.unit">
+                <ng-container *ngIf="dataItem[configItem.property] > 0 else zero">
+                  {{1 / dataItem[configItem.property] | number:'1.1-1'}}
+                </ng-container>
+              </ng-container>
+              <ng-container *ngIf="configItem.unit">
+                alle {{1 / dataItem[configItem.property] | number:'1.1-1'}} {{configItem.unit}}
+              </ng-container>
+            </div>
+            <div *ngSwitchCase="'currency'">
+              <ng-container *ngIf="dataItem[configItem.property] > 0 else zero">
+                {{dataItem[configItem.property] | currency}}
+              </ng-container>
+            </div>
+            <div *ngSwitchDefault>
+              {{dataItem[configItem.property]}}
+            </div>
+          </ng-container>
+        </td>
+      </tr>
+    </ng-container>
+  </table>
+  <ng-content></ng-content>
+</div>
+
+<ng-template #zero>-</ng-template>
+<ng-template #noData>Keine Daten vorhanden</ng-template>

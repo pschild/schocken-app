@@ -45,7 +45,7 @@
     <h3>Export</h3>
     <mat-form-field *ngIf="gameItems$ | async as gameItems">
       <mat-label>Spiele exportieren</mat-label>
-      <mat-select [(value)]="selectedGameIds" multiple>
+      <mat-select [(value)]="selectedGameIds" multiple panelClass="xxxxxxx">
         <mat-option *ngFor="let gameItem of gameItems" [value]="gameItem.id">
           {{gameItem.datetime | date:'dd.MM.yyyy HH:mm:ss'}} ({{gameItem.roundCount}} Runde(n))
           <mat-icon *ngIf="gameItem.completed">check</mat-icon>

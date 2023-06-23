@@ -1,0 +1,9 @@
+.details-row {
+  display: flex;
+  align-items: center;
+  & > div:first-child {
+    width: 80px;
+  }
+
+  margin: 10px 0;
+}

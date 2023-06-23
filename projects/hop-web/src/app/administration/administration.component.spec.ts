@@ -2,10 +2,10 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AdministrationComponent } from './administration.component';
 import { ENV } from '@hop-backend-api';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
 import { AdministrationDataProvider } from './administration.data-provider';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 class AdministrationDataProviderMock {
   getGameList() { return of([]); }

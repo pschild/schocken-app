@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SyncStateComponent } from './sync-state.component';
 import { SyncService, SyncType } from './sync.service';
-import { MatDialog } from '@angular/material/dialog';
 import { Observable, of } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 
 class SyncServiceMock {
   get syncState(): Observable<any> {

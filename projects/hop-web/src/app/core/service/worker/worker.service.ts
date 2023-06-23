@@ -33,7 +33,7 @@ export class WorkerService {
 
   private initializeWorker(): void {
     if (typeof Worker !== 'undefined') {
-      this.worker = new Worker('../../worker/statistics.worker', { type: 'module' });
+      this.worker = new Worker(new URL('../../worker/statistics.worker', import.meta.url), { type: 'module' });
       this.responseStream$ = fromEvent(this.worker, 'message').pipe(
         map((event: MessageEvent) => {
           const response: WorkerResponse = event.data as WorkerResponse;

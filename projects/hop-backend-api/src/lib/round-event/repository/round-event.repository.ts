@@ -32,6 +32,22 @@ export class RoundEventRepository {
     );
   }
 
+  createAll(data: Partial<RoundEventDto>[]): Observable<string[]> {
+    const events = data.map(item => ({
+      _id: `${EntityType.ROUND_EVENT}__${this.pouchDb.toRawId(item.roundId, EntityType.ROUND)}__${this.pouchDb.generateId(EntityType.ROUND_EVENT)}`,
+      type: EntityType.ROUND_EVENT,
+      datetime: item.datetime || new Date(),
+      roundId: item.roundId,
+      playerId: item.playerId,
+      eventTypeId: item.eventTypeId,
+      multiplicatorValue: item.multiplicatorValue,
+      comment: item.comment
+    }));
+    return from(this.pouchDb.createAll(events)).pipe(
+      map((response: PutResponse[]) => response.map(r => r.id))
+    );
+  }
+
   get(id: string): Observable<RoundEventDto> {
     return from(this.pouchDb.getOne<RoundEventDto>(id));
   }

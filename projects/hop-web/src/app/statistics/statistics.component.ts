@@ -1,28 +1,24 @@
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
-import { StatisticsDataProvider } from './statistics.data-provider';
-import { Observable } from 'rxjs';
-import { debounceTime, filter, map, share, startWith } from 'rxjs/operators';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
+import { GameDto } from '@hop-backend-api';
+import { Select, Store } from '@ngxs/store';
 import { add, getYear, isAfter, isBefore, set } from 'date-fns';
-import { groupBy, orderBy, range } from 'lodash';
-import { CountPayload, RankingPayload } from './model/statistic-payload.model';
-import { EventTypeContext, GameDto } from '@hop-backend-api';
+import { range } from 'lodash';
+import { Observable } from 'rxjs';
+import { debounceTime, filter, map, startWith, switchMap } from 'rxjs/operators';
 import {
-  ALL_IDS,
-  DISZIPLIN_IDS,
   LUSTWURF_EVENT_TYPE_ID,
-  RUNDENSTRAFEN_IDS,
   SCHOCK_AUS_EVENT_TYPE_ID,
-  SCHOCK_AUS_STRAFE_EVENT_TYPE_ID,
-  SPIELSTRAFEN_IDS,
-  UNGESCHICK_IDS,
+  VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID,
   VERLOREN_EVENT_TYPE_ID,
-  ZWEI_ZWEI_EINS_EVENT_TYPE_ID,
-  VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID
+  ZWEI_ZWEI_EINS_EVENT_TYPE_ID
 } from './model/event-type-ids';
 import { Ranking } from './ranking.util';
-import { SchockAusStreakPayload, StreakRanking } from './streaks/streaks.data-provider';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { StatisticsActions, StatisticsState } from './state';
+import { StreakResult } from './state/streak.util';
+import { StatisticsDataProvider } from './statistics.data-provider';
+import { EventTypesState } from '../state/event-types';
 
 const START_DATE_OF_STATISTICS = new Date('2018-11-09');
 
@@ -33,6 +29,12 @@ enum EventTypeQuickFilter {
   DISZIPLIN = 'DISZIPLIN',
   UNGESCHICK = 'UNGESCHICK',
   SCHOCK_AUS_STRAFE = 'SCHOCK_AUS_STRAFE'
+}
+
+enum ScoringType {
+  SKIP = 'SKIP',
+  SKIP_SINGLE = 'SKIP_SINGLE',
+  NO_SKIP = 'NO_SKIP',
 }
 
 @Component({
@@ -51,95 +53,184 @@ export class StatisticsComponent implements OnInit {
 
   form = this.fb.group({
     fromDate: [START_DATE_OF_STATISTICS],
-    toDate: [new Date()]
+    toDate: [new Date()],
+    activePlayersOnly: true,
+    completedGamesOnly: true,
   });
 
-  allEventTypeGroups: { name: string; types: { id: string; description: string; }[] }[] = [];
   penaltyForm = this.fb.group({
     types: [[VERLOREN_EVENT_TYPE_ID, VERLOREN_ALLE_DECKEL_EVENT_TYPE_ID]]
   });
 
+  pointsForm = this.fb.group({
+    type: [ScoringType.SKIP]
+  });
+
   eventTypeQuickFilter = EventTypeQuickFilter;
 
-  latestGame$: Observable<GameDto>;
-  gamesCountPayload$: Observable<CountPayload>;
-  roundsCountPayload$: Observable<CountPayload>;
-  averageRoundsPerGame$: Observable<number>;
-  penaltyCountPayload$: Observable<CountPayload>;
-  cashCounts$: Observable<Ranking[] | { overallCount: number; inactivePlayerCashSum: number; }>;
-  maxRoundsPerGameValue$: Observable<CountPayload>;
-  attendanceCountPayload$: Observable<Ranking[]>;
-  schockAusStreak$: Observable<SchockAusStreakPayload>;
-  mostEffectiveSchockAus$: Observable<Ranking[]>;
-  schockAusByPlayer$: Observable<Ranking[]>;
-  loseRates$: Observable<Ranking[]>;
-  eventTypeCountValues$: Observable<RankingPayload>;
-  penaltyRates$: Observable<Ranking[]>;
-  pointsByPlayer$: Observable<Ranking[]>;
+  @Select(StatisticsState.latestGame)
+  stateLatestGame$: Observable<GameDto>;
 
-  noSchockAusStreak$: Observable<StreakRanking>;
-  noSchockAusStrafeStreak$: Observable<StreakRanking>;
-  noVerlorenStreak$: Observable<StreakRanking>;
-  no221$: Observable<StreakRanking>;
-  noLustwurf$: Observable<StreakRanking>;
+  @Select(StatisticsState.filteredGamesCount)
+  stateGamesCount$: Observable<number>;
+
+  @Select(StatisticsState.filteredRoundCount)
+  stateRoundsCount$: Observable<number>;
+
+  @Select(StatisticsState.averageRoundsPerGame)
+  stateAverageRoundsPerGame$: Observable<number>;
+
+  @Select(StatisticsState.averagePenaltyPerGame)
+  stateAveragePenaltyPerGame$: Observable<number>;
+
+  @Select(StatisticsState.gameHostsTable)
+  stateGameHostsTable$: Observable<{ name: string; count: number; }[]>;
+
+  @Select(StatisticsState.maxRoundsPerGame)
+  stateMaxRoundsPerGame$: Observable<{ gameId: string; datetime: Date; count: number; }>;
+
+  @Select(StatisticsState.maxEventTypeCountPerGame(SCHOCK_AUS_EVENT_TYPE_ID))
+  stateMaxSchockAusPerGame$: Observable<{ gameId: string; name: string; datetime: string; count: number; }[]>;
+
+  @Select(StatisticsState.maxEventTypeCountPerGame(ZWEI_ZWEI_EINS_EVENT_TYPE_ID))
+  stateMax221PerGame$: Observable<{ gameId: string; name: string; datetime: string; count: number; }[]>;
+
+  @Select(StatisticsState.maxEventTypeCountPerGame(LUSTWURF_EVENT_TYPE_ID))
+  stateMaxLustwurfPerGame$: Observable<{ gameId: string; name: string; datetime: string; count: number; }[]>;
+
+  @Select(StatisticsState.maxSchockAusStreak)
+  stateMaxSchockAusStreak$: Observable<{ gameId: string; datetime: Date; count: number; }>;
+
+  @Select(StatisticsState.filteredRoundEvents)
+  stateFilteredRoundEvents$: Observable<number>;
+
+  @Select(StatisticsState.eventsWithPenalty)
+  stateEventsWithPenalty$: Observable<number>;
+
+  @Select(StatisticsState.participationTable)
+  stateParticipationTable$: Observable<Ranking[]>;
+
+  stateEventCountsByPlayerTable$: Observable<Ranking[]>;
+
+  @Select(EventTypesState.eventTypeGroups)
+  eventTypeGroups$: Observable<{ name: string; types: { id: string; description: string; }[] }[]>;
+
+  @Select(StatisticsState.eventCountsByPlayerTable([SCHOCK_AUS_EVENT_TYPE_ID]))
+  stateSchockAusCountsByPlayerTable$: Observable<Ranking[]>;
+
+  @Select(StatisticsState.eventCountTable)
+  stateEventCountTable$: Observable<{ description: string; count: number; }[]>;
+
+  @Select(StatisticsState.cashTable)
+  stateCashTable$: Observable<{ playerTable: Ranking[]; overallSum: number; }>;
+
+  @Select(StatisticsState.schockAusEffectivenessTable)
+  stateSchockAusEffectivenessTable$: Observable<{ name: string; schockAusCount: number; schockAusPenaltyCount: number; quote: number; }[]>;
+
+  @Select(StatisticsState.streakByEventType(SCHOCK_AUS_EVENT_TYPE_ID))
+  stateNoSchockAusStreak$: Observable<StreakResult>;
+
+  @Select(StatisticsState.streakByEventType(VERLOREN_EVENT_TYPE_ID))
+  stateNoVerlorenStreak$: Observable<StreakResult>;
+
+  @Select(StatisticsState.streakByEventType(ZWEI_ZWEI_EINS_EVENT_TYPE_ID))
+  stateNo221Streak$: Observable<StreakResult>;
+
+  @Select(StatisticsState.streakByEventType(LUSTWURF_EVENT_TYPE_ID))
+  stateNoLustwurfStreak$: Observable<StreakResult>;
+
+  @Select(StatisticsState.penaltyStreak)
+  penaltyStreak$: Observable<any>;
+
+  @Select(StatisticsState.pointsTable)
+  statePointsTable$: Observable<Ranking[]>;
 
   isMobile$: Observable<boolean>;
 
+  pointsTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Verl.', property: 'verlorenSum'},
+    {label: '221', property: 'zweiZweiEinsSum'},
+    {label: 'SA', property: 'schockAusSum'},
+    {label: 'Strafen', property: 'cashSum'},
+    {label: 'Lustwürfe', property: 'lustwuerfeSum'},
+    {label: 'Summe', property: 'sum'}
+  ];
+
+  participationTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Runden', property: 'roundCount'},
+    {label: 'Quote', property: 'quote', type: 'percent'}
+  ];
+
+  eventCountsByPlayerTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Anzahl', property: 'eventCount'},
+    {label: 'Quote', property: 'quote', type: 'percent'}
+  ];
+
+  stateCashTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Rundenstrafen', property: 'roundEventPenalties', type: 'currency'},
+    {label: 'Feststellungen', property: 'gameEventPenalties', type: 'currency'},
+    {label: 'Summe', property: 'sum', type: 'currency'},
+    {label: '€/Rd.', property: 'cashPerRound', type: 'currency'},
+    {label: 'Anteil', property: 'quote', type: 'percent'}
+  ];
+
+  schockAusCountsByPlayerTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Schock-Aus', property: 'eventCount'},
+    {label: 'Quote', property: 'quote', type: 'relative-unit', unit: 'Runden'}
+  ];
+
+  schockAusEffectivenessTableConfig = [
+    {label: 'Spieler', property: 'name', inactiveFn: i => !i.active},
+    {label: 'Schock-Aus', property: 'schockAusCount'},
+    {label: 'Verursachte SA-Strafen', property: 'schockAusPenaltyCount'},
+    {label: 'Quote', property: 'quote', type: 'number'}
+  ];
+
   constructor(
-    private dataProvider: StatisticsDataProvider,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
+    private store: Store,
     private breakpointObserver: BreakpointObserver
   ) { }
 
   ngOnInit(): void {
+    // this.store.select(StatisticsState.gamePlacesCount).subscribe(v => console.log('xxx', v));
+
+    this.store.dispatch(new StatisticsActions.ResetGameIdFilter());
+
     this.yearsSinceStartOfStats = range(getYear(START_DATE_OF_STATISTICS), getYear(new Date()) + 1);
 
     this.form.valueChanges.pipe(
       debounceTime(100),
       startWith(this.form.value),
-      filter(formValue => !!this.form.valid),
-    ).subscribe(formValue => this.dataProvider.updateDates(
-      set(formValue.fromDate, { hours: 0, minutes: 0, seconds: 0 }),
-      set(formValue.toDate, { hours: 23, minutes: 59, seconds: 59 })
-    ));
-
-    this.penaltyForm.valueChanges.pipe(
-      startWith(this.penaltyForm.value),
-      // filter(formValue => !!this.form.valid)
-    ).subscribe(chosenIds => this.dataProvider.updateChosenEventTypeIds(chosenIds.types));
-
-    this.dataProvider.allEventTypes$.subscribe(allEventTypes => {
-      const transformedTypes = allEventTypes.map(type => (
-        { id: type._id, description: type.description, context: type.context, order: type.order }
-      ));
-      const groupedTypes = groupBy(transformedTypes, 'context');
-      this.allEventTypeGroups = [
-        { name: 'Rundenereignisse', types: orderBy(groupedTypes[EventTypeContext.ROUND], 'order') },
-        { name: 'Spielereignisse', types: orderBy(groupedTypes[EventTypeContext.GAME], 'order') }
-      ];
+      filter(() => !!this.form.valid),
+    ).subscribe(formValue => {
+      this.store.dispatch(
+        new StatisticsActions.RefreshFilter(
+          set(formValue.fromDate, { hours: 0, minutes: 0, seconds: 0 }),
+          set(formValue.toDate, { hours: 23, minutes: 59, seconds: 59 }),
+          formValue.activePlayersOnly,
+          formValue.completedGamesOnly,
+        )
+      );
     });
 
-    this.latestGame$ = this.dataProvider.getLatestGame$();
-    this.gamesCountPayload$ = this.dataProvider.getGamesCount$();
-    this.roundsCountPayload$ = this.dataProvider.getRoundsCount$();
-    this.averageRoundsPerGame$ = this.dataProvider.getAverageRoundsPerGame$();
-    this.maxRoundsPerGameValue$ = this.dataProvider.getMaxRoundsPerGameCount$();
-    this.penaltyCountPayload$ = this.dataProvider.getPenaltyCount$();
-    this.cashCounts$ = this.dataProvider.getCashCount$().pipe(share());
-    this.attendanceCountPayload$ = this.dataProvider.getAttendanceCount$().pipe(share());
-    this.loseRates$ = this.dataProvider.getLoseRates$().pipe(share());
-    this.schockAusByPlayer$ = this.dataProvider.getSchockAusByPlayer$().pipe(share());
-    this.schockAusStreak$ = this.dataProvider.getSchockAusStreak$();
-    this.mostEffectiveSchockAus$ = this.dataProvider.getMostEffectiveSchockAus$().pipe(share());
-    this.eventTypeCountValues$ = this.dataProvider.getCountsByEventType$().pipe(share());
-    this.penaltyRates$ = this.dataProvider.getPenaltyRates$().pipe(share());
-    this.pointsByPlayer$ = this.dataProvider.getPointsByPlayer$().pipe(share());
+    this.stateEventCountsByPlayerTable$ = this.penaltyForm.valueChanges.pipe(
+      startWith(this.penaltyForm.value),
+      switchMap(value => this.store.select(StatisticsState.eventCountsByPlayerTable(value.types)))
+    );
 
-    this.noSchockAusStreak$ = this.dataProvider.getStreaks$(SCHOCK_AUS_EVENT_TYPE_ID);
-    this.noSchockAusStrafeStreak$ = this.dataProvider.getStreaks$(SCHOCK_AUS_STRAFE_EVENT_TYPE_ID);
-    this.noVerlorenStreak$ = this.dataProvider.getStreaks$(VERLOREN_EVENT_TYPE_ID);
-    this.no221$ = this.dataProvider.getStreaks$(ZWEI_ZWEI_EINS_EVENT_TYPE_ID);
-    this.noLustwurf$ = this.dataProvider.getStreaks$(LUSTWURF_EVENT_TYPE_ID);
+    this.pointsForm.valueChanges.pipe(
+      startWith(this.pointsForm.value),
+    ).subscribe(formValue => {
+      this.store.dispatch(
+        new StatisticsActions.RefreshScoringType(formValue.type)
+      );
+    });
 
     this.isMobile$ = this.breakpointObserver.observe([Breakpoints.Handset]).pipe(map(state => state.matches));
   }
@@ -173,29 +264,6 @@ export class StatisticsComponent implements OnInit {
 
   resetDateRange(): void {
     this.setDateRange(START_DATE_OF_STATISTICS, new Date());
-  }
-
-  selectEventTypes(quickFilter: EventTypeQuickFilter): void {
-    switch (quickFilter) {
-      case EventTypeQuickFilter.SPIELSTRAFEN:
-        this.penaltyForm.patchValue({ types: SPIELSTRAFEN_IDS });
-        break;
-      case EventTypeQuickFilter.RUNDENSTRAFEN:
-        this.penaltyForm.patchValue({ types: RUNDENSTRAFEN_IDS });
-        break;
-      case EventTypeQuickFilter.DISZIPLIN:
-        this.penaltyForm.patchValue({ types: DISZIPLIN_IDS });
-        break;
-      case EventTypeQuickFilter.UNGESCHICK:
-        this.penaltyForm.patchValue({ types: UNGESCHICK_IDS });
-        break;
-      case EventTypeQuickFilter.SCHOCK_AUS_STRAFE:
-        this.penaltyForm.patchValue({ types: [SCHOCK_AUS_STRAFE_EVENT_TYPE_ID] });
-        break;
-      case EventTypeQuickFilter.ALL:
-      default:
-        this.penaltyForm.patchValue({ types: ALL_IDS });
-    }
   }
 
 }

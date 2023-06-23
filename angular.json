@@ -22,7 +22,6 @@
             "main": "projects/hop-web/src/main.ts",
             "polyfills": "projects/hop-web/src/polyfills.ts",
             "tsConfig": "projects/hop-web/tsconfig.app.json",
-            "aot": true,
             "assets": [
               "projects/hop-web/src/favicon.ico",
               "projects/hop-web/src/assets",
@@ -33,7 +32,13 @@
               "projects/hop-web/src/styles.scss"
             ],
             "scripts": [],
-            "webWorkerTsConfig": "projects/hop-web/tsconfig.worker.json"
+            "webWorkerTsConfig": "projects/hop-web/tsconfig.worker.json",
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -64,7 +69,8 @@
               "serviceWorker": true,
               "ngswConfigPath": "projects/hop-web/ngsw-config.json"
             }
-          }
+          },
+          "defaultConfiguration": ""
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -99,20 +105,6 @@
               "projects/hop-web/src/styles.scss"
             ],
             "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/hop-web/tsconfig.app.json",
-              "projects/hop-web/tsconfig.spec.json",
-              "projects/hop-web/e2e/tsconfig.json",
-              "projects/hop-web/tsconfig.worker.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
           }
         },
         "e2e": {
@@ -159,18 +151,6 @@
             "tsConfig": "projects/hop-basic-components/tsconfig.spec.json",
             "karmaConfig": "projects/hop-basic-components/karma.conf.js"
           }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/hop-basic-components/tsconfig.lib.json",
-              "projects/hop-basic-components/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
         }
       }
     },
@@ -199,21 +179,8 @@
             "tsConfig": "projects/hop-backend-api/tsconfig.spec.json",
             "karmaConfig": "projects/hop-backend-api/karma.conf.js"
           }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/hop-backend-api/tsconfig.lib.json",
-              "projects/hop-backend-api/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
         }
       }
     }
-    },
-  "defaultProject": "hop-web"
+    }
 }

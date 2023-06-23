@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { PlayerManagementDataProvider } from '../player-management.data-provider';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { filter, switchMap } from 'rxjs/operators';
-import { Validators, FormBuilder } from '@angular/forms';
-import { PlayerFormVo } from './model/player-form.vo';
+import { filter, switchMap, tap } from 'rxjs/operators';
+import { Validators, UntypedFormBuilder } from '@angular/forms';
+import { Store } from '@ngxs/store';
+import { PlayersActions, PlayersState } from '../../../state/players';
+import { PlayerDto } from '@hop-backend-api';
 
 @Component({
   selector: 'hop-player-form',
@@ -13,38 +14,37 @@ import { PlayerFormVo } from './model/player-form.vo';
 export class PlayerFormComponent implements OnInit {
 
   form = this.fb.group({
-    id: [''],
+    _id: [''],
     name: ['', Validators.required],
     active: [true]
   });
 
   constructor(
     private router: Router,
+    private store: Store,
     private route: ActivatedRoute,
-    private fb: FormBuilder,
-    private playerManagementDataProvider: PlayerManagementDataProvider
+    private fb: UntypedFormBuilder
   ) { }
 
   ngOnInit() {
     this.route.params.pipe(
       filter((params: Params) => !!params.playerId),
-      switchMap((params: Params) => this.playerManagementDataProvider.getForEdit(params.playerId))
-    ).subscribe((player: PlayerFormVo) => this.form.patchValue(player));
+      switchMap((params: Params) => this.store.select(PlayersState.byId(params.playerId))),
+      filter(player => !!player),
+    ).subscribe((player: PlayerDto) => this.form.patchValue(player));
   }
 
   onSubmit() {
     if (this.form.valid) {
-      // TODO: MAPPING + SNACKBAR
       const { name, active } = this.form.value;
-      if (this.form.value.id) {
-        this.playerManagementDataProvider.update(
-          this.form.value.id,
-          { name, active }
-        ).subscribe((id: string) => this.router.navigate(['management', 'players']));
+      if (this.form.value._id) {
+        this.store.dispatch(new PlayersActions.Update(this.form.value._id, { name, active })).pipe(
+          tap(() => this.router.navigate(['management', 'players']))
+        ).subscribe();
       } else {
-        this.playerManagementDataProvider.create(
-          { name, active }
-        ).subscribe((id: string) => this.router.navigate(['management', 'players']));
+        this.store.dispatch(new PlayersActions.Create({ name, active })).pipe(
+          tap(() => this.router.navigate(['management', 'players']))
+        ).subscribe();
       }
     }
   }

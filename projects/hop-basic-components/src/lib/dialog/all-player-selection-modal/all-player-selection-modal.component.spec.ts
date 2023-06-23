@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AllPlayerSelectionModalComponent } from './all-player-selection-modal.component';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 describe('AllPlayerSelectionModalComponent', () => {
   let component: AllPlayerSelectionModalComponent;

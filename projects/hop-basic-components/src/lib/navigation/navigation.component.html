@@ -1,35 +1,40 @@
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="'dialog'" [mode]="'over'" [opened]="false">
     <div class="sidenav-wrapper">
-      <mat-nav-list>
-        <a mat-list-item routerLink="/home" routerLinkActive="active">
-          <mat-icon matListIcon>casino</mat-icon>Spiele
-        </a>
-        <a mat-list-item routerLink="/management">
-          <mat-icon matListIcon>settings</mat-icon>Verwaltung
-        </a>
-        <a mat-list-item routerLink="/management/players" routerLinkActive="active" class="sub-item">
-          <mat-icon matListIcon>people</mat-icon>Spieler
-        </a>
-        <a mat-list-item routerLink="/management/eventTypes" routerLinkActive="active" class="sub-item">
-          <mat-icon matListIcon>euro_symbol</mat-icon>Ereignisse
-        </a>
-        <a mat-list-item routerLink="/statistics" routerLinkActive="active">
-          <mat-icon matListIcon>bar_chart</mat-icon>Statistiken
-        </a>
-        <a mat-list-item routerLink="/constitution" routerLinkActive="active">
-          <mat-icon matListIcon>menu_book</mat-icon>Satzung
-        </a>
-        <a mat-list-item routerLink="/about" routerLinkActive="active">
-          <mat-icon matListIcon>info</mat-icon>About
-        </a>
-        <a mat-list-item routerLink="/administration" routerLinkActive="active">
-          <mat-icon matListIcon>lock</mat-icon>Administration
-        </a>
-        <!-- <a mat-list-item routerLink="/playground" routerLinkActive="active">
-          <mat-icon matListIcon>child_care</mat-icon>Playground
-        </a> -->
-      </mat-nav-list>
+      <mat-list>
+        <mat-list-item routerLink="/home" routerLinkActive="active" tabindex="-1">
+          <mat-icon matListItemIcon>casino</mat-icon>
+          <h3 matListItemTitle>Spiele</h3>
+        </mat-list-item>
+        <mat-list-item routerLink="/management" tabindex="-1">
+          <mat-icon matListItemIcon>settings</mat-icon>
+          <h3 matListItemTitle>Verwaltung</h3>
+        </mat-list-item>
+        <mat-list-item routerLink="/management/players" routerLinkActive="active" class="sub-item" tabindex="-1">
+          <mat-icon matListItemIcon>people</mat-icon>
+          <h3 matListItemTitle>Spieler</h3>
+        </mat-list-item>
+        <mat-list-item routerLink="/management/eventTypes" routerLinkActive="active" class="sub-item" tabindex="-1">
+          <mat-icon matListItemIcon>euro_symbol</mat-icon>
+          <h3 matListItemTitle>Ereignisse</h3>
+        </mat-list-item>
+        <mat-list-item routerLink="/statistics" routerLinkActive="active" tabindex="-1">
+          <mat-icon matListItemIcon>bar_chart</mat-icon>
+          <h3 matListItemTitle>Statistiken</h3>
+        </mat-list-item>
+        <mat-list-item routerLink="/constitution" routerLinkActive="active" tabindex="-1">
+          <mat-icon matListItemIcon>menu_book</mat-icon>
+          <h3 matListItemTitle>Satzung</h3>
+        </mat-list-item>
+        <mat-list-item routerLink="/about" routerLinkActive="active" tabindex="-1">
+          <mat-icon matListItemIcon>info</mat-icon>
+          <h3 matListItemTitle>About</h3>
+        </mat-list-item>
+        <mat-list-item routerLink="/administration" routerLinkActive="active" tabindex="-1">
+          <mat-icon matListItemIcon>lock</mat-icon>
+          <h3 matListItemTitle>Administration</h3>
+        </mat-list-item>
+      </mat-list>
       <span class="spacer"></span>
       <div class="version-info-container mat-small">
         <div>v{{version}}</div>

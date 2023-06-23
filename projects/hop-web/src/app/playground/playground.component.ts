@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PlaygroundDataProvider } from './playground.data-provider';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 
 @Component({
   selector: 'hop-playground',
@@ -11,12 +11,12 @@ export class PlaygroundComponent implements OnInit {
 
   gameIdForPerf: string;
 
-  myForm: FormGroup = this.formBuilder.group({
+  myForm: UntypedFormGroup = this.formBuilder.group({
     from: [new Date()]
   });
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private dataProvider: PlaygroundDataProvider
   ) { }
 

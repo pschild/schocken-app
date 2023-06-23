@@ -40,6 +40,17 @@ export namespace EventTypeDtoUtils {
     return eventTypeAtEventTime;
   }
 
+  export function buildPenaltyLabel(eventType: EventTypeDto): string {
+    let result = '';
+    if (eventType.penalty) {
+      result += `${eventType.penalty.value} ${eventType.penalty.unit}`;
+    }
+    if (eventType.multiplicatorUnit) {
+      result += ` pro ${eventType.multiplicatorUnit}`;
+    }
+    return result;
+  }
+
 }
 
 // tslint:disable-next-line:no-namespace

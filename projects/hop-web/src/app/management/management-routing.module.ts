@@ -9,7 +9,8 @@ import { EventTypeFormComponent } from './event-type/event-type-form/event-type-
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'players'
+    redirectTo: 'players',
+    pathMatch: 'full'
   },
   {
     path: 'players',

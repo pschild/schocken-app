@@ -72,19 +72,24 @@ export class ImportExportService {
     for (const item of uploadedJson) {
       // DatetimeCache is set to the game's datetime. All following entities (rounds, events) will be created with a ongoing increasing
       // datetime, so that their order will be kept correctly.
-      this.datetimeCache = new Date(item.datetime);
+      // this.datetimeCache = new Date(item.datetime); // TODO: warum?
+      this.checkMissingDatetime(item);
 
       // create game
       const createdGameId = await this.gameRepository.create({
-        datetime: this.increaseAndGetDatetimeCache(),
+        // datetime: this.increaseAndGetDatetimeCache(), // TODO: warum?
+        datetime: item.datetime,
         place: item.place,
+        placeDetail: item.placeDetail,
         completed: item.completed
       }).toPromise();
 
       // create game events
       item.gameEvents.map(async (event: GameEventDto) => {
+        this.checkMissingDatetime(event);
         await this.gameEventRepository.create({
-          datetime: this.increaseAndGetDatetimeCache(),
+          // datetime: this.increaseAndGetDatetimeCache(), // TODO: warum?
+          datetime: event.datetime,
           eventTypeId: event.eventTypeId,
           multiplicatorValue: event.multiplicatorValue,
           playerId: event.playerId,
@@ -94,16 +99,20 @@ export class ImportExportService {
 
       // create rounds
       item.rounds.map(async (round: RoundDto & { events: RoundEventDto[] }) => {
+        this.checkMissingDatetime(round);
         const createdRoundId = await this.roundRepository.create({
-          datetime: this.increaseAndGetDatetimeCache(),
+          // datetime: this.increaseAndGetDatetimeCache(), // TODO: warum?
+          datetime: round.datetime,
           attendeeList: round.attendeeList,
           gameId: createdGameId
         }).toPromise();
 
         // create round events
         round.events.map(async (event: RoundEventDto) => {
+          this.checkMissingDatetime(event);
           this.roundEventRepository.create({
-            datetime: this.increaseAndGetDatetimeCache(),
+            // datetime: this.increaseAndGetDatetimeCache(), // TODO: warum?
+            datetime: event.datetime,
             eventTypeId: event.eventTypeId,
             multiplicatorValue: event.multiplicatorValue,
             playerId: event.playerId,
@@ -141,6 +150,12 @@ export class ImportExportService {
   private increaseAndGetDatetimeCache(): Date {
     this.datetimeCache = new Date(this.datetimeCache.getTime() + 1 * 1000);
     return this.datetimeCache;
+  }
+
+  private checkMissingDatetime(obj: any): void {
+    if (!obj.datetime) {
+      throw new Error(`No datetime for object ${obj}`);
+    }
   }
 
 }

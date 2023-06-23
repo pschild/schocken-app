@@ -1,0 +1,60 @@
+<hop-ranking-table
+  *ngIf="gameRankingTable$ | async as gameRankingTable; else loading"
+  [tableData]="gameRankingTable"
+  [tableConfig]="gameRankingTableConfig"
+></hop-ranking-table>
+
+<div class="card-container">
+  <mat-card appearance="outlined" class="count-row">
+    <ng-container *ngIf="cashCountRanking$ | async as cashCountRanking; else loading">
+      <hop-odometer [countTo]="cashCountRanking.overallSum" type="currency"></hop-odometer>
+      <div>Bußgelder</div>
+    </ng-container>
+    <button mat-icon-button (click)="tooltipCash.show()">
+      <mat-icon
+        #tooltipCash="matTooltip"
+        matTooltip="exkl. Monatsbeiträge"
+        [matTooltipPosition]="'right'"
+        (mouseenter)="$event.stopImmediatePropagation()"
+        (mouseleave)="$event.stopImmediatePropagation()"
+      >info</mat-icon>
+    </button>
+  </mat-card>
+
+  <mat-card appearance="outlined" class="count-row">
+    <ng-container *ngIf="maxSchockAusStreak$ | async as maxSchockAusStreak">
+      <hop-odometer [countTo]="maxSchockAusStreak.count"></hop-odometer>
+      <div>Schock-Aus-Streak</div>
+      <button mat-icon-button (click)="tooltipSAStreak.show()">
+        <mat-icon
+          #tooltipSAStreak="matTooltip"
+          matTooltip="aufeinanderfolgende Runden mit mind. 1x Schock-Aus"
+          [matTooltipPosition]="'right'"
+          (mouseenter)="$event.stopImmediatePropagation()"
+          (mouseleave)="$event.stopImmediatePropagation()"
+        >info</mat-icon>
+      </button>
+    </ng-container>
+  </mat-card>
+
+  <mat-card appearance="outlined" class="count-row">
+    <ng-container *ngIf="maxSchockAusPerGame$ | async as maxSchockAusPerGame; else loading">
+      <hop-odometer [countTo]="maxSchockAusPerGame[0]?.count"></hop-odometer>
+      <div>
+        Die meisten Schock-Aus
+        <div *ngIf="maxSchockAusPerGame[0]">
+          <small>
+            von
+            <span *ngFor="let item of maxSchockAusPerGame; let isLast = last">
+              {{item.name}}{{isLast ? '' : ', '}}
+            </span>
+          </small>
+        </div>
+      </div>
+    </ng-container>
+  </mat-card>
+</div>
+
+<ng-template #loading>
+  <mat-spinner [diameter]="20"></mat-spinner>
+</ng-template>

@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { EventTypeItemVo } from './model';
+import { EventTypeDto } from '@hop-backend-api';
 
 @Component({
   selector: 'hop-event-type-list',
@@ -8,13 +8,13 @@ import { EventTypeItemVo } from './model';
 })
 export class EventTypeListComponent {
 
-  @Input() eventTypes: EventTypeItemVo[];
+  @Input() eventTypes: EventTypeDto[];
   @Input() disableButtons: boolean;
-  @Output() add: EventEmitter<EventTypeItemVo> = new EventEmitter<EventTypeItemVo>();
+  @Output() add: EventEmitter<EventTypeDto> = new EventEmitter<EventTypeDto>();
 
   constructor() { }
 
-  addEventType(eventType: EventTypeItemVo): void {
+  addEventType(eventType: EventTypeDto): void {
     this.add.emit(eventType);
   }
 

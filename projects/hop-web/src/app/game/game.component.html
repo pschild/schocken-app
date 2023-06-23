@@ -1,0 +1,166 @@
+<div style="position: absolute; left: 0; right: 0; height: calc(100% - 80px);">
+  <mat-sidenav-container style="height: 100%;" [hasBackdrop]="false">
+    <mat-sidenav style="background: transparent" #drawer mode="side" position="end" [fixedInViewport]="true" fixedTopGap="80" [opened]="!(isMobile$ | async)">
+      <div style="padding: 16px;">
+        <div style="display: flex; justify-content: flex-end;">
+          <button mat-icon-button (click)="drawer.close()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <hop-points-table style="min-width: auto"></hop-points-table>
+      </div>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <div *ngIf="{
+        game: (game$ | async),
+        players: (playerList$ | async),
+        rounds: (rounds$ | async),
+        gameEvents: (gameEvents$ | async),
+        roundEvents: (roundEvents$ | async),
+        penaltiesByGameId: (penaltiesByGameId$ | async),
+        penaltiesByRoundIds: (penaltiesByRoundIds$ | async),
+        schockAusCountByRoundIds: (schockAusCountByRoundIds$ | async)
+      } as data" style="padding: 16px;">
+        <hop-game-details
+          *ngIf="data.game"
+          [game]="data.game"
+          [players]="data.players"
+          (onUpdatePlace)="onUpdatePlace($event)"
+          (onUpdateCompleteStatus)="onUpdateCompleteStatus($event)"
+        ></hop-game-details>
+        <mat-stepper orientation="vertical" #stepper (selectionChange)="selectionChange($event)">
+          <ng-template matStepperIcon="edit" let-index="index">
+            <span *ngIf="index > 0">{{index}}</span>
+            <mat-icon *ngIf="index === 0">gavel</mat-icon>
+          </ng-template>
+          <ng-template matStepperIcon="number" let-index="index">
+            <span *ngIf="index > 0">{{index}}</span>
+            <mat-icon *ngIf="index === 0">gavel</mat-icon>
+          </ng-template>
+          <mat-step>
+            <ng-template matStepLabel>
+              <div>
+                Feststellungen
+              </div>
+              <div *ngIf="data.penaltiesByGameId && data.penaltiesByGameId.length else noPenalties" class="penalty-sum-container">
+                <h3>
+                  <span *ngFor="let penalty of data.penaltiesByGameId; let isLast = last">
+                    {{penalty.sum | number:'1.2'}} {{penalty.unit}}{{isLast ? '' : ' / '}}
+                  </span>
+                </h3>
+              </div>
+            </ng-template>
+            <div style="overflow-x: auto;">
+              <table>
+                <tr *ngFor="let player of data.players">
+                  <td>
+                    <div class="left-right">
+                      <strong [ngClass]="{ 'inactive': !player.active }">{{player.name}}</strong>
+                      <button mat-icon-button *ngIf="!data.game?.completed" color="primary" (click)="addGameEvent(player)">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <ng-container *ngIf="data.gameEvents[player._id]">
+                      <div *ngFor="let event of data.gameEvents[player._id].events" class="left-right">
+                        <div style="display: flex; align-items: center;">
+                          <strong *ngIf="event.penalty" style="margin-right: 10px;">{{event.penalty | number:'1.2'}} {{event.unit}}</strong>
+                          <span>{{event.description}}</span>
+                          <ng-container *ngIf="event.comment">
+                            <mat-icon [matTooltip]="event.comment" style="margin-left: 10px;">comment</mat-icon>
+                          </ng-container>
+                        </div>
+                        <button mat-icon-button *ngIf="!data.game?.completed" color="warn" (click)="removeGameEvent(event.eventId)">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    </ng-container>
+                  </td>
+                  <td>
+                    <ng-container *ngIf="data.gameEvents[player._id]">
+                      <div *ngFor="let penalty of data.gameEvents[player._id].penalties">
+                        {{penalty.sum | number:'1.2'}} {{penalty.unit}}
+                      </div>
+                    </ng-container>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </mat-step>
+          <mat-step *ngFor="let round of data.rounds; trackBy: trackByRound; let idx = index" [state]="round._id" completed="true">
+            <ng-template matStepLabel>
+              <div>
+                <ng-container *ngIf="data.schockAusCountByRoundIds[round._id]">
+                  <mat-icon style="margin: 10px 0;" [matBadge]="data.schockAusCountByRoundIds[round._id]" matBadgeColor="warn" matBadgeSize="small" [matBadgeHidden]="data.schockAusCountByRoundIds[round._id] === 1" svgIcon="schock_aus"></mat-icon>
+                </ng-container>
+              </div>
+              <div *ngIf="data.penaltiesByRoundIds[round._id] && data.penaltiesByRoundIds[round._id].length else noPenalties" class="penalty-sum-container">
+                <h3>
+                  <span *ngFor="let penalty of data.penaltiesByRoundIds[round._id]; let isLast = last">
+                    {{penalty.sum | number:'1.2'}} {{penalty.unit}}{{isLast ? '' : ' / '}}
+                  </span>
+                </h3>
+              </div>
+            </ng-template>
+            <!-- <button mat-button matStepperPrevious>zurück</button> -->
+            <div style="overflow-x: auto;">
+              <table *ngIf="idx + 1 === selectedRoundIndex">
+                <tr *ngFor="let player of data.players; trackBy: trackByPlayer">
+                  <td>
+                    <div class="left-right">
+                      <mat-checkbox [checked]="round | isParticipating:player._id" (change)="changeParticipation($event, round._id, player._id)" [disabled]="data.game?.completed">
+                        <strong [ngClass]="{ 'not-participated': !(round | isParticipating:player._id), 'inactive': !player.active }">{{player.name}}</strong>
+                      </mat-checkbox>
+                      <button *ngIf="(round | isParticipating:player._id) && !data.game?.completed" mat-icon-button color="primary" (click)="addRoundEvent(player, round._id)">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <div *ngIf="data.roundEvents[player._id] && data.roundEvents[player._id][round._id]">
+                      <div *ngFor="let event of data.roundEvents[player._id][round._id].events; trackBy: trackByRoundEvent" class="left-right">
+                        <div style="display: flex; align-items: center;">
+                          <strong *ngIf="event.penalty" style="margin-right: 10px;">{{event.penalty | number:'1.2'}} {{event.unit}}</strong>
+                          <span>{{event.description}}</span>
+                          <ng-container *ngIf="event.comment">
+                            <mat-icon [matTooltip]="event.comment" style="margin-left: 10px;">comment</mat-icon>
+                          </ng-container>
+                        </div>
+                        <button mat-icon-button *ngIf="!data.game?.completed" color="warn" (click)="removeRoundEvent(event.eventId)">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <ng-container *ngIf="data.roundEvents[player._id] && data.roundEvents[player._id][round._id]">
+                      <div *ngFor="let penalty of data.roundEvents[player._id][round._id].penalties">
+                        {{penalty.sum | number:'1.2'}} {{penalty.unit}}
+                      </div>
+                    </ng-container>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <!-- <button mat-button matStepperNext>weiter</button> -->
+          </mat-step>
+        </mat-stepper>
+        <button mat-raised-button color="primary" (click)="startNewRound()" *ngIf="!data.game?.completed">
+          <mat-icon>add</mat-icon>
+          Neue Runde
+        </button>
+      
+        <button *ngIf="(isMobile$ | async) === true" mat-fab color="primary" style="position: fixed; bottom: 20px; right: 40px;" (click)="openStatisticPreview()">
+          <mat-icon>bar_chart</mat-icon>
+        </button>
+
+        <button *ngIf="(isMobile$ | async) === false && !drawer.opened" mat-fab color="primary" style="position: fixed; bottom: 20px; right: 40px;" (click)="drawer.open()">
+          <mat-icon>bar_chart</mat-icon>
+        </button>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
+
+<ng-template #noPenalties>-</ng-template>

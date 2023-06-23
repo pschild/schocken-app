@@ -1,5 +1,16 @@
 $cards-margin: 10px;
 
+.hint {
+  display: flex;
+  margin: 10px 0;
+  align-items: center;
+  color: #888;
+
+  mat-icon {
+    min-width: 30px;
+  }
+}
+
 .card-container {
   text-align: center;
 
@@ -33,6 +44,7 @@ $cards-margin: 10px;
     display: inline-flex;
     text-align: center;
     height: 150px;
+    padding: 16px;
 
     @media (max-width: 600px) {
       width: calc(100% - #{2 * $cards-margin});
@@ -79,6 +91,10 @@ $cards-margin: 10px;
       }
     }
 
+    tr.not-participated {
+      color: #999;
+    }
+
     td {
       padding: 5px 15px 5px 0;
       height: 40px;
@@ -99,14 +115,22 @@ $cards-margin: 10px;
       td:first-child {
         text-align: center;
       }
+
+      td.inactive-player {
+        text-decoration: line-through
+      }
     }
   }
 }
 
 .datepicker-row {
   mat-form-field {
-    max-width: 35%;
+    width: 35%;
     margin-right: 10px;
+
+    @media (max-width: 500px) {
+      width: 100%;
+    }
   }
 }
 

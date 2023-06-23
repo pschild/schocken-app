@@ -1,3 +1,4 @@
+@use '@angular/material' as mat;
 @import '../../../../hop-web/src/styles/variables';
 
 .sidenav-container {
@@ -6,7 +7,7 @@
 }
 
 .sidenav {
-  width: 200px;
+  width: 300px;
 
   .sidenav-wrapper {
     display: flex;
@@ -14,15 +15,23 @@
     height: 100%;
   }
 
-  .mat-nav-list {
+  mat-list {
     overflow-x: hidden;
 
-    .mat-list-item {
+    mat-list-item {
       border-left: 5px solid transparent;
+
+      &.sub-item {
+        padding-left: 30px;
+      }
+
+      &:hover {
+        background-color: #eee;
+      }
 
       &.active {
         background-color: #ddd;
-        border-color: mat-color($hop-palette-primary);
+        border-color: mat.get-color-from-palette($hop-palette-primary);
         transition: border .5s ease-in-out;
       }
     }
@@ -31,10 +40,6 @@
   .mat-toolbar {
     background: inherit;
   }
-}
-
-::ng-deep .sub-item .mat-list-item-content {
-  padding-left: 30px !important;
 }
 
 .mat-toolbar.mat-primary {

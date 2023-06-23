@@ -2,4 +2,70 @@
   <mat-icon>add</mat-icon>
   Neues Spiel starten
 </button>
-<hop-game-list *ngIf="gameListItems$ | async as gameListItems" [gameListItems]="gameListItems"></hop-game-list>
+
+<mat-accordion *ngIf="overviewList$ | async as overviewList" style="max-width: 700px;">
+  <mat-expansion-panel *ngFor="let group of overviewList" [expanded]="group.hasIncompleteGame">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{group.year}}
+      </mat-panel-title>
+      <mat-panel-description>
+        <ng-container *ngIf="group.games.length > 1">{{group.games.length}} Spiele</ng-container>
+        <ng-container *ngIf="group.games.length === 1">1 Spiel</ng-container>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div *ngFor="let game of group.games" class="game-item-container">
+      <div>
+        <div>
+          <hop-live-indicator *ngIf="!game.completed"></hop-live-indicator>
+          <strong>{{ game.datetime | date:'dd.MM.yyyy' }}</strong>
+          <span *ngIf="game.place">&nbsp;{{ game.place }}</span>
+          <span *ngIf="game.placeDetail">&nbsp;({{ game.placeDetail }})</span>
+        </div>
+        <div>
+          <ng-container *ngIf="game.roundCount > 1">{{game.roundCount}} Runden</ng-container>
+          <ng-container *ngIf="game.roundCount === 1">1 Runde</ng-container>
+        </div>
+      </div>
+      <div class="game-action-button-container">
+        <button mat-icon-button color="primary" [routerLink]="['/game', game._id]">
+          <mat-icon>table_chart</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <ng-container *ngIf="group.year === 2018">
+      <div class="game-item-container">
+        <div>
+          <div>
+            <strong>05.10.2018</strong>
+            <span>&nbsp;Tobias</span>
+          </div>
+          <div>ohne Wertung</div>
+        </div>
+        <div class="game-action-button-container">
+          <button mat-icon-button color="primary" disabled>
+            <mat-icon>table_chart</mat-icon>
+          </button>
+        </div>
+      </div>
+    
+      <div class="game-item-container">
+        <div>
+          <div>
+            <strong>14.09.2018</strong>
+            <span>&nbsp;Christian</span>
+          </div>
+          <div>ohne Wertung</div>
+        </div>
+        <div class="game-action-button-container">
+          <button mat-icon-button color="primary" disabled>
+            <mat-icon>table_chart</mat-icon>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+  </mat-expansion-panel>
+</mat-accordion>

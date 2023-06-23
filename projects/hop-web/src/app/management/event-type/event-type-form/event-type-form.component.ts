@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { EventTypeHistoryItem, EventTypeContext, EventTypeTrigger } from '@hop-backend-api';
+import { EventTypeHistoryItem, EventTypeContext, EventTypeTrigger, EventTypeDto } from '@hop-backend-api';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, Validators } from '@angular/forms';
-import { filter, switchMap } from 'rxjs/operators';
-import { EventTypeManagementDataProvider } from '../event-type-management.data-provider';
-import { EventTypeFormVo } from './model/event-type-form.vo';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
+import { filter, switchMap, tap } from 'rxjs/operators';
+import { EventTypesActions, EventTypesState } from '../../../state/event-types';
+import { Store } from '@ngxs/store';
 
 @Component({
   selector: 'hop-event-type-form',
@@ -18,7 +18,7 @@ export class EventTypeFormComponent implements OnInit {
   history: EventTypeHistoryItem[];
 
   form = this.fb.group({
-    id: [''],
+    _id: [''],
     description: ['', Validators.required],
     context: [EventTypeContext.ROUND, Validators.required],
     trigger: [''],
@@ -33,16 +33,17 @@ export class EventTypeFormComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private store: Store,
     private route: ActivatedRoute,
-    private fb: FormBuilder,
-    private eventTypeManagementDataProvider: EventTypeManagementDataProvider
+    private fb: UntypedFormBuilder,
   ) { }
 
   ngOnInit() {
     this.route.params.pipe(
       filter(params => !!params.eventTypeId),
-      switchMap(params => this.eventTypeManagementDataProvider.getForEdit(params.eventTypeId))
-    ).subscribe((eventType: EventTypeFormVo) => {
+      switchMap(params => this.store.select(EventTypesState.byId(params.eventTypeId))),
+      filter(eventType => !!eventType),
+    ).subscribe((eventType: EventTypeDto) => {
       this.form.patchValue(Object.assign(eventType, {
         penaltyValue: eventType.penalty ? eventType.penalty.value : undefined,
         penaltyUnit: eventType.penalty ? eventType.penalty.unit : undefined,
@@ -56,7 +57,6 @@ export class EventTypeFormComponent implements OnInit {
 
   onSubmit() {
     if (this.form.valid) {
-      // TODO: MAPPING + SNACKBAR
       const { description, context, trigger, hasComment } = this.form.value;
       let penalty;
       let multiplicatorUnit;
@@ -68,15 +68,16 @@ export class EventTypeFormComponent implements OnInit {
         multiplicatorUnit = this.form.value.multiplicatorUnit !== '' ? this.form.value.multiplicatorUnit : undefined;
       }
 
-      if (this.form.value.id) {
-        this.eventTypeManagementDataProvider.update(
-          this.form.value.id,
-          { description, context, trigger, penalty, multiplicatorUnit, hasComment }
-        ).subscribe((id: string) => this.router.navigate(['management', 'eventTypes']));
+      if (this.form.value._id) {
+        this.store.dispatch(
+          new EventTypesActions.Update(this.form.value._id, { description, context, trigger, penalty, multiplicatorUnit, hasComment })
+        ).pipe(
+          tap(() => this.router.navigate(['management', 'eventTypes']))
+        ).subscribe();
       } else {
-        this.eventTypeManagementDataProvider.create(
-          { description, context, trigger, penalty, multiplicatorUnit, hasComment }
-        ).subscribe((id: string) => this.router.navigate(['management', 'eventTypes']));
+        this.store.dispatch(new EventTypesActions.Create({ description, context, trigger, penalty, multiplicatorUnit, hasComment })).pipe(
+          tap(() => this.router.navigate(['management', 'eventTypes']))
+        ).subscribe();
       }
     }
   }
