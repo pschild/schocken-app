@@ -21,10 +21,6 @@
     <button mat-icon-button color="primary" *ngIf="(!placeSelectFormControl.pristine || !placeDetailFormControl.pristine) && !game.completed" (click)="updatePlace()">
       <mat-icon>check</mat-icon>
     </button>
-
-    <div>
-      <small>Urspr.: {{game.place}}</small>
-    </div>
   </div>
 </div>
 
