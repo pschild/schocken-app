@@ -558,6 +558,8 @@ export class StatisticsState {
       };
     });
 
+    console.log('pointsByGame', pointsByGame);
+
     return players.map(player => {
       const points = pointsByGame.filter(Boolean).reduce((prev, curr) => {
         const verlorenPoints = curr.verlorenPoints.find(p => p.id === player._id)?.points || 0;
@@ -566,6 +568,8 @@ export class StatisticsState {
         const cashPoints = curr.cashPoints.find(p => p.id === player._id)?.points || 0;
         const lustwuerfe = curr.lustwuerfe.find(p => p.id === player._id)?.eventCount || 0;
         const roundCount = curr.roundCount.find(p => p.playerId === player._id)?.count || 0;
+        const participationQuote = curr.roundCount.find(p => p.playerId === player._id)?.quote || 0;
+
         return {
           roundCount: prev.roundCount + roundCount,
           verlorenSum: prev.verlorenSum + verlorenPoints,
@@ -573,9 +577,10 @@ export class StatisticsState {
           schockAusSum: prev.schockAusSum + schockAusPoints,
           cashSum: prev.cashSum + cashPoints,
           lustwuerfeSum: prev.lustwuerfeSum - lustwuerfe,
-          sum: prev.sum + verlorenPoints + zweiZweiEinsPoints + schockAusPoints + cashPoints - lustwuerfe
+          sum: prev.sum + verlorenPoints + zweiZweiEinsPoints + schockAusPoints + cashPoints - lustwuerfe,
+          weightedSum: prev.weightedSum + Math.round((verlorenPoints + zweiZweiEinsPoints + schockAusPoints + cashPoints - lustwuerfe) * participationQuote),
         };
-      }, { roundCount: 0, verlorenSum: 0, zweiZweiEinsSum:0, schockAusSum: 0, cashSum: 0, lustwuerfeSum: 0, sum: 0 });
+      }, { roundCount: 0, verlorenSum: 0, zweiZweiEinsSum:0, schockAusSum: 0, cashSum: 0, lustwuerfeSum: 0, sum: 0, weightedSum: 0 });
       return { id: player._id, name: player.name, active: player.active, ...points };
     });
   }

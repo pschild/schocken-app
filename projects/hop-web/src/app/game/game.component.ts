@@ -3,13 +3,12 @@ import { MatStepper } from '@angular/material/stepper';
 import { ActivatedRoute, Params } from '@angular/router';
 import { GameDto, PlayerDto, RoundDto } from '@hop-backend-api';
 import {
-  SnackBarNotificationService
+  SnackBarNotificationService, SoundboardActions, SoundboardState
 } from '@hop-basic-components';
 import { Actions, Select, Store, ofActionSuccessful } from '@ngxs/store';
-import { Observable, Subject } from 'rxjs';
+import { merge, Observable, Subject } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { HotkeysService } from '../core/service/hotkeys.service';
-import { Ranking } from '../statistics/ranking.util';
 import { StatisticsActions, StatisticsState } from '../statistics/state';
 import { ActiveGameActions, ActiveGameState } from './state';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -97,6 +96,11 @@ export class GameComponent implements OnInit, OnDestroy {
       Breakpoints.Small,
       // Breakpoints.Medium,
     ]).pipe(map(state => state.matches));
+
+    const keyObservables$ = this.store.selectSnapshot(SoundboardState.keys).map(key => this.hotkeys.addShortcut({ keys: key }).pipe(
+      tap((event: KeyboardEvent) => this.store.dispatch(new SoundboardActions.Play(event.key)))
+    ));
+    merge(...keyObservables$).pipe(takeUntil(this.destroy$)).subscribe();
 
     // this.game$.subscribe(console.log);
     // this.rounds$.subscribe(console.log);

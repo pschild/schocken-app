@@ -48,15 +48,17 @@ export namespace StatisticsStateUtil {
       .reduce((prev, curr) => prev + (+curr.multiplicatorValue || 1) * curr.eventType.penalty.value, 0);
   }
 
-  export function roundCountByPlayer(players: PlayerDto[], rounds: RoundDto[]): { playerId: string; name: string; count: number }[] {
+  export function roundCountByPlayer(players: PlayerDto[], rounds: RoundDto[]): { playerId: string; name: string; count: number; quote: number; }[] {
     const participations: ParticipationDto[][] = rounds.map((round: RoundDto) => round.attendeeList);
     const flatParticipations: ParticipationDto[] = [].concat.apply([], participations);
     const roundCounts = StatisticsStateUtil.customCountBy(flatParticipations, 'playerId');
     return players.map(player => {
+      const count = roundCounts.find(item => item.playerId === player._id)?.count || 0;
       return {
         playerId: player._id,
         name: player.name,
-        count: roundCounts.find(item => item.playerId === player._id)?.count || 0
+        count,
+        quote: count / rounds.length
       };
     });
   }

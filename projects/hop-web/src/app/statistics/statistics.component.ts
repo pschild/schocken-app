@@ -154,7 +154,8 @@ export class StatisticsComponent implements OnInit {
     {label: 'SA', property: 'schockAusSum'},
     {label: 'Strafen', property: 'cashSum'},
     {label: 'Lustwürfe', property: 'lustwuerfeSum'},
-    {label: 'Summe', property: 'sum'}
+    {label: 'Summe', property: 'sum'},
+    {label: 'gew. Summe', property: 'weightedSum'}
   ];
 
   participationTableConfig = [
