@@ -14,10 +14,7 @@ export interface CelebrationStateModel {
 export const CELEBRATION_STATE = new StateToken<CelebrationStateModel>('celebration');
 
 const NUMBERS_TO_CELEBRATE: number[] = [
-  1,
-  100, 200, 300, 400, 500, 600, 700, 800, 900,
-  1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500,
-  10000,
+  1, 100, 200, 300, 400, 600, 700, 800, 900
 ];
 
 @State<CelebrationStateModel>({
@@ -57,7 +54,7 @@ export class CelebrationState implements NgxsOnInit {
 
   private checkEventCountsToCelebrate(countValue: number, eventName: string, addedCount = 1): Observable<any> {
     const celebrationNumber = this.getCelebrationNumber(countValue, addedCount);
-    if (celebrationNumber >= 0) {
+    if (celebrationNumber > 0) {
       return this.ngZone.run<Observable<any>>(() => {
         return this.dialogService.openCustomDialog(
           CelebrationModalComponent,
@@ -76,7 +73,7 @@ export class CelebrationState implements NgxsOnInit {
 
   private getCelebrationNumber(countValue: number, addedCount: number): number {
     for (let i = countValue - addedCount + 1; i <= countValue; i++) {
-      if (NUMBERS_TO_CELEBRATE.includes(i)) {
+      if (NUMBERS_TO_CELEBRATE.includes(i) || i % 500 === 0) {
         return i;
       }
     }
