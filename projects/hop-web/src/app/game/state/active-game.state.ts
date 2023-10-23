@@ -8,7 +8,7 @@ import {
   RoundDto,
   RoundEventDto
 } from '@hop-backend-api';
-import { AllPlayerSelectionModalComponent, DialogResult, DialogService, EventTypeListModalComponent, IDialogResult, LOST_EVENT_BUTTON_CONFIG } from '@hop-basic-components';
+import { AllPlayerSelectionModalComponent, DialogResult, DialogService, EventTypeListModalComponent, IDialogResult, LOST_EVENT_BUTTON_CONFIG, YES_NO_DIALOG_BUTTON_CONFIG } from '@hop-basic-components';
 import { Action, Selector, State, StateContext, StateToken, Store, createSelector } from '@ngxs/store';
 import { groupBy, orderBy, uniq } from 'lodash';
 import { EMPTY, Observable, of } from 'rxjs';
@@ -124,6 +124,12 @@ export class ActiveGameState {
       }, {});
       return { ...acc, [playerId]: penaltiesPerRound };
     }, {});
+  }
+
+  @Selector([ActiveGameState.mappedRoundEvents])
+  static roundEventsByRoundIds(events: any[]): any {
+    const groupedByRound = groupBy(events, 'roundId');
+    return groupedByRound;
   }
 
   @Selector([ActiveGameState.mappedGameEvents])
@@ -339,6 +345,23 @@ export class ActiveGameState {
         attendeeList: lastRound ? lastRound.attendeeList : []
       })
     );
+  }
+
+  @Action(ActiveGameActions.RemoveRound)
+  removeRound(
+    ctx: StateContext<ActiveGameStateModel>,
+    { roundId }: ActiveGameActions.RemoveRound
+  ): Observable<any> {
+    return this.ngZone.run<Observable<any>>(() => {
+      return this.dialogService.showYesNoDialog({
+        title: '',
+        message: `Möchtest du die Runde wirklich löschen?`,
+        buttonConfig: YES_NO_DIALOG_BUTTON_CONFIG
+      }).pipe(
+        filter((dialogResult: IDialogResult) => dialogResult.result === DialogResult.YES),
+        mergeMap((dialogResult: IDialogResult) => this.store.dispatch(new RoundsActions.Remove(roundId)))
+      );
+    });
   }
 
   @Action(ActiveGameActions.ChangeParticipation)

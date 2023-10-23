@@ -19,7 +19,8 @@
         roundEvents: (roundEvents$ | async),
         penaltiesByGameId: (penaltiesByGameId$ | async),
         penaltiesByRoundIds: (penaltiesByRoundIds$ | async),
-        schockAusCountByRoundIds: (schockAusCountByRoundIds$ | async)
+        schockAusCountByRoundIds: (schockAusCountByRoundIds$ | async),
+        roundEventsByRoundIds: (roundEventsByRoundIds$ | async)
       } as data" style="padding: 16px;">
         <hop-game-details
           *ngIf="data.game"
@@ -143,6 +144,10 @@
                 </tr>
               </table>
             </div>
+            <button mat-stroked-button color="warn" class="remove-round-btn" (click)="removeRound(round._id)" *ngIf="!data.game?.completed && !data.roundEventsByRoundIds[round._id]?.length">
+              <span>Runde löschen</span>
+              <mat-icon>delete</mat-icon>
+            </button>
             <!-- <button mat-button matStepperNext>weiter</button> -->
           </mat-step>
         </mat-stepper>
@@ -150,7 +155,7 @@
           <mat-icon>add</mat-icon>
           Neue Runde
         </button>
-      
+
         <button *ngIf="(isMobile$ | async) === true" mat-fab color="primary" style="position: fixed; bottom: 20px; right: 40px;" (click)="openStatisticPreview()">
           <mat-icon>bar_chart</mat-icon>
         </button>

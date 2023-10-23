@@ -17,4 +17,10 @@ export namespace RoundsActions {
 
     constructor(public id: string, public data: Partial<RoundDto>) {}
   }
+
+  export class Remove {
+    static readonly type = '[RoundsActions] Remove';
+
+    constructor(public id: string) {}
+  }
 }

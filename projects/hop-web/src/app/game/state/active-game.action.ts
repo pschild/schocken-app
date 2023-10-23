@@ -48,6 +48,12 @@ export namespace ActiveGameActions {
     static readonly type = '[ActiveGameActions] StartNewRound';
   }
 
+  export class RemoveRound {
+    static readonly type = '[ActiveGameActions] RemoveRound';
+
+    constructor(public roundId: string) {}
+  }
+
   export class ChangeParticipation {
     static readonly type = '[ActiveGameActions] ChangeParticipation';
 

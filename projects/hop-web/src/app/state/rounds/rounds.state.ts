@@ -3,7 +3,7 @@ import {
   RoundDto, RoundRepository
 } from '@hop-backend-api';
 import { Action, Selector, State, StateContext, StateToken, createSelector } from '@ngxs/store';
-import { insertItem, patch, updateItem } from '@ngxs/store/operators';
+import { insertItem, patch, removeItem, updateItem } from '@ngxs/store/operators';
 import { Observable } from 'rxjs';
 import { map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { StatisticsStateUtil } from '../../statistics/state/statistics-state.util';
@@ -76,6 +76,20 @@ export class RoundsState {
         }));
       }),
       map(updatedRound => updatedRound._id)
+    );
+  }
+
+  @Action(RoundsActions.Remove)
+  remove(
+    ctx: StateContext<RoundsStateModel>,
+    { id }: RoundsActions.Remove
+  ): Observable<string> {
+    return this.roundRepository.removeById(id).pipe(
+      tap(() => {
+        ctx.setState(patch({
+          rounds: removeItem<RoundDto>((round: RoundDto) => round._id === id)
+        }));
+      })
     );
   }
 
