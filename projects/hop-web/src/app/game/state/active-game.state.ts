@@ -12,7 +12,7 @@ import { AllPlayerSelectionModalComponent, DialogResult, DialogService, EventTyp
 import { Action, Selector, State, StateContext, StateToken, Store, createSelector } from '@ngxs/store';
 import { groupBy, orderBy, uniq } from 'lodash';
 import { EMPTY, Observable, of } from 'rxjs';
-import { filter, mergeMap, tap } from 'rxjs/operators';
+import { filter, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { EventTypesState } from '../../state/event-types';
 import { EventUtil, EventsActions, EventsState } from '../../state/events';
 import { GamesActions, GamesState } from '../../state/games';
@@ -283,18 +283,25 @@ export class ActiveGameState {
       return EMPTY;
     }
     const activePlayers = this.store.selectSnapshot(PlayersState.activePlayers);
-    const playersReceivingPenalty = round.attendeeList
+    const checkedPlayerIds = round.attendeeList
       .map(participation => participation.playerId)
       .filter(playerId => playerId !== player._id)
+      .filter(playerId => round.finalistIds?.length ? round.finalistIds.includes(playerId) : true)
+    const disabledPlayerIds = activePlayers
+      .map(p => p._id)
+      .filter(playerId => !checkedPlayerIds.includes(playerId));
 
     return this.ngZone.run<Observable<any>>(() => {
       return this.dialogService.openCustomDialog(
         AllPlayerSelectionModalComponent,
         {
+          width: '500px',
           autoFocus: false,
           data: {
+            title: 'Schock-Aus-Strafen verteilen',
             players: activePlayers,
-            activatedPlayerIds: playersReceivingPenalty
+            checkedPlayerIds,
+            disabledPlayerIds
           }
         }
       ).pipe(
@@ -367,18 +374,62 @@ export class ActiveGameState {
   @Action(ActiveGameActions.ChangeParticipation)
   changeParticipation(
     ctx: StateContext<ActiveGameStateModel>,
-    { playerId, roundId, isParticipating }: ActiveGameActions.ChangeParticipation
+    { roundId }: ActiveGameActions.ChangeParticipation
   ): Observable<any> {
     const round = this.store.selectSnapshot(ActiveGameState.rounds()).find(round => round._id === roundId);
     if (!round) {
       return EMPTY;
     }
 
-    const attendeeList = isParticipating
-      ? [...round.attendeeList, { playerId }]
-      : round.attendeeList.filter(att => att.playerId !== playerId);
+    const activePlayers = this.store.selectSnapshot(PlayersState.activePlayers);
+    const checkedPlayerIds = round.attendeeList
+      .map(participation => participation.playerId);
+    // disable players who are taking part in final or have at least one event in the current round:
+    const disabledPlayerIds = [...new Set([...round.finalistIds || [], ...this.getPlayerIdsWithAtLeastOneRoundEvent(roundId, activePlayers)])];
 
-    return this.store.dispatch(new RoundsActions.Update(roundId, { attendeeList }));
+    return this.ngZone.run<Observable<any>>(() => {
+      return this.dialogService.openCustomDialog(
+        AllPlayerSelectionModalComponent,
+        {
+          width: '500px',
+          autoFocus: false,
+          data: {
+            title: 'Teilnehmer dieser Runde',
+            players: activePlayers,
+            checkedPlayerIds,
+            disabledPlayerIds,
+          }
+        }
+      ).pipe(
+        filter(dialogResult => !!dialogResult),
+        switchMap(({ selectedPlayerIds }) => this.store.dispatch(new RoundsActions.Update(roundId, { attendeeList: selectedPlayerIds.map(playerId => ({ playerId })) }))),
+      );
+    });
+  }
+
+  private getPlayerIdsWithAtLeastOneRoundEvent(roundId: string, activePlayers: PlayerDto[]): string[] {
+    const roundEvents = this.store.selectSnapshot(ActiveGameState.roundEventsByRoundIds);
+    const roundEventsInCurrentRound = roundEvents[roundId] ?? [];
+    return activePlayers
+      .map(p => p._id)
+      .filter(id => roundEventsInCurrentRound.filter(e => e.playerId === id).length > 0);
+  }
+
+  @Action(ActiveGameActions.ChangeFinalists)
+  changeParticipationInFinal(
+    ctx: StateContext<ActiveGameStateModel>,
+    { playerId, roundId, isFinalist }: ActiveGameActions.ChangeFinalists
+  ): Observable<any> {
+    const round = this.store.selectSnapshot(ActiveGameState.rounds()).find(round => round._id === roundId);
+    if (!round) {
+      return EMPTY;
+    }
+
+    const finalistIds = isFinalist
+      ? [...round.finalistIds, playerId]
+      : round.finalistIds.filter(id => id !== playerId);
+
+    return this.store.dispatch(new RoundsActions.Update(roundId, { finalistIds }));
   }
 
   @Action(ActiveGameActions.UpdateGame)

@@ -1,6 +1,8 @@
 import { PlayerDto } from '@hop-backend-api';
 
 export interface AllPlayerSelectionModalDialogData {
+  title: string;
   players: PlayerDto[];
-  activatedPlayerIds: string[];
+  checkedPlayerIds: string[];
+  disabledPlayerIds: string[];
 }

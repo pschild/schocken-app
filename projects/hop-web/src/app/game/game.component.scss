@@ -56,16 +56,25 @@ table {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
 
-.not-participated {
-  color: #999;
+  .player-checkbox-container {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .inactive {
-  text-decoration: line-through
+  color: #999;
+  text-decoration: line-through;
 }
 
-.remove-round-btn {
+.remove-round-btn, .edit-attendance-btn {
   margin-top: 10px;
+  margin-right: 10px;
+}
+
+.round-marker-list {
+  mat-icon:not(:first-child) {
+    padding-left: 10px;
+  }
 }

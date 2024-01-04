@@ -69,14 +69,14 @@ export class EventHandlerService {
     forkJoin(this.roundRepository.get(roundId), this.playerRepository.getAllActive()).pipe(
       // show confirmation, wait for the user to accept or decline
       concatMap(([currentRound, allPlayers]: [RoundDto, PlayerDto[]]) => {
-        const activatedPlayerIds = currentRound.attendeeList
+        const checkedPlayerIds = currentRound.attendeeList
           .map((participation: ParticipationDto) => participation.playerId)
           .filter((attendingPlayerId: string) => attendingPlayerId !== playerId);
         return this.dialog.open(AllPlayerSelectionModalComponent, {
           autoFocus: false,
           data: {
             players: allPlayers,
-            activatedPlayerIds
+            checkedPlayerIds
           }
         }).afterClosed();
       }),

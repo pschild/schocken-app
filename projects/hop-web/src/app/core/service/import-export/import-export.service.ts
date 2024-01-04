@@ -104,6 +104,7 @@ export class ImportExportService {
           // datetime: this.increaseAndGetDatetimeCache(), // TODO: warum?
           datetime: round.datetime,
           attendeeList: round.attendeeList,
+          finalistIds: round.finalistIds,
           gameId: createdGameId
         }).toPromise();
 

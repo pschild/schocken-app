@@ -142,8 +142,12 @@ export class GameComponent implements OnInit, OnDestroy {
     this.store.dispatch(new ActiveGameActions.RemoveRound(roundId));
   }
 
-  changeParticipation({ checked }: MatCheckboxChange, roundId: string, playerId: string): void {
-    this.store.dispatch(new ActiveGameActions.ChangeParticipation(playerId, roundId, checked));
+  changeFinalists({ checked }: MatCheckboxChange, roundId: string, playerId: string): void {
+    this.store.dispatch(new ActiveGameActions.ChangeFinalists(playerId, roundId, checked));
+  }
+
+  changeParticipation(roundId: string): void {
+    this.store.dispatch(new ActiveGameActions.ChangeParticipation(roundId));
   }
 
   openStatisticPreview(): void {

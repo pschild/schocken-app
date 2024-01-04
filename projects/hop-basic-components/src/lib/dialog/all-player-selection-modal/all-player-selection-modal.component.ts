@@ -17,7 +17,7 @@ export class AllPlayerSelectionModalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.selectedOptions = this.data.activatedPlayerIds;
+    this.selectedOptions = this.data.checkedPlayerIds;
   }
 
   onApply() {

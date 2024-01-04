@@ -12,7 +12,7 @@ describe('AllPlayerSelectionModalComponent', () => {
       declarations: [ AllPlayerSelectionModalComponent ],
       providers: [
         { provide: MatDialogRef, useValue: {} },
-        { provide: MAT_DIALOG_DATA, useValue: { players: [], activatedPlayerIds: [] } }
+        { provide: MAT_DIALOG_DATA, useValue: { players: [], checkedPlayerIds: [] } }
       ]
     })
     .compileComponents();
