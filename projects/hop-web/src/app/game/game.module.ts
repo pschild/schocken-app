@@ -5,6 +5,7 @@ import { HopBasicComponentsModule } from '@hop-basic-components';
 import { GameComponent } from './game.component';
 import { GameRoutingModule } from './game-routing.module';
 import { IsParticipatingPipe } from './is-participating.pipe';
+import { IsFinalistPipe } from './is-finalist.pipe';
 import { NgxsModule } from '@ngxs/store';
 import { ActiveGameState } from './state';
 import { PointsTableComponent } from './points-table/points-table.component';
@@ -14,6 +15,7 @@ import { PointsTableComponent } from './points-table/points-table.component';
     GameComponent,
     PointsTableComponent,
     IsParticipatingPipe,
+    IsFinalistPipe,
   ],
   imports: [
     CommonModule,

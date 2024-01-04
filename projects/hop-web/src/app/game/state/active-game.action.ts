@@ -57,7 +57,13 @@ export namespace ActiveGameActions {
   export class ChangeParticipation {
     static readonly type = '[ActiveGameActions] ChangeParticipation';
 
-    constructor(public playerId: string, public roundId: string, public isParticipating: boolean) {}
+    constructor(public roundId: string) {}
+  }
+
+  export class ChangeFinalists {
+    static readonly type = '[ActiveGameActions] ChangeFinalists';
+
+    constructor(public playerId: string, public roundId: string, public isFinalist: boolean) {}
   }
 
   export class UpdateGame {
